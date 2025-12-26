@@ -1,126 +1,119 @@
 
-import React, { useRef, useState, useEffect } from 'react';
-import { TabType, DesignStyle, AppState, AIProvider } from '../types';
+import React, { useState, useEffect, useRef } from 'react';
+import { TabType, DesignStyle, AppState } from '../types';
 
 interface LeftSidebarProps {
   state: AppState;
   setState: React.Dispatch<React.SetStateAction<AppState>>;
-  onGenerate: () => void;
-  onRefine: () => void;
-  onChat: (msg: string) => void;
+  onSendAiMessage: (message: string) => void;
   onTerminalCommand: (cmd: string) => void;
-  onVisionScan: (file: File) => void;
 }
 
 const LeftSidebar: React.FC<LeftSidebarProps> = ({
-  state, setState, onGenerate, onRefine, onChat, onTerminalCommand, onVisionScan
+  state, setState, onSendAiMessage, onTerminalCommand
 }) => {
-  const [chatInput, setChatInput] = useState('');
+  const [userInput, setUserInput] = useState('');
   const [terminalInput, setTerminalInput] = useState('');
+  const chatHistoryRef = useRef<HTMLDivElement>(null);
 
   const tabs: {id: TabType, label: string, icon: string}[] = [
-    { id: 'text', label: 'Forge', icon: 'auto_awesome' },
-    { id: 'chat', label: 'Co-Pilot', icon: 'forum' },
-    { id: 'terminal', label: 'Logs', icon: 'terminal' },
+    { id: 'chat', label: 'Forge', icon: 'auto_awesome' },
+    { id: 'terminal', label: 'Console', icon: 'terminal' },
     { id: 'settings', label: 'Engine', icon: 'settings_input_component' }
   ];
 
+  useEffect(() => {
+    if (chatHistoryRef.current) {
+      chatHistoryRef.current.scrollTop = chatHistoryRef.current.scrollHeight;
+    }
+  }, [state.chatHistory]);
+
+  const handleSend = () => {
+    if (userInput.trim()) {
+      onSendAiMessage(userInput);
+      setUserInput('');
+    }
+  };
+
   return (
-    <aside className="w-[340px] shrink-0 flex flex-col border-r border-white/5 bg-obsidian-panel relative z-20">
-      <div className="flex border-b border-white/5 bg-obsidian-dark">
+    <aside className="w-[380px] shrink-0 flex flex-col border-r border-white/5 bg-obsidian-100 relative z-20">
+      <div className="flex bg-obsidian-200/50 h-14 border-b border-white/5">
         {tabs.map(tab => (
           <button 
             key={tab.id}
             onClick={() => setState(prev => ({ ...prev, activeTab: tab.id }))}
-            className={`flex-1 flex flex-col items-center py-3 gap-1 transition-all border-b-2 ${state.activeTab === tab.id ? 'text-primary border-primary bg-primary/5' : 'text-text-muted border-transparent hover:text-white hover:bg-white/5'}`}
+            className={`flex-1 flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-[0.25em] transition-all relative ${
+              state.activeTab === tab.id ? 'text-primary' : 'text-obsidian-500 hover:text-white'
+            }`}
           >
-            <span className="material-symbols-outlined text-[18px]">{tab.icon}</span>
-            <span className="text-[8px] font-bold uppercase tracking-widest">{tab.label}</span>
+            <span className="material-symbols-outlined text-[18px] opacity-70">{tab.icon}</span>
+            {tab.label}
+            {state.activeTab === tab.id && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary xi-popping-glow"></div>
+            )}
           </button>
         ))}
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar">
-        {state.activeTab === 'text' && (
-          <div className="space-y-6">
-            <section className="space-y-3">
-              <label className="text-[9px] font-bold text-text-muted uppercase tracking-widest flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary text-sm">psychology</span> Synthesis Prompt
-              </label>
-              <textarea 
-                value={state.prompt}
-                onChange={(e) => setState(prev => ({ ...prev, prompt: e.target.value }))}
-                disabled={state.isGenerating}
-                className="w-full h-32 bg-obsidian-dark border border-white/5 rounded p-3 text-xs font-medium text-white placeholder-text-muted/20 focus:ring-1 focus:ring-primary focus:border-primary resize-none transition-all" 
-                placeholder="Describe geometrical intent..."
-              />
-              <div className="grid grid-cols-2 gap-2">
-                <button onClick={onGenerate} disabled={state.isGenerating || !state.prompt.trim()} className="py-3 px-2 rounded bg-primary text-white font-bold text-[9px] uppercase tracking-widest hover:brightness-110 active:scale-95 disabled:opacity-50 transition-all">
-                   Synthesize
-                </button>
-                <button onClick={onRefine} disabled={state.isGenerating || !state.prompt.trim()} className="py-3 px-2 rounded bg-obsidian-dark border border-white/5 text-text-muted font-bold text-[9px] uppercase tracking-widest hover:text-white transition-all">
-                   Refine
-                </button>
-              </div>
-            </section>
-
-            <section className="space-y-3">
-               <label className="text-[9px] font-bold text-text-muted uppercase tracking-widest">Aesthetic Channel</label>
-               <div className="grid grid-cols-2 gap-1.5">
-                 {Object.values(DesignStyle).map(s => (
-                   <button key={s} onClick={() => setState(prev => ({ ...prev, style: s }))} className={`p-2 rounded text-[8px] font-bold uppercase transition-all border ${state.style === s ? 'bg-primary/10 border-primary text-primary' : 'bg-obsidian-dark border-white/5 text-text-muted hover:border-white/20'}`}>{s}</button>
-                 ))}
-               </div>
-            </section>
-          </div>
-        )}
-
+      <div className="flex-1 overflow-y-auto custom-scrollbar bg-obsidian-200/20">
         {state.activeTab === 'chat' && (
-          <div className="flex flex-col h-full">
-            <div className="flex-1 space-y-4 mb-4">
+          <div className="flex flex-col h-full p-6 animate-in slide-in-from-left-4">
+            <div ref={chatHistoryRef} className="flex-1 space-y-6 mb-6 overflow-y-auto custom-scrollbar pr-2">
               {state.chatHistory.map((msg, i) => (
-                <div key={i} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
-                  <div className={`max-w-[90%] p-3 rounded text-[11px] leading-relaxed ${msg.role === 'user' ? 'bg-primary text-white' : 'bg-obsidian-dark border border-white/5 text-text-muted mono'}`}>
-                    {msg.content}
+                <div key={i} className={`flex flex-col text-sm ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+                  <div className={`max-w-[90%] p-4 rounded-2xl ${msg.role === 'user' ? 'bg-primary text-black' : 'bg-obsidian-100 text-white'}`}>
+                    <p className="font-bold text-[10px] uppercase tracking-widest mb-2">{msg.role === 'user' ? 'You' : 'Forge AI'}</p>
+                    <p className="text-[11px] leading-relaxed">{msg.content}</p>
                   </div>
                 </div>
               ))}
             </div>
-            <input 
-              type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)}
-              onKeyDown={(e) => { if(e.key === 'Enter') { onChat(chatInput); setChatInput(''); }}}
-              placeholder="System dialogue..."
-              className="w-full bg-obsidian-dark border border-white/5 rounded py-2.5 px-3 text-xs text-white focus:ring-1 focus:ring-primary outline-none"
-            />
+            <div className="relative">
+              <textarea
+                value={userInput}
+                onChange={(e) => setUserInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+                disabled={state.isGenerating}
+                placeholder="Describe your vector design..."
+                className="w-full h-24 bg-obsidian-100 border-2 border-white/5 rounded-2xl p-4 pr-16 text-xs text-white resize-none focus:ring-2 focus:ring-primary focus:outline-none transition-all"
+              />
+              <button
+                onClick={handleSend}
+                disabled={state.isGenerating || !userInput.trim()}
+                className="absolute top-4 right-4 size-10 rounded-lg bg-primary text-black flex items-center justify-center hover:bg-primary-hover active:scale-90 disabled:opacity-30 transition-all"
+              >
+                <span className="material-symbols-outlined">send</span>
+              </button>
+            </div>
           </div>
         )}
 
         {state.activeTab === 'terminal' && (
-          <div className="flex flex-col h-full mono text-[9px]">
-            <div className="flex-1 space-y-1 overflow-y-auto">
+          <div className="flex flex-col h-full p-6 mono text-[10px] animate-in slide-in-from-left-4">
+            <div className="flex-1 space-y-2 overflow-y-auto custom-scrollbar">
                {state.terminalLogs.map(log => (
-                 <div key={log.id} className="flex gap-2">
-                    <span className="text-text-muted opacity-30 select-none">{new Date(log.timestamp).toLocaleTimeString([], { hour12: false })}</span>
-                    <span className={log.type === 'error' ? 'text-error' : log.type === 'success' ? 'text-primary' : 'text-white'}>{log.text}</span>
+                 <div key={log.id} className="flex gap-3">
+                    <span className="text-obsidian-500 select-none">{new Date(log.timestamp).toLocaleTimeString([], { hour12: false })}</span>
+                    <span className={log.type === 'error' ? 'text-red-400' : log.type === 'success' ? 'text-primary' : 'text-white/80'}>{log.text}</span>
                  </div>
                ))}
             </div>
             <input 
               type="text" value={terminalInput} onChange={(e) => setTerminalInput(e.target.value)}
               onKeyDown={(e) => { if(e.key === 'Enter') { onTerminalCommand(terminalInput); setTerminalInput(''); }}}
-              className="w-full bg-obsidian-dark border border-white/5 rounded py-1.5 px-2 mt-4 text-[9px] text-primary focus:outline-none"
+              className="w-full bg-obsidian-100 border border-white/10 rounded-lg py-2 px-3 mt-4 text-xs text-primary focus:outline-none focus:ring-1 focus:ring-primary"
               placeholder="root@xibalba:~$ "
             />
           </div>
         )}
       </div>
 
-      <div className="p-3 border-t border-white/5 bg-obsidian-dark flex items-center justify-between text-[8px] font-bold text-text-muted uppercase tracking-widest">
+      <div className="p-4 border-t border-white/10 bg-obsidian-100 flex items-center justify-between text-[9px] font-bold text-obsidian-500 uppercase tracking-widest">
         <div className="flex items-center gap-2">
-          <span className="size-1.5 rounded-full bg-primary shadow-[0_0_8px_rgba(255,152,0,0.6)]"></span>
-          <span>Sovereign Link Ready</span>
+          <div className={`size-2 rounded-full ${state.isGenerating ? 'bg-primary animate-pulse' : 'bg-green-400'}`}></div>
+          <span>{state.isGenerating ? 'AI SYNTHESIZING' : 'SYSTEM READY'}</span>
         </div>
-        <span>XI_OS: 2.0.4</span>
+        <span>CREDITS: {state.credits}</span>
       </div>
     </aside>
   );
