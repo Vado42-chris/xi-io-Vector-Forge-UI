@@ -51,10 +51,23 @@ export interface ParametricRectangle {
 // Add other parametric shapes here in the future, e.g., Ellipse, Polygon
 // export interface ParametricEllipse { ... }
 
-export type Shape = Path | ParametricRectangle;
+export interface ParametricEllipse {
+  type: 'ellipse';
+  cx: number;
+  cy: number;
+  rx: number;
+  ry: number;
+}
+
+export type Shape = Path | ParametricRectangle | ParametricEllipse;
 
 // --- End Parametric Shape System ---
 
+export interface Keyframe {
+  property: string;
+  time: number;
+  value: any;
+}
 
 export interface VectorLayer {
   id: string;
@@ -66,6 +79,7 @@ export interface VectorLayer {
   strokeWidth: number;
   opacity: number;
   shape: Shape;
+  keyframes: Keyframe[];
   isRigged?: boolean;
 }
 

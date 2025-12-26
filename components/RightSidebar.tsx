@@ -4,6 +4,7 @@ import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, us
 import { SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { VectorLayer } from '../types';
+import KeyframeEditor from './KeyframeEditor';
 
 interface SortableLayerItemProps {
   layer: VectorLayer;
@@ -71,43 +72,76 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
   };
 
   const renderParametricControls = () => {
-    if (!selectedLayer || selectedLayer.shape.type !== 'rect') return null;
+    if (!selectedLayer) return null;
 
-    const shape = selectedLayer.shape;
-    return (
-      <div className="xi-card p-6 rounded-2xl space-y-4">
-        <h3 className="text-[10px] font-black text-white uppercase tracking-[0.3em]">Rectangle Properties</h3>
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="text-[9px] text-obsidian-500 font-black uppercase tracking-widest">Width</label>
-            <input
-              type="number"
-              value={shape.width}
-              onChange={(e) => onUpdateShapeProperty(selectedLayer.id, 'width', parseFloat(e.target.value))}
-              className="w-full bg-obsidian-100 border-none text-white focus:ring-primary rounded-lg text-sm"
-            />
-          </div>
-          <div>
-            <label className="text-[9px] text-obsidian-500 font-black uppercase tracking-widest">Height</label>
-            <input
-              type="number"
-              value={shape.height}
-              onChange={(e) => onUpdateShapeProperty(selectedLayer.id, 'height', parseFloat(e.target.value))}
-              className="w-full bg-obsidian-100 border-none text-white focus:ring-primary rounded-lg text-sm"
-            />
-          </div>
-          <div>
-            <label className="text-[9px] text-obsidian-500 font-black uppercase tracking-widest">Border Radius</label>
-            <input
-              type="number"
-              value={shape.borderRadius}
-              onChange={(e) => onUpdateShapeProperty(selectedLayer.id, 'borderRadius', parseFloat(e.target.value))}
-              className="w-full bg-obsidian-100 border-none text-white focus:ring-primary rounded-lg text-sm"
-            />
+    if (selectedLayer.shape.type === 'rect') {
+      const shape = selectedLayer.shape;
+      return (
+        <div className="xi-card p-6 rounded-2xl space-y-4">
+          <h3 className="text-[10px] font-black text-white uppercase tracking-[0.3em]">Rectangle Properties</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-[9px] text-obsidian-500 font-black uppercase tracking-widest">Width</label>
+              <input
+                type="number"
+                value={shape.width}
+                onChange={(e) => onUpdateShapeProperty(selectedLayer.id, 'width', parseFloat(e.target.value))}
+                className="w-full bg-obsidian-100 border-none text-white focus:ring-primary rounded-lg text-sm"
+              />
+            </div>
+            <div>
+              <label className="text-[9px] text-obsidian-500 font-black uppercase tracking-widest">Height</label>
+              <input
+                type="number"
+                value={shape.height}
+                onChange={(e) => onUpdateShapeProperty(selectedLayer.id, 'height', parseFloat(e.target.value))}
+                className="w-full bg-obsidian-100 border-none text-white focus:ring-primary rounded-lg text-sm"
+              />
+            </div>
+            <div>
+              <label className="text-[9px] text-obsidian-500 font-black uppercase tracking-widest">Border Radius</label>
+              <input
+                type="number"
+                value={shape.borderRadius}
+                onChange={(e) => onUpdateShapeProperty(selectedLayer.id, 'borderRadius', parseFloat(e.target.value))}
+                className="w-full bg-obsidian-100 border-none text-white focus:ring-primary rounded-lg text-sm"
+              />
+            </div>
           </div>
         </div>
-      </div>
-    );
+      );
+    }
+
+    if (selectedLayer.shape.type === 'ellipse') {
+      const shape = selectedLayer.shape;
+      return (
+        <div className="xi-card p-6 rounded-2xl space-y-4">
+          <h3 className="text-[10px] font-black text-white uppercase tracking-[0.3em]">Ellipse Properties</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-[9px] text-obsidian-500 font-black uppercase tracking-widest">Radius X</label>
+              <input
+                type="number"
+                value={shape.rx}
+                onChange={(e) => onUpdateShapeProperty(selectedLayer.id, 'rx', parseFloat(e.target.value))}
+                className="w-full bg-obsidian-100 border-none text-white focus:ring-primary rounded-lg text-sm"
+              />
+            </div>
+            <div>
+              <label className="text-[9px] text-obsidian-500 font-black uppercase tracking-widest">Radius Y</label>
+              <input
+                type="number"
+                value={shape.ry}
+                onChange={(e) => onUpdateShapeProperty(selectedLayer.id, 'ry', parseFloat(e.target.value))}
+                className="w-full bg-obsidian-100 border-none text-white focus:ring-primary rounded-lg text-sm"
+              />
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return null;
   };
 
   return (
@@ -194,6 +228,14 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
                   </div>
 
                   {renderParametricControls()}
+
+                  {selectedLayer && (
+                    <KeyframeEditor
+                      selectedLayer={selectedLayer}
+                      onAddKeyframe={(prop, time, value) => onUpdateProperty(selectedLayer.id, 'keyframes', [...selectedLayer.keyframes, { property: prop, time, value }])}
+                      onDeleteKeyframe={(prop, time) => onUpdateProperty(selectedLayer.id, 'keyframes', selectedLayer.keyframes.filter(k => k.property !== prop || k.time !== time))}
+                    />
+                  )}
                 </div>
               </>
             ) : (
