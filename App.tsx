@@ -278,9 +278,29 @@ const App: React.FC = () => {
             setState(p => ({ ...p, selectedLayerId: null }));
           }}
           onToggleLock={(id) => setState(p => ({ ...p, layers: p.layers.map(l => l.id === id ? { ...l, locked: !l.locked } : l) }))}
-          onRenameLayer={(id, name) => setState(p => ({ ...p, layers: p.layers.map(l => l.id === id ? { ...l, name } : l) }))}
-          onDuplicateLayer={() => {}}
-          onReorderLayer={() => {}}
+          onRenameLayer={(id, name) => {
+            const newLayers = state.layers.map(l => (l.id === id ? { ...l, name } : l));
+            updateSvgFromLayers(newLayers);
+          }}
+          onDuplicateLayer={(id) => {
+            const layerToDuplicate = state.layers.find(l => l.id === id);
+            if (!layerToDuplicate) return;
+            const newLayer: VectorLayer = {
+              ...layerToDuplicate,
+              id: `layer_${Date.now()}`,
+              name: `${layerToDuplicate.name} (copy)`
+            };
+            const index = state.layers.findIndex(l => l.id === id);
+            const newLayers = [...state.layers];
+            newLayers.splice(index + 1, 0, newLayer);
+            setState(p => ({ ...p, layers: newLayers }));
+          }}
+          onReorderLayer={(oldIndex, newIndex) => {
+            const newLayers = [...state.layers];
+            const [removed] = newLayers.splice(oldIndex, 1);
+            newLayers.splice(newIndex, 0, removed);
+            setState(p => ({ ...p, layers: newLayers }));
+          }}
           snapshots={state.snapshots}
           onRestoreSnapshot={(svg) => setState(p => ({ ...p, currentSvg: svg, layers: syncLayersFromSvg(svg) }))}
         />
