@@ -1,0 +1,7 @@
+{
+  "name": "VectorForge Engine",
+  "description": "Professional AI-assisted vector design engine for high-fidelity SVG generation.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
