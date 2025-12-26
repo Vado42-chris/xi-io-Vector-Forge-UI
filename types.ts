@@ -20,6 +20,8 @@ export interface Toast {
   type: 'info' | 'success' | 'error' | 'warning';
 }
 
+// --- Parametric Shape System ---
+
 export interface VectorNode {
   id: string;
   x: number;
@@ -32,6 +34,28 @@ export interface VectorNode {
   isKinetic?: boolean;
 }
 
+export interface Path {
+  type: 'path';
+  nodes: VectorNode[];
+}
+
+export interface ParametricRectangle {
+  type: 'rect';
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  borderRadius: number;
+}
+
+// Add other parametric shapes here in the future, e.g., Ellipse, Polygon
+// export interface ParametricEllipse { ... }
+
+export type Shape = Path | ParametricRectangle;
+
+// --- End Parametric Shape System ---
+
+
 export interface VectorLayer {
   id: string;
   name: string;
@@ -41,8 +65,7 @@ export interface VectorLayer {
   stroke: string;
   strokeWidth: number;
   opacity: number;
-  type: 'path' | 'group' | 'rect' | 'circle';
-  nodes: VectorNode[];
+  shape: Shape;
   isRigged?: boolean;
 }
 
@@ -67,6 +90,9 @@ export interface AppState {
   terminalLogs: { id: string; type: 'info' | 'error' | 'success' | 'command'; text: string; timestamp: number }[];
   guides: { id: string, type: 'h' | 'v', pos: number }[];
   showRulers: boolean;
+  isPlaying: boolean;
+  currentTime: number;
+  duration: number;
   engineConfig: {
     provider: AIProvider;
     apiKey: string;

@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
+import { SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { VectorLayer } from '../types';
 
@@ -15,6 +15,7 @@ interface SortableLayerItemProps {
 const SortableLayerItem: React.FC<SortableLayerItemProps> = ({ layer, selectedLayerId, onSelectLayer, onToggleVisibility }) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: layer.id });
   const style = { transform: CSS.Transform.toString(transform), transition };
+  const nodeCount = layer.shape.type === 'path' ? layer.shape.nodes.length : 0;
 
   return (
     <div
@@ -30,7 +31,7 @@ const SortableLayerItem: React.FC<SortableLayerItemProps> = ({ layer, selectedLa
       </div>
       <div className="flex-1 truncate">
         <span className={`text-[12px] font-bold block truncate ${selectedLayerId === layer.id ? 'text-primary' : 'text-white'}`}>{layer.name}</span>
-        <span className="text-[9px] font-mono text-obsidian-500 uppercase">{layer.nodes.length} Nodes</span>
+        <span className="text-[9px] font-mono text-obsidian-500 uppercase">{nodeCount > 0 ? `${nodeCount} Nodes` : layer.shape.type}</span>
       </div>
       <div className="size-7 rounded-lg shadow-inner ring-2 ring-black/20" style={{ backgroundColor: layer.color }} />
     </div>
@@ -44,6 +45,7 @@ interface RightSidebarProps {
   onToggleVisibility: (id: string) => void;
   onToggleLock: (id: string) => void;
   onUpdateProperty: (id: string, property: string, value: any) => void;
+  onUpdateShapeProperty: (id: string, property: string, value: any) => void;
   onDeleteLayer: (id: string) => void;
   onDuplicateLayer: (id: string) => void;
   onReorderLayer: (oldIndex: number, newIndex: number) => void;
@@ -53,19 +55,59 @@ interface RightSidebarProps {
 }
 
 const RightSidebar: React.FC<RightSidebarProps> = ({
-  layers, selectedLayerId, onSelectLayer, onToggleVisibility, onToggleLock, onUpdateProperty, onDeleteLayer, onDuplicateLayer, onReorderLayer, onRenameLayer, snapshots, onRestoreSnapshot
+  layers, selectedLayerId, onSelectLayer, onToggleVisibility, onToggleLock, onUpdateProperty, onUpdateShapeProperty, onDeleteLayer, onDuplicateLayer, onReorderLayer, onRenameLayer, snapshots, onRestoreSnapshot
 }) => {
   const selectedLayer = layers.find(l => l.id === selectedLayerId);
   const [activeRightTab, setActiveRightTab] = useState<'inspector' | 'checkpoints'>('inspector');
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
 
-  const handleDragEnd = (event: { active: { id: any; }; over: { id: any; }; }) => {
+  const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    if (active.id !== over.id) {
+    if (over && active.id !== over.id) {
       const oldIndex = layers.findIndex(l => l.id === active.id);
       const newIndex = layers.findIndex(l => l.id === over.id);
       onReorderLayer(oldIndex, newIndex);
     }
+  };
+
+  const renderParametricControls = () => {
+    if (!selectedLayer || selectedLayer.shape.type !== 'rect') return null;
+
+    const shape = selectedLayer.shape;
+    return (
+      <div className="xi-card p-6 rounded-2xl space-y-4">
+        <h3 className="text-[10px] font-black text-white uppercase tracking-[0.3em]">Rectangle Properties</h3>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="text-[9px] text-obsidian-500 font-black uppercase tracking-widest">Width</label>
+            <input
+              type="number"
+              value={shape.width}
+              onChange={(e) => onUpdateShapeProperty(selectedLayer.id, 'width', parseFloat(e.target.value))}
+              className="w-full bg-obsidian-100 border-none text-white focus:ring-primary rounded-lg text-sm"
+            />
+          </div>
+          <div>
+            <label className="text-[9px] text-obsidian-500 font-black uppercase tracking-widest">Height</label>
+            <input
+              type="number"
+              value={shape.height}
+              onChange={(e) => onUpdateShapeProperty(selectedLayer.id, 'height', parseFloat(e.target.value))}
+              className="w-full bg-obsidian-100 border-none text-white focus:ring-primary rounded-lg text-sm"
+            />
+          </div>
+          <div>
+            <label className="text-[9px] text-obsidian-500 font-black uppercase tracking-widest">Border Radius</label>
+            <input
+              type="number"
+              value={shape.borderRadius}
+              onChange={(e) => onUpdateShapeProperty(selectedLayer.id, 'borderRadius', parseFloat(e.target.value))}
+              className="w-full bg-obsidian-100 border-none text-white focus:ring-primary rounded-lg text-sm"
+            />
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -151,26 +193,7 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
                     </div>
                   </div>
 
-                  {/* Kinetic Rigging Module */}
-                  <div className="xi-card p-6 rounded-2xl">
-                     <div className="flex items-center justify-between mb-6">
-                        <span className="text-[10px] font-black text-white uppercase tracking-[0.3em]">Kinetic Rigging</span>
-                        <div className={`px-2 py-0.5 rounded text-[8px] font-mono ${selectedLayer.nodes.some(n => n.isKinetic) ? 'bg-primary/20 text-primary border border-primary/30' : 'bg-white/5 text-white/40'}`}>
-                           {selectedLayer.nodes.some(n => n.isKinetic) ? 'ARMED' : 'STATIC'}
-                        </div>
-                     </div>
-                     <p className="text-[10px] text-obsidian-500 mb-6 leading-relaxed">Assign kinetic properties to specific path nodes to enable template-based physics interpolation.</p>
-                     <div className="grid grid-cols-2 gap-4">
-                        <button className="flex flex-col items-center gap-2 p-4 rounded-xl xi-inset border border-white/5 hover:border-primary group transition-all">
-                           <span className="material-symbols-outlined text-obsidian-500 group-hover:text-primary">bolt</span>
-                           <span className="text-[8px] font-black uppercase text-white">Auto-Rig</span>
-                        </button>
-                        <button className="flex flex-col items-center gap-2 p-4 rounded-xl xi-inset border border-white/5 hover:border-primary group transition-all">
-                           <span className="material-symbols-outlined text-obsidian-500 group-hover:text-primary">lock</span>
-                           <span className="text-[8px] font-black uppercase text-white">Freeze All</span>
-                        </button>
-                     </div>
-                  </div>
+                  {renderParametricControls()}
                 </div>
               </>
             ) : (
