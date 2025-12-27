@@ -1,37 +1,42 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
 import { TabType, ToolType, DesignStyle, VectorLayer, VectorNode, AppState, AIProvider, Toast, AnimationKeyframe, FrameState, MeasurementUnit, ToolProperties } from './types';
-import ProfessionalFileMenu from './components/ProfessionalFileMenu';
-import LeftSidebar from './components/LeftSidebar';
-import RightSidebar from './components/RightSidebar';
-import ProfessionalLayersPanel from './components/ProfessionalLayersPanel';
-import DraftsmanCanvas from './components/DraftsmanCanvas';
-import AnimationTimeline from './components/AnimationTimeline';
-import PowerUserToolbar from './components/PowerUserToolbar';
-import Footer from './components/Footer';
-import DockableToolPalette from './components/DockableToolPalette';
-import { PalettePosition } from './components/PaletteDockingSystem';
-import { CustomPalette, CustomPaletteRenderer, PaletteItem } from './components/CustomPaletteBuilder';
-import { useWorkspaceLayout } from './hooks/useWorkspaceLayout';
-import { generateVectorData, getSmartSuggestions } from './services/xibalbaService';
-import { DEFAULT_ANIMATION_PRESETS } from './data/animationPresets';
-import { importFromAnimationStudio, exportToAnimationStudio, downloadAnimation } from './services/animationStudio';
-import ToolLockingSystem from './components/ToolLockingSystem';
+// Temporarily comment out all component imports to isolate circular dependency
+// import ProfessionalFileMenu from './components/ProfessionalFileMenu';
+// import LeftSidebar from './components/LeftSidebar';
+// import RightSidebar from './components/RightSidebar';
+// import ProfessionalLayersPanel from './components/ProfessionalLayersPanel';
+// import DraftsmanCanvas from './components/DraftsmanCanvas';
+// import AnimationTimeline from './components/AnimationTimeline';
+// import PowerUserToolbar from './components/PowerUserToolbar';
+// import Footer from './components/Footer';
+// import DockableToolPalette from './components/DockableToolPalette';
+// import { PalettePosition } from './components/PaletteDockingSystem';
+// import { CustomPalette, CustomPaletteRenderer, PaletteItem } from './components/CustomPaletteBuilder';
+// Temporarily comment out to isolate circular dependency
+// import { useWorkspaceLayout } from './hooks/useWorkspaceLayout';
+// Temporarily comment out to isolate circular dependency
+// import { generateVectorData, getSmartSuggestions } from './services/xibalbaService';
+// Temporarily comment out to isolate circular dependency
+// import { DEFAULT_ANIMATION_PRESETS } from './data/animationPresets';
+// import { importFromAnimationStudio, exportToAnimationStudio, downloadAnimation } from './services/animationStudio';
+// Temporarily comment out all component imports to isolate circular dependency
+// import ToolLockingSystem from './components/ToolLockingSystem';
 // Dynamic import to prevent circular dependencies
 import type { WorkflowLayout } from './types/workflow';
-import BugReporter from './components/BugReporter';
-import FeatureRequest from './components/FeatureRequest';
-import ActionCenter from './components/ActionCenter';
-import SprintBoard from './components/SprintBoard';
-import InspectorPanel from './components/InspectorPanel';
+// import BugReporter from './components/BugReporter';
+// import FeatureRequest from './components/FeatureRequest';
+// import ActionCenter from './components/ActionCenter';
+// import SprintBoard from './components/SprintBoard';
+// import InspectorPanel from './components/InspectorPanel';
 import { Task } from './types/task';
-import { useContextualUI } from './hooks/useContextualUI';
-import ContextualHelpPanel from './components/ContextualHelpPanel';
-import PreferencesDialog from './components/PreferencesDialog';
-import SubscriptionStatusIndicator from './components/SubscriptionStatusIndicator';
-import AccountMenu from './components/AccountMenu';
-import BillingPanel from './components/BillingPanel';
-import UpgradePrompt from './components/UpgradePrompt';
+// import { useContextualUI } from './hooks/useContextualUI';
+// import ContextualHelpPanel from './components/ContextualHelpPanel';
+// import PreferencesDialog from './components/PreferencesDialog';
+// import SubscriptionStatusIndicator from './components/SubscriptionStatusIndicator';
+// import AccountMenu from './components/AccountMenu';
+// import BillingPanel from './components/BillingPanel';
+// import UpgradePrompt from './components/UpgradePrompt';
 
 // Use CSS variables for colors - no hardcoded values
 const INITIAL_SVG = `<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
@@ -105,16 +110,16 @@ const App: React.FC = () => {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [activeSprintId, setActiveSprintId] = useState<string | undefined>(undefined);
   
-  // Contextual UI - intelligent UI surfacing based on MAI framework
-  const contextualUI = useContextualUI({
-    activeTool: state.activeTool,
-    selectedObjectId: state.selectedLayerId,
-    activeWorkflow: activeView,
-    hasError: state.toasts.some(t => t.type === 'error'),
-    isFirstTimeUser: false, // TODO: Get from user profile
-    userSkillLevel: 'intermediate', // TODO: Get from user profile
-    currentAction: state.isGenerating ? 'generating' : undefined,
-  });
+  // Contextual UI - temporarily disabled to isolate circular dependency
+  const contextualUI = {
+    surfacedElements: [],
+    elementsByLocation: {},
+    contextualHelp: [],
+    updateContext: () => {},
+    shouldShow: () => false,
+    getPriority: () => null,
+    getElementsForLocation: () => []
+  } as any;
   
   // Update contextual UI when state changes
   useEffect(() => {
@@ -208,7 +213,9 @@ const App: React.FC = () => {
   const [customPalettes, setCustomPalettes] = useState<CustomPalette[]>([]);
 
   // Workspace layout management
-  const workspaceLayout = useWorkspaceLayout();
+  // Temporarily disabled to isolate circular dependency
+  // const workspaceLayout = useWorkspaceLayout();
+  const workspaceLayout = { columns: [], palettes: [] } as any;
   
   // Workflow Layout State
   const [currentLayout, setCurrentLayout] = useState<WorkflowLayout | null>(null);
@@ -755,7 +762,7 @@ const App: React.FC = () => {
         // Don't show toast for unimplemented actions - just silently ignore
         break;
     }
-  }, [state, syncLayersFromSvg, updateSvgFromLayers, showToast, generateVectorData]);
+  }, [state, syncLayersFromSvg, updateSvgFromLayers, showToast]);
 
   const handleUpdateNode = (layerId: string, nodeId: string, delta: {x: number, y: number}) => {
     const newLayers = state.layers.map(l => {
@@ -1017,7 +1024,8 @@ const App: React.FC = () => {
           onSmartMagic={async () => {
             if(!state.selectedLayerId) { showToast("Select a topological node", "warning"); return; }
             setState(p => ({...p, isGenerating: true}));
-            const suggestions = await getSmartSuggestions(state.currentSvg, state.selectedLayerId);
+            // Temporarily disabled - const suggestions = await getSmartSuggestions(state.currentSvg, state.selectedLayerId);
+            const suggestions = [] as any;
             setAiSuggestions(suggestions);
             setState(p => ({...p, isGenerating: false}));
           }}
@@ -1042,13 +1050,15 @@ const App: React.FC = () => {
           state={state} setState={setState}
           onGenerate={async () => {
              setState(p => ({ ...p, isGenerating: true }));
-             const res = await generateVectorData(state.prompt, state.style);
+             // Temporarily disabled - const res = await generateVectorData(state.prompt, state.style);
+             const res = { svg: state.currentSvg, layers: [] } as any;
              if (res) { setState(p => ({ ...p, currentSvg: res.svg, layers: syncLayersFromSvg(res.svg) })); showToast("Logic Synthesized", "success"); }
              setState(p => ({ ...p, isGenerating: false }));
           }}
           onRefine={async () => {
              setState(p => ({ ...p, isGenerating: true }));
-             const res = await generateVectorData(state.prompt, state.style, state.currentSvg);
+             // Temporarily disabled - const res = await generateVectorData(state.prompt, state.style, state.currentSvg);
+             const res = { svg: state.currentSvg, layers: [] } as any;
              if (res) { setState(p => ({ ...p, currentSvg: res.svg, layers: syncLayersFromSvg(res.svg) })); showToast("Refined Geometry", "success"); }
              setState(p => ({ ...p, isGenerating: false }));
           }}
@@ -1208,7 +1218,8 @@ const App: React.FC = () => {
                 {aiSuggestions.map((s, i) => (
                   <button key={i} onClick={async () => {
                     setState(p => ({ ...p, isGenerating: true }));
-                    const res = await generateVectorData(`Execution: ${s.action} - ${s.description}`, state.style, state.currentSvg);
+                    // Temporarily disabled - const res = await generateVectorData(`Execution: ${s.action} - ${s.description}`, state.style, state.currentSvg);
+                    const res = { svg: state.currentSvg, layers: [] } as any;
                     if (res) { setState(p => ({ ...p, currentSvg: res.svg, layers: syncLayersFromSvg(res.svg) })); setAiSuggestions([]); showToast(`Logic Applied`, "success"); }
                     setState(p => ({ ...p, isGenerating: false }));
                   }} className="text-left p-4 xi-inset border border-white/5 hover:border-[var(--xibalba-accent)] transition-all group">
@@ -1480,7 +1491,7 @@ const App: React.FC = () => {
         onDeleteKeyframe={(id) => setKeyframes(prev => prev.filter(k => k.id !== id))}
         selectedLayerId={state.selectedLayerId}
         layers={state.layers}
-        presets={DEFAULT_ANIMATION_PRESETS}
+        presets={[]}
         onApplyPreset={(preset, layerId) => {
           const startKeyframe: AnimationKeyframe = {
             id: `kf-${Date.now()}`,
@@ -1512,7 +1523,8 @@ const App: React.FC = () => {
             const file = (e.target as HTMLInputElement).files?.[0];
             if (file) {
               try {
-                const data = await importFromAnimationStudio(file);
+                // Temporarily disabled - const data = await importFromAnimationStudio(file);
+                const data = { keyframes: [], frameState: {}, layers: [] } as any;
                 setKeyframes(data.keyframes);
                 setFrameState(prev => ({ ...prev, ...data.frameState }));
                 showToast('Animation imported successfully', 'success');
