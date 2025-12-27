@@ -27,6 +27,7 @@ import InspectorPanel from './components/InspectorPanel';
 import { Task } from './types/task';
 import { useContextualUI } from './hooks/useContextualUI';
 import ContextualHelpPanel from './components/ContextualHelpPanel';
+import PreferencesDialog from './components/PreferencesDialog';
 
 const INITIAL_SVG = `<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
   <rect id="bg" width="100%" height="100%" fill="#0a0b0e"/>
@@ -211,6 +212,10 @@ const App: React.FC = () => {
   // Bug Reporter State
   const [showBugReporter, setShowBugReporter] = useState(false);
   const [showFeatureRequest, setShowFeatureRequest] = useState(false);
+  
+  // Preferences Dialog State
+  const [showPreferences, setShowPreferences] = useState(false);
+  const [preferencesCategory, setPreferencesCategory] = useState<'visual' | 'functional' | 'performance' | 'accessibility' | 'integrations'>('visual');
   
   // Initialize workflow layouts
   useEffect(() => {
