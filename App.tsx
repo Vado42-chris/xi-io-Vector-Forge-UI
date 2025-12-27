@@ -837,6 +837,13 @@ const App: React.FC = () => {
             e.preventDefault();
             setState(p => ({ ...p, zoom: 100, pan: { x: 0, y: 0 } }));
             break;
+          case ',':
+            if (e.ctrlKey || e.metaKey) {
+              e.preventDefault();
+              setShowPreferences(true);
+              setPreferencesCategory('visual');
+            }
+            break;
         }
         return;
       }
