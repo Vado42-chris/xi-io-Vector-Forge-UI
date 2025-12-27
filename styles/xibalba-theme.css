@@ -1,0 +1,454 @@
+/**
+ * Xibalba Framework Theme - Exact Standard
+ * Based on Cursor UI with professional enterprise UX standards
+ * Pattern #209: 5 Feet Back Test
+ * Pattern #210: Fewer Boxes
+ * Pattern #211: Proportional Weight Balance
+ */
+
+:root {
+  /* Xibalba Color Palette - Dark Greys + Blue Accents */
+  --xibalba-bg-primary: #1e1e1e;
+  --xibalba-bg-secondary: #252526;
+  --xibalba-bg-tertiary: #2d2d2d;
+  --xibalba-bg-hover: #3e3e42;
+  
+  --xibalba-text-primary: #ffffff;
+  --xibalba-text-secondary: #cccccc;
+  --xibalba-text-muted: #999999;
+  
+  --xibalba-accent: #007acc; /* Cursor blue */
+  --xibalba-accent-hover: #005a9e;
+  --xibalba-accent-active: #004578;
+  
+  /* Visual Weight System - Pattern #211 */
+  --weight-primary: 64px;    /* Header height - SUBSTANTIAL */
+  --weight-utility: 38px;   /* Search/input height - COMPACT */
+  --weight-padding-primary: 16px;
+  --weight-padding-utility: 12px;
+  
+  /* Spacing - Pattern #210: Fewer Boxes */
+  --spacing-tight: 8px;
+  --spacing-normal: 16px;
+  --spacing-relaxed: 24px;
+  
+  /* Transitions - Micro-interactions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Shadows - Depth hierarchy */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 12px rgba(0, 122, 204, 0.4);
+}
+
+/* Base Reset - Pattern #209: Clear Hierarchy */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--xibalba-bg-primary);
+  color: var(--xibalba-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Header - Pattern #211: Substantial Primary Navigation */
+.xibalba-header {
+  height: var(--weight-primary);
+  background: var(--xibalba-bg-secondary);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--weight-padding-primary);
+  box-shadow: var(--shadow-md);
+  z-index: 100;
+}
+
+/* Utility Elements - Pattern #211: Compact */
+.xibalba-input,
+.xibalba-search {
+  height: var(--weight-utility);
+  padding: 0 var(--weight-padding-utility);
+  background: var(--xibalba-bg-tertiary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  color: var(--xibalba-text-primary);
+  font-size: 13px;
+  transition: all var(--transition-fast);
+}
+
+.xibalba-input:focus,
+.xibalba-search:focus {
+  outline: none;
+  border-color: var(--xibalba-accent);
+  box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.2);
+}
+
+/* Buttons - Micro-interactions */
+.xibalba-button {
+  padding: 8px 16px;
+  background: var(--xibalba-bg-tertiary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  color: var(--xibalba-text-primary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  user-select: none;
+}
+
+.xibalba-button:hover {
+  background: var(--xibalba-bg-hover);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.xibalba-button:active {
+  transform: translateY(0);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.xibalba-button-primary {
+  background: var(--xibalba-accent);
+  border-color: var(--xibalba-accent);
+  color: white;
+}
+
+.xibalba-button-primary:hover {
+  background: var(--xibalba-accent-hover);
+  box-shadow: var(--shadow-glow);
+}
+
+/* Cards/Panels - Pattern #210: Fewer Boxes */
+.xibalba-card {
+  background: var(--xibalba-bg-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: var(--spacing-normal);
+  transition: all var(--transition-normal);
+}
+
+.xibalba-card:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: var(--shadow-md);
+}
+
+/* Sidebar - Combined Elements */
+.xibalba-sidebar {
+  background: var(--xibalba-bg-secondary);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Canvas - Main Workspace */
+.xibalba-canvas {
+  flex: 1;
+  background: var(--xibalba-bg-primary);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Micro-interactions - Hover States */
+.xibalba-interactive {
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.xibalba-interactive:hover {
+  background: var(--xibalba-bg-hover);
+}
+
+.xibalba-interactive:active {
+  transform: scale(0.98);
+}
+
+/* Selection States */
+.xibalba-selected {
+  background: rgba(0, 122, 204, 0.15);
+  border-color: var(--xibalba-accent);
+  box-shadow: 0 0 0 1px var(--xibalba-accent);
+}
+
+/* Focus States - Accessibility */
+.xibalba-focus-visible:focus-visible {
+  outline: 2px solid var(--xibalba-accent);
+  outline-offset: 2px;
+}
+
+/* Animations - Micro-interactions */
+@keyframes xibalba-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes xibalba-scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.xibalba-animate-in {
+  animation: xibalba-fade-in var(--transition-normal) ease-out;
+}
+
+/* Action Center - Single Most Actionable Item */
+.xibalba-action-center-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.xibalba-action-center {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  background: var(--xibalba-bg-tertiary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: var(--xibalba-text-primary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  user-select: none;
+  min-width: 200px;
+  max-width: 300px;
+  box-shadow: var(--shadow-sm);
+}
+
+.xibalba-action-center:hover {
+  background: var(--xibalba-bg-hover);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.xibalba-action-center:active {
+  transform: translateY(0);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Urgency-based styling */
+.xibalba-action-center-urgency-critical {
+  background: rgba(220, 38, 38, 0.2);
+  border-color: rgba(220, 38, 38, 0.4);
+  animation: xibalba-pulse 2s ease-in-out infinite;
+}
+
+.xibalba-action-center-urgency-high {
+  background: rgba(255, 152, 0, 0.2);
+  border-color: rgba(255, 152, 0, 0.4);
+}
+
+.xibalba-action-center-urgency-medium {
+  background: var(--xibalba-bg-tertiary);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.xibalba-action-center-urgency-low {
+  background: var(--xibalba-bg-tertiary);
+  border-color: rgba(255, 255, 255, 0.05);
+  opacity: 0.8;
+}
+
+@keyframes xibalba-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.xibalba-action-center-has-notifications {
+  position: relative;
+}
+
+.xibalba-action-center-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.xibalba-action-center-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.xibalba-action-center-icon .material-icons {
+  font-size: 18px;
+}
+
+.xibalba-action-center-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.xibalba-action-center-label {
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.xibalba-action-center-context {
+  font-size: 11px;
+  color: var(--xibalba-text-secondary);
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.xibalba-action-center-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  background: rgba(220, 38, 38, 0.8);
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: white;
+  flex-shrink: 0;
+}
+
+.xibalba-action-center-expand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--xibalba-bg-tertiary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  color: var(--xibalba-text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.xibalba-action-center-expand:hover {
+  background: var(--xibalba-bg-hover);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: var(--xibalba-text-primary);
+}
+
+.xibalba-action-center-expand .material-icons {
+  font-size: 18px;
+}
+
+.xibalba-action-center-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 280px;
+  max-width: 400px;
+  background: var(--xibalba-bg-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  padding: 8px;
+  animation: xibalba-fade-in var(--transition-fast) ease-out;
+}
+
+.xibalba-action-center-secondary {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: var(--xibalba-text-primary);
+  text-align: left;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.xibalba-action-center-secondary:hover {
+  background: var(--xibalba-bg-hover);
+}
+
+.xibalba-action-center-secondary .material-icons {
+  font-size: 18px;
+  color: var(--xibalba-text-secondary);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.xibalba-action-center-secondary-label {
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 1.4;
+  margin-bottom: 4px;
+}
+
+.xibalba-action-center-secondary-description {
+  font-size: 11px;
+  color: var(--xibalba-text-secondary);
+  line-height: 1.4;
+}
+
+.xibalba-action-center-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  min-width: 200px;
+}
+
+.xibalba-action-center-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top-color: var(--xibalba-accent);
+  border-radius: 50%;
+  animation: xibalba-spin 0.8s linear infinite;
+}
+
+@keyframes xibalba-spin {
+  to { transform: rotate(360deg); }
+}
+
+.xibalba-animate-scale {
+  animation: xibalba-scale-in var(--transition-normal) ease-out;
+}
+
+/* Scrollbar - Xibalba Style */
+.xibalba-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.xibalba-scrollbar::-webkit-scrollbar-track {
+  background: var(--xibalba-bg-primary);
+}
+
+.xibalba-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--xibalba-bg-tertiary);
+  border-radius: 4px;
+}
+
+.xibalba-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--xibalba-bg-hover);
+}
+

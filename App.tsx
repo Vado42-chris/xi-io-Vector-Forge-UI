@@ -21,6 +21,7 @@ import { workflowLayoutService } from './services/workflowLayoutService';
 import type { WorkflowLayout } from './types/workflow';
 import BugReporter from './components/BugReporter';
 import FeatureRequest from './components/FeatureRequest';
+import ActionCenter from './components/ActionCenter';
 
 const INITIAL_SVG = `<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
   <rect id="bg" width="100%" height="100%" fill="#0a0b0e"/>
