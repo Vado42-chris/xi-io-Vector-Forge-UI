@@ -12,6 +12,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { taskManagementService } from '../services/taskManagementService';
 import { clickTrackingService } from '../services/clickTrackingService';
+import { workTrackingService } from '../services/workTrackingService';
 import { Task, TaskStatus } from '../types/task';
 
 interface Action {
@@ -41,6 +42,9 @@ const ActionCenter: React.FC<ActionCenterProps> = ({ userId, onAction }) => {
    */
   const determineAction = useCallback(async () => {
     setLoading(true);
+    const sessionId = workTrackingService.startSession('ActionCenter', 'determine-action');
+    workTrackingService.recordCalculation();
+    
     try {
       // Get user's tasks
       const userTasks = userId
@@ -203,6 +207,9 @@ const ActionCenter: React.FC<ActionCenterProps> = ({ userId, onAction }) => {
           notificationCount: count,
         },
       });
+      
+      workTrackingService.recordCalculation();
+      workTrackingService.endSession();
     } catch (error) {
       console.error('ActionCenter: Error determining action:', error);
       setPrimaryAction({
@@ -214,6 +221,7 @@ const ActionCenter: React.FC<ActionCenterProps> = ({ userId, onAction }) => {
         context: 'Please refresh the page',
         icon: 'error',
       });
+      workTrackingService.endSession();
     } finally {
       setLoading(false);
     }
