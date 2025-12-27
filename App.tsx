@@ -221,6 +221,11 @@ const App: React.FC = () => {
   const [showPreferences, setShowPreferences] = useState(false);
   const [preferencesCategory, setPreferencesCategory] = useState<'visual' | 'functional' | 'performance' | 'accessibility' | 'integrations'>('visual');
   
+  // Subscription & Account State
+  const [showBillingPanel, setShowBillingPanel] = useState(false);
+  const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
+  const [upgradeFeature, setUpgradeFeature] = useState<{ id: string; name: string; tier: string } | null>(null);
+  
   // Initialize workflow layouts
   useEffect(() => {
     const initLayouts = async () => {
@@ -945,11 +950,38 @@ const App: React.FC = () => {
             onLayoutChange={handleLayoutSwitch}
           />
           <div style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <SubscriptionStatusIndicator
+              onAccountClick={() => setShowBillingPanel(true)}
+              onUpgradeClick={() => {
+                setUpgradeFeature({ id: 'general', name: 'Premium Features', tier: 'pro' });
+                setShowUpgradePrompt(true);
+              }}
+            />
             <ActionCenter 
               userId="user-1" // TODO: Get from auth context
               onAction={(action) => {
                 console.log('Action Center action:', action);
                 // Handle action (e.g., navigate to task, open dialog)
+              }}
+            />
+            <AccountMenu
+              userId="user-1"
+              userName="User"
+              userEmail="user@example.com"
+              onPreferencesClick={() => {
+                setShowPreferences(true);
+                setPreferencesCategory('visual');
+              }}
+              onBillingClick={() => setShowBillingPanel(true)}
+              onUpgradeClick={() => {
+                setUpgradeFeature({ id: 'general', name: 'Premium Features', tier: 'pro' });
+                setShowUpgradePrompt(true);
+              }}
+              onSignOut={() => {
+                if (confirm('Sign out?')) {
+                  // TODO: Implement sign out
+                  console.log('Sign out');
+                }
               }}
             />
           </div>
