@@ -31,6 +31,7 @@
 
 .usage-progress-fill {
   height: 100%;
+  width: var(--progress-width, 0%);
   background-color: var(--xibalba-accent);
   transition: width 0.3s ease;
 }

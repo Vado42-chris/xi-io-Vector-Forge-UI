@@ -123,11 +123,11 @@ export default function SubscriptionStatusIndicator({
                       {Math.round(subscription.usage.storage)} / {subscription.usage.storageLimit} MB
                     </span>
                   </div>
-                  <div className="usage-progress-bar">
-                    <div
-                      className="usage-progress-fill"
-                      data-width={Math.round(subscriptionService.getUsagePercentage('storage'))}
-                    />
+                  <div 
+                    className="usage-progress-bar"
+                    style={{ '--progress-width': `${subscriptionService.getUsagePercentage('storage')}%` } as React.CSSProperties}
+                  >
+                    <div className="usage-progress-fill" />
                   </div>
                 </div>
 

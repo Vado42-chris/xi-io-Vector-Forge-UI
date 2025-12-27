@@ -274,11 +274,11 @@ export default function BillingPanel({ onClose, onUpgradeClick }: BillingPanelPr
                   {subscription.usage.apiCalls} / {subscription.usage.apiCallLimit}
                 </span>
               </div>
-              <div className="usage-progress-bar">
-                <div
-                  className="usage-progress-fill"
-                  style={{ width: `${apiUsage}%` }}
-                />
+              <div 
+                className="usage-progress-bar"
+                style={{ '--progress-width': `${apiUsage}%` } as React.CSSProperties}
+              >
+                <div className="usage-progress-fill" />
               </div>
               {apiUsage > 80 && (
                 <p className="text-xs text-yellow-400 mt-2">
