@@ -43,7 +43,8 @@ export default function SubscriptionStatusIndicator({
   const [showMenu, setShowMenu] = useState(false);
 
   useEffect(() => {
-    setSubscription(subscriptionService.getSubscription());
+    const sub = subscriptionService.getSubscription();
+    setSubscription(sub);
     
     const unsubscribe = subscriptionService.subscribe((sub) => {
       setSubscription(sub);
@@ -52,7 +53,12 @@ export default function SubscriptionStatusIndicator({
     return unsubscribe;
   }, []);
 
-  if (!subscription) return null;
+  // Always render - show default if no subscription
+  const displaySubscription = subscription || subscriptionService.getSubscription();
+  if (!displaySubscription) {
+    // Service should always return a subscription (defaults to free)
+    return null;
+  }
 
   const tierLabel = TIER_LABELS[subscription.tier];
   const isActive = subscriptionService.isActive();
@@ -68,7 +74,7 @@ export default function SubscriptionStatusIndicator({
           aria-label="Subscription status"
         >
           <div
-            className={`w-2 h-2 rounded-full subscription-tier-${subscription.tier}`}
+            className={`w-2 h-2 rounded-full subscription-tier-${displaySubscription.tier}`}
             title={`${tierLabel} Tier`}
           />
           <span className="text-xs font-semibold text-[var(--xibalba-text-200)] group-hover:text-[var(--xibalba-text-000)]">
@@ -97,10 +103,10 @@ export default function SubscriptionStatusIndicator({
                       isActive ? 'text-green-400' : 'text-red-400'
                     }`}
                   >
-                    {subscription.status === 'active' ? 'Active' :
-                     subscription.status === 'trial' ? 'Trial' :
-                     subscription.status === 'cancelled' ? 'Cancelled' :
-                     subscription.status === 'expired' ? 'Expired' :
+                    {displaySubscription.status === 'active' ? 'Active' :
+                     displaySubscription.status === 'trial' ? 'Trial' :
+                     displaySubscription.status === 'cancelled' ? 'Cancelled' :
+                     displaySubscription.status === 'expired' ? 'Expired' :
                      'Past Due'}
                   </span>
                 </div>
@@ -120,7 +126,7 @@ export default function SubscriptionStatusIndicator({
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-[var(--xibalba-text-200)]">Storage</span>
                     <span className="text-xs text-[var(--xibalba-text-000)]">
-                      {Math.round(subscription.usage.storage)} / {subscription.usage.storageLimit} MB
+                      {Math.round(displaySubscription.usage.storage)} / {displaySubscription.usage.storageLimit} MB
                     </span>
                   </div>
                   <div 

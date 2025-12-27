@@ -26,7 +26,8 @@ export default function BillingPanel({ onClose, onUpgradeClick }: BillingPanelPr
   const [activeTab, setActiveTab] = useState<'overview' | 'billing' | 'usage'>('overview');
 
   useEffect(() => {
-    setSubscription(subscriptionService.getSubscription());
+    const sub = subscriptionService.getSubscription();
+    setSubscription(sub);
     
     const unsubscribe = subscriptionService.subscribe((sub) => {
       setSubscription(sub);
@@ -38,13 +39,24 @@ export default function BillingPanel({ onClose, onUpgradeClick }: BillingPanelPr
     return unsubscribe;
   }, []);
 
-  if (!subscription) return null;
+  // Always render - service should always return a subscription
+  const displaySubscription = subscription || subscriptionService.getSubscription();
+  if (!displaySubscription) {
+    return (
+      <div className="xibalba-panel bg-[var(--xibalba-grey-050)] border border-white/10 rounded-lg p-6">
+        <p className="text-[var(--xibalba-text-200)]">Loading subscription...</p>
+      </div>
+    );
+  }
 
   const isActive = subscriptionService.isActive();
   const daysUntilRenewal = subscriptionService.getDaysUntilRenewal();
   const canUpgrade = subscriptionService.canUpgrade();
   const storageUsage = subscriptionService.getUsagePercentage('storage');
   const apiUsage = subscriptionService.getUsagePercentage('apiCalls');
+  
+  // Use displaySubscription for all references
+  const subscription = displaySubscription;
 
   const formatPrice = (cents: number, currency: string = 'USD') => {
     return new Intl.NumberFormat('en-US', {

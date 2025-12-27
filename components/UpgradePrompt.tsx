@@ -64,7 +64,12 @@ export default function UpgradePrompt({
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
 
   useEffect(() => {
-    setCurrentTier(subscriptionService.getTier());
+    const sub = subscriptionService.getSubscription();
+    if (sub) {
+      setCurrentTier(sub.tier);
+    } else {
+      setCurrentTier(subscriptionService.getTier());
+    }
     
     const unsubscribe = subscriptionService.subscribe((sub) => {
       if (sub) setCurrentTier(sub.tier);

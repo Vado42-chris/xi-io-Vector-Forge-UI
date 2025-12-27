@@ -38,7 +38,8 @@ export default function AccountMenu({
   const [subscription, setSubscription] = useState<Subscription | null>(null);
 
   useEffect(() => {
-    setSubscription(subscriptionService.getSubscription());
+    const sub = subscriptionService.getSubscription();
+    setSubscription(sub);
     
     const unsubscribe = subscriptionService.subscribe((sub) => {
       setSubscription(sub);
@@ -47,6 +48,7 @@ export default function AccountMenu({
     return unsubscribe;
   }, []);
 
+  const displaySubscription = subscription || subscriptionService.getSubscription();
   const canUpgrade = subscriptionService.canUpgrade();
   const tier = subscriptionService.getTier();
 
@@ -95,12 +97,12 @@ export default function AccountMenu({
                     </div>
                   </div>
                 </div>
-                {subscription && (
+                {displaySubscription && (
                   <div className="mt-2 pt-2 border-t border-white/10">
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-[var(--xibalba-text-200)]">Plan</span>
                       <span className="text-xs font-semibold text-[var(--xibalba-text-000)] capitalize">
-                        {subscription.tier}
+                        {displaySubscription.tier}
                       </span>
                     </div>
                   </div>
