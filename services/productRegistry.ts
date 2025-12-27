@@ -300,13 +300,8 @@ export const productRegistry = (() => {
   return _productRegistryInstance;
 })();
 
-// Auto-initialize - defer to avoid initialization order issues
-if (typeof window !== 'undefined') {
-  // Use setTimeout to defer initialization after module load
-  setTimeout(() => {
-    productRegistry.initialize().catch(console.error);
-  }, 0);
-}
+// DO NOT auto-initialize - let App.tsx handle initialization
+// This prevents circular dependencies and initialization order issues
 
 export default productRegistry;
 

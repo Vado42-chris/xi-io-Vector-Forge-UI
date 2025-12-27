@@ -262,22 +262,8 @@ export const workflowLayoutService = (() => {
   return _workflowLayoutServiceInstance;
 })();
 
-// Auto-initialize - defer to avoid initialization order issues
-if (typeof window !== 'undefined') {
-  // Use setTimeout to defer initialization after module load
-  setTimeout(() => {
-    workflowLayoutService.initialize().catch(console.error);
-    
-    // Load current layout from localStorage
-    const savedLayoutId = localStorage.getItem('vectorforge-current-layout');
-    if (savedLayoutId) {
-      workflowLayoutService.setCurrentLayout(savedLayoutId).catch(() => {
-        // If saved layout doesn't exist, use default
-        workflowLayoutService.resetToDefault();
-      });
-    }
-  }, 0);
-}
+// DO NOT auto-initialize - let App.tsx handle initialization
+// This prevents circular dependencies and initialization order issues
 
 export default workflowLayoutService;
 

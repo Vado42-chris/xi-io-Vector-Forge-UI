@@ -17,7 +17,7 @@ import { generateVectorData, getSmartSuggestions } from './services/xibalbaServi
 import { DEFAULT_ANIMATION_PRESETS } from './data/animationPresets';
 import { importFromAnimationStudio, exportToAnimationStudio, downloadAnimation } from './services/animationStudio';
 import ToolLockingSystem from './components/ToolLockingSystem';
-import { workflowLayoutService } from './services/workflowLayoutService';
+// Dynamic import to prevent circular dependencies
 import type { WorkflowLayout } from './types/workflow';
 import BugReporter from './components/BugReporter';
 import FeatureRequest from './components/FeatureRequest';
@@ -227,31 +227,43 @@ const App: React.FC = () => {
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
   const [upgradeFeature, setUpgradeFeature] = useState<{ id: string; name: string; tier: string } | null>(null);
   
-  // Initialize workflow layouts
+  // Initialize workflow layouts - use dynamic import to prevent circular deps
   useEffect(() => {
     const initLayouts = async () => {
-      await workflowLayoutService.initialize();
-      const layouts = workflowLayoutService.getLayouts();
-      setAvailableLayouts(layouts);
-      
-      const current = workflowLayoutService.getCurrentLayout();
-      if (current) {
-        setCurrentLayout(current);
-      } else if (layouts.length > 0) {
-        // Set default layout
-        const defaultLayout = layouts.find(l => l.default) || layouts[0];
-        workflowLayoutService.setCurrentLayout(defaultLayout.id);
-        setCurrentLayout(defaultLayout);
+      try {
+        const { workflowLayoutService } = await import('./services/workflowLayoutService');
+        await workflowLayoutService.initialize();
+        const layouts = workflowLayoutService.getLayouts();
+        setAvailableLayouts(layouts);
+        
+        const current = workflowLayoutService.getCurrentLayout();
+        if (current) {
+          setCurrentLayout(current);
+        } else if (layouts.length > 0) {
+          // Set default layout
+          const defaultLayout = layouts.find(l => l.default) || layouts[0];
+          workflowLayoutService.setCurrentLayout(defaultLayout.id);
+          setCurrentLayout(defaultLayout);
+        }
+      } catch (error) {
+        console.error('Failed to initialize workflow layouts:', error);
+        setAvailableLayouts([]);
       }
     };
     
-    initLayouts();
+    setTimeout(initLayouts, 0);
   }, []);
   
   // Handle layout switch
-  const handleLayoutSwitch = useCallback((layout: WorkflowLayout) => {
+  const handleLayoutSwitch = useCallback(async (layout: WorkflowLayout) => {
     setCurrentLayout(layout);
     showToast(`Switched to ${layout.name} layout`, 'success');
+    try {
+      const { workflowLayoutService } = await import('./services/workflowLayoutService');
+      await workflowLayoutService.setCurrentLayout(layout.id);
+    } catch (error) {
+      console.error('Failed to save layout:', error);
+    }
   }, [showToast]);
 
   // Available items for custom palettes - all tools and components
