@@ -54,9 +54,6 @@ export default function BillingPanel({ onClose, onUpgradeClick }: BillingPanelPr
   const canUpgrade = subscriptionService.canUpgrade();
   const storageUsage = subscriptionService.getUsagePercentage('storage');
   const apiUsage = subscriptionService.getUsagePercentage('apiCalls');
-  
-  // Use displaySubscription for all references
-  const subscription = displaySubscription;
 
   const formatPrice = (cents: number, currency: string = 'USD') => {
     return new Intl.NumberFormat('en-US', {
