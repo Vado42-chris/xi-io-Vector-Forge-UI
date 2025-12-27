@@ -766,6 +766,220 @@ body {
   opacity: 0.5;
 }
 
+/* InspectorPanel Styles */
+.xibalba-inspector-panel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--xibalba-bg-secondary);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.xibalba-inspector-panel-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--xibalba-text-muted);
+  gap: 16px;
+}
+
+.xibalba-inspector-panel-empty .material-icons {
+  font-size: 48px;
+  opacity: 0.5;
+}
+
+.xibalba-inspector-panel-header {
+  padding: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--xibalba-bg-tertiary);
+}
+
+.xibalba-inspector-panel-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--xibalba-text-primary);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.xibalba-inspector-panel-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: var(--xibalba-text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.xibalba-inspector-panel-close:hover {
+  background: var(--xibalba-bg-hover);
+  color: var(--xibalba-text-primary);
+}
+
+.xibalba-inspector-panel-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--xibalba-bg-secondary);
+  overflow-x: auto;
+}
+
+.xibalba-inspector-panel-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: var(--xibalba-text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.xibalba-inspector-panel-tab:hover {
+  background: var(--xibalba-bg-hover);
+  color: var(--xibalba-text-primary);
+}
+
+.xibalba-inspector-panel-tab.active {
+  background: var(--xibalba-bg-tertiary);
+  color: var(--xibalba-accent);
+  font-weight: 600;
+}
+
+.xibalba-inspector-panel-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  xibalba-scrollbar: true;
+}
+
+.xibalba-inspector-panel-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  gap: 16px;
+  color: var(--xibalba-text-secondary);
+}
+
+.xibalba-inspector-panel-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.xibalba-inspector-panel-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.xibalba-inspector-panel-field label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--xibalba-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.xibalba-inspector-panel-linked-items,
+.xibalba-inspector-panel-comments,
+.xibalba-inspector-panel-attachments {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.xibalba-inspector-panel-linked-items h3,
+.xibalba-inspector-panel-comments h3,
+.xibalba-inspector-panel-attachments h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--xibalba-text-primary);
+  margin: 0;
+}
+
+.xibalba-inspector-panel-linked-items ul,
+.xibalba-inspector-panel-comments ul,
+.xibalba-inspector-panel-attachments ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.xibalba-inspector-panel-comment {
+  padding: 12px;
+  background: var(--xibalba-bg-tertiary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+}
+
+.xibalba-inspector-panel-comment-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 11px;
+  color: var(--xibalba-text-muted);
+}
+
+.xibalba-inspector-panel-comment p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--xibalba-text-primary);
+  line-height: 1.5;
+}
+
+.xibalba-inspector-panel-attachment {
+  padding: 8px 12px;
+  background: var(--xibalba-bg-tertiary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.xibalba-inspector-panel-attachment a {
+  color: var(--xibalba-accent);
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.xibalba-inspector-panel-attachment a:hover {
+  text-decoration: underline;
+}
+
+.xibalba-button-link {
+  background: transparent;
+  border: none;
+  color: var(--xibalba-accent);
+  font-size: 13px;
+  cursor: pointer;
+  text-align: left;
+  padding: 4px 0;
+  transition: all var(--transition-fast);
+}
+
+.xibalba-button-link:hover {
+  text-decoration: underline;
+}
+
 .xibalba-animate-scale {
   animation: xibalba-scale-in var(--transition-normal) ease-out;
 }
