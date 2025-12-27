@@ -12,7 +12,16 @@ import type {
   RegistrySearchResult,
   IRegistryService,
 } from '../types/registry';
-import { checkpointService } from './checkpointService';
+// Optional checkpoint service - don't block initialization if it fails
+const createCheckpoint = async (id: string, description: string, files: string[] = [], metadata: any = {}) => {
+  try {
+    const { checkpointService } = await import('./checkpointService');
+    await checkpointService.createCheckpoint(id, description, files, metadata);
+  } catch (error) {
+    // Non-blocking - checkpoint failures shouldn't break the app
+    console.warn('Checkpoint creation failed:', error);
+  }
+};
 
 class ProductRegistryService implements IRegistryService {
   private entries: Map<string, RegistryEntry> = new Map();
@@ -66,13 +75,13 @@ class ProductRegistryService implements IRegistryService {
 
     this.entries.set(entry.id, entry);
 
-    // Create checkpoint for registration
-    checkpointService.createCheckpoint(
+    // Create checkpoint for registration (non-blocking)
+    createCheckpoint(
       `registry-register-${entry.id}`,
       `Registered: ${entry.name}`,
       [],
       { entry }
-    ).catch(console.error);
+    );
   }
 
   /**
@@ -204,13 +213,13 @@ class ProductRegistryService implements IRegistryService {
 
     this.entries.set(id, updated);
 
-    // Create checkpoint
-    checkpointService.createCheckpoint(
+    // Create checkpoint (non-blocking)
+    createCheckpoint(
       `registry-update-${id}`,
       `Updated: ${entry.name}`,
       [],
       { id, updates }
-    ).catch(console.error);
+    );
   }
 
   /**
@@ -221,13 +230,13 @@ class ProductRegistryService implements IRegistryService {
     if (entry) {
       this.entries.delete(id);
 
-      // Create checkpoint
-      checkpointService.createCheckpoint(
+      // Create checkpoint (non-blocking)
+      createCheckpoint(
         `registry-remove-${id}`,
         `Removed: ${entry.name}`,
         [],
         { id, entry }
-      ).catch(console.error);
+      );
     }
   }
 

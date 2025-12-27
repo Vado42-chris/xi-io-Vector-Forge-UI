@@ -107,13 +107,13 @@ class WorkflowLayoutService implements ILayoutService {
       localStorage.setItem('vectorforge-current-layout', id);
     }
 
-    // Create checkpoint
-    getCheckpointService().then(cs => cs.createCheckpoint(
+    // Create checkpoint (non-blocking)
+    createCheckpoint(
       `layout-switch-${id}`,
       `Switched to layout: ${layout.name}`,
       [],
       { previousLayout: previousLayoutId, newLayout: id }
-    ).catch(console.error);
+    );
   }
 
   /**
@@ -141,13 +141,13 @@ class WorkflowLayoutService implements ILayoutService {
       localStorage.setItem('vectorforge-custom-layouts', JSON.stringify(savedLayouts));
     }
 
-    // Create checkpoint
-    getCheckpointService().then(cs => cs.createCheckpoint(
+    // Create checkpoint (non-blocking)
+    createCheckpoint(
       `layout-save-${layout.id}`,
       `Saved layout: ${layout.name}`,
       [],
       { layout }
-    ).catch(console.error);
+    );
   }
 
   /**
@@ -181,13 +181,13 @@ class WorkflowLayoutService implements ILayoutService {
       this.currentLayoutId = defaultLayout?.id || Array.from(this.layouts.keys())[0] || null;
     }
 
-    // Create checkpoint
-    getCheckpointService().then(cs => cs.createCheckpoint(
+    // Create checkpoint (non-blocking)
+    createCheckpoint(
       `layout-delete-${id}`,
       `Deleted layout: ${layout.name}`,
       [],
       { id, layout }
-    ).catch(console.error);
+    );
   }
 
   /**
