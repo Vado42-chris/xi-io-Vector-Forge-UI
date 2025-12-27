@@ -57,7 +57,13 @@ export default function SubscriptionStatusIndicator({
   const displaySubscription = subscription || subscriptionService.getSubscription();
   if (!displaySubscription) {
     // Service should always return a subscription (defaults to free)
-    return null;
+    // If somehow null, return minimal indicator
+    return (
+      <div className="flex items-center gap-2 px-3 py-1.5">
+        <div className="w-2 h-2 rounded-full subscription-tier-free" />
+        <span className="text-xs font-semibold text-[var(--xibalba-text-200)]">Free</span>
+      </div>
+    );
   }
 
   const tierLabel = TIER_LABELS[displaySubscription.tier];
