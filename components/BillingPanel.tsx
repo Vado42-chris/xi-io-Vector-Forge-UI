@@ -277,7 +277,7 @@ export default function BillingPanel({ onClose, onUpgradeClick }: BillingPanelPr
               <div className="usage-progress-bar">
                 <div
                   className="usage-progress-fill"
-                  data-width={Math.round(apiUsage)}
+                  style={{ width: `${apiUsage}%` }}
                 />
               </div>
               {apiUsage > 80 && (

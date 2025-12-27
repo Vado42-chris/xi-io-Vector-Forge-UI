@@ -123,12 +123,10 @@ export default function SubscriptionStatusIndicator({
                       {Math.round(subscription.usage.storage)} / {subscription.usage.storageLimit} MB
                     </span>
                   </div>
-                  <div className="w-full h-1 bg-[var(--xibalba-grey-100)] rounded-full overflow-hidden">
+                  <div className="usage-progress-bar">
                     <div
-                      className="h-full bg-[var(--xibalba-accent)] transition-all"
-                      style={{
-                        width: `${subscriptionService.getUsagePercentage('storage')}%`,
-                      }}
+                      className="usage-progress-fill"
+                      data-width={Math.round(subscriptionService.getUsagePercentage('storage'))}
                     />
                   </div>
                 </div>
