@@ -22,6 +22,9 @@ import type { WorkflowLayout } from './types/workflow';
 import BugReporter from './components/BugReporter';
 import FeatureRequest from './components/FeatureRequest';
 import ActionCenter from './components/ActionCenter';
+import SprintBoard from './components/SprintBoard';
+import InspectorPanel from './components/InspectorPanel';
+import { Task } from './types/task';
 
 const INITIAL_SVG = `<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
   <rect id="bg" width="100%" height="100%" fill="#0a0b0e"/>
@@ -88,6 +91,11 @@ const App: React.FC = () => {
   });
 
   const [aiSuggestions, setAiSuggestions] = useState<any[]>([]);
+  
+  // Task Management State
+  const [activeView, setActiveView] = useState<'vectorforge' | 'tasks'>('vectorforge');
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [activeSprintId, setActiveSprintId] = useState<string | undefined>(undefined);
   
   // Animation State
   const [keyframes, setKeyframes] = useState<AnimationKeyframe[]>([]);
@@ -960,7 +968,82 @@ const App: React.FC = () => {
         />
         
         <main className="flex-1 flex flex-col bg-[var(--xibalba-grey-000)] relative overflow-hidden">
-          <PowerUserToolbar
+          {/* View Switcher */}
+          <div className="flex items-center gap-2 p-2 border-b border-white/10 bg-[var(--xibalba-grey-050)]">
+            <button
+              onClick={() => setActiveView('vectorforge')}
+              className={`px-4 py-2 text-sm font-medium transition-colors ${
+                activeView === 'vectorforge'
+                  ? 'bg-[var(--xibalba-accent)] text-white'
+                  : 'bg-transparent text-[var(--xibalba-text-200)] hover:text-[var(--xibalba-text-000)]'
+              }`}
+            >
+              <span className="material-icons text-sm mr-2">edit</span>
+              VectorForge
+            </button>
+            <button
+              onClick={() => {
+                setActiveView('tasks');
+                clickTrackingService.trackClick('App', 'switch-to-tasks', 'view-switcher', {});
+                workTrackingService.recordCalculation();
+              }}
+              className={`px-4 py-2 text-sm font-medium transition-colors ${
+                activeView === 'tasks'
+                  ? 'bg-[var(--xibalba-accent)] text-white'
+                  : 'bg-transparent text-[var(--xibalba-text-200)] hover:text-[var(--xibalba-text-000)]'
+              }`}
+            >
+              <span className="material-icons text-sm mr-2">task</span>
+              Tasks
+            </button>
+          </div>
+
+          {activeView === 'tasks' ? (
+            <div className="flex-1 flex overflow-hidden">
+              <div className="flex-1 overflow-hidden">
+                <SprintBoard
+                  sprintId={activeSprintId}
+                  onTaskSelect={(task) => {
+                    setSelectedTask(task);
+                    clickTrackingService.trackClick('App', 'select-task', task.id, { taskId: task.id });
+                    workTrackingService.recordCalculation();
+                  }}
+                  onTaskMove={async (taskId, newStatus) => {
+                    clickTrackingService.trackClick('App', 'move-task', taskId, { taskId, newStatus });
+                    workTrackingService.recordCalculation();
+                  }}
+                  onTaskCreate={(column) => {
+                    clickTrackingService.trackClick('App', 'create-task', column, { column });
+                    workTrackingService.recordCalculation();
+                    // TODO: Open task creation dialog
+                  }}
+                />
+              </div>
+              {selectedTask && (
+                <div className="w-[360px] border-l border-white/10 bg-[var(--xibalba-grey-050)]">
+                  <InspectorPanel
+                    item={selectedTask}
+                    onUpdate={async (updates) => {
+                      clickTrackingService.trackClick('App', 'update-task', selectedTask.id, { updates });
+                      workTrackingService.recordCalculation();
+                      // TODO: Update task via service
+                    }}
+                    onLink={async (item, target) => {
+                      clickTrackingService.trackClick('App', 'link-item', item.id, { targetId: target.id });
+                      workTrackingService.recordCalculation();
+                      // TODO: Implement linking
+                    }}
+                    onClose={() => {
+                      setSelectedTask(null);
+                      clickTrackingService.trackClick('App', 'close-inspector', 'inspector', {});
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+          ) : (
+            <>
+              <PowerUserToolbar
             snapToGrid={snapToGrid}
             onSnapToGridChange={setSnapToGrid}
             snapToGuides={snapToGuides}
@@ -1039,6 +1122,8 @@ const App: React.FC = () => {
                 ))}
               </div>
             </div>
+          )}
+            </>
           )}
         </main>
         </div>

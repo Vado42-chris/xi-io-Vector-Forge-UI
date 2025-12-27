@@ -216,6 +216,7 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
           { id: 'scripts', label: 'Scripts', icon: 'code' },
           { id: 'chat', label: 'AI Chat', icon: 'smart_toy' },
           { id: 'registry', label: 'Registry', icon: 'apps' },
+          { id: 'tasks', label: 'Tasks', icon: 'task' },
           { id: 'workspace', label: 'Workspace', icon: 'tune' },
           { id: 'checkpoints', label: 'History', icon: 'history' }
         ].map((tab) => (
@@ -379,6 +380,15 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
               }}
             />
           </ErrorBoundary>
+        ) : activeRightTab === 'tasks' ? (
+          <div className="space-y-4">
+            <div className="xibalba-section-header-professional">
+              <span>Task Management</span>
+            </div>
+            <p className="xibalba-text-caption">
+              Switch to Tasks view to see SprintBoard and manage tasks.
+            </p>
+          </div>
         ) : (
           <div className="space-y-4">
             <div className="xibalba-section-header-professional">
