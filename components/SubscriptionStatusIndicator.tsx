@@ -60,7 +60,7 @@ export default function SubscriptionStatusIndicator({
     return null;
   }
 
-  const tierLabel = TIER_LABELS[subscription.tier];
+  const tierLabel = TIER_LABELS[displaySubscription.tier];
   const isActive = subscriptionService.isActive();
   const daysUntilRenewal = subscriptionService.getDaysUntilRenewal();
   const canUpgrade = subscriptionService.canUpgrade();

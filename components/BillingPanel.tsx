@@ -137,31 +137,31 @@ export default function BillingPanel({ onClose, onUpgradeClick }: BillingPanelPr
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h3 className="text-lg font-semibold text-[var(--xibalba-text-000)] capitalize">
-                    {subscription.tier} Plan
+                    {displaySubscription.tier} Plan
                   </h3>
                   <p className="text-sm text-[var(--xibalba-text-200)] mt-1">
-                    {formatPrice(subscription.price, subscription.currency)} / {subscription.billingCycle}
+                    {formatPrice(displaySubscription.price, displaySubscription.currency)} / {displaySubscription.billingCycle}
                   </p>
                 </div>
                 <div className={`px-3 py-1 rounded text-xs font-semibold ${
                   isActive ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
                 }`}>
-                  {subscription.status === 'active' ? 'Active' :
-                   subscription.status === 'trial' ? 'Trial' :
-                   subscription.status === 'cancelled' ? 'Cancelled' :
+                  {displaySubscription.status === 'active' ? 'Active' :
+                   displaySubscription.status === 'trial' ? 'Trial' :
+                   displaySubscription.status === 'cancelled' ? 'Cancelled' :
                    'Inactive'}
                 </div>
               </div>
 
               {isActive && daysUntilRenewal > 0 && (
                 <div className="text-sm text-[var(--xibalba-text-200)]">
-                  Renews on {formatDate(subscription.currentPeriodEnd)}
+                  Renews on {formatDate(displaySubscription.currentPeriodEnd)}
                 </div>
               )}
 
-              {subscription.cancelAtPeriodEnd && (
+              {displaySubscription.cancelAtPeriodEnd && (
                 <div className="mt-3 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded text-sm text-yellow-400">
-                  Subscription will cancel on {formatDate(subscription.currentPeriodEnd)}
+                  Subscription will cancel on {formatDate(displaySubscription.currentPeriodEnd)}
                 </div>
               )}
 
@@ -190,16 +190,16 @@ export default function BillingPanel({ onClose, onUpgradeClick }: BillingPanelPr
             </div>
 
             {/* Payment Method */}
-            {subscription.paymentMethod && (
+            {displaySubscription.paymentMethod && (
               <div className="xibalba-panel-professional p-4">
                 <h3 className="text-sm font-semibold text-[var(--xibalba-text-000)] mb-3">
                   Payment Method
                 </h3>
                 <div className="text-sm text-[var(--xibalba-text-200)]">
-                  {subscription.paymentMethod === 'credit_card' && 'Credit Card'}
-                  {subscription.paymentMethod === 'paypal' && 'PayPal'}
-                  {subscription.paymentMethod === 'bank_transfer' && 'Bank Transfer'}
-                  {subscription.paymentMethod === 'cryptocurrency' && 'Cryptocurrency'}
+                  {displaySubscription.paymentMethod === 'credit_card' && 'Credit Card'}
+                  {displaySubscription.paymentMethod === 'paypal' && 'PayPal'}
+                  {displaySubscription.paymentMethod === 'bank_transfer' && 'Bank Transfer'}
+                  {displaySubscription.paymentMethod === 'cryptocurrency' && 'Cryptocurrency'}
                 </div>
                 <button className="mt-3 text-sm text-[var(--xibalba-accent)] hover:underline">
                   Update Payment Method
@@ -262,7 +262,7 @@ export default function BillingPanel({ onClose, onUpgradeClick }: BillingPanelPr
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-semibold text-[var(--xibalba-text-000)]">Storage</h3>
                 <span className="text-xs text-[var(--xibalba-text-200)]">
-                  {Math.round(subscription.usage.storage)} / {subscription.usage.storageLimit} MB
+                  {Math.round(displaySubscription.usage.storage)} / {displaySubscription.usage.storageLimit} MB
                 </span>
               </div>
               <div 
@@ -283,7 +283,7 @@ export default function BillingPanel({ onClose, onUpgradeClick }: BillingPanelPr
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-semibold text-[var(--xibalba-text-000)]">API Calls</h3>
                 <span className="text-xs text-[var(--xibalba-text-200)]">
-                  {subscription.usage.apiCalls} / {subscription.usage.apiCallLimit}
+                  {displaySubscription.usage.apiCalls} / {displaySubscription.usage.apiCallLimit}
                 </span>
               </div>
               <div 
