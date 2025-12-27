@@ -1,0 +1,262 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-01-XX",
+  "layouts": [
+    {
+      "id": "layout-vector-editing",
+      "name": "Vector Editing",
+      "description": "Optimized layout for vector graphics editing with tools, layers, and properties",
+      "default": true,
+      "panels": [
+        {
+          "id": "panel-tools",
+          "type": "tools",
+          "visible": true,
+          "position": {
+            "x": 0,
+            "y": 56,
+            "width": 200,
+            "height": 800,
+            "docked": true,
+            "dockZone": "left"
+          }
+        },
+        {
+          "id": "panel-canvas",
+          "type": "canvas",
+          "visible": true,
+          "position": {
+            "x": 200,
+            "y": 56,
+            "width": 1200,
+            "height": 800,
+            "docked": true,
+            "dockZone": "center"
+          }
+        },
+        {
+          "id": "panel-layers",
+          "type": "layers",
+          "visible": true,
+          "position": {
+            "x": 1400,
+            "y": 56,
+            "width": 360,
+            "height": 400,
+            "docked": true,
+            "dockZone": "right"
+          },
+          "tabs": ["layers"],
+          "activeTab": "layers"
+        },
+        {
+          "id": "panel-properties",
+          "type": "properties",
+          "visible": true,
+          "position": {
+            "x": 1400,
+            "y": 456,
+            "width": 360,
+            "height": 400,
+            "docked": true,
+            "dockZone": "right"
+          },
+          "tabs": ["tool", "inspector"],
+          "activeTab": "tool"
+        },
+        {
+          "id": "panel-timeline",
+          "type": "timeline",
+          "visible": false,
+          "position": {
+            "x": 200,
+            "y": 856,
+            "width": 1200,
+            "height": 200,
+            "docked": true,
+            "dockZone": "bottom"
+          }
+        }
+      ]
+    },
+    {
+      "id": "layout-animation",
+      "name": "Animation",
+      "description": "Layout optimized for frame-based animation with timeline and keyframes",
+      "default": false,
+      "panels": [
+        {
+          "id": "panel-tools-animation",
+          "type": "tools",
+          "visible": true,
+          "position": {
+            "x": 0,
+            "y": 56,
+            "width": 200,
+            "height": 600,
+            "docked": true,
+            "dockZone": "left"
+          }
+        },
+        {
+          "id": "panel-canvas-animation",
+          "type": "canvas",
+          "visible": true,
+          "position": {
+            "x": 200,
+            "y": 56,
+            "width": 1200,
+            "height": 600,
+            "docked": true,
+            "dockZone": "center"
+          }
+        },
+        {
+          "id": "panel-timeline-animation",
+          "type": "timeline",
+          "visible": true,
+          "position": {
+            "x": 200,
+            "y": 656,
+            "width": 1200,
+            "height": 200,
+            "docked": true,
+            "dockZone": "bottom"
+          }
+        },
+        {
+          "id": "panel-keyframes-animation",
+          "type": "properties",
+          "visible": true,
+          "position": {
+            "x": 1400,
+            "y": 56,
+            "width": 360,
+            "height": 800,
+            "docked": true,
+            "dockZone": "right"
+          },
+          "tabs": ["scripts", "layers"],
+          "activeTab": "scripts"
+        }
+      ]
+    },
+    {
+      "id": "layout-full-studio",
+      "name": "Full Studio",
+      "description": "Complete studio layout with all panels visible and customizable",
+      "default": false,
+      "panels": [
+        {
+          "id": "panel-tools-studio",
+          "type": "tools",
+          "visible": true,
+          "position": {
+            "x": 0,
+            "y": 56,
+            "width": 200,
+            "height": 400,
+            "docked": true,
+            "dockZone": "left"
+          }
+        },
+        {
+          "id": "panel-terminal-studio",
+          "type": "terminal",
+          "visible": true,
+          "position": {
+            "x": 0,
+            "y": 456,
+            "width": 200,
+            "height": 400,
+            "docked": true,
+            "dockZone": "left"
+          }
+        },
+        {
+          "id": "panel-canvas-studio",
+          "type": "canvas",
+          "visible": true,
+          "position": {
+            "x": 200,
+            "y": 56,
+            "width": 1000,
+            "height": 600,
+            "docked": true,
+            "dockZone": "center"
+          }
+        },
+        {
+          "id": "panel-preview-studio",
+          "type": "preview",
+          "visible": true,
+          "position": {
+            "x": 200,
+            "y": 656,
+            "width": 500,
+            "height": 200,
+            "docked": true,
+            "dockZone": "bottom"
+          }
+        },
+        {
+          "id": "panel-timeline-studio",
+          "type": "timeline",
+          "visible": true,
+          "position": {
+            "x": 700,
+            "y": 656,
+            "width": 500,
+            "height": 200,
+            "docked": true,
+            "dockZone": "bottom"
+          }
+        },
+        {
+          "id": "panel-layers-studio",
+          "type": "layers",
+          "visible": true,
+          "position": {
+            "x": 1200,
+            "y": 56,
+            "width": 360,
+            "height": 300,
+            "docked": true,
+            "dockZone": "right"
+          },
+          "tabs": ["layers", "registry"],
+          "activeTab": "layers"
+        },
+        {
+          "id": "panel-properties-studio",
+          "type": "properties",
+          "visible": true,
+          "position": {
+            "x": 1200,
+            "y": 356,
+            "width": 360,
+            "height": 300,
+            "docked": true,
+            "dockZone": "right"
+          },
+          "tabs": ["tool", "inspector", "scripts"],
+          "activeTab": "tool"
+        },
+        {
+          "id": "panel-chat-studio",
+          "type": "chat",
+          "visible": true,
+          "position": {
+            "x": 1200,
+            "y": 656,
+            "width": 360,
+            "height": 200,
+            "docked": true,
+            "dockZone": "right"
+          }
+        }
+      ]
+    }
+  ]
+}
+
