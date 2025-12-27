@@ -54,7 +54,6 @@ export default function SubscriptionStatusIndicator({
 
   if (!subscription) return null;
 
-  const tierColor = TIER_COLORS[subscription.tier];
   const tierLabel = TIER_LABELS[subscription.tier];
   const isActive = subscriptionService.isActive();
   const daysUntilRenewal = subscriptionService.getDaysUntilRenewal();
@@ -69,8 +68,7 @@ export default function SubscriptionStatusIndicator({
           aria-label="Subscription status"
         >
           <div
-            className="w-2 h-2 rounded-full"
-            style={{ backgroundColor: tierColor }}
+            className={`w-2 h-2 rounded-full subscription-tier-${subscription.tier}`}
             title={`${tierLabel} Tier`}
           />
           <span className="text-xs font-semibold text-[var(--xibalba-text-200)] group-hover:text-[var(--xibalba-text-000)]">

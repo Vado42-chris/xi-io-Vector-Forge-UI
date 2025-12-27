@@ -944,12 +944,12 @@ const App: React.FC = () => {
         ))}
       </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', position: 'relative' }}>
+        <div className="header-container">
           <ProfessionalFileMenu 
             onAction={(action) => handleAction(action)}
             onLayoutChange={handleLayoutSwitch}
           />
-          <div style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div className="header-actions">
             <SubscriptionStatusIndicator
               onAccountClick={() => setShowBillingPanel(true)}
               onUpgradeClick={() => {

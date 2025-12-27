@@ -253,10 +253,10 @@ export default function BillingPanel({ onClose, onUpgradeClick }: BillingPanelPr
                   {Math.round(subscription.usage.storage)} / {subscription.usage.storageLimit} MB
                 </span>
               </div>
-              <div className="w-full h-2 bg-[var(--xibalba-grey-100)] rounded-full overflow-hidden">
+              <div className="usage-progress-bar">
                 <div
-                  className="h-full bg-[var(--xibalba-accent)] transition-all"
-                  style={{ width: `${storageUsage}%` }}
+                  className="usage-progress-fill"
+                  data-width={Math.round(storageUsage)}
                 />
               </div>
               {storageUsage > 80 && (
@@ -274,10 +274,10 @@ export default function BillingPanel({ onClose, onUpgradeClick }: BillingPanelPr
                   {subscription.usage.apiCalls} / {subscription.usage.apiCallLimit}
                 </span>
               </div>
-              <div className="w-full h-2 bg-[var(--xibalba-grey-100)] rounded-full overflow-hidden">
+              <div className="usage-progress-bar">
                 <div
-                  className="h-full bg-[var(--xibalba-accent)] transition-all"
-                  style={{ width: `${apiUsage}%` }}
+                  className="usage-progress-fill"
+                  data-width={Math.round(apiUsage)}
                 />
               </div>
               {apiUsage > 80 && (
