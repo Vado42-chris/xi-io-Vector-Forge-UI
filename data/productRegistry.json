@@ -1,0 +1,467 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-01-XX",
+  "entries": [
+    {
+      "id": "component-professional-file-menu",
+      "name": "ProfessionalFileMenu",
+      "category": "component",
+      "version": "1.0.0",
+      "description": "Professional file menu with standard file operations (New, Open, Save, Export, etc.)",
+      "tags": ["menu", "file", "navigation", "header"],
+      "dependencies": ["component-xibalba-logomark"],
+      "api": {
+        "exports": ["ProfessionalFileMenu"],
+        "imports": ["React", "XibalbaLogomark"],
+        "props": {
+          "onAction": "function"
+        }
+      },
+      "location": {
+        "file": "components/ProfessionalFileMenu.tsx"
+      },
+      "status": "active",
+      "lastUpdated": "2025-01-XX",
+      "documentation": "Professional file menu component with dropdown menus for File, Edit, View, Object, Type, AI, and Window operations."
+    },
+    {
+      "id": "component-draftsman-canvas",
+      "name": "DraftsmanCanvas",
+      "category": "component",
+      "version": "1.0.0",
+      "description": "Main canvas component for vector editing with rulers, guides, and drawing tools",
+      "tags": ["canvas", "vector", "drawing", "editor"],
+      "dependencies": ["component-professional-rulers", "component-node-editor", "component-transform-handles"],
+      "api": {
+        "exports": ["DraftsmanCanvas"],
+        "imports": ["React", "ProfessionalRulers", "NodeEditor", "TransformHandles"],
+        "props": {
+          "svgContent": "string",
+          "layers": "VectorLayer[]",
+          "activeTool": "ToolType",
+          "selectedLayerId": "string | null",
+          "zoom": "number",
+          "pan": "{ x: number, y: number }"
+        }
+      },
+      "location": {
+        "file": "components/DraftsmanCanvas.tsx"
+      },
+      "status": "active",
+      "lastUpdated": "2025-01-XX",
+      "documentation": "Main vector editing canvas with support for drawing, selection, transformation, and node editing."
+    },
+    {
+      "id": "component-animation-timeline",
+      "name": "AnimationTimeline",
+      "category": "component",
+      "version": "1.0.0",
+      "description": "Professional timeline for frame-based animation with keyframes and playback controls",
+      "tags": ["animation", "timeline", "keyframes", "playback"],
+      "dependencies": ["service-animation-studio"],
+      "api": {
+        "exports": ["AnimationTimeline"],
+        "imports": ["React", "FrameState", "AnimationKeyframe"],
+        "props": {
+          "frameState": "FrameState",
+          "keyframes": "AnimationKeyframe[]",
+          "onAddKeyframe": "function",
+          "onUpdateKeyframe": "function"
+        }
+      },
+      "location": {
+        "file": "components/AnimationTimeline.tsx"
+      },
+      "status": "active",
+      "lastUpdated": "2025-01-XX",
+      "documentation": "Frame-based animation timeline with keyframe management, playback controls, and script integration."
+    },
+    {
+      "id": "component-left-sidebar",
+      "name": "LeftSidebar",
+      "category": "panel",
+      "version": "1.0.0",
+      "description": "Left sidebar with terminal, settings, and AI assistant tabs",
+      "tags": ["sidebar", "panel", "terminal", "settings"],
+      "dependencies": ["component-terminal-settings", "component-mcp-settings", "component-keyboard-shortcuts-settings"],
+      "api": {
+        "exports": ["LeftSidebar"],
+        "imports": ["React", "TabType"],
+        "props": {
+          "state": "AppState",
+          "setState": "function",
+          "onGenerate": "function",
+          "onRefine": "function"
+        }
+      },
+      "location": {
+        "file": "components/LeftSidebar.tsx"
+      },
+      "status": "active",
+      "lastUpdated": "2025-01-XX",
+      "documentation": "Resizable and draggable left sidebar with terminal, settings, and AI assistant functionality."
+    },
+    {
+      "id": "component-right-sidebar",
+      "name": "RightSidebar",
+      "category": "panel",
+      "version": "1.0.0",
+      "description": "Right sidebar with layers, properties, scripts, and AI chat tabs",
+      "tags": ["sidebar", "panel", "layers", "properties"],
+      "dependencies": ["component-professional-layers-panel", "component-script-editor", "component-ai-chatbot", "component-tool-properties-panel"],
+      "api": {
+        "exports": ["RightSidebar"],
+        "imports": ["React", "ProfessionalLayersPanel", "ScriptEditor", "AIChatbot"],
+        "props": {
+          "layers": "VectorLayer[]",
+          "selectedLayerId": "string | null",
+          "activeTool": "ToolType"
+        }
+      },
+      "location": {
+        "file": "components/RightSidebar.tsx"
+      },
+      "status": "active",
+      "lastUpdated": "2025-01-XX",
+      "documentation": "Resizable and draggable right sidebar with layers, properties, scripts, and AI chat functionality."
+    },
+    {
+      "id": "component-dockable-tool-palette",
+      "name": "DockableToolPalette",
+      "category": "panel",
+      "version": "1.0.0",
+      "description": "Dockable tool palette with vector editing tools",
+      "tags": ["tools", "palette", "docking"],
+      "dependencies": ["component-palette-docking-system", "component-tool-locking-system"],
+      "api": {
+        "exports": ["DockableToolPalette"],
+        "imports": ["React", "DraggablePalette", "ToolType"],
+        "props": {
+          "activeTool": "ToolType",
+          "setTool": "function",
+          "position": "PalettePosition"
+        }
+      },
+      "location": {
+        "file": "components/DockableToolPalette.tsx"
+      },
+      "status": "active",
+      "lastUpdated": "2025-01-XX",
+      "documentation": "Dockable tool palette that can be dragged and docked to different zones, with tool locking support."
+    },
+    {
+      "id": "component-script-editor",
+      "name": "ScriptEditor",
+      "category": "component",
+      "version": "1.0.0",
+      "description": "Hashtag-based plain language action script editor with MCP integration",
+      "tags": ["script", "editor", "hashtag", "mcp"],
+      "dependencies": ["service-script-parser", "service-script-executor", "service-mcp-script"],
+      "api": {
+        "exports": ["ScriptEditor"],
+        "imports": ["React", "parseScript", "executeScript"],
+        "props": {
+          "frame": "number",
+          "layerId": "string | null",
+          "script": "string",
+          "onScriptChange": "function"
+        }
+      },
+      "location": {
+        "file": "components/ScriptEditor.tsx"
+      },
+      "status": "active",
+      "lastUpdated": "2025-01-XX",
+      "documentation": "Plain language hashtag command editor with syntax highlighting, autocomplete, and MCP-powered validation."
+    },
+    {
+      "id": "component-ai-chatbot",
+      "name": "AIChatbot",
+      "category": "component",
+      "version": "1.0.0",
+      "description": "AI chatbot for code generation and assistance",
+      "tags": ["ai", "chatbot", "assistant"],
+      "dependencies": ["service-mcp-script", "service-natural-language-translator"],
+      "api": {
+        "exports": ["AIChatbot"],
+        "imports": ["React"],
+        "props": {
+          "frame": "number",
+          "layerId": "string | null",
+          "onScriptGenerated": "function"
+        }
+      },
+      "location": {
+        "file": "components/AIChatbot.tsx"
+      },
+      "status": "active",
+      "lastUpdated": "2025-01-XX",
+      "documentation": "AI-powered chatbot that generates hashtag scripts and provides coding assistance."
+    },
+    {
+      "id": "component-xibalba-logomark",
+      "name": "XibalbaLogomark",
+      "category": "component",
+      "version": "1.0.0",
+      "description": "Reusable Xibalba logomark component (mask on colored rectangle)",
+      "tags": ["logo", "brand", "ui"],
+      "dependencies": [],
+      "api": {
+        "exports": ["XibalbaLogomark"],
+        "imports": ["React"],
+        "props": {
+          "bgColor": "string",
+          "size": "number",
+          "padding": "number"
+        }
+      },
+      "location": {
+        "file": "components/XibalbaLogomark.tsx"
+      },
+      "status": "active",
+      "lastUpdated": "2025-01-XX",
+      "documentation": "Reusable logomark component featuring mask-shaped logo on configurable colored rectangular background."
+    },
+    {
+      "id": "service-api",
+      "name": "APIService",
+      "category": "service",
+      "version": "1.0.0",
+      "description": "Central API abstraction layer for all external API interactions",
+      "tags": ["api", "abstraction", "http"],
+      "dependencies": ["service-checkpoint"],
+      "api": {
+        "exports": ["apiService", "APIService"],
+        "imports": ["checkpointService"],
+        "props": {}
+      },
+      "location": {
+        "file": "services/apiService.ts"
+      },
+      "status": "active",
+      "lastUpdated": "2025-01-XX",
+      "documentation": "Central API service that abstracts all external API calls, provides caching, retries, and fallback mechanisms."
+    },
+    {
+      "id": "service-product-registry",
+      "name": "ProductRegistry",
+      "category": "service",
+      "version": "1.0.0",
+      "description": "Component catalog and discovery service",
+      "tags": ["registry", "catalog", "discovery"],
+      "dependencies": ["service-checkpoint"],
+      "api": {
+        "exports": ["productRegistry", "ProductRegistryService"],
+        "imports": ["checkpointService"],
+        "props": {}
+      },
+      "location": {
+        "file": "services/productRegistry.ts"
+      },
+      "status": "active",
+      "lastUpdated": "2025-01-XX",
+      "documentation": "Service for cataloging, searching, and tracking all components, services, tools, and panels in VectorForge."
+    },
+    {
+      "id": "service-checkpoint",
+      "name": "CheckpointService",
+      "category": "service",
+      "version": "1.0.0",
+      "description": "Incremental checkpoint service to prevent information loss",
+      "tags": ["checkpoint", "save", "recovery"],
+      "dependencies": [],
+      "api": {
+        "exports": ["checkpointService", "CheckpointService"],
+        "imports": [],
+        "props": {}
+      },
+      "location": {
+        "file": "services/checkpointService.ts"
+      },
+      "status": "active",
+      "lastUpdated": "2025-01-XX",
+      "documentation": "Service that creates incremental checkpoints to prevent information loss, with auto-save functionality."
+    },
+    {
+      "id": "service-focus-manager",
+      "name": "FocusManager",
+      "category": "service",
+      "version": "1.0.0",
+      "description": "Keeps AI agents on target with observer pattern",
+      "tags": ["focus", "management", "observer"],
+      "dependencies": ["service-checkpoint"],
+      "api": {
+        "exports": ["focusManager", "FocusManager"],
+        "imports": ["checkpointService"],
+        "props": {}
+      },
+      "location": {
+        "file": "services/focusManager.ts"
+      },
+      "status": "active",
+      "lastUpdated": "2025-01-XX",
+      "documentation": "Service that tracks current checkpoint, task, and context to keep AI agents focused and prevent drift."
+    },
+    {
+      "id": "service-script-parser",
+      "name": "ScriptParser",
+      "category": "service",
+      "version": "1.0.0",
+      "description": "Parser for hashtag-based plain language action scripts",
+      "tags": ["script", "parser", "hashtag"],
+      "dependencies": [],
+      "api": {
+        "exports": ["parseScript", "formatCommand", "getCommandSyntax"],
+        "imports": [],
+        "props": {}
+      },
+      "location": {
+        "file": "services/scriptParser.ts"
+      },
+      "status": "active",
+      "lastUpdated": "2025-01-XX",
+      "documentation": "Parses hashtag-based plain language commands into executable script structures."
+    },
+    {
+      "id": "service-script-executor",
+      "name": "ScriptExecutor",
+      "category": "service",
+      "version": "1.0.0",
+      "description": "Executes hashtag-based action scripts",
+      "tags": ["script", "executor", "runtime"],
+      "dependencies": ["service-script-parser"],
+      "api": {
+        "exports": ["executeScript", "ExecutionContext"],
+        "imports": ["parseScript"],
+        "props": {}
+      },
+      "location": {
+        "file": "services/scriptExecutor.ts"
+      },
+      "status": "active",
+      "lastUpdated": "2025-01-XX",
+      "documentation": "Executes parsed hashtag scripts and updates layer properties accordingly."
+    },
+    {
+      "id": "service-mcp-script",
+      "name": "MCPScriptService",
+      "category": "service",
+      "version": "1.0.0",
+      "description": "MCP protocol integration for script validation and AI assistance",
+      "tags": ["mcp", "protocol", "ai"],
+      "dependencies": ["service-local-ai"],
+      "api": {
+        "exports": ["getMCPCompletions", "validateWithMCP", "getMCPDocumentation"],
+        "imports": ["localAIService"],
+        "props": {}
+      },
+      "location": {
+        "file": "services/mcpScriptService.ts"
+      },
+      "status": "active",
+      "lastUpdated": "2025-01-XX",
+      "documentation": "MCP protocol service for script validation, code suggestions, and AI-powered assistance."
+    },
+    {
+      "id": "service-local-ai",
+      "name": "LocalAIService",
+      "category": "service",
+      "version": "1.0.0",
+      "description": "Local GGUF model integration via Ollama, llama-cpp-python, or custom inference",
+      "tags": ["ai", "local", "gguf", "ollama"],
+      "dependencies": [],
+      "api": {
+        "exports": ["detectLocalAIProvider", "getAvailableModels", "callLocalAI"],
+        "imports": [],
+        "props": {}
+      },
+      "location": {
+        "file": "services/localAIService.ts"
+      },
+      "status": "active",
+      "lastUpdated": "2025-01-XX",
+      "documentation": "Service for connecting to local AI models (Ollama, llama-cpp-python, text-generation-webui) for offline AI capabilities."
+    },
+    {
+      "id": "service-xibalba",
+      "name": "XibalbaService",
+      "category": "service",
+      "version": "1.0.0",
+      "description": "Xibalba framework service integration",
+      "tags": ["xibalba", "framework", "integration"],
+      "dependencies": ["service-api"],
+      "api": {
+        "exports": ["generateVectorData", "getSmartSuggestions"],
+        "imports": ["apiService"],
+        "props": {}
+      },
+      "location": {
+        "file": "services/xibalbaService.ts"
+      },
+      "status": "active",
+      "lastUpdated": "2025-01-XX",
+      "documentation": "Service for Xibalba framework integration, vector generation, and smart suggestions."
+    },
+    {
+      "id": "service-animation-studio",
+      "name": "AnimationStudio",
+      "category": "service",
+      "version": "1.0.0",
+      "description": "Animation Studio import/export service",
+      "tags": ["animation", "import", "export"],
+      "dependencies": [],
+      "api": {
+        "exports": ["importFromAnimationStudio", "exportToAnimationStudio", "downloadAnimation"],
+        "imports": [],
+        "props": {}
+      },
+      "location": {
+        "file": "services/animationStudio.ts"
+      },
+      "status": "active",
+      "lastUpdated": "2025-01-XX",
+      "documentation": "Service for importing and exporting animations to/from Animation Studio format."
+    },
+    {
+      "id": "type-api",
+      "name": "APITypes",
+      "category": "type",
+      "version": "1.0.0",
+      "description": "API service type definitions",
+      "tags": ["types", "api"],
+      "dependencies": [],
+      "api": {
+        "exports": ["APIRequestConfig", "APIResponse", "APIError", "IAPIService"],
+        "imports": [],
+        "props": {}
+      },
+      "location": {
+        "file": "types/api.ts"
+      },
+      "status": "active",
+      "lastUpdated": "2025-01-XX",
+      "documentation": "TypeScript type definitions for the API service layer."
+    },
+    {
+      "id": "type-registry",
+      "name": "RegistryTypes",
+      "category": "type",
+      "version": "1.0.0",
+      "description": "Product registry type definitions",
+      "tags": ["types", "registry"],
+      "dependencies": [],
+      "api": {
+        "exports": ["RegistryEntry", "RegistryCategory", "RegistryStatus", "IRegistryService"],
+        "imports": [],
+        "props": {}
+      },
+      "location": {
+        "file": "types/registry.ts"
+      },
+      "status": "active",
+      "lastUpdated": "2025-01-XX",
+      "documentation": "TypeScript type definitions for the product registry system."
+    }
+  ]
+}
+
