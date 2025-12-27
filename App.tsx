@@ -1514,6 +1514,38 @@ const App: React.FC = () => {
         onClose={() => setShowPreferences(false)}
         initialCategory={preferencesCategory}
       />
+
+      {/* Billing Panel */}
+      {showBillingPanel && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="w-[90vw] max-w-4xl max-h-[90vh] overflow-y-auto">
+            <BillingPanel
+              onClose={() => setShowBillingPanel(false)}
+              onUpgradeClick={() => {
+                setShowBillingPanel(false);
+                setUpgradeFeature({ id: 'general', name: 'Premium Features', tier: 'pro' });
+                setShowUpgradePrompt(true);
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Upgrade Prompt */}
+      {showUpgradePrompt && upgradeFeature && (
+        <UpgradePrompt
+          featureId={upgradeFeature.id}
+          featureName={upgradeFeature.name}
+          requiredTier={upgradeFeature.tier as any}
+          onUpgrade={async (tier) => {
+            const { subscriptionService } = await import('./services/subscriptionService');
+            await subscriptionService.upgradeToTier(tier);
+            setShowUpgradePrompt(false);
+            showToast(`Upgraded to ${tier} plan`, 'success');
+          }}
+          onDismiss={() => setShowUpgradePrompt(false)}
+        />
+      )}
     </div>
   );
 };
