@@ -9,7 +9,16 @@ import type {
   PanelConfig,
   ILayoutService,
 } from '../types/workflow';
-import { checkpointService } from './checkpointService';
+// Optional checkpoint service - don't block initialization if it fails
+const createCheckpoint = async (id: string, description: string, files: string[] = [], metadata: any = {}) => {
+  try {
+    const { checkpointService } = await import('./checkpointService');
+    await checkpointService.createCheckpoint(id, description, files, metadata);
+  } catch (error) {
+    // Non-blocking - checkpoint failures shouldn't break the app
+    console.warn('Checkpoint creation failed:', error);
+  }
+};
 
 class WorkflowLayoutService implements ILayoutService {
   private layouts: Map<string, WorkflowLayout> = new Map();
@@ -48,8 +57,8 @@ class WorkflowLayoutService implements ILayoutService {
 
     this.initialized = true;
 
-    // Create checkpoint
-    await checkpointService.createCheckpoint(
+    // Create checkpoint (non-blocking)
+    createCheckpoint(
       'layout-service-initialized',
       'Workflow layout service initialized',
       [],
@@ -99,7 +108,7 @@ class WorkflowLayoutService implements ILayoutService {
     }
 
     // Create checkpoint
-    checkpointService.createCheckpoint(
+    getCheckpointService().then(cs => cs.createCheckpoint(
       `layout-switch-${id}`,
       `Switched to layout: ${layout.name}`,
       [],
@@ -133,7 +142,7 @@ class WorkflowLayoutService implements ILayoutService {
     }
 
     // Create checkpoint
-    checkpointService.createCheckpoint(
+    getCheckpointService().then(cs => cs.createCheckpoint(
       `layout-save-${layout.id}`,
       `Saved layout: ${layout.name}`,
       [],
@@ -173,7 +182,7 @@ class WorkflowLayoutService implements ILayoutService {
     }
 
     // Create checkpoint
-    checkpointService.createCheckpoint(
+    getCheckpointService().then(cs => cs.createCheckpoint(
       `layout-delete-${id}`,
       `Deleted layout: ${layout.name}`,
       [],
@@ -243,21 +252,31 @@ class WorkflowLayoutService implements ILayoutService {
   }
 }
 
-// Singleton instance
-export const workflowLayoutService = new WorkflowLayoutService();
+// Singleton instance - lazy initialization to avoid circular dependencies
+let _workflowLayoutServiceInstance: WorkflowLayoutService | null = null;
 
-// Auto-initialize
-if (typeof window !== 'undefined') {
-  workflowLayoutService.initialize().catch(console.error);
-  
-  // Load current layout from localStorage
-  const savedLayoutId = localStorage.getItem('vectorforge-current-layout');
-  if (savedLayoutId) {
-    workflowLayoutService.setCurrentLayout(savedLayoutId).catch(() => {
-      // If saved layout doesn't exist, use default
-      workflowLayoutService.resetToDefault();
-    });
+export const workflowLayoutService = (() => {
+  if (!_workflowLayoutServiceInstance) {
+    _workflowLayoutServiceInstance = new WorkflowLayoutService();
   }
+  return _workflowLayoutServiceInstance;
+})();
+
+// Auto-initialize - defer to avoid initialization order issues
+if (typeof window !== 'undefined') {
+  // Use setTimeout to defer initialization after module load
+  setTimeout(() => {
+    workflowLayoutService.initialize().catch(console.error);
+    
+    // Load current layout from localStorage
+    const savedLayoutId = localStorage.getItem('vectorforge-current-layout');
+    if (savedLayoutId) {
+      workflowLayoutService.setCurrentLayout(savedLayoutId).catch(() => {
+        // If saved layout doesn't exist, use default
+        workflowLayoutService.resetToDefault();
+      });
+    }
+  }, 0);
 }
 
 export default workflowLayoutService;

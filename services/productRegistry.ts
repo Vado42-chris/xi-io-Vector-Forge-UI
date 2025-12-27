@@ -41,8 +41,8 @@ class ProductRegistryService implements IRegistryService {
 
     this.initialized = true;
 
-    // Create checkpoint
-    await checkpointService.createCheckpoint(
+    // Create checkpoint (non-blocking)
+    createCheckpoint(
       'registry-initialized',
       'Product registry initialized',
       [],
@@ -281,12 +281,22 @@ class ProductRegistryService implements IRegistryService {
   }
 }
 
-// Singleton instance
-export const productRegistry = new ProductRegistryService();
+// Singleton instance - lazy initialization to avoid circular dependencies
+let _productRegistryInstance: ProductRegistryService | null = null;
 
-// Auto-initialize
+export const productRegistry = (() => {
+  if (!_productRegistryInstance) {
+    _productRegistryInstance = new ProductRegistryService();
+  }
+  return _productRegistryInstance;
+})();
+
+// Auto-initialize - defer to avoid initialization order issues
 if (typeof window !== 'undefined') {
-  productRegistry.initialize().catch(console.error);
+  // Use setTimeout to defer initialization after module load
+  setTimeout(() => {
+    productRegistry.initialize().catch(console.error);
+  }, 0);
 }
 
 export default productRegistry;
