@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { AppState } from './types';
+import ProfessionalFileMenu from './components/ProfessionalFileMenu';
+import LeftSidebar from './components/LeftSidebar';
+import DraftsmanCanvas from './components/DraftsmanCanvas';
 
 const App: React.FC = () => {
   const [state] = useState<AppState>(() => ({
@@ -44,25 +47,40 @@ const App: React.FC = () => {
         borderBottom: '1px solid rgba(255,255,255,0.1)',
         backgroundColor: 'var(--xibalba-grey-050, #12141a)'
       }}>
-        <h1 style={{ margin: 0, fontSize: '24px' }}>VectorForge</h1>
-        <p style={{ margin: '8px 0 0 0', color: 'var(--xibalba-text-200, #999999)' }}>
-          React is working! State initialized with {state.layers.length} layers.
-        </p>
+        <ProfessionalFileMenu 
+          onAction={() => {}}
+        />
       </div>
       <div style={{ 
         flex: 1, 
-        padding: '20px',
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
         backgroundColor: 'var(--xibalba-grey-000, #0a0b0e)'
       }}>
-        <div style={{ textAlign: 'center' }}>
-          <h2>UI is Loading</h2>
-          <p>Components will be added back gradually</p>
-          <p style={{ fontSize: '12px', color: 'var(--xibalba-text-300, #666666)' }}>
-            Active Tool: {state.activeTool} | Zoom: {state.zoom}%
-          </p>
+        <LeftSidebar 
+          state={state}
+          setState={() => {}}
+          onGenerate={() => {}}
+        />
+        <div style={{ flex: 1 }}>
+          <DraftsmanCanvas 
+            svgContent={state.currentSvg}
+            layers={state.layers}
+            activeTool={state.activeTool}
+            selectedLayerId={state.selectedLayerId}
+            zoom={state.zoom}
+            pan={state.pan}
+            onPan={() => {}}
+            onZoom={() => {}}
+            onLayerSelect={() => {}}
+            onSvgChange={() => {}}
+            onToolChange={() => {}}
+            keyframes={[]}
+            frameState={{ currentFrame: 0, fps: 24, isPlaying: false }}
+            onKeyframeAdd={() => {}}
+            onKeyframeUpdate={() => {}}
+            onKeyframeDelete={() => {}}
+            measurementUnit="px"
+          />
         </div>
       </div>
     </div>
