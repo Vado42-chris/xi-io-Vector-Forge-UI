@@ -887,10 +887,21 @@ const App: React.FC = () => {
         ))}
       </div>
 
-        <ProfessionalFileMenu 
-          onAction={(action) => handleAction(action)}
-          onLayoutChange={handleLayoutSwitch}
-        />
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', position: 'relative' }}>
+          <ProfessionalFileMenu 
+            onAction={(action) => handleAction(action)}
+            onLayoutChange={handleLayoutSwitch}
+          />
+          <div style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <ActionCenter 
+              userId="user-1" // TODO: Get from auth context
+              onAction={(action) => {
+                console.log('Action Center action:', action);
+                // Handle action (e.g., navigate to task, open dialog)
+              }}
+            />
+          </div>
+        </div>
       
       {/* Tool Palette - Fixed position, docked to left by default, draggable */}
       {/* Wrapped in ToolLockingSystem for production-quality tool stability */}
