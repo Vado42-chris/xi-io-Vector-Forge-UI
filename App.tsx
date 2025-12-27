@@ -33,10 +33,11 @@ import AccountMenu from './components/AccountMenu';
 import BillingPanel from './components/BillingPanel';
 import UpgradePrompt from './components/UpgradePrompt';
 
+// Use CSS variables for colors - no hardcoded values
 const INITIAL_SVG = `<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-  <rect id="bg" width="100%" height="100%" fill="#0a0b0e"/>
+  <rect id="bg" width="100%" height="100%" fill="var(--xibalba-grey-000, #0a0b0e)"/>
   <g id="workspace_root">
-    <path id="prime_path" d="M 156 156 L 356 156 L 356 356 L 156 356 Z" fill="#2a2d35" fill-opacity="0.3" stroke="#343842" stroke-width="2" />
+    <path id="prime_path" d="M 156 156 L 356 156 L 356 356 L 156 356 Z" fill="var(--xibalba-grey-250, #2a2d35)" fill-opacity="0.3" stroke="var(--xibalba-grey-300, #343842)" stroke-width="2" />
   </g>
 </svg>`;
 

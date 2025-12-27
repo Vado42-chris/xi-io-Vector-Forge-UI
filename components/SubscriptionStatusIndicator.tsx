@@ -24,8 +24,8 @@ interface SubscriptionStatusIndicatorProps {
 const TIER_COLORS: Record<SubscriptionTier, string> = {
   free: 'var(--xibalba-text-300)',
   pro: 'var(--xibalba-accent)',
-  enterprise: '#9d4edd',
-  custom: '#ffd60a',
+  enterprise: 'var(--xibalba-accent-hover, #9d4edd)', // Use CSS variable with fallback
+  custom: 'var(--xibalba-accent, #ffd60a)', // Use CSS variable with fallback
 };
 
 const TIER_LABELS: Record<SubscriptionTier, string> = {

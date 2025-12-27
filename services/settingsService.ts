@@ -87,7 +87,7 @@ const DEFAULT_SETTINGS: UserSettings = {
     uiDensity: 'comfortable',
     fontSize: 14,
     fontFamily: 'system-ui, -apple-system, sans-serif',
-    accentColor: '#ff6b35', // Xibalba orange
+    accentColor: 'var(--xibalba-accent, #ff6b35)', // Xibalba orange - use CSS variable
     showAnimations: true,
     reduceMotion: false,
   },
