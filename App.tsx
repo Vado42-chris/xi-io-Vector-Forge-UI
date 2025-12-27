@@ -279,8 +279,8 @@ const App: React.FC = () => {
       name: p.getAttribute('data-name') || p.id || 'Unnamed Path',
       visible: p.getAttribute('display') !== 'none',
       locked: p.getAttribute('data-locked') === 'true',
-      color: p.getAttribute('fill') || '#ffffff',
-      stroke: p.getAttribute('stroke') || '#000000',
+      color: p.getAttribute('fill') || 'var(--xibalba-text-000, #ffffff)',
+      stroke: p.getAttribute('stroke') || 'var(--xibalba-grey-000, #000000)',
       strokeWidth: parseFloat(p.getAttribute('stroke-width') || '0'),
       opacity: parseFloat(p.getAttribute('opacity') || '1'),
       shape: {
