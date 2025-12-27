@@ -25,6 +25,8 @@ import ActionCenter from './components/ActionCenter';
 import SprintBoard from './components/SprintBoard';
 import InspectorPanel from './components/InspectorPanel';
 import { Task } from './types/task';
+import { useContextualUI } from './hooks/useContextualUI';
+import ContextualHelpPanel from './components/ContextualHelpPanel';
 
 const INITIAL_SVG = `<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
   <rect id="bg" width="100%" height="100%" fill="#0a0b0e"/>
@@ -96,6 +98,28 @@ const App: React.FC = () => {
   const [activeView, setActiveView] = useState<'vectorforge' | 'tasks'>('vectorforge');
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [activeSprintId, setActiveSprintId] = useState<string | undefined>(undefined);
+  
+  // Contextual UI - intelligent UI surfacing based on MAI framework
+  const contextualUI = useContextualUI({
+    activeTool: state.activeTool,
+    selectedObjectId: state.selectedLayerId,
+    activeWorkflow: activeView,
+    hasError: toasts.some(t => t.type === 'error'),
+    isFirstTimeUser: false, // TODO: Get from user profile
+    userSkillLevel: 'intermediate', // TODO: Get from user profile
+    currentAction: state.isGenerating ? 'generating' : undefined,
+  });
+  
+  // Update contextual UI when state changes
+  useEffect(() => {
+    contextualUI.updateContext({
+      activeTool: state.activeTool,
+      selectedObjectId: state.selectedLayerId,
+      activeWorkflow: activeView,
+      hasError: toasts.some(t => t.type === 'error'),
+      currentAction: state.isGenerating ? 'generating' : undefined,
+    });
+  }, [state.activeTool, state.selectedLayerId, activeView, toasts, state.isGenerating, contextualUI]);
   
   // Animation State
   const [keyframes, setKeyframes] = useState<AnimationKeyframe[]>([]);

@@ -11,6 +11,7 @@ import ScriptEditor from './ScriptEditor';
 import AIChatbot from './AIChatbot';
 import RegistryBrowser from './RegistryBrowser';
 import ErrorBoundary from './ErrorBoundary';
+import ContextualHelpPanel from './ContextualHelpPanel';
 
 interface RightSidebarProps {
   layers: VectorLayer[];
@@ -66,7 +67,7 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
   state, setState, onScriptGenerated
 }) => {
   const selectedLayer = layers.find(l => l.id === selectedLayerId);
-  const [activeRightTab, setActiveRightTab] = useState<'tool' | 'inspector' | 'layers' | 'scripts' | 'chat' | 'registry' | 'checkpoints'>('tool');
+  const [activeRightTab, setActiveRightTab] = useState<'tool' | 'inspector' | 'layers' | 'scripts' | 'chat' | 'registry' | 'checkpoints' | 'help'>('tool');
   
   // Auto-switch to Scripts tab when script icon is clicked from timeline
   useEffect(() => {
@@ -218,6 +219,7 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
           { id: 'registry', label: 'Registry', icon: 'apps' },
           { id: 'tasks', label: 'Tasks', icon: 'task' },
           { id: 'workspace', label: 'Workspace', icon: 'tune' },
+          { id: 'help', label: 'Help', icon: 'help' },
           { id: 'checkpoints', label: 'History', icon: 'history' }
         ].map((tab) => (
           <button 
@@ -389,6 +391,22 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
               Switch to Tasks view to see SprintBoard and manage tasks.
             </p>
           </div>
+        ) : activeRightTab === 'help' ? (
+          <ErrorBoundary>
+            <ContextualHelpPanel
+              context={{
+                activeTool: activeTool,
+                selectedObjectId: selectedLayerId,
+                activeWorkflow: 'vectorforge',
+                hasError: false,
+              }}
+              maxPriority="P1"
+              onHelpClick={(elementId) => {
+                console.log('Help clicked:', elementId);
+                // TODO: Navigate to help content or open help dialog
+              }}
+            />
+          </ErrorBoundary>
         ) : (
           <div className="space-y-4">
             <div className="xibalba-section-header-professional">
