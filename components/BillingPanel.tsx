@@ -253,11 +253,11 @@ export default function BillingPanel({ onClose, onUpgradeClick }: BillingPanelPr
                   {Math.round(subscription.usage.storage)} / {subscription.usage.storageLimit} MB
                 </span>
               </div>
-              <div className="usage-progress-bar">
-                <div
-                  className="usage-progress-fill"
-                  data-width={Math.round(storageUsage)}
-                />
+              <div 
+                className="usage-progress-bar"
+                style={{ '--progress-width': `${storageUsage}%` } as React.CSSProperties}
+              >
+                <div className="usage-progress-fill" />
               </div>
               {storageUsage > 80 && (
                 <p className="text-xs text-yellow-400 mt-2">
