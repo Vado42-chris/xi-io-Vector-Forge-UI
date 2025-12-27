@@ -28,6 +28,10 @@ import { Task } from './types/task';
 import { useContextualUI } from './hooks/useContextualUI';
 import ContextualHelpPanel from './components/ContextualHelpPanel';
 import PreferencesDialog from './components/PreferencesDialog';
+import SubscriptionStatusIndicator from './components/SubscriptionStatusIndicator';
+import AccountMenu from './components/AccountMenu';
+import BillingPanel from './components/BillingPanel';
+import UpgradePrompt from './components/UpgradePrompt';
 
 const INITIAL_SVG = `<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
   <rect id="bg" width="100%" height="100%" fill="#0a0b0e"/>
