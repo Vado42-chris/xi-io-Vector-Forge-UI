@@ -69,6 +69,15 @@ app.get('/api/health', (req, res) => {
     });
 });
 
+// Task Management API Routes
+import { tasksRoutes } from './api/tasks.js';
+import { sprintsRoutes } from './api/sprints.js';
+import { projectsRoutes } from './api/projects.js';
+
+await tasksRoutes(app);
+await sprintsRoutes(app);
+await projectsRoutes(app);
+
 // AI Generation Endpoint
 app.post('/api/ai/generate', async (req, res) => {
     try {
