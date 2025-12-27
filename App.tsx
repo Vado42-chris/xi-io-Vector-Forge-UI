@@ -487,6 +487,10 @@ const App: React.FC = () => {
         exportA.href = exportUrl; exportA.download = `xi_vector_${Date.now()}.svg`; exportA.click();
         showToast("SVG Exported", "success");
         break;
+      case 'EDIT_PREFERENCES':
+        setShowPreferences(true);
+        setPreferencesCategory('visual');
+        break;
       case 'EDIT_UNDO':
         if (state.history.length > 1) {
           const prevSvg = state.history[state.history.length - 2];
@@ -1492,6 +1496,13 @@ const App: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Preferences Dialog */}
+      <PreferencesDialog
+        isOpen={showPreferences}
+        onClose={() => setShowPreferences(false)}
+        initialCategory={preferencesCategory}
+      />
     </div>
   );
 };
