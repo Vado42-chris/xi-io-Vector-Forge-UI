@@ -20,6 +20,7 @@ import ToolLockingSystem from './components/ToolLockingSystem';
 import { workflowLayoutService } from './services/workflowLayoutService';
 import type { WorkflowLayout } from './types/workflow';
 import BugReporter from './components/BugReporter';
+import FeatureRequest from './components/FeatureRequest';
 
 const INITIAL_SVG = `<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
   <rect id="bg" width="100%" height="100%" fill="#0a0b0e"/>
@@ -176,6 +177,7 @@ const App: React.FC = () => {
   
   // Bug Reporter State
   const [showBugReporter, setShowBugReporter] = useState(false);
+  const [showFeatureRequest, setShowFeatureRequest] = useState(false);
   
   // Initialize workflow layouts
   useEffect(() => {
@@ -683,8 +685,7 @@ const App: React.FC = () => {
         setShowBugReporter(true);
         break;
       case 'WINDOW_FEATURE_REQUEST':
-        // TODO: Implement feature request
-        showToast("Feature Request - Coming soon", "info");
+        setShowFeatureRequest(true);
         break;
       default:
         // Don't show toast for unimplemented actions - just silently ignore
@@ -1346,6 +1347,20 @@ const App: React.FC = () => {
               onClose={() => setShowBugReporter(false)}
               onReportSubmitted={(bugId) => {
                 showToast(`Bug report submitted: ${bugId}`, 'success');
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Feature Request Modal */}
+      {showFeatureRequest && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50">
+          <div className="w-[800px] h-[600px] bg-[var(--xibalba-grey-100)] border border-white/10 shadow-xl">
+            <FeatureRequest
+              onClose={() => setShowFeatureRequest(false)}
+              onRequestSubmitted={(requestId) => {
+                showToast(`Feature request submitted: ${requestId}`, 'success');
               }}
             />
           </div>
