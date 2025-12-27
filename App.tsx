@@ -109,7 +109,7 @@ const App: React.FC = () => {
     activeTool: state.activeTool,
     selectedObjectId: state.selectedLayerId,
     activeWorkflow: activeView,
-    hasError: toasts.some(t => t.type === 'error'),
+    hasError: state.toasts.some(t => t.type === 'error'),
     isFirstTimeUser: false, // TODO: Get from user profile
     userSkillLevel: 'intermediate', // TODO: Get from user profile
     currentAction: state.isGenerating ? 'generating' : undefined,
@@ -121,10 +121,10 @@ const App: React.FC = () => {
       activeTool: state.activeTool,
       selectedObjectId: state.selectedLayerId,
       activeWorkflow: activeView,
-      hasError: toasts.some(t => t.type === 'error'),
+      hasError: state.toasts.some(t => t.type === 'error'),
       currentAction: state.isGenerating ? 'generating' : undefined,
     });
-  }, [state.activeTool, state.selectedLayerId, activeView, toasts, state.isGenerating, contextualUI]);
+  }, [state.activeTool, state.selectedLayerId, activeView, state.toasts, state.isGenerating, contextualUI]);
   
   // Animation State
   const [keyframes, setKeyframes] = useState<AnimationKeyframe[]>([]);
@@ -1060,8 +1060,9 @@ const App: React.FC = () => {
             <button
               onClick={() => {
                 setActiveView('tasks');
-                clickTrackingService.trackClick('App', 'switch-to-tasks', 'view-switcher', {});
-                workTrackingService.recordCalculation();
+                // TODO: Import and use clickTrackingService and workTrackingService
+                // clickTrackingService.trackClick('App', 'switch-to-tasks', 'view-switcher', {});
+                // workTrackingService.recordCalculation();
               }}
               className={`px-4 py-2 text-sm font-medium transition-colors ${
                 activeView === 'tasks'
@@ -1081,16 +1082,19 @@ const App: React.FC = () => {
                   sprintId={activeSprintId}
                   onTaskSelect={(task) => {
                     setSelectedTask(task);
-                    clickTrackingService.trackClick('App', 'select-task', task.id, { taskId: task.id });
-                    workTrackingService.recordCalculation();
+                    // TODO: Import and use clickTrackingService and workTrackingService
+                    // clickTrackingService.trackClick('App', 'select-task', task.id, { taskId: task.id });
+                    // workTrackingService.recordCalculation();
                   }}
                   onTaskMove={async (taskId, newStatus) => {
-                    clickTrackingService.trackClick('App', 'move-task', taskId, { taskId, newStatus });
-                    workTrackingService.recordCalculation();
+                    // TODO: Import and use clickTrackingService and workTrackingService
+                    // clickTrackingService.trackClick('App', 'move-task', taskId, { taskId, newStatus });
+                    // workTrackingService.recordCalculation();
                   }}
                   onTaskCreate={(column) => {
-                    clickTrackingService.trackClick('App', 'create-task', column, { column });
-                    workTrackingService.recordCalculation();
+                    // TODO: Import and use clickTrackingService and workTrackingService
+                    // clickTrackingService.trackClick('App', 'create-task', column, { column });
+                    // workTrackingService.recordCalculation();
                     // TODO: Open task creation dialog
                   }}
                 />
@@ -1100,18 +1104,21 @@ const App: React.FC = () => {
                   <InspectorPanel
                     item={selectedTask}
                     onUpdate={async (updates) => {
-                      clickTrackingService.trackClick('App', 'update-task', selectedTask.id, { updates });
-                      workTrackingService.recordCalculation();
+                      // TODO: Import and use clickTrackingService and workTrackingService
+                      // clickTrackingService.trackClick('App', 'update-task', selectedTask.id, { updates });
+                      // workTrackingService.recordCalculation();
                       // TODO: Update task via service
                     }}
                     onLink={async (item, target) => {
-                      clickTrackingService.trackClick('App', 'link-item', item.id, { targetId: target.id });
-                      workTrackingService.recordCalculation();
+                      // TODO: Import and use clickTrackingService and workTrackingService
+                      // clickTrackingService.trackClick('App', 'link-item', item.id, { targetId: target.id });
+                      // workTrackingService.recordCalculation();
                       // TODO: Implement linking
                     }}
                     onClose={() => {
                       setSelectedTask(null);
-                      clickTrackingService.trackClick('App', 'close-inspector', 'inspector', {});
+                      // TODO: Import and use clickTrackingService and workTrackingService
+                      // clickTrackingService.trackClick('App', 'close-inspector', 'inspector', {});
                     }}
                   />
                 </div>
