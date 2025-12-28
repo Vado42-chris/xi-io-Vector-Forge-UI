@@ -9,7 +9,7 @@
  * Follows Xibalba standards: NO inline styles, component-based, accessible
  */
 
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 
 export interface ProgressBarProps {
   progress?: number;              // 0-100, undefined = indeterminate
@@ -20,6 +20,36 @@ export interface ProgressBarProps {
   animated?: boolean;             // Animate progress
   className?: string;
 }
+
+// Progress Fill Component - FIXED: No inline styles
+const ProgressFill: React.FC<{
+  variant: 'default' | 'accent' | 'success' | 'warning' | 'error';
+  progress: number;
+  animated: boolean;
+  className?: string;
+}> = ({ variant, progress, animated, className = '' }) => {
+  const fillRef = useRef<HTMLDivElement>(null);
+  const progressBarClasses = {
+    default: 'bg-[var(--xibalba-accent)]',
+    accent: 'bg-[var(--xibalba-accent)]',
+    success: 'bg-green-500',
+    warning: 'bg-yellow-500',
+    error: 'bg-red-500'
+  };
+
+  useEffect(() => {
+    if (fillRef.current) {
+      fillRef.current.style.setProperty('--progress-width', `${progress}%`);
+    }
+  }, [progress]);
+
+  return (
+    <div
+      ref={fillRef}
+      className={`h-full ${progressBarClasses[variant]} progress-bar-fill ${className}`}
+    />
+  );
+};
 
 const ProgressBar: React.FC<ProgressBarProps> = ({
   progress,
@@ -40,14 +70,6 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
   // Variant colors
   const variantClasses = {
     default: 'bg-[var(--xibalba-grey-200)]',
-    accent: 'bg-[var(--xibalba-accent)]',
-    success: 'bg-green-500',
-    warning: 'bg-yellow-500',
-    error: 'bg-red-500'
-  };
-
-  const progressBarClasses = {
-    default: 'bg-[var(--xibalba-accent)]',
     accent: 'bg-[var(--xibalba-accent)]',
     success: 'bg-green-500',
     warning: 'bg-yellow-500',
@@ -86,24 +108,20 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
       >
         {/* Progress Fill */}
         {isIndeterminate ? (
-          // Indeterminate (animated)
-          <div
-            className={`h-full ${progressBarClasses[variant]} progress-bar-fill ${
-              animated ? 'animate-progress-indeterminate' : ''
-            }`}
-            style={{
-              '--progress-width': '40%'
-            } as React.CSSProperties}
+          // Indeterminate (animated) - FIXED: No inline styles
+          <ProgressFill
+            variant={variant}
+            progress={40}
+            animated={animated}
+            className={`animate-progress-indeterminate`}
           />
         ) : (
-          // Determinate (with percentage)
-          <div
-            className={`h-full ${progressBarClasses[variant]} transition-all duration-300 progress-bar-fill ${
-              animated ? 'ease-out' : ''
-            }`}
-            style={{
-              '--progress-width': `${displayProgress}%`
-            } as React.CSSProperties}
+          // Determinate (with percentage) - FIXED: No inline styles
+          <ProgressFill
+            variant={variant}
+            progress={displayProgress}
+            animated={animated}
+            className="transition-all duration-300 ease-out"
           />
         )}
       </div>

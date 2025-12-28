@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 
 interface RulersProps {
   zoom: number;
@@ -14,47 +14,65 @@ const Rulers: React.FC<RulersProps> = ({ zoom, pan, onAddGuide }) => {
     <>
       {/* Horizontal Ruler */}
       <div 
-        className="absolute top-0 left-8 right-0 h-8 bg-obsidian-100 border-b border-white/10 z-[60] cursor-ns-resize overflow-hidden"
+        className="absolute top-0 left-8 right-0 h-8 bg-[var(--xibalba-grey-050)] border-b border-white/10 z-[60] cursor-ns-resize overflow-hidden"
         onClick={(e) => {
           const rect = e.currentTarget.getBoundingClientRect();
           onAddGuide('v', (e.clientX - rect.left - pan.x) / (zoom / 100));
         }}
       >
-        <div className="relative h-full flex items-end px-2" style={{ transform: `translateX(${pan.x}px)` }}>
-          {Array.from({ length: 100 }).map((_, i) => (
-            <div key={i} className="absolute bottom-0 flex flex-col items-center" style={{ left: `${i * step}px` }}>
-              <div className={`w-px ${i % 2 === 0 ? 'h-3 bg-primary/40' : 'h-1.5 bg-obsidian-500'}`}></div>
+        <div className="relative h-full flex items-end px-2 ruler-horizontal-container">
+          {Array.from({ length: 100 }).map((_, i) => {
+            const ref = useRef<HTMLDivElement>(null);
+            useEffect(() => {
+              if (ref.current) {
+                ref.current.style.setProperty('--ruler-pan-x', `${pan.x}px`);
+                ref.current.style.setProperty('--ruler-mark-left', `${i * step}px`);
+              }
+            }, [pan.x, i, step]);
+            return (
+            <div key={i} ref={ref} className="absolute bottom-0 flex flex-col items-center ruler-mark-horizontal">
+              <div className={`w-px ${i % 2 === 0 ? 'h-3 bg-[var(--xibalba-text-200)]/40' : 'h-1.5 bg-[var(--xibalba-grey-300)]'}`}></div>
               {i % 2 === 0 && (
-                <span className="text-[7px] font-mono text-obsidian-500 absolute -top-4">{i * 50}</span>
+                <span className="text-[7px] font-mono text-[var(--xibalba-text-300)] absolute -top-4">{i * 50}</span>
               )}
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
       {/* Vertical Ruler */}
       <div 
-        className="absolute top-8 left-0 bottom-0 w-8 bg-obsidian-100 border-r border-white/10 z-[60] cursor-ew-resize overflow-hidden"
+        className="absolute top-8 left-0 bottom-0 w-8 bg-[var(--xibalba-grey-050)] border-r border-white/10 z-[60] cursor-ew-resize overflow-hidden"
         onClick={(e) => {
           const rect = e.currentTarget.getBoundingClientRect();
           onAddGuide('h', (e.clientY - rect.top - pan.y) / (zoom / 100));
         }}
       >
-        <div className="relative w-full flex flex-col items-end py-2" style={{ transform: `translateY(${pan.y}px)` }}>
-          {Array.from({ length: 100 }).map((_, i) => (
-            <div key={i} className="absolute right-0 flex items-center" style={{ top: `${i * step}px` }}>
-              <div className={`h-px ${i % 2 === 0 ? 'w-3 bg-primary/40' : 'w-1.5 bg-obsidian-500'}`}></div>
+        <div className="relative w-full flex flex-col items-end py-2 ruler-vertical-container">
+          {Array.from({ length: 100 }).map((_, i) => {
+            const ref = useRef<HTMLDivElement>(null);
+            useEffect(() => {
+              if (ref.current) {
+                ref.current.style.setProperty('--ruler-pan-y', `${pan.y}px`);
+                ref.current.style.setProperty('--ruler-mark-top', `${i * step}px`);
+              }
+            }, [pan.y, i, step]);
+            return (
+            <div key={i} ref={ref} className="absolute right-0 flex items-center ruler-mark-vertical">
+              <div className={`h-px ${i % 2 === 0 ? 'w-3 bg-[var(--xibalba-text-200)]/40' : 'w-1.5 bg-[var(--xibalba-grey-300)]'}`}></div>
               {i % 2 === 0 && (
-                <span className="text-[7px] font-mono text-obsidian-500 absolute -left-6 transform -rotate-90">{i * 50}</span>
+                <span className="text-[7px] font-mono text-[var(--xibalba-text-300)] absolute -left-6 transform -rotate-90">{i * 50}</span>
               )}
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
       {/* Zero Point */}
-      <div className="absolute top-0 left-0 size-8 bg-obsidian-200 border-r border-b border-white/10 z-[70] flex items-center justify-center">
-        <span className="material-symbols-outlined text-[14px] text-primary">straighten</span>
+      <div className="absolute top-0 left-0 size-8 bg-[var(--xibalba-grey-100)] border-r border-b border-white/10 z-[70] flex items-center justify-center">
+        <span className="material-symbols-outlined text-[14px] text-[var(--xibalba-text-100)]">straighten</span>
       </div>
     </>
   );

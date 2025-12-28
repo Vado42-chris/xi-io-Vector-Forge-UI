@@ -236,12 +236,14 @@ export const RippleEffect: React.FC<{
       {ripples.map(ripple => (
         <span
           key={ripple.id}
-          className="absolute rounded-full bg-white/30 pointer-events-none animate-ripple"
-          style={{
-            left: `${ripple.x}px`,
-            top: `${ripple.y}px`,
-            transform: 'translate(-50%, -50%)',
+          ref={(node) => {
+            if (node) {
+              node.style.setProperty('left', `${ripple.x}px`);
+              node.style.setProperty('top', `${ripple.y}px`);
+              node.style.setProperty('transform', 'translate(-50%, -50%)');
+            }
           }}
+          className="absolute rounded-full bg-white/30 pointer-events-none animate-ripple"
         />
       ))}
     </div>

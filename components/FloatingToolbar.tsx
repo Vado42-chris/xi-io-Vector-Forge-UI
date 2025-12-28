@@ -1,69 +1,177 @@
+/**
+ * Self-Contained Floating Toolbar Component
+ * Isolated, responsive, with error boundary and drag functionality
+ */
 
-import React from 'react';
+import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { ToolType } from '../types';
+import ErrorBoundary from './ErrorBoundary';
 
 interface FloatingToolbarProps {
   activeTool: ToolType;
   setTool: (tool: ToolType) => void;
   onSmartMagic: () => void;
+  className?: string;
 }
 
-const FloatingToolbar: React.FC<FloatingToolbarProps> = ({ activeTool, setTool, onSmartMagic }) => {
-  const toolGroups: {id: ToolType, icon: string, label: string, shortcut: string}[][] = [
-    [
-      { id: 'select', icon: 'near_me', label: 'Gestalt Select', shortcut: 'V' },
-      { id: 'subselect', icon: 'near_me', label: 'Atomic Sub-Select', shortcut: 'A' },
-    ],
-    [
-      { id: 'pencil', icon: 'draw', label: 'Path Forge', shortcut: 'P' },
-      { id: 'shape', icon: 'category', label: 'Primitive Builder', shortcut: 'S' },
-    ],
-    [
-      { id: 'pan', icon: 'pan_tool', label: 'Navigation', shortcut: 'H' },
-    ]
-  ];
+const FloatingToolbar: React.FC<FloatingToolbarProps> = ({ 
+  activeTool, setTool, onSmartMagic, className = '' 
+}) => {
+  const [isDragging, setIsDragging] = useState(false);
+  const [position, setPosition] = useState({ x: 16, y: window.innerHeight / 2 });
+  const dragHandleRef = useRef<HTMLDivElement>(null);
+  const toolbarRef = useRef<HTMLDivElement>(null);
+  const dragStartPos = useRef({ x: 0, y: 0 });
+
+  // Professional tool palette - all tools in order, grouped visually
+  const tools = useMemo(() => [
+    // Selection
+    { id: 'select' as ToolType, icon: 'near_me', label: 'Selection', shortcut: 'V' },
+    { id: 'direct-select' as ToolType, icon: 'ads_click', label: 'Direct Selection', shortcut: 'A' },
+    { id: 'group-select' as ToolType, icon: 'group', label: 'Group Selection', shortcut: '' },
+    // Drawing
+    { id: 'pen' as ToolType, icon: 'edit', label: 'Pen', shortcut: 'P' },
+    { id: 'pencil' as ToolType, icon: 'draw', label: 'Pencil', shortcut: 'N' },
+    { id: 'brush' as ToolType, icon: 'brush', label: 'Brush', shortcut: 'B' },
+    { id: 'line' as ToolType, icon: 'show_chart', label: 'Line', shortcut: '\\' },
+    // Shapes
+    { id: 'rectangle' as ToolType, icon: 'crop_square', label: 'Rectangle', shortcut: 'M' },
+    { id: 'ellipse' as ToolType, icon: 'radio_button_unchecked', label: 'Ellipse', shortcut: 'L' },
+    { id: 'polygon' as ToolType, icon: 'change_history', label: 'Polygon', shortcut: '' },
+    { id: 'star' as ToolType, icon: 'star', label: 'Star', shortcut: '' },
+    { id: 'spiral' as ToolType, icon: 'sync', label: 'Spiral', shortcut: '' },
+    // Text
+    { id: 'text' as ToolType, icon: 'text_fields', label: 'Type', shortcut: 'T' },
+    { id: 'text-on-path' as ToolType, icon: 'text_rotate_vertical', label: 'Text on Path', shortcut: '' },
+    // Transform
+    { id: 'rotate' as ToolType, icon: 'rotate_right', label: 'Rotate', shortcut: 'R' },
+    { id: 'scale' as ToolType, icon: 'open_with', label: 'Scale', shortcut: 'S' },
+    { id: 'free-transform' as ToolType, icon: 'transform', label: 'Free Transform', shortcut: 'E' },
+    { id: 'reflect' as ToolType, icon: 'flip', label: 'Reflect', shortcut: 'O' },
+    // Paint
+    { id: 'eyedropper' as ToolType, icon: 'colorize', label: 'Eyedropper', shortcut: 'I' },
+    { id: 'gradient' as ToolType, icon: 'gradient', label: 'Gradient', shortcut: 'G' },
+    { id: 'mesh' as ToolType, icon: 'grid_on', label: 'Gradient Mesh', shortcut: 'U' },
+    // Navigation
+    { id: 'pan' as ToolType, icon: 'pan_tool', label: 'Hand', shortcut: 'H' },
+    { id: 'zoom' as ToolType, icon: 'zoom_in', label: 'Zoom', shortcut: 'Z' },
+  ], []);
+
+  // Drag handling - fully movable
+  const handleDragStart = useCallback((e: React.PointerEvent) => {
+    const target = e.target as HTMLElement;
+    if (dragHandleRef.current?.contains(target) || target.closest('[data-drag-handle]')) {
+      setIsDragging(true);
+      dragStartPos.current = { x: e.clientX - position.x, y: e.clientY - position.y };
+      target.setPointerCapture(e.pointerId);
+      e.preventDefault();
+    }
+  }, [position]);
+
+  // Use window-level pointer events for proper dragging
+  useEffect(() => {
+    const handlePointerMove = (e: PointerEvent) => {
+      if (isDragging) {
+        const newX = Math.max(0, Math.min(window.innerWidth - 56, e.clientX - dragStartPos.current.x));
+        const newY = Math.max(0, Math.min(window.innerHeight - 100, e.clientY - dragStartPos.current.y));
+        setPosition({ x: newX, y: newY });
+      }
+    };
+
+    const handlePointerUp = (e: PointerEvent) => {
+      if (isDragging) {
+        setIsDragging(false);
+        if (e.target instanceof HTMLElement) {
+          e.target.releasePointerCapture(e.pointerId);
+        }
+      }
+    };
+
+    if (isDragging) {
+      window.addEventListener('pointermove', handlePointerMove);
+      window.addEventListener('pointerup', handlePointerUp);
+      return () => {
+        window.removeEventListener('pointermove', handlePointerMove);
+        window.removeEventListener('pointerup', handlePointerUp);
+      };
+    }
+  }, [isDragging, dragStartPos]);
+
+
+  // Group tools visually with dividers
+  const selectionEnd = 3;
+  const drawingEnd = 7;
+  const shapesEnd = 12;
+  const textEnd = 14;
+  const transformEnd = 18;
+  const paintEnd = 21;
+
+  // Update CSS variables for positioning
+  useEffect(() => {
+    if (toolbarRef.current) {
+      toolbarRef.current.style.setProperty('--toolbar-left', `${position.x}px`);
+      toolbarRef.current.style.setProperty('--toolbar-top', `${position.y}px`);
+    }
+  }, [position]);
 
   return (
-    <div className="absolute left-12 top-1/2 -translate-y-1/2 flex flex-col gap-3 p-2.5 xi-card rounded-3xl shadow-[0_30px_90px_rgba(0,0,0,0.9)] z-[100] border-white/5 backdrop-blur-3xl">
-      {toolGroups.map((group, idx) => (
-        <React.Fragment key={idx}>
-          <div className="flex flex-col gap-2">
-            {group.map(tool => (
-              <button 
-                key={tool.id}
-                onClick={() => setTool(tool.id)}
-                className={`size-12 rounded-2xl flex items-center justify-center transition-all relative group ${
-                  activeTool === tool.id 
-                    ? 'bg-primary text-white xi-popping-glow shadow-[0_10px_25px_var(--xi-vector-glow)]' 
-                    : 'text-obsidian-500 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                <span className={`material-symbols-outlined text-[22px] font-bold ${tool.id === 'subselect' ? 'rotate-[-45deg] scale-x-[-1]' : ''}`}>
-                  {tool.icon}
-                </span>
-                
-                {/* Tooltip */}
-                <div className="absolute left-16 px-4 py-2 bg-obsidian-100 border border-white/10 text-[9px] font-black text-white rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all translate-x-[-10px] group-hover:translate-x-0 whitespace-nowrap uppercase tracking-widest shadow-2xl flex items-center gap-3">
-                  {tool.label}
-                  <span className="px-1.5 py-0.5 bg-white/10 rounded text-obsidian-400 font-mono">{tool.shortcut}</span>
-                </div>
-              </button>
-            ))}
-          </div>
-          {idx < toolGroups.length - 1 && <div className="h-px w-8 bg-white/5 mx-auto"></div>}
-        </React.Fragment>
-      ))}
-
-      <div className="h-px w-8 bg-white/5 mx-auto my-1"></div>
-      
-      <button 
-        onClick={onSmartMagic}
-        className="size-12 rounded-2xl flex items-center justify-center bg-gradient-to-br from-primary via-[#FB8C00] to-[#E65100] text-white shadow-[0_15px_30px_var(--xi-vector-glow)] hover:scale-110 active:scale-95 transition-all relative group overflow-hidden"
+    <ErrorBoundary
+      fallback={
+        <div className="xibalba-panel-elevated-professional absolute left-4 p-2 z-[100] border border-red-500/50">
+          <p className="xibalba-text-caption text-red-400">Toolbar error</p>
+        </div>
+      }
+    >
+      <div 
+        ref={toolbarRef}
+        className={`xibalba-panel-elevated-professional absolute flex flex-col gap-1 p-2 z-[100] w-14 border border-white/10 shadow-lg toolbar-positioned ${className}`}
       >
-        <div className="absolute inset-0 bg-white/20 animate-pulse opacity-40"></div>
-        <span className="material-symbols-outlined text-[22px] relative z-10 font-bold">auto_awesome</span>
-      </button>
-    </div>
+        {/* Drag Handle - visible drag handle */}
+        <div
+          ref={dragHandleRef}
+          data-drag-handle
+          onPointerDown={handleDragStart}
+          className="w-full h-4 cursor-grab active:cursor-grabbing flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity mb-1 border-b border-white/10 toolbar-drag-handle"
+          title="Drag to move toolbar"
+        >
+          <div className="flex gap-1">
+              <div className="w-1.5 h-1.5 bg-[var(--xibalba-text-200)]"></div>
+              <div className="w-1.5 h-1.5 bg-[var(--xibalba-text-200)]"></div>
+              <div className="w-1.5 h-1.5 bg-[var(--xibalba-text-200)]"></div>
+          </div>
+        </div>
+
+        {tools.map((tool, idx) => (
+          <React.Fragment key={tool.id}>
+            <button
+              onClick={() => setTool(tool.id)}
+              className={`xibalba-toolbar-button-professional size-12 flex items-center justify-center relative group ${
+                activeTool === tool.id 
+                  ? 'bg-[var(--xibalba-grey-200)] border-2 border-[var(--xibalba-text-100)]' 
+                  : 'hover:bg-[var(--xibalba-grey-150)] border-2 border-transparent'
+              }`}
+              title={`${tool.label}${tool.shortcut ? ` (${tool.shortcut})` : ''}`}
+            >
+              <span className="material-symbols-outlined text-[20px]">{tool.icon}</span>
+            </button>
+            {/* Visual dividers between tool groups */}
+            {(idx === selectionEnd - 1 || idx === drawingEnd - 1 || idx === shapesEnd - 1 || idx === textEnd - 1 || idx === transformEnd - 1 || idx === paintEnd - 1) && idx < tools.length - 1 && (
+              <div className="h-px w-10 bg-white/10 my-1 mx-auto" />
+            )}
+          </React.Fragment>
+        ))}
+
+        <div className="h-px w-10 bg-white/10 my-1 mx-auto" />
+
+        <button
+          onClick={onSmartMagic}
+          className="xibalba-toolbar-button-professional size-12 flex items-center justify-center relative group overflow-hidden bg-[var(--xibalba-grey-200)] hover:bg-[var(--xibalba-grey-250)] border-2 border-[var(--xibalba-text-100)]"
+          title="Smart Magic"
+        >
+          <span className="material-symbols-outlined text-[20px] relative z-10">auto_awesome</span>
+        </button>
+      </div>
+    </ErrorBoundary>
   );
 };
 

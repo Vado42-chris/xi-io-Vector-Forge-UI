@@ -1,307 +1,225 @@
 /**
  * Product Registry Service
- * Catalogs all components, services, tools, and panels in VectorForge
- * Provides search, filtering, and dependency tracking
+ * Catalogs all components and their relationships
+ * Part of Patch 2: Product Registry
  */
 
-import type {
-  RegistryEntry,
-  RegistryCategory,
-  RegistryStatus,
-  RegistryFilters,
-  RegistrySearchResult,
-  IRegistryService,
-} from '../types/registry';
-// Optional checkpoint service - don't block initialization if it fails
-const createCheckpoint = async (id: string, description: string, files: string[] = [], metadata: any = {}) => {
-  try {
-    const { checkpointService } = await import('./checkpointService');
-    await checkpointService.createCheckpoint(id, description, files, metadata);
-  } catch (error) {
-    // Non-blocking - checkpoint failures shouldn't break the app
-    console.warn('Checkpoint creation failed:', error);
-  }
-};
+import type { RegistryEntry, RegistrySearchOptions, RegistrySearchResult } from '../types/registry';
 
-class ProductRegistryService implements IRegistryService {
-  private entries: Map<string, RegistryEntry> = new Map();
-  private initialized: boolean = false;
+class ProductRegistry {
+  private registry: Map<string, RegistryEntry> = new Map();
+  private initialized = false;
 
   /**
    * Initialize registry from data file
    */
   async initialize(): Promise<void> {
-    if (this.initialized) return;
+    if (this.initialized) {
+      return;
+    }
 
     try {
-      // Load from data file (will be created in next checkpoint)
+      // Load registry data
       const response = await fetch('/data/productRegistry.json');
       if (response.ok) {
         const data = await response.json();
         if (Array.isArray(data.entries)) {
           data.entries.forEach((entry: RegistryEntry) => {
-            this.entries.set(entry.id, entry);
+            this.registry.set(entry.id, entry);
           });
         }
       }
     } catch (error) {
-      console.warn('Could not load product registry from file, starting empty');
+      console.warn('Failed to load product registry data:', error);
+      // Continue with empty registry
     }
 
     this.initialized = true;
-
-    // Create checkpoint (non-blocking)
-    createCheckpoint(
-      'registry-initialized',
-      'Product registry initialized',
-      [],
-      { entryCount: this.entries.size }
-    );
   }
 
   /**
-   * Register a component/service/tool
+   * Register a component or service
    */
   register(entry: RegistryEntry): void {
-    // Validate entry
-    if (!entry.id || !entry.name || !entry.category) {
-      throw new Error('Invalid registry entry: missing required fields');
-    }
-
-    // Update lastUpdated if not provided
-    if (!entry.lastUpdated) {
-      entry.lastUpdated = new Date().toISOString();
-    }
-
-    this.entries.set(entry.id, entry);
-
-    // Create checkpoint for registration (non-blocking)
-    createCheckpoint(
-      `registry-register-${entry.id}`,
-      `Registered: ${entry.name}`,
-      [],
-      { entry }
-    );
+    entry.updatedAt = Date.now();
+    this.registry.set(entry.id, entry);
+    this.saveRegistry();
   }
 
   /**
    * Get entry by ID
    */
-  get(id: string): RegistryEntry | null {
-    return this.entries.get(id) || null;
-  }
-
-  /**
-   * Search entries with filters
-   */
-  search(filters: RegistryFilters): RegistrySearchResult {
-    let results = Array.from(this.entries.values());
-
-    // Filter by category
-    if (filters.category) {
-      const categories = Array.isArray(filters.category) 
-        ? filters.category 
-        : [filters.category];
-      results = results.filter(e => categories.includes(e.category));
-    }
-
-    // Filter by status
-    if (filters.status) {
-      const statuses = Array.isArray(filters.status) 
-        ? filters.status 
-        : [filters.status];
-      results = results.filter(e => statuses.includes(e.status));
-    }
-
-    // Filter by tags
-    if (filters.tags && filters.tags.length > 0) {
-      results = results.filter(e => 
-        filters.tags!.some(tag => e.tags.includes(tag))
-      );
-    }
-
-    // Text search
-    if (filters.search) {
-      const searchLower = filters.search.toLowerCase();
-      results = results.filter(e => 
-        e.name.toLowerCase().includes(searchLower) ||
-        e.description.toLowerCase().includes(searchLower) ||
-        e.tags.some(tag => tag.toLowerCase().includes(searchLower))
-      );
-    }
-
-    return {
-      entries: results,
-      total: results.length,
-      filters,
-    };
+  get(id: string): RegistryEntry | undefined {
+    return this.registry.get(id);
   }
 
   /**
    * Get all entries
    */
   getAll(): RegistryEntry[] {
-    return Array.from(this.entries.values());
+    return Array.from(this.registry.values());
+  }
+
+  /**
+   * Search registry
+   */
+  search(options: RegistrySearchOptions = {}): RegistrySearchResult {
+    let results = Array.from(this.registry.values());
+
+    // Filter by query
+    if (options.query) {
+      const query = options.query.toLowerCase();
+      results = results.filter(entry =>
+        entry.name.toLowerCase().includes(query) ||
+        entry.description.toLowerCase().includes(query) ||
+        entry.tags.some(tag => tag.toLowerCase().includes(query))
+      );
+    }
+
+    // Filter by type
+    if (options.type) {
+      results = results.filter(entry => entry.type === options.type);
+    }
+
+    // Filter by category
+    if (options.category) {
+      results = results.filter(entry => entry.category === options.category);
+    }
+
+    // Filter by tags
+    if (options.tags && options.tags.length > 0) {
+      results = results.filter(entry =>
+        options.tags!.some(tag => entry.tags.includes(tag))
+      );
+    }
+
+    // Filter by dependencies
+    if (options.dependencies && options.dependencies.length > 0) {
+      results = results.filter(entry =>
+        options.dependencies!.some(dep => entry.dependencies.includes(dep))
+      );
+    }
+
+    const total = results.length;
+    const offset = options.offset || 0;
+    const limit = options.limit || 50;
+
+    // Sort by updatedAt (newest first)
+    results.sort((a, b) => b.updatedAt - a.updatedAt);
+
+    // Apply pagination
+    const paginatedResults = results.slice(offset, offset + limit);
+
+    return {
+      entries: paginatedResults,
+      total,
+      limit,
+      offset,
+    };
   }
 
   /**
    * Get entries by category
    */
-  getByCategory(category: RegistryCategory): RegistryEntry[] {
-    return Array.from(this.entries.values()).filter(e => e.category === category);
+  getByCategory(category: string): RegistryEntry[] {
+    return Array.from(this.registry.values())
+      .filter(entry => entry.category === category)
+      .sort((a, b) => b.updatedAt - a.updatedAt);
   }
 
   /**
-   * Get entries by status
+   * Get entries by type
    */
-  getByStatus(status: RegistryStatus): RegistryEntry[] {
-    return Array.from(this.entries.values()).filter(e => e.status === status);
+  getByType(type: RegistryEntry['type']): RegistryEntry[] {
+    return Array.from(this.registry.values())
+      .filter(entry => entry.type === type)
+      .sort((a, b) => b.updatedAt - a.updatedAt);
   }
 
   /**
-   * Get dependency graph for an entry
+   * Get entries with dependency
    */
-  getDependencyGraph(id: string): RegistryEntry[] {
-    const entry = this.get(id);
-    if (!entry) return [];
-
-    const graph: RegistryEntry[] = [];
-    const visited = new Set<string>();
-
-    const traverse = (entryId: string) => {
-      if (visited.has(entryId)) return;
-      visited.add(entryId);
-
-      const e = this.get(entryId);
-      if (!e) return;
-
-      graph.push(e);
-
-      // Recursively get dependencies
-      e.dependencies.forEach(depId => {
-        traverse(depId);
-      });
-    };
-
-    traverse(id);
-    return graph;
+  getByDependency(dependencyId: string): RegistryEntry[] {
+    return Array.from(this.registry.values())
+      .filter(entry => entry.dependencies.includes(dependencyId))
+      .sort((a, b) => b.updatedAt - a.updatedAt);
   }
 
   /**
-   * Get dependents (entries that depend on this one)
+   * Get all categories
    */
-  getDependents(id: string): RegistryEntry[] {
-    return Array.from(this.entries.values()).filter(e => 
-      e.dependencies.includes(id)
-    );
-  }
-
-  /**
-   * Update entry
-   */
-  update(id: string, updates: Partial<RegistryEntry>): void {
-    const entry = this.get(id);
-    if (!entry) {
-      throw new Error(`Entry not found: ${id}`);
-    }
-
-    const updated = {
-      ...entry,
-      ...updates,
-      lastUpdated: new Date().toISOString(),
-    };
-
-    this.entries.set(id, updated);
-
-    // Create checkpoint (non-blocking)
-    createCheckpoint(
-      `registry-update-${id}`,
-      `Updated: ${entry.name}`,
-      [],
-      { id, updates }
-    );
-  }
-
-  /**
-   * Remove entry
-   */
-  remove(id: string): void {
-    const entry = this.get(id);
-    if (entry) {
-      this.entries.delete(id);
-
-      // Create checkpoint (non-blocking)
-      createCheckpoint(
-        `registry-remove-${id}`,
-        `Removed: ${entry.name}`,
-        [],
-        { id, entry }
-      );
-    }
-  }
-
-  /**
-   * Export registry to JSON
-   */
-  export(): string {
-    return JSON.stringify({
-      version: '1.0.0',
-      exported: new Date().toISOString(),
-      entries: Array.from(this.entries.values()),
-    }, null, 2);
-  }
-
-  /**
-   * Import registry from JSON
-   */
-  import(data: string): void {
-    try {
-      const parsed = JSON.parse(data);
-      if (Array.isArray(parsed.entries)) {
-        parsed.entries.forEach((entry: RegistryEntry) => {
-          this.register(entry);
-        });
-      }
-    } catch (error) {
-      throw new Error(`Failed to import registry: ${error}`);
-    }
-  }
-
-  /**
-   * Get statistics
-   */
-  getStatistics(): {
-    total: number;
-    byCategory: Record<RegistryCategory, number>;
-    byStatus: Record<RegistryStatus, number>;
-  } {
-    const stats = {
-      total: this.entries.size,
-      byCategory: {} as Record<RegistryCategory, number>,
-      byStatus: {} as Record<RegistryStatus, number>,
-    };
-
-    this.entries.forEach(entry => {
-      stats.byCategory[entry.category] = (stats.byCategory[entry.category] || 0) + 1;
-      stats.byStatus[entry.status] = (stats.byStatus[entry.status] || 0) + 1;
+  getCategories(): string[] {
+    const categories = new Set<string>();
+    this.registry.forEach(entry => {
+      categories.add(entry.category);
     });
+    return Array.from(categories).sort();
+  }
 
-    return stats;
+  /**
+   * Get all tags
+   */
+  getTags(): string[] {
+    const tags = new Set<string>();
+    this.registry.forEach(entry => {
+      entry.tags.forEach(tag => tags.add(tag));
+    });
+    return Array.from(tags).sort();
+  }
+
+  /**
+   * Save registry to localStorage (for runtime additions)
+   */
+  private saveRegistry(): void {
+    if (typeof window !== 'undefined') {
+      try {
+        const entries = Array.from(this.registry.values());
+        localStorage.setItem('productRegistry', JSON.stringify({ entries }));
+      } catch (error) {
+        console.error('Failed to save registry:', error);
+      }
+    }
+  }
+
+  /**
+   * Load registry from localStorage
+   */
+  private loadRegistry(): void {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('productRegistry');
+        if (stored) {
+          const data = JSON.parse(stored);
+          if (Array.isArray(data.entries)) {
+            data.entries.forEach((entry: RegistryEntry) => {
+              this.registry.set(entry.id, entry);
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load registry:', error);
+      }
+    }
+  }
+
+  /**
+   * Clear registry
+   */
+  clear(): void {
+    this.registry.clear();
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('productRegistry');
+    }
   }
 }
 
-// Singleton instance - lazy initialization to avoid circular dependencies
-let _productRegistryInstance: ProductRegistryService | null = null;
+// Singleton instance
+export const productRegistry = new ProductRegistry();
 
-export const productRegistry = (() => {
-  if (!_productRegistryInstance) {
-    _productRegistryInstance = new ProductRegistryService();
-  }
-  return _productRegistryInstance;
-})();
-
-// DO NOT auto-initialize - let App.tsx handle initialization
-// This prevents circular dependencies and initialization order issues
+// Auto-initialize
+if (typeof window !== 'undefined') {
+  productRegistry.initialize().catch(console.error);
+  productRegistry.loadRegistry();
+}
 
 export default productRegistry;
-

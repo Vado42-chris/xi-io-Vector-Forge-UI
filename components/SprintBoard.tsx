@@ -10,7 +10,7 @@
  * Work Tracking: All interactions tracked for seed001 Blockchain records
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, closestCorners } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -64,13 +64,24 @@ const SortableTaskCard: React.FC<{
     isDragging,
   } = useSortable({ id: task.id });
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
+  // FIXED: Convert library transform to CSS custom properties
+  const transformValue = CSS.Transform.toString(transform);
+  const transformRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    if (transformRef.current && transformValue) {
+      transformRef.current.style.setProperty('--dnd-transform', transformValue);
+    }
+    if (transformRef.current && transition) {
+      transformRef.current.style.setProperty('--dnd-transition', transition);
+    }
+  }, [transformValue, transition]);
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <div ref={(node) => {
+      setNodeRef(node);
+      if (node) transformRef.current = node;
+    }} className="dnd-sortable-item" {...attributes} {...listeners}>
       <TaskCard
         task={task}
         onSelect={onSelect}
@@ -309,7 +320,7 @@ const SprintBoard: React.FC<SprintBoardProps> = ({
         </div>
         <DragOverlay>
           {activeTask ? (
-            <div style={{ opacity: 0.8 }}>
+            <div className="opacity-80">
               <TaskCard
                 task={activeTask}
                 onSelect={() => {}}

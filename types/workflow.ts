@@ -1,90 +1,33 @@
 /**
  * Workflow Layout Type Definitions
- * Defines types for workflow-based layout system
+ * Part of Patch 3: Workflow Layouts
  */
 
-/**
- * Panel Position
- */
-export interface PanelPosition {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  docked?: boolean;
-  dockZone?: 'left' | 'right' | 'top' | 'bottom' | 'center';
-}
-
-/**
- * Panel Configuration
- */
 export interface PanelConfig {
   id: string;
-  type: 'canvas' | 'timeline' | 'tools' | 'layers' | 'properties' | 'preview' | 'code' | 'chat' | 'registry' | 'terminal';
+  type: 'sidebar' | 'toolbar' | 'panel' | 'canvas' | 'timeline' | 'palette';
+  position: 'left' | 'right' | 'top' | 'bottom' | 'center' | 'floating';
+  width?: number | string;
+  height?: number | string;
   visible: boolean;
-  position: PanelPosition;
-  tabs?: string[]; // For tabbed panels
-  activeTab?: string;
+  collapsed?: boolean;
+  order?: number;
 }
 
-/**
- * Workflow Layout
- */
 export interface WorkflowLayout {
   id: string;
   name: string;
   description: string;
+  category: 'default' | 'custom' | 'preset';
   panels: PanelConfig[];
-  default?: boolean;
+  createdAt: number;
+  updatedAt: number;
 }
 
-/**
- * Layout Service Interface
- */
-export interface ILayoutService {
-  /**
-   * Get all available layouts
-   */
-  getLayouts(): WorkflowLayout[];
-
-  /**
-   * Get layout by ID
-   */
-  getLayout(id: string): WorkflowLayout | null;
-
-  /**
-   * Get current layout
-   */
-  getCurrentLayout(): WorkflowLayout | null;
-
-  /**
-   * Set current layout
-   */
-  setCurrentLayout(id: string): void;
-
-  /**
-   * Save layout
-   */
-  saveLayout(layout: WorkflowLayout): void;
-
-  /**
-   * Delete layout
-   */
-  deleteLayout(id: string): void;
-
-  /**
-   * Export layout
-   */
-  exportLayout(id: string): string;
-
-  /**
-   * Import layout
-   */
-  importLayout(data: string): WorkflowLayout;
-
-  /**
-   * Reset to default layout
-   */
-  resetToDefault(): void;
+export interface LayoutPreset {
+  id: string;
+  name: string;
+  description: string;
+  icon?: string;
+  layout: WorkflowLayout;
 }
-

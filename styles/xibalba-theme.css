@@ -131,9 +131,13 @@ body {
 .xibalba-card {
   background: var(--xibalba-bg-secondary);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 6px;
-  padding: var(--spacing-normal);
+  border-radius: 4px;
+  padding: 0;
   transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(8px);
 }
 
 .xibalba-card:hover {

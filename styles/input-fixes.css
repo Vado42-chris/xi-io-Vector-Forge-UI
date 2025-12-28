@@ -1,0 +1,86 @@
+/**
+ * Input/Textarea/Select Background Fixes
+ * #hashtag: #inputs #dark-theme #xibalba-standards
+ * 
+ * Forces ALL inputs, textareas, selects, and dropdowns to have dark backgrounds
+ * NO white backgrounds allowed in Xibalba design system
+ */
+
+/* Global Input Fixes - Force Dark Theme */
+input,
+textarea,
+select,
+option {
+  background-color: var(--xibalba-grey-200) !important;
+  color: var(--xibalba-text-100) !important;
+  border: var(--border-subtle) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--xibalba-text-300) !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  background-color: var(--xibalba-grey-250) !important;
+  border-color: var(--xibalba-text-200) !important;
+  outline: none !important;
+}
+
+/* Select Dropdowns */
+select {
+  background-color: var(--xibalba-grey-200) !important;
+  color: var(--xibalba-text-100) !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+}
+
+select option {
+  background-color: var(--xibalba-grey-200) !important;
+  color: var(--xibalba-text-100) !important;
+}
+
+/* Textarea specific */
+textarea {
+  background-color: var(--xibalba-grey-200) !important;
+  color: var(--xibalba-text-100) !important;
+  resize: vertical;
+}
+
+/* Chat input boxes */
+.chat-input,
+.ai-chat-input,
+.message-input {
+  background-color: var(--xibalba-grey-200) !important;
+  color: var(--xibalba-text-100) !important;
+}
+
+/* Override any Tailwind white backgrounds */
+.bg-white {
+  background-color: var(--xibalba-grey-200) !important;
+}
+
+/* Override Tailwind arbitrary opacity white backgrounds (bg-white/10, bg-white/20, etc.) */
+[class*="bg-white/"] {
+  background-color: var(--xibalba-grey-200) !important;
+}
+
+/* Combobox/Dropdown menus */
+[role="combobox"],
+[role="listbox"],
+[role="menu"] {
+  background-color: var(--xibalba-grey-200) !important;
+  color: var(--xibalba-text-100) !important;
+}
+
+/* Autocomplete suggestions */
+.autocomplete-suggestions,
+.suggestions-list {
+  background-color: var(--xibalba-grey-200) !important;
+  color: var(--xibalba-text-100) !important;
+  border: var(--border-subtle) !important;
+}
+

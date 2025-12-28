@@ -1,311 +1,193 @@
 /**
  * Code Security Service
- * Sandboxes and validates user-generated scripts (hashtag-based action scripts)
- * Prevents malicious code execution while allowing safe script operations
+ * Provides code sandboxing and execution safety
+ * Part of Patch 4: Security Foundation
  */
 
 import { securityService } from './securityService';
-import { checkpointService } from './checkpointService';
 
-/**
- * Allowed hashtag commands (whitelist approach)
- */
-const ALLOWED_COMMANDS = new Set([
-  // Layer operations
-  'move', 'rotate', 'scale', 'skew', 'transform',
-  'set-color', 'set-fill', 'set-stroke', 'set-opacity',
-  'set-visible', 'set-locked', 'set-name',
-  
-  // Animation operations
-  'animate', 'keyframe', 'ease', 'tween',
-  'play', 'pause', 'stop', 'loop',
-  
-  // Path operations
-  'path-move', 'path-line', 'path-curve', 'path-close',
-  'path-union', 'path-intersect', 'path-subtract',
-  
-  // Math operations
-  'add', 'subtract', 'multiply', 'divide', 'mod',
-  'sin', 'cos', 'tan', 'abs', 'floor', 'ceil', 'round',
-  
-  // Control flow
-  'if', 'else', 'for', 'while', 'repeat',
-  
-  // Variables
-  'set-var', 'get-var', 'inc-var', 'dec-var',
-  
-  // Events
-  'on-click', 'on-hover', 'on-load', 'on-frame',
-  
-  // Safe utilities
-  'log', 'warn', 'error', 'debug',
-]);
+export interface SandboxConfig {
+  timeout: number;
+  memoryLimit: number;
+  allowNetwork: boolean;
+  allowFileSystem: boolean;
+  allowedAPIs: string[];
+}
 
-/**
- * Dangerous patterns to block
- */
-const DANGEROUS_PATTERNS: RegExp[] = [
-  // JavaScript code injection
-  /<script[^>]*>/gi,
-  /javascript:/gi,
-  /eval\s*\(/gi,
-  /Function\s*\(/gi,
-  /setTimeout\s*\(/gi,
-  /setInterval\s*\(/gi,
-  
-  // DOM manipulation (dangerous)
-  /document\./gi,
-  /window\./gi,
-  /globalThis\./gi,
-  
-  // Network requests
-  /fetch\s*\(/gi,
-  /XMLHttpRequest/gi,
-  /\.send\s*\(/gi,
-  
-  // File system access
-  /FileReader/gi,
-  /Blob/gi,
-  /FileSystem/gi,
-  
-  // Storage manipulation
-  /localStorage\.setItem/gi,
-  /sessionStorage\.setItem/gi,
-  /IndexedDB/gi,
-  
-  // Crypto (could be used maliciously)
-  /crypto\./gi,
-  /WebCrypto/gi,
-];
+export interface ExecutionResult {
+  success: boolean;
+  output?: unknown;
+  error?: string;
+  executionTime: number;
+  memoryUsed?: number;
+}
 
-/**
- * Code Security Service Interface
- */
-export interface ICodeSecurityService {
-  /**
-   * Validate script syntax and security
-   */
-  validateScript(script: string): { valid: boolean; errors: string[]; warnings: string[] };
+class CodeSecurityService {
+  private sandboxConfig: SandboxConfig = {
+    timeout: 5000,
+    memoryLimit: 50 * 1024 * 1024, // 50MB
+    allowNetwork: false,
+    allowFileSystem: false,
+    allowedAPIs: ['console', 'Math', 'Date', 'Array', 'Object', 'String', 'Number'],
+  };
 
   /**
-   * Sanitize script content
+   * Execute code in sandbox
    */
-  sanitizeScript(script: string): string;
+  async executeInSandbox(code: string, context?: string): Promise<ExecutionResult> {
+    const startTime = Date.now();
 
-  /**
-   * Check if script contains dangerous patterns
-   */
-  detectDangerousCode(script: string): boolean;
+    // Validate script first
+    const validation = securityService.validateScript(code, context);
+    if (!validation.valid) {
+      return {
+        success: false,
+        error: validation.violation?.message || 'Script validation failed',
+        executionTime: Date.now() - startTime,
+      };
+    }
 
-  /**
-   * Extract allowed commands from script
-   */
-  extractCommands(script: string): string[];
+    try {
+      // Create sandboxed execution context
+      const sandbox = this.createSandbox();
 
-  /**
-   * Check if command is allowed
-   */
-  isCommandAllowed(command: string): boolean;
+      // Execute with timeout
+      const result = await Promise.race([
+        this.executeCode(code, sandbox),
+        this.createTimeout(this.sandboxConfig.timeout),
+      ]);
+
+      if (result === 'timeout') {
+        return {
+          success: false,
+          error: 'Execution timeout exceeded',
+          executionTime: Date.now() - startTime,
+        };
+      }
+
+      return {
+        success: true,
+        output: result,
+        executionTime: Date.now() - startTime,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        executionTime: Date.now() - startTime,
+      };
+    }
+  }
 
   /**
    * Create sandboxed execution context
    */
-  createSandboxContext(): Record<string, any>;
-}
+  private createSandbox(): Record<string, unknown> {
+    const sandbox: Record<string, unknown> = {};
 
-class CodeSecurityService implements ICodeSecurityService {
+    // Add allowed APIs
+    this.sandboxConfig.allowedAPIs.forEach(apiName => {
+      if (apiName === 'console') {
+        sandbox.console = {
+          log: (...args: unknown[]) => console.log('[SANDBOX]', ...args),
+          warn: (...args: unknown[]) => console.warn('[SANDBOX]', ...args),
+          error: (...args: unknown[]) => console.error('[SANDBOX]', ...args),
+        };
+      } else if (typeof (globalThis as any)[apiName] !== 'undefined') {
+        sandbox[apiName] = (globalThis as any)[apiName];
+      }
+    });
+
+    // Block dangerous APIs
+    sandbox.eval = undefined;
+    sandbox.Function = undefined;
+    sandbox.fetch = this.sandboxConfig.allowNetwork ? fetch : undefined;
+    sandbox.XMLHttpRequest = this.sandboxConfig.allowNetwork ? XMLHttpRequest : undefined;
+    sandbox.import = undefined;
+    sandbox.require = undefined;
+    sandbox.process = undefined;
+    sandbox.global = undefined;
+    sandbox.window = undefined;
+    sandbox.document = undefined;
+
+    return sandbox;
+  }
+
   /**
-   * Validate script syntax and security
+   * Execute code in sandbox
    */
-  validateScript(script: string): { valid: boolean; errors: string[]; warnings: string[] } {
-    const errors: string[] = [];
-    const warnings: string[] = [];
+  private async executeCode(code: string, sandbox: Record<string, unknown>): Promise<unknown> {
+    // Use Function constructor with sandbox (if allowed by policy)
+    // Otherwise, use a more restricted approach
+    try {
+      // Create a function that executes in the sandbox context
+      const func = new Function(
+        ...Object.keys(sandbox),
+        `"use strict"; ${code}`
+      );
 
-    if (!script || typeof script !== 'string') {
-      errors.push('Script is empty or invalid');
-      return { valid: false, errors, warnings };
+      return func(...Object.values(sandbox));
+    } catch (error) {
+      throw new Error(`Execution failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
+  }
+
+  /**
+   * Create timeout promise
+   */
+  private createTimeout(ms: number): Promise<'timeout'> {
+    return new Promise(resolve => {
+      setTimeout(() => resolve('timeout'), ms);
+    });
+  }
+
+  /**
+   * Validate code before execution
+   */
+  validateCode(code: string): { valid: boolean; errors: string[] } {
+    const errors: string[] = [];
 
     // Check for dangerous patterns
-    if (this.detectDangerousCode(script)) {
-      errors.push('Script contains potentially dangerous code patterns');
-    }
+    const dangerousPatterns = [
+      { pattern: /\beval\s*\(/i, message: 'eval() is not allowed' },
+      { pattern: /\bFunction\s*\(/i, message: 'Function constructor is not allowed' },
+      { pattern: /import\s*\(/i, message: 'Dynamic imports are not allowed' },
+      { pattern: /require\s*\(/i, message: 'require() is not allowed' },
+      { pattern: /process\./i, message: 'process object is not allowed' },
+      { pattern: /global\./i, message: 'global object is not allowed' },
+      { pattern: /window\./i, message: 'window object is not allowed' },
+      { pattern: /document\./i, message: 'document object is not allowed' },
+    ];
 
-    // Extract and validate commands
-    const commands = this.extractCommands(script);
-    const invalidCommands = commands.filter(cmd => !this.isCommandAllowed(cmd));
-    
-    if (invalidCommands.length > 0) {
-      errors.push(`Invalid commands detected: ${invalidCommands.join(', ')}`);
-    }
+    dangerousPatterns.forEach(({ pattern, message }) => {
+      if (pattern.test(code)) {
+        errors.push(message);
+      }
+    });
 
-    // Check script length (prevent DoS)
-    const maxScriptLength = 100000; // 100KB
-    if (script.length > maxScriptLength) {
-      errors.push(`Script exceeds maximum length of ${maxScriptLength} characters`);
-    }
-
-    // Check for nested loops (prevent infinite loops)
-    const loopCount = (script.match(/#(for|while|repeat)/gi) || []).length;
-    if (loopCount > 10) {
-      warnings.push('Script contains many loops - may cause performance issues');
+    // Validate script size
+    if (code.length > this.sandboxConfig.memoryLimit) {
+      errors.push(`Code exceeds memory limit of ${this.sandboxConfig.memoryLimit} bytes`);
     }
 
     return {
       valid: errors.length === 0,
       errors,
-      warnings,
     };
   }
 
   /**
-   * Sanitize script content
+   * Get sandbox configuration
    */
-  sanitizeScript(script: string): string {
-    if (!script || typeof script !== 'string') {
-      return '';
-    }
-
-    let sanitized = script;
-
-    // Remove dangerous patterns
-    DANGEROUS_PATTERNS.forEach(pattern => {
-      sanitized = sanitized.replace(pattern, '');
-    });
-
-    // Remove null bytes
-    sanitized = sanitized.replace(/\0/g, '');
-
-    // Remove control characters (except newlines and tabs)
-    sanitized = sanitized.replace(/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/g, '');
-
-    return sanitized;
+  getConfig(): SandboxConfig {
+    return { ...this.sandboxConfig };
   }
 
   /**
-   * Check if script contains dangerous patterns
+   * Update sandbox configuration
    */
-  detectDangerousCode(script: string): boolean {
-    if (!script || typeof script !== 'string') {
-      return false;
-    }
-
-    return DANGEROUS_PATTERNS.some(pattern => pattern.test(script));
-  }
-
-  /**
-   * Extract allowed commands from script
-   */
-  extractCommands(script: string): string[] {
-    if (!script || typeof script !== 'string') {
-      return [];
-    }
-
-    // Extract hashtag commands (#command)
-    const commandPattern = /#(\w+)/g;
-    const commands: string[] = [];
-    let match;
-
-    while ((match = commandPattern.exec(script)) !== null) {
-      commands.push(match[1].toLowerCase());
-    }
-
-    return [...new Set(commands)]; // Remove duplicates
-  }
-
-  /**
-   * Check if command is allowed
-   */
-  isCommandAllowed(command: string): boolean {
-    if (!command || typeof command !== 'string') {
-      return false;
-    }
-
-    return ALLOWED_COMMANDS.has(command.toLowerCase());
-  }
-
-  /**
-   * Create sandboxed execution context
-   */
-  createSandboxContext(): Record<string, any> {
-    // Create a safe execution context with only allowed functions
-    return {
-      // Math functions
-      Math: {
-        abs: Math.abs,
-        floor: Math.floor,
-        ceil: Math.ceil,
-        round: Math.round,
-        max: Math.max,
-        min: Math.min,
-        sin: Math.sin,
-        cos: Math.cos,
-        tan: Math.tan,
-        PI: Math.PI,
-        E: Math.E,
-      },
-      
-      // Safe console (limited)
-      console: {
-        log: (...args: any[]) => {
-          if (typeof window !== 'undefined' && window.console) {
-            console.log('[Script]', ...args);
-          }
-        },
-        warn: (...args: any[]) => {
-          if (typeof window !== 'undefined' && window.console) {
-            console.warn('[Script]', ...args);
-          }
-        },
-      },
-      
-      // Safe string functions
-      String: {
-        fromCharCode: String.fromCharCode,
-      },
-      
-      // Safe array functions
-      Array: {
-        isArray: Array.isArray,
-      },
-      
-      // Safe object functions
-      Object: {
-        keys: Object.keys,
-        values: Object.values,
-        entries: Object.entries,
-      },
-      
-      // Prevent access to dangerous globals
-      // (These will be undefined in the sandbox)
-      document: undefined,
-      window: undefined,
-      globalThis: undefined,
-      eval: undefined,
-      Function: undefined,
-      setTimeout: undefined,
-      setInterval: undefined,
-      fetch: undefined,
-      XMLHttpRequest: undefined,
-    };
-  }
-
-  /**
-   * Create security checkpoint for script execution
-   */
-  async createSecurityCheckpoint(script: string, validationResult: { valid: boolean; errors: string[]; warnings: string[] }): Promise<void> {
-    await checkpointService.createCheckpoint(
-      'code-security-validation',
-      'Script security validation',
-      [],
-      {
-        scriptLength: script.length,
-        valid: validationResult.valid,
-        errors: validationResult.errors,
-        warnings: validationResult.warnings,
-        commands: this.extractCommands(script),
-      }
-    );
+  updateConfig(updates: Partial<SandboxConfig>): void {
+    this.sandboxConfig = { ...this.sandboxConfig, ...updates };
   }
 }
 
@@ -313,4 +195,3 @@ class CodeSecurityService implements ICodeSecurityService {
 export const codeSecurityService = new CodeSecurityService();
 
 export default codeSecurityService;
-

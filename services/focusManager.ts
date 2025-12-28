@@ -1,259 +1,242 @@
 /**
- * Focus Manager Service
- * Keeps AI agents on target and prevents context drift
- * Implements observer pattern for multi-agent coordination
- * Uses Hallbergmaths for systematic progress tracking
+ * Focus Manager
+ * Keeps AI agents on target and tracks progress
+ * Part of Patch 1: Foundation & Architecture
  */
 
-import { checkpointService } from './checkpointService';
-
-/**
- * Current Focus State
- */
-interface FocusState {
+export interface FocusState {
   currentCheckpoint: string;
   currentTask: string;
-  planFile: string;
-  todos: Array<{ id: string; status: string; content: string }>;
-  context: {
-    what: string;      // What we're building
-    why: string;       // Why we're building it
-    how: string;       // How we're building it
-    where: string;     // Where we are in the plan
-  };
   blockers: string[];
   nextSteps: string[];
+  onTarget: boolean;
+  lastUpdate: number;
 }
 
-/**
- * Observer Pattern for Multi-Agent Coordination
- */
-interface Observer {
+export interface Task {
   id: string;
-  onStateChange: (state: FocusState) => void;
-  onCheckpoint: (checkpoint: string) => void;
-  onBlocker: (blocker: string) => void;
+  checkpoint: string;
+  description: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'blocked';
+  blockers?: string[];
+  dependencies?: string[];
 }
 
 class FocusManager {
-  private state: FocusState;
-  private observers: Observer[] = [];
-  private checkpointHistory: string[] = [];
+  private focusState: FocusState = {
+    currentCheckpoint: '',
+    currentTask: '',
+    blockers: [],
+    nextSteps: [],
+    onTarget: true,
+    lastUpdate: Date.now(),
+  };
 
-  constructor() {
-    this.state = {
-      currentCheckpoint: '',
-      currentTask: '',
-      planFile: '',
-      todos: [],
-      context: {
-        what: '',
-        why: '',
-        how: '',
-        where: '',
-      },
-      blockers: [],
-      nextSteps: [],
-    };
-  }
-
-  /**
-   * Initialize with plan context
-   */
-  initialize(planFile: string, currentCheckpoint: string, todos: any[]): void {
-    this.state.planFile = planFile;
-    this.state.currentCheckpoint = currentCheckpoint;
-    this.state.todos = todos;
-    this.updateContext();
-    this.notifyObservers();
-  }
-
-  /**
-   * Update context from current state
-   */
-  private updateContext(): void {
-    // WHAT: What we're building
-    this.state.context.what = 'VectorForge: Progressive Patching with USB Deployment';
-    
-    // WHY: Why we're building it
-    this.state.context.why = 'Create self-contained modular product with incremental patches, USB installer, error intelligence';
-    
-    // HOW: How we're building it
-    this.state.context.how = 'Progressive patching: 2-5 files per patch, commit after each MVP checkpoint, sync to GitHub, browser test';
-    
-    // WHERE: Where we are
-    const currentTodo = this.state.todos.find(t => t.status === 'in_progress');
-    this.state.context.where = currentTodo 
-      ? `Checkpoint ${this.state.currentCheckpoint}: ${currentTodo.content}`
-      : `Checkpoint ${this.state.currentCheckpoint}`;
-  }
+  private tasks: Task[] = [];
+  private taskHistory: Task[] = [];
 
   /**
    * Set current checkpoint
    */
   setCheckpoint(checkpoint: string): void {
-    this.state.currentCheckpoint = checkpoint;
-    this.checkpointHistory.push(checkpoint);
-    this.updateContext();
-    this.notifyObservers();
-    
-    // Create checkpoint in checkpoint service
-    checkpointService.createCheckpoint(
-      `focus-${checkpoint}`,
-      `Focus checkpoint: ${checkpoint}`,
-      [],
-      { focusState: this.state }
-    ).catch(console.error);
+    this.focusState.currentCheckpoint = checkpoint;
+    this.focusState.lastUpdate = Date.now();
+    this.saveState();
   }
 
   /**
    * Set current task
    */
-  setTask(task: string): void {
-    this.state.currentTask = task;
-    this.updateContext();
-    this.notifyObservers();
+  setTask(taskId: string, description: string): void {
+    this.focusState.currentTask = taskId;
+    
+    // Update or create task
+    const existingTask = this.tasks.find(t => t.id === taskId);
+    if (existingTask) {
+      existingTask.status = 'in_progress';
+      existingTask.description = description;
+    } else {
+      this.tasks.push({
+        id: taskId,
+        checkpoint: this.focusState.currentCheckpoint,
+        description,
+        status: 'in_progress',
+      });
+    }
+
+    this.focusState.lastUpdate = Date.now();
+    this.saveState();
+  }
+
+  /**
+   * Mark task as completed
+   */
+  completeTask(taskId: string): void {
+    const task = this.tasks.find(t => t.id === taskId);
+    if (task) {
+      task.status = 'completed';
+      this.taskHistory.push({ ...task });
+      this.tasks = this.tasks.filter(t => t.id !== taskId);
+    }
+    this.focusState.lastUpdate = Date.now();
+    this.saveState();
   }
 
   /**
    * Add blocker
    */
   addBlocker(blocker: string): void {
-    this.state.blockers.push(blocker);
-    this.notifyObservers();
+    if (!this.focusState.blockers.includes(blocker)) {
+      this.focusState.blockers.push(blocker);
+      this.focusState.onTarget = false;
+      
+      // Mark current task as blocked
+      const currentTask = this.tasks.find(t => t.id === this.focusState.currentTask);
+      if (currentTask) {
+        currentTask.status = 'blocked';
+        if (!currentTask.blockers) {
+          currentTask.blockers = [];
+        }
+        currentTask.blockers.push(blocker);
+      }
+    }
+    this.focusState.lastUpdate = Date.now();
+    this.saveState();
   }
 
   /**
-   * Clear blocker
+   * Resolve blocker
    */
-  clearBlocker(blocker: string): void {
-    this.state.blockers = this.state.blockers.filter(b => b !== blocker);
-    this.notifyObservers();
+  resolveBlocker(blocker: string): void {
+    this.focusState.blockers = this.focusState.blockers.filter(b => b !== blocker);
+    
+    // Update task blockers
+    this.tasks.forEach(task => {
+      if (task.blockers) {
+        task.blockers = task.blockers.filter(b => b !== blocker);
+        if (task.blockers.length === 0 && task.status === 'blocked') {
+          task.status = 'in_progress';
+        }
+      }
+    });
+
+    // Check if we're back on target
+    if (this.focusState.blockers.length === 0) {
+      this.focusState.onTarget = true;
+    }
+
+    this.focusState.lastUpdate = Date.now();
+    this.saveState();
   }
 
   /**
    * Set next steps
    */
   setNextSteps(steps: string[]): void {
-    this.state.nextSteps = steps;
-    this.notifyObservers();
+    this.focusState.nextSteps = steps;
+    this.focusState.lastUpdate = Date.now();
+    this.saveState();
+  }
+
+  /**
+   * Validate if we're on target
+   */
+  validateOnTarget(): boolean {
+    const isOnTarget = 
+      this.focusState.currentCheckpoint !== '' &&
+      this.focusState.currentTask !== '' &&
+      this.focusState.blockers.length === 0;
+
+    this.focusState.onTarget = isOnTarget;
+    this.saveState();
+    return isOnTarget;
   }
 
   /**
    * Get current focus state
    */
-  getState(): FocusState {
-    return { ...this.state };
+  getFocusState(): FocusState {
+    return { ...this.focusState };
   }
 
   /**
-   * Register observer
+   * Get current tasks
    */
-  registerObserver(observer: Observer): void {
-    this.observers.push(observer);
+  getTasks(): Task[] {
+    return [...this.tasks];
   }
 
   /**
-   * Unregister observer
+   * Get task history
    */
-  unregisterObserver(observerId: string): void {
-    this.observers = this.observers.filter(o => o.id !== observerId);
+  getTaskHistory(): Task[] {
+    return [...this.taskHistory];
   }
 
   /**
-   * Notify all observers
+   * Save state to localStorage
    */
-  private notifyObservers(): void {
-    this.observers.forEach(observer => {
+  private saveState(): void {
+    if (typeof window !== 'undefined') {
       try {
-        observer.onStateChange(this.state);
+        localStorage.setItem('focusManager_state', JSON.stringify(this.focusState));
+        localStorage.setItem('focusManager_tasks', JSON.stringify(this.tasks));
+        localStorage.setItem('focusManager_history', JSON.stringify(this.taskHistory));
       } catch (error) {
-        console.error(`Observer ${observer.id} error:`, error);
+        console.error('Failed to save focus state:', error);
       }
-    });
+    }
   }
 
   /**
-   * Validate we're on target
+   * Load state from localStorage
    */
-  validateOnTarget(): { onTarget: boolean; issues: string[] } {
-    const issues: string[] = [];
+  loadState(): void {
+    if (typeof window !== 'undefined') {
+      try {
+        const stateStr = localStorage.getItem('focusManager_state');
+        const tasksStr = localStorage.getItem('focusManager_tasks');
+        const historyStr = localStorage.getItem('focusManager_history');
 
-    // Check if we have a current checkpoint
-    if (!this.state.currentCheckpoint) {
-      issues.push('No current checkpoint set');
+        if (stateStr) {
+          this.focusState = JSON.parse(stateStr);
+        }
+        if (tasksStr) {
+          this.tasks = JSON.parse(tasksStr);
+        }
+        if (historyStr) {
+          this.taskHistory = JSON.parse(historyStr);
+        }
+      } catch (error) {
+        console.error('Failed to load focus state:', error);
+      }
     }
+  }
 
-    // Check if we have a current task
-    if (!this.state.currentTask) {
-      issues.push('No current task set');
-    }
-
-    // Check if we have blockers
-    if (this.state.blockers.length > 0) {
-      issues.push(`Blockers present: ${this.state.blockers.join(', ')}`);
-    }
-
-    // Check if we're following the plan
-    const inProgressTodos = this.state.todos.filter(t => t.status === 'in_progress');
-    if (inProgressTodos.length === 0) {
-      issues.push('No tasks in progress');
-    } else if (inProgressTodos.length > 1) {
-      issues.push('Multiple tasks in progress (should be one at a time)');
-    }
-
-    return {
-      onTarget: issues.length === 0,
-      issues,
+  /**
+   * Clear all state
+   */
+  clear(): void {
+    this.focusState = {
+      currentCheckpoint: '',
+      currentTask: '',
+      blockers: [],
+      nextSteps: [],
+      onTarget: true,
+      lastUpdate: Date.now(),
     };
-  }
-
-  /**
-   * Get focus summary for AI agent
-   */
-  getFocusSummary(): string {
-    const validation = this.validateOnTarget();
-    const status = validation.onTarget ? '✅ ON TARGET' : '⚠️ OFF TARGET';
-    
-    return `
-FOCUS STATUS: ${status}
-
-CURRENT CHECKPOINT: ${this.state.currentCheckpoint}
-CURRENT TASK: ${this.state.currentTask}
-
-CONTEXT:
-  WHAT: ${this.state.context.what}
-  WHY: ${this.state.context.why}
-  HOW: ${this.state.context.how}
-  WHERE: ${this.state.context.where}
-
-${validation.issues.length > 0 ? `ISSUES:\n${validation.issues.map(i => `  - ${i}`).join('\n')}\n` : ''}
-${this.state.blockers.length > 0 ? `BLOCKERS:\n${this.state.blockers.map(b => `  - ${b}`).join('\n')}\n` : ''}
-${this.state.nextSteps.length > 0 ? `NEXT STEPS:\n${this.state.nextSteps.map(s => `  - ${s}`).join('\n')}\n` : ''}
-    `.trim();
+    this.tasks = [];
+    this.taskHistory = [];
+    this.saveState();
   }
 }
 
 // Singleton instance
 export const focusManager = new FocusManager();
 
-// Auto-initialize with current plan
+// Load state on initialization
 if (typeof window !== 'undefined') {
-  // Browser: Load from localStorage or fetch plan
-  const savedState = localStorage.getItem('focusManagerState');
-  if (savedState) {
-    try {
-      const state = JSON.parse(savedState);
-      focusManager.initialize(
-        state.planFile || '',
-        state.currentCheckpoint || '',
-        state.todos || []
-      );
-    } catch (e) {
-      console.error('Failed to load focus state:', e);
-    }
-  }
+  focusManager.loadState();
 }
 
 export default focusManager;
-

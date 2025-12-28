@@ -1,0 +1,101 @@
+/**
+ * Tooltip Styles
+ * Xibalba design system compliant
+ */
+
+.tooltip {
+  position: fixed;
+  z-index: 10001;
+  padding: 8px 12px;
+  background: var(--xibalba-grey-200, #25252a);
+  color: var(--xibalba-text-000, #ffffff);
+  font-size: 12px;
+  line-height: 1.4;
+  border-radius: 6px;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+  white-space: nowrap;
+  max-width: 300px;
+  animation: tooltipFadeIn 0.2s ease-out;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tooltip::before {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-style: solid;
+}
+
+/* Top position */
+.tooltip-top {
+  transform: translateX(-50%);
+}
+
+.tooltip-top::before {
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px 6px 0 6px;
+  border-color: var(--xibalba-grey-200, #25252a) transparent transparent transparent;
+}
+
+/* Bottom position */
+.tooltip-bottom {
+  transform: translateX(-50%);
+}
+
+.tooltip-bottom::before {
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 0 6px 6px 6px;
+  border-color: transparent transparent var(--xibalba-grey-200, #25252a) transparent;
+}
+
+/* Left position */
+.tooltip-left {
+  transform: translateY(-50%);
+}
+
+.tooltip-left::before {
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-width: 6px 0 6px 6px;
+  border-color: transparent transparent transparent var(--xibalba-grey-200, #25252a);
+}
+
+/* Right position */
+.tooltip-right {
+  transform: translateY(-50%);
+}
+
+.tooltip-right::before {
+  left: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-width: 6px 6px 6px 0;
+  border-color: transparent var(--xibalba-grey-200, #25252a) transparent transparent;
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Multi-line tooltips */
+.tooltip[data-multiline] {
+  white-space: normal;
+  max-width: 250px;
+}
+

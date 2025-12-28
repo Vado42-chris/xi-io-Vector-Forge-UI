@@ -1,272 +1,184 @@
 /**
  * Security Service
- * Core security utilities for input sanitization, validation, and security checks
+ * Handles security validation and code sandboxing
+ * Part of Patch 4: Security Foundation
  */
 
-import { checkpointService } from './checkpointService';
-
-/**
- * Security Service Interface
- */
-export interface ISecurityService {
-  /**
-   * Sanitize user input to prevent XSS attacks
-   */
-  sanitizeInput(input: string): string;
-
-  /**
-   * Validate file type before upload
-   */
-  validateFileType(file: File, allowedTypes: string[]): boolean;
-
-  /**
-   * Validate file size
-   */
-  validateFileSize(file: File, maxSizeBytes: number): boolean;
-
-  /**
-   * Sanitize SVG content
-   */
-  sanitizeSvg(svg: string): string;
-
-  /**
-   * Validate URL for safe navigation
-   */
-  validateUrl(url: string): boolean;
-
-  /**
-   * Generate secure random token
-   */
-  generateSecureToken(length?: number): string;
-
-  /**
-   * Hash sensitive data (simple hash for client-side)
-   */
-  hashData(data: string): string;
-
-  /**
-   * Check if content contains potentially dangerous patterns
-   */
-  detectMaliciousContent(content: string): boolean;
+export interface SecurityPolicy {
+  allowInlineScripts: boolean;
+  allowEval: boolean;
+  allowExternalResources: boolean;
+  allowedDomains: string[];
+  maxScriptSize: number;
+  maxExecutionTime: number;
 }
 
-class SecurityService implements ISecurityService {
-  private dangerousPatterns: RegExp[] = [
-    /<script[^>]*>.*?<\/script>/gi,
-    /javascript:/gi,
-    /on\w+\s*=/gi, // Event handlers like onclick=
-    /<iframe[^>]*>/gi,
-    /<object[^>]*>/gi,
-    /<embed[^>]*>/gi,
-    /data:text\/html/gi,
-    /vbscript:/gi,
-  ];
+export interface SecurityViolation {
+  type: 'script' | 'eval' | 'external' | 'size' | 'timeout' | 'sandbox';
+  message: string;
+  timestamp: number;
+  context?: string;
+}
+
+class SecurityService {
+  private policy: SecurityPolicy = {
+    allowInlineScripts: false,
+    allowEval: false,
+    allowExternalResources: false,
+    allowedDomains: [],
+    maxScriptSize: 100000, // 100KB
+    maxExecutionTime: 5000, // 5 seconds
+  };
+
+  private violations: SecurityViolation[] = [];
+  private maxViolations = 100;
 
   /**
-   * Sanitize user input to prevent XSS attacks
+   * Initialize security service
+   */
+  initialize(policy?: Partial<SecurityPolicy>): void {
+    if (policy) {
+      this.policy = { ...this.policy, ...policy };
+    }
+  }
+
+  /**
+   * Validate script content
+   */
+  validateScript(script: string, context?: string): { valid: boolean; violation?: SecurityViolation } {
+    // Check script size
+    if (script.length > this.policy.maxScriptSize) {
+      const violation: SecurityViolation = {
+        type: 'size',
+        message: `Script exceeds maximum size of ${this.policy.maxScriptSize} bytes`,
+        timestamp: Date.now(),
+        context,
+      };
+      this.recordViolation(violation);
+      return { valid: false, violation };
+    }
+
+    // Check for eval usage
+    if (!this.policy.allowEval) {
+      const evalPattern = /\beval\s*\(|\bFunction\s*\(|new\s+Function\s*\(/i;
+      if (evalPattern.test(script)) {
+        const violation: SecurityViolation = {
+          type: 'eval',
+          message: 'Script contains eval or Function constructor (not allowed)',
+          timestamp: Date.now(),
+          context,
+        };
+        this.recordViolation(violation);
+        return { valid: false, violation };
+      }
+    }
+
+    // Check for external resource access
+    if (!this.policy.allowExternalResources) {
+      const externalPattern = /(fetch|XMLHttpRequest|import\s*\(|require\s*\()/i;
+      if (externalPattern.test(script)) {
+        const violation: SecurityViolation = {
+          type: 'external',
+          message: 'Script attempts external resource access (not allowed)',
+          timestamp: Date.now(),
+          context,
+        };
+        this.recordViolation(violation);
+        return { valid: false, violation };
+      }
+    }
+
+    return { valid: true };
+  }
+
+  /**
+   * Sanitize user input
    */
   sanitizeInput(input: string): string {
-    if (!input || typeof input !== 'string') {
-      return '';
-    }
-
-    // Remove null bytes
-    let sanitized = input.replace(/\0/g, '');
-
-    // Remove dangerous patterns
-    this.dangerousPatterns.forEach(pattern => {
-      sanitized = sanitized.replace(pattern, '');
-    });
-
-    // Escape HTML entities
-    sanitized = sanitized
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#x27;')
-      .replace(/\//g, '&#x2F;');
-
-    return sanitized;
+    // Remove potentially dangerous characters and patterns
+    return input
+      .replace(/<script[^>]*>.*?<\/script>/gi, '')
+      .replace(/javascript:/gi, '')
+      .replace(/on\w+\s*=/gi, '')
+      .replace(/eval\s*\(/gi, '')
+      .replace(/Function\s*\(/gi, '');
   }
 
   /**
-   * Validate file type before upload
-   */
-  validateFileType(file: File, allowedTypes: string[]): boolean {
-    if (!file || !allowedTypes || allowedTypes.length === 0) {
-      return false;
-    }
-
-    const fileType = file.type.toLowerCase();
-    const fileName = file.name.toLowerCase();
-
-    return allowedTypes.some(allowed => {
-      const allowedLower = allowed.toLowerCase();
-      
-      // Check MIME type
-      if (fileType.includes(allowedLower)) {
-        return true;
-      }
-
-      // Check file extension
-      const extension = fileName.split('.').pop();
-      if (extension && allowedLower.includes(extension)) {
-        return true;
-      }
-
-      return false;
-    });
-  }
-
-  /**
-   * Validate file size
-   */
-  validateFileSize(file: File, maxSizeBytes: number): boolean {
-    if (!file || maxSizeBytes <= 0) {
-      return false;
-    }
-
-    return file.size <= maxSizeBytes;
-  }
-
-  /**
-   * Sanitize SVG content
-   */
-  sanitizeSvg(svg: string): string {
-    if (!svg || typeof svg !== 'string') {
-      return '';
-    }
-
-    // Parse SVG and remove dangerous elements/attributes
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(svg, 'image/svg+xml');
-
-    // Remove script elements
-    const scripts = doc.querySelectorAll('script');
-    scripts.forEach(script => script.remove());
-
-    // Remove event handlers from all elements
-    const allElements = doc.querySelectorAll('*');
-    allElements.forEach(el => {
-      Array.from(el.attributes).forEach(attr => {
-        if (attr.name.startsWith('on')) {
-          el.removeAttribute(attr.name);
-        }
-        // Remove javascript: URLs
-        if (attr.value && attr.value.toLowerCase().startsWith('javascript:')) {
-          el.removeAttribute(attr.name);
-        }
-      });
-    });
-
-    // Remove dangerous elements
-    const dangerousElements = doc.querySelectorAll('iframe, object, embed, link[rel="stylesheet"]');
-    dangerousElements.forEach(el => el.remove());
-
-    // Serialize back to string
-    const serializer = new XMLSerializer();
-    return serializer.serializeToString(doc);
-  }
-
-  /**
-   * Validate URL for safe navigation
+   * Validate URL
    */
   validateUrl(url: string): boolean {
-    if (!url || typeof url !== 'string') {
-      return false;
-    }
-
     try {
-      const urlObj = new URL(url);
+      const parsed = new URL(url);
       
-      // Only allow http, https, and data URLs (with restrictions)
-      const allowedProtocols = ['http:', 'https:'];
-      if (!allowedProtocols.includes(urlObj.protocol)) {
-        // Allow data URLs only for images
-        if (urlObj.protocol === 'data:') {
-          return urlObj.pathname.startsWith('image/');
+      // Check if domain is allowed
+      if (this.policy.allowedDomains.length > 0) {
+        const domain = parsed.hostname;
+        const isAllowed = this.policy.allowedDomains.some(allowed => 
+          domain === allowed || domain.endsWith(`.${allowed}`)
+        );
+        if (!isAllowed) {
+          return false;
         }
-        return false;
       }
 
-      // Check for dangerous patterns
-      if (urlObj.href.toLowerCase().includes('javascript:')) {
-        return false;
-      }
-
-      return true;
+      // Only allow http/https
+      return parsed.protocol === 'http:' || parsed.protocol === 'https:';
     } catch {
       return false;
     }
   }
 
   /**
-   * Generate secure random token
+   * Record security violation
    */
-  generateSecureToken(length: number = 32): string {
-    const array = new Uint8Array(length);
-    if (typeof window !== 'undefined' && window.crypto) {
-      window.crypto.getRandomValues(array);
-    } else {
-      // Fallback for environments without crypto
-      for (let i = 0; i < length; i++) {
-        array[i] = Math.floor(Math.random() * 256);
-      }
+  private recordViolation(violation: SecurityViolation): void {
+    this.violations.push(violation);
+    
+    // Limit violations array size
+    if (this.violations.length > this.maxViolations) {
+      this.violations.shift();
     }
 
-    return Array.from(array)
-      .map(b => b.toString(16).padStart(2, '0'))
-      .join('');
+    // Log to console in development
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('Security violation:', violation);
+    }
   }
 
   /**
-   * Hash sensitive data (simple hash for client-side)
-   * Note: This is a simple hash for client-side use only.
-   * For production, use proper cryptographic hashing on the server.
+   * Get security violations
    */
-  hashData(data: string): string {
-    if (!data || typeof data !== 'string') {
-      return '';
-    }
-
-    // Simple hash function (not cryptographically secure, but sufficient for client-side checksums)
-    let hash = 0;
-    for (let i = 0; i < data.length; i++) {
-      const char = data.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash; // Convert to 32-bit integer
-    }
-
-    return Math.abs(hash).toString(16);
+  getViolations(): SecurityViolation[] {
+    return [...this.violations];
   }
 
   /**
-   * Check if content contains potentially dangerous patterns
+   * Clear violations
    */
-  detectMaliciousContent(content: string): boolean {
-    if (!content || typeof content !== 'string') {
-      return false;
-    }
-
-    return this.dangerousPatterns.some(pattern => pattern.test(content));
+  clearViolations(): void {
+    this.violations = [];
   }
 
   /**
-   * Create security checkpoint
+   * Get current security policy
    */
-  async createSecurityCheckpoint(action: string, details: Record<string, any>): Promise<void> {
-    await checkpointService.createCheckpoint(
-      `security-${action}`,
-      `Security action: ${action}`,
-      [],
-      details
-    );
+  getPolicy(): SecurityPolicy {
+    return { ...this.policy };
+  }
+
+  /**
+   * Update security policy
+   */
+  updatePolicy(updates: Partial<SecurityPolicy>): void {
+    this.policy = { ...this.policy, ...updates };
   }
 }
 
 // Singleton instance
 export const securityService = new SecurityService();
 
-export default securityService;
+// Initialize with default policy
+securityService.initialize();
 
+export default securityService;

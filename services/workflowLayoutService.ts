@@ -1,83 +1,70 @@
 /**
  * Workflow Layout Service
- * Manages workspace layouts for different workflows
- * Supports layout switching, persistence, and customization
+ * Manages UI layouts and panel arrangements
+ * Part of Patch 3: Workflow Layouts
  */
 
-import type {
-  WorkflowLayout,
-  PanelConfig,
-  ILayoutService,
-} from '../types/workflow';
-// Optional checkpoint service - don't block initialization if it fails
-const createCheckpoint = async (id: string, description: string, files: string[] = [], metadata: any = {}) => {
-  try {
-    const { checkpointService } = await import('./checkpointService');
-    await checkpointService.createCheckpoint(id, description, files, metadata);
-  } catch (error) {
-    // Non-blocking - checkpoint failures shouldn't break the app
-    console.warn('Checkpoint creation failed:', error);
-  }
-};
+import type { WorkflowLayout, PanelConfig, LayoutPreset } from '../types/workflow';
 
-class WorkflowLayoutService implements ILayoutService {
+class WorkflowLayoutService {
   private layouts: Map<string, WorkflowLayout> = new Map();
   private currentLayoutId: string | null = null;
-  private initialized: boolean = false;
+  private initialized = false;
 
   /**
-   * Initialize service with default layouts
+   * Initialize layout service from data file
    */
   async initialize(): Promise<void> {
-    if (this.initialized) return;
+    if (this.initialized) {
+      return;
+    }
 
     try {
-      // Load from data file (will be created in next checkpoint)
+      // Load layout data
       const response = await fetch('/data/workflowLayouts.json');
       if (response.ok) {
         const data = await response.json();
         if (Array.isArray(data.layouts)) {
           data.layouts.forEach((layout: WorkflowLayout) => {
             this.layouts.set(layout.id, layout);
-            if (layout.default) {
-              this.currentLayoutId = layout.id;
-            }
           });
+        }
+        // Set default layout
+        if (data.defaultLayout) {
+          this.currentLayoutId = data.defaultLayout;
         }
       }
     } catch (error) {
-      console.warn('Could not load workflow layouts from file, using defaults');
-    }
-
-    // If no current layout, use first default or first layout
-    if (!this.currentLayoutId) {
-      const defaultLayout = Array.from(this.layouts.values()).find(l => l.default);
-      this.currentLayoutId = defaultLayout?.id || Array.from(this.layouts.keys())[0] || null;
+      console.warn('Failed to load workflow layouts:', error);
+      // Continue with default layout
+      this.createDefaultLayout();
     }
 
     this.initialized = true;
-
-    // Create checkpoint (non-blocking)
-    createCheckpoint(
-      'layout-service-initialized',
-      'Workflow layout service initialized',
-      [],
-      { layoutCount: this.layouts.size, currentLayout: this.currentLayoutId }
-    );
   }
 
   /**
-   * Get all available layouts
+   * Create default layout
    */
-  getLayouts(): WorkflowLayout[] {
-    return Array.from(this.layouts.values());
-  }
+  private createDefaultLayout(): void {
+    const defaultLayout: WorkflowLayout = {
+      id: 'default',
+      name: 'Default Layout',
+      description: 'Standard layout with all panels visible',
+      category: 'default',
+      panels: [
+        { id: 'left-sidebar', type: 'sidebar', position: 'left', width: 320, visible: true, order: 1 },
+        { id: 'right-sidebar', type: 'sidebar', position: 'right', width: 320, visible: true, order: 2 },
+        { id: 'toolbar', type: 'toolbar', position: 'top', height: 64, visible: true, order: 3 },
+        { id: 'canvas', type: 'canvas', position: 'center', visible: true, order: 4 },
+        { id: 'timeline', type: 'timeline', position: 'bottom', height: 200, visible: true, order: 5 },
+      ],
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    };
 
-  /**
-   * Get layout by ID
-   */
-  getLayout(id: string): WorkflowLayout | null {
-    return this.layouts.get(id) || null;
+    this.layouts.set('default', defaultLayout);
+    this.currentLayoutId = 'default';
   }
 
   /**
@@ -87,183 +74,205 @@ class WorkflowLayoutService implements ILayoutService {
     if (!this.currentLayoutId) {
       return null;
     }
-    return this.getLayout(this.currentLayoutId);
+    return this.layouts.get(this.currentLayoutId) || null;
   }
 
   /**
    * Set current layout
    */
-  setCurrentLayout(id: string): void {
-    const layout = this.getLayout(id);
-    if (!layout) {
-      throw new Error(`Layout not found: ${id}`);
+  setCurrentLayout(layoutId: string): boolean {
+    if (this.layouts.has(layoutId)) {
+      this.currentLayoutId = layoutId;
+      this.saveCurrentLayout();
+      return true;
     }
+    return false;
+  }
 
-    const previousLayoutId = this.currentLayoutId;
-    this.currentLayoutId = id;
+  /**
+   * Get layout by ID
+   */
+  getLayout(layoutId: string): WorkflowLayout | undefined {
+    return this.layouts.get(layoutId);
+  }
 
-    // Persist to localStorage
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('vectorforge-current-layout', id);
-    }
-
-    // Create checkpoint (non-blocking)
-    createCheckpoint(
-      `layout-switch-${id}`,
-      `Switched to layout: ${layout.name}`,
-      [],
-      { previousLayout: previousLayoutId, newLayout: id }
+  /**
+   * Get all layouts
+   */
+  getAllLayouts(): WorkflowLayout[] {
+    return Array.from(this.layouts.values()).sort((a, b) => 
+      (a.updatedAt || 0) - (b.updatedAt || 0)
     );
   }
 
   /**
-   * Save layout
+   * Create new layout
    */
-  saveLayout(layout: WorkflowLayout): void {
-    // Validate layout
-    if (!layout.id || !layout.name || !layout.panels) {
-      throw new Error('Invalid layout: missing required fields');
+  createLayout(name: string, description: string, panels: PanelConfig[]): string {
+    const layoutId = `layout-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const layout: WorkflowLayout = {
+      id: layoutId,
+      name,
+      description,
+      category: 'custom',
+      panels,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    };
+
+    this.layouts.set(layoutId, layout);
+    this.saveLayouts();
+    return layoutId;
+  }
+
+  /**
+   * Update layout
+   */
+  updateLayout(layoutId: string, updates: Partial<WorkflowLayout>): boolean {
+    const layout = this.layouts.get(layoutId);
+    if (!layout) {
+      return false;
     }
 
-    this.layouts.set(layout.id, layout);
+    const updated: WorkflowLayout = {
+      ...layout,
+      ...updates,
+      updatedAt: Date.now(),
+    };
 
-    // Persist to localStorage
-    if (typeof window !== 'undefined') {
-      const savedLayouts = JSON.parse(
-        localStorage.getItem('vectorforge-custom-layouts') || '[]'
-      );
-      const index = savedLayouts.findIndex((l: WorkflowLayout) => l.id === layout.id);
-      if (index >= 0) {
-        savedLayouts[index] = layout;
-      } else {
-        savedLayouts.push(layout);
-      }
-      localStorage.setItem('vectorforge-custom-layouts', JSON.stringify(savedLayouts));
-    }
-
-    // Create checkpoint (non-blocking)
-    createCheckpoint(
-      `layout-save-${layout.id}`,
-      `Saved layout: ${layout.name}`,
-      [],
-      { layout }
-    );
+    this.layouts.set(layoutId, updated);
+    this.saveLayouts();
+    return true;
   }
 
   /**
    * Delete layout
    */
-  deleteLayout(id: string): void {
-    const layout = this.getLayout(id);
-    if (!layout) {
-      throw new Error(`Layout not found: ${id}`);
+  deleteLayout(layoutId: string): boolean {
+    if (layoutId === 'default') {
+      return false; // Cannot delete default layout
     }
 
-    // Don't delete default layouts
-    if (layout.default) {
-      throw new Error('Cannot delete default layout');
-    }
-
-    this.layouts.delete(id);
-
-    // Remove from localStorage
-    if (typeof window !== 'undefined') {
-      const savedLayouts = JSON.parse(
-        localStorage.getItem('vectorforge-custom-layouts') || '[]'
-      );
-      const filtered = savedLayouts.filter((l: WorkflowLayout) => l.id !== id);
-      localStorage.setItem('vectorforge-custom-layouts', JSON.stringify(filtered));
-    }
-
-    // If deleted layout was current, switch to default
-    if (this.currentLayoutId === id) {
-      const defaultLayout = Array.from(this.layouts.values()).find(l => l.default);
-      this.currentLayoutId = defaultLayout?.id || Array.from(this.layouts.keys())[0] || null;
-    }
-
-    // Create checkpoint (non-blocking)
-    createCheckpoint(
-      `layout-delete-${id}`,
-      `Deleted layout: ${layout.name}`,
-      [],
-      { id, layout }
-    );
-  }
-
-  /**
-   * Export layout
-   */
-  exportLayout(id: string): string {
-    const layout = this.getLayout(id);
-    if (!layout) {
-      throw new Error(`Layout not found: ${id}`);
-    }
-
-    return JSON.stringify(layout, null, 2);
-  }
-
-  /**
-   * Import layout
-   */
-  importLayout(data: string): WorkflowLayout {
-    try {
-      const layout = JSON.parse(data) as WorkflowLayout;
-      
-      // Validate
-      if (!layout.id || !layout.name || !layout.panels) {
-        throw new Error('Invalid layout data');
+    if (this.layouts.has(layoutId)) {
+      this.layouts.delete(layoutId);
+      if (this.currentLayoutId === layoutId) {
+        this.currentLayoutId = 'default';
       }
-
-      // Save imported layout
-      this.saveLayout(layout);
-
-      return layout;
-    } catch (error) {
-      throw new Error(`Failed to import layout: ${error}`);
+      this.saveLayouts();
+      return true;
     }
+    return false;
   }
 
   /**
-   * Reset to default layout
+   * Get panel config for current layout
    */
-  resetToDefault(): void {
-    const defaultLayout = Array.from(this.layouts.values()).find(l => l.default);
-    if (defaultLayout) {
-      this.setCurrentLayout(defaultLayout.id);
+  getPanelConfig(panelId: string): PanelConfig | null {
+    const layout = this.getCurrentLayout();
+    if (!layout) {
+      return null;
     }
+    return layout.panels.find(p => p.id === panelId) || null;
   }
 
   /**
-   * Get layout statistics
+   * Update panel config
    */
-  getStatistics(): {
-    total: number;
-    default: number;
-    custom: number;
-    current: string | null;
-  } {
-    const layouts = Array.from(this.layouts.values());
-    return {
-      total: layouts.length,
-      default: layouts.filter(l => l.default).length,
-      custom: layouts.filter(l => !l.default).length,
-      current: this.currentLayoutId,
+  updatePanelConfig(panelId: string, config: Partial<PanelConfig>): boolean {
+    const layout = this.getCurrentLayout();
+    if (!layout) {
+      return false;
+    }
+
+    const panelIndex = layout.panels.findIndex(p => p.id === panelId);
+    if (panelIndex === -1) {
+      return false;
+    }
+
+    layout.panels[panelIndex] = {
+      ...layout.panels[panelIndex],
+      ...config,
     };
+
+    layout.updatedAt = Date.now();
+    this.layouts.set(layout.id, layout);
+    this.saveLayouts();
+    return true;
+  }
+
+  /**
+   * Save layouts to localStorage
+   */
+  private saveLayouts(): void {
+    if (typeof window !== 'undefined') {
+      try {
+        const layouts = Array.from(this.layouts.values());
+        localStorage.setItem('workflowLayouts', JSON.stringify({ layouts }));
+      } catch (error) {
+        console.error('Failed to save layouts:', error);
+      }
+    }
+  }
+
+  /**
+   * Load layouts from localStorage
+   */
+  private loadLayouts(): void {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('workflowLayouts');
+        if (stored) {
+          const data = JSON.parse(stored);
+          if (Array.isArray(data.layouts)) {
+            data.layouts.forEach((layout: WorkflowLayout) => {
+              this.layouts.set(layout.id, layout);
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load layouts:', error);
+      }
+    }
+  }
+
+  /**
+   * Save current layout ID
+   */
+  private saveCurrentLayout(): void {
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('currentWorkflowLayout', this.currentLayoutId || '');
+      } catch (error) {
+        console.error('Failed to save current layout:', error);
+      }
+    }
+  }
+
+  /**
+   * Load current layout ID
+   */
+  private loadCurrentLayout(): void {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('currentWorkflowLayout');
+        if (stored && this.layouts.has(stored)) {
+          this.currentLayoutId = stored;
+        }
+      } catch (error) {
+        console.error('Failed to load current layout:', error);
+      }
+    }
   }
 }
 
-// Singleton instance - lazy initialization to avoid circular dependencies
-let _workflowLayoutServiceInstance: WorkflowLayoutService | null = null;
+// Singleton instance
+export const workflowLayoutService = new WorkflowLayoutService();
 
-export const workflowLayoutService = (() => {
-  if (!_workflowLayoutServiceInstance) {
-    _workflowLayoutServiceInstance = new WorkflowLayoutService();
-  }
-  return _workflowLayoutServiceInstance;
-})();
-
-// DO NOT auto-initialize - let App.tsx handle initialization
-// This prevents circular dependencies and initialization order issues
+// Auto-initialize
+if (typeof window !== 'undefined') {
+  workflowLayoutService.initialize().catch(console.error);
+  workflowLayoutService.loadLayouts();
+  workflowLayoutService.loadCurrentLayout();
+}
 
 export default workflowLayoutService;
-

@@ -12,7 +12,7 @@
  * Approved By: Chris Hallberg, CEO, Xibalba Mixed Media Studio
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { subscriptionService, Subscription, SubscriptionTier } from '../services/subscriptionService';
 import ErrorBoundary from './ErrorBoundary';
 
@@ -136,8 +136,12 @@ export default function SubscriptionStatusIndicator({
                     </span>
                   </div>
                   <div 
+                    ref={(node) => {
+                      if (node) {
+                        node.style.setProperty('--progress-width', `${subscriptionService.getUsagePercentage('storage')}%`);
+                      }
+                    }}
                     className="usage-progress-bar"
-                    style={{ '--progress-width': `${subscriptionService.getUsagePercentage('storage')}%` } as React.CSSProperties}
                   >
                     <div className="usage-progress-fill" />
                   </div>

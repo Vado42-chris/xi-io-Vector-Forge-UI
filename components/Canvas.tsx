@@ -106,35 +106,47 @@ const Canvas: React.FC<CanvasProps> = ({
   return (
     <div 
       ref={containerRef}
-      className={`flex-1 relative bg-obsidian-200 overflow-hidden flex items-center justify-center canvas-grid select-none cursor-${activeTool === 'pan' ? 'grab' : 'default'}`}
+      className={`flex-1 relative bg-[var(--xibalba-grey-100)] overflow-hidden flex items-center justify-center canvas-grid select-none cursor-${activeTool === 'pan' ? 'grab' : 'default'}`}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
-      style={{ touchAction: 'none' }}
+      className="canvas-container-touch"
     >
       <Rulers zoom={zoom} pan={pan} onAddGuide={(type, pos) => onAddGuide(type, pos)} />
 
       {/* Interactive Guides */}
-      {guides.map((g) => (
+      {guides.map((g) => {
+        const guideRef = useRef<HTMLDivElement>(null);
+        useEffect(() => {
+          if (guideRef.current) {
+            if (g.type === 'v') {
+              const left = `calc(50% + ${pan.x + g.pos * zoomScale}px)`;
+              guideRef.current.style.setProperty('--guide-left', left);
+            } else {
+              const top = `calc(50% + ${pan.y + g.pos * zoomScale}px)`;
+              guideRef.current.style.setProperty('--guide-top', top);
+            }
+          }
+        }, [pan, g.pos, zoomScale, g.type]);
+        
+        return (
         <div 
           key={g.id}
+          ref={guideRef}
           data-guide-id={g.id}
-          className={`absolute z-[55] cursor-${g.type === 'v' ? 'col-resize' : 'row-resize'} group`}
-          style={g.type === 'v' 
-            ? { left: `calc(50% + ${pan.x + g.pos * zoomScale}px)`, height: '100%', width: '10px', marginLeft: '-5px' } 
-            : { top: `calc(50% + ${pan.y + g.pos * zoomScale}px)`, width: '100%', height: '10px', marginTop: '-5px' }
-          }
+          className={`absolute z-[55] cursor-${g.type === 'v' ? 'col-resize' : 'row-resize'} group guide-line ${g.type === 'v' ? 'guide-vertical' : 'guide-horizontal'}`}
         >
-          <div className={`absolute ${g.type === 'v' ? 'left-1/2 h-full w-px border-l' : 'top-1/2 w-full h-px border-t'} border-primary transition-opacity opacity-20 group-hover:opacity-100 shadow-[0_0_10px_var(--xi-vector-glow)]`}></div>
+          <div className={`absolute ${g.type === 'v' ? 'left-1/2 h-full w-px border-l' : 'top-1/2 w-full h-px border-t'} border-[var(--xibalba-text-200)] transition-opacity opacity-20 group-hover:opacity-100`}></div>
         </div>
-      ))}
+        );
+      })}
 
       <div 
-        className="bg-obsidian-100 relative flex items-center justify-center shadow-[0_80px_200px_-40px_rgba(0,0,0,0.8)] rounded-sm overflow-hidden border border-white/5"
-        style={{ width: '800px', height: '600px', transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoomScale})` }}
+        ref={canvasViewportRef}
+        className="bg-[var(--xibalba-grey-050)] relative flex items-center justify-center shadow-[0_80px_200px_-40px_rgba(0,0,0,0.8)] rounded-none overflow-hidden border border-white/5 canvas-viewport"
       >
         {/* Gestalt Base */}
-        <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none canvas-grid-pattern"></div>
         
         <div 
           className={`w-[512px] h-[512px] transition-all duration-500 pointer-events-auto ${isGenerating ? 'opacity-10 blur-xl grayscale' : 'opacity-100'}`}
@@ -143,41 +155,43 @@ const Canvas: React.FC<CanvasProps> = ({
 
         {/* Selection Bounding Box (Gestalt mode) */}
         {selectedLayerId && activeTool === 'select' && (
-          <div className="absolute w-[512px] h-[512px] pointer-events-none border border-primary/50 shadow-[0_0_20px_var(--xi-vector-glow)]">
-             <div className="absolute -top-1 -left-1 size-2.5 bg-white border border-primary"></div>
-             <div className="absolute -top-1 -right-1 size-2.5 bg-white border border-primary"></div>
-             <div className="absolute -bottom-1 -left-1 size-2.5 bg-white border border-primary"></div>
-             <div className="absolute -bottom-1 -right-1 size-2.5 bg-white border border-primary"></div>
+          <div className="absolute w-[512px] h-[512px] pointer-events-none border border-[var(--xibalba-text-200)]/50 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+             <div className="absolute -top-1 -left-1 size-2.5 bg-[var(--xibalba-text-200)] border border-[var(--xibalba-text-100)]"></div>
+             <div className="absolute -top-1 -right-1 size-2.5 bg-[var(--xibalba-text-200)] border border-[var(--xibalba-text-100)]"></div>
+             <div className="absolute -bottom-1 -left-1 size-2.5 bg-[var(--xibalba-text-200)] border border-[var(--xibalba-text-100)]"></div>
+             <div className="absolute -bottom-1 -right-1 size-2.5 bg-[var(--xibalba-text-200)] border border-[var(--xibalba-text-100)]"></div>
           </div>
         )}
 
         {/* Atomic Sub-Selection Handles */}
-        {selectedLayerId && activeTool === 'subselect' && selectedLayerData && (
+        {selectedLayerId && activeTool === 'subselect' && selectedLayerData && selectedLayerData.shape.type === 'path' && (
            <div className="absolute w-[512px] h-[512px] pointer-events-none">
               <svg className="absolute inset-0 w-full h-full pointer-events-none overflow-visible">
                  {/* Draw the "Spline Backbone" for clarity */}
                  <path 
-                    d={selectedLayerData.nodes.reduce((acc, n, i) => {
+                    d={selectedLayerData.shape.nodes.reduce((acc, n, i) => {
                        if (n.type === 'move') return `M ${n.x} ${n.y}`;
                        if (n.type === 'line') return `${acc} L ${n.x} ${n.y}`;
                        if (n.type === 'cubic') return `${acc} C ${n.cx1} ${n.cy1}, ${n.cx2} ${n.cy2}, ${n.x} ${n.y}`;
                        if (n.type === 'close') return `${acc} Z`;
                        return acc;
                     }, '')}
-                    fill="none" stroke="var(--xi-vector-500)" strokeWidth="1" strokeDasharray="4 2" opacity="0.4"
+                    fill="none" stroke="var(--xibalba-text-200)" strokeWidth="1" strokeDasharray="4 2" opacity="0.4"
                  />
               </svg>
-              {selectedLayerData.nodes.map((node) => (
+              {selectedLayerData.shape.nodes.map((node) => (
                 <div 
                   key={node.id}
                   data-node-id={node.id}
-                  className={`absolute pointer-events-auto cursor-crosshair transition-all hover:scale-150 ${
-                    node.isKinetic ? 'rounded-full border-[2px]' : 'rounded-none border-[1.5px]'
-                  } ${selectedNodeId === node.id ? 'bg-primary border-white scale-125 z-10 xi-popping-glow' : 'bg-white border-primary opacity-80'}`}
-                  style={{ 
-                    left: node.x, top: node.y, 
-                    width: '8px', height: '8px',
-                    transform: 'translate(-50%, -50%)',
+                  className={`absolute pointer-events-auto cursor-crosshair transition-all hover:scale-150 node-handle ${
+                    node.isKinetic ? 'rounded-none border-[2px]' : 'rounded-none border-[1.5px]'
+                  } ${selectedNodeId === node.id ? 'bg-[var(--xibalba-text-200)] border-[var(--xibalba-text-000)] scale-125 z-10' : 'bg-[var(--xibalba-text-200)] border-[var(--xibalba-text-100)] opacity-80'}`}
+                  ref={(nodeEl) => {
+                    if (nodeEl) {
+                      nodeEl.style.setProperty('--node-left', `${node.x}px`);
+                      nodeEl.style.setProperty('--node-top', `${node.y}px`);
+                      nodeEl.style.setProperty('transform', 'translate(-50%, -50%)');
+                    }
                   }}
                 ></div>
               ))}
@@ -185,9 +199,9 @@ const Canvas: React.FC<CanvasProps> = ({
         )}
 
         {isGenerating && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center z-[200] bg-obsidian-200/95 backdrop-blur-3xl ai-scanning">
-             <div className="size-16 border-[4px] border-primary/20 border-t-primary rounded-full animate-spin"></div>
-             <span className="mt-6 text-[10px] font-black text-primary tracking-[0.5em] uppercase">Kernel Link Active</span>
+          <div className="absolute inset-0 flex flex-col items-center justify-center z-[200] bg-[var(--xibalba-grey-100)]/95 backdrop-blur-3xl ai-scanning">
+             <div className="size-16 border-[4px] border-[var(--xibalba-text-200)]/20 border-t-[var(--xibalba-text-200)] rounded-none animate-spin"></div>
+             <span className="mt-6 text-[10px] font-black text-[var(--xibalba-text-100)] tracking-[0.5em] uppercase">Kernel Link Active</span>
           </div>
         )}
       </div>

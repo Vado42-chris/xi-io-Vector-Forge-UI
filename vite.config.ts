@@ -8,6 +8,32 @@ export default defineConfig(({ mode }) => {
       server: {
         port: 3000,
         host: '0.0.0.0',
+        // File watcher limit is set to 524288 (good)
+        // Using optimized polling for large codebase reliability
+        watch: {
+          usePolling: true,
+          interval: 2000, // Increased interval for better performance
+          ignored: ['**/node_modules/**', '**/.git/**', '**/dist/**', '**/.progress-tracker'],
+        },
+        // Security headers
+        headers: {
+          'Content-Security-Policy': [
+            "default-src 'self'",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // Required for Vite HMR in dev
+            "style-src 'self' 'unsafe-inline'",
+            "img-src 'self' data: blob:",
+            "font-src 'self' data:",
+            "connect-src 'self' ws://localhost:* http://localhost:*",
+            "frame-ancestors 'none'",
+            "base-uri 'self'",
+            "form-action 'self'",
+          ].join('; '),
+          'X-Content-Type-Options': 'nosniff',
+          'X-Frame-Options': 'DENY',
+          'X-XSS-Protection': '1; mode=block',
+          'Referrer-Policy': 'strict-origin-when-cross-origin',
+          'Permissions-Policy': 'geolocation=(), microphone=(), camera=()',
+        },
       },
       plugins: [react({
         jsxRuntime: 'automatic',

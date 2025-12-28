@@ -1,116 +1,234 @@
+/**
+ * Left Sidebar with Drag Handle
+ * Forge, Console, Engine tabs with resizable/draggable panel
+ */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { TabType, DesignStyle, AppState } from '../types';
+import { TabType, DesignStyle, AppState, VectorLayer, ToolType } from '../types';
+// REMOVED: MCPSettings and TerminalSettings moved to RightSidebar
+import ErrorBoundary from './ErrorBoundary';
+import Tooltip from './Tooltip';
 
 interface LeftSidebarProps {
   state: AppState;
   setState: React.Dispatch<React.SetStateAction<AppState>>;
-  onSendAiMessage: (message: string) => void;
-  onTerminalCommand: (cmd: string) => void;
+  onGenerate?: () => Promise<void>;
+  onRefine?: () => Promise<void>;
+  onChat?: (message: string) => void;
+  onTerminalCommand?: (cmd: string) => void;
+  onVisionScan?: () => void;
+  frame?: number;
+  layerId?: string | null;
+  layers?: VectorLayer[];
+  currentScript?: string;
+  onScriptGenerated?: (script: string) => void;
+  onExecuteScript?: (script: string) => void;
+  activeTool?: ToolType;
+  onToolChange?: (tool: ToolType) => void;
 }
 
 const LeftSidebar: React.FC<LeftSidebarProps> = ({
-  state, setState, onSendAiMessage, onTerminalCommand
+  state, setState, onGenerate, onRefine, onTerminalCommand, onVisionScan, activeTool, onToolChange
 }) => {
-  const [userInput, setUserInput] = useState('');
-  const [terminalInput, setTerminalInput] = useState('');
-  const chatHistoryRef = useRef<HTMLDivElement>(null);
+  const [isResizing, setIsResizing] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [width, setWidth] = useState(320);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const dragStartPos = useRef({ x: 0, y: 0 });
+  const sidebarRef = useRef<HTMLDivElement>(null);
+  const resizeHandleRef = useRef<HTMLDivElement>(null);
 
-  const tabs: {id: TabType, label: string, icon: string}[] = [
-    { id: 'chat', label: 'Forge', icon: 'auto_awesome' },
-    { id: 'terminal', label: 'Console', icon: 'terminal' },
-    { id: 'settings', label: 'Engine', icon: 'settings_input_component' }
+  // REMOVED: Console and Engine tabs moved to RightSidebar
+  // Left sidebar is now just for tools
+  
+  // Tool selector for quick access
+  const tools: { id: ToolType; label: string; icon: string; shortcut?: string }[] = [
+    { id: 'select', label: 'Select', icon: 'near_me', shortcut: 'V' },
+    { id: 'pen', label: 'Pen', icon: 'edit', shortcut: 'P' },
+    { id: 'rectangle', label: 'Rectangle', icon: 'crop_square', shortcut: 'M' },
+    { id: 'ellipse', label: 'Ellipse', icon: 'radio_button_unchecked', shortcut: 'L' },
+    { id: 'text', label: 'Text', icon: 'text_fields', shortcut: 'T' },
+    { id: 'pan', label: 'Pan', icon: 'open_with', shortcut: 'H' },
+    { id: 'zoom', label: 'Zoom', icon: 'zoom_in', shortcut: 'Z' }
   ];
+  
+  // REMOVED: Terminal settings moved to RightSidebar
 
-  useEffect(() => {
-    if (chatHistoryRef.current) {
-      chatHistoryRef.current.scrollTop = chatHistoryRef.current.scrollHeight;
-    }
-  }, [state.chatHistory]);
 
-  const handleSend = () => {
-    if (userInput.trim()) {
-      onSendAiMessage(userInput);
-      setUserInput('');
+  // Resize handling
+  const handleResizeStart = (e: React.PointerEvent) => {
+    if (resizeHandleRef.current?.contains(e.target as Node)) {
+      setIsResizing(true);
+      (e.target as HTMLElement).setPointerCapture(e.pointerId);
+      e.preventDefault();
     }
   };
 
+  // Use window-level pointer events for proper dragging/resizing
+  useEffect(() => {
+    const handlePointerMove = (e: PointerEvent) => {
+      if (isResizing) {
+        const newWidth = e.clientX;
+        if (newWidth >= 200 && newWidth <= 600) {
+          setWidth(newWidth);
+        }
+      } else if (isDragging) {
+        setPosition({ x: e.clientX - dragStartPos.current.x, y: e.clientY - dragStartPos.current.y });
+      }
+    };
+
+    const handlePointerUp = (e: PointerEvent) => {
+      if (isResizing && e.target instanceof HTMLElement) {
+        e.target.releasePointerCapture(e.pointerId);
+      }
+      setIsResizing(false);
+      setIsDragging(false);
+    };
+
+    if (isResizing || isDragging) {
+      window.addEventListener('pointermove', handlePointerMove);
+      window.addEventListener('pointerup', handlePointerUp);
+      return () => {
+        window.removeEventListener('pointermove', handlePointerMove);
+        window.removeEventListener('pointerup', handlePointerUp);
+      };
+    }
+  }, [isResizing, isDragging, dragStartPos]);
+
+  const handleResizeEnd = (e: React.PointerEvent) => {
+    if (isResizing && e.target instanceof HTMLElement) {
+      e.target.releasePointerCapture(e.pointerId);
+    }
+    setIsResizing(false);
+    setIsDragging(false);
+  };
+
+  const handleDragStart = (e: React.PointerEvent) => {
+    if (resizeHandleRef.current?.contains(e.target as Node)) {
+      return; // Don't drag when resizing
+    }
+    setIsDragging(true);
+    dragStartPos.current = { x: e.clientX - position.x, y: e.clientY - position.y };
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    e.preventDefault();
+  };
+
+
+  // Update CSS variables for positioning
+  useEffect(() => {
+    if (sidebarRef.current) {
+      sidebarRef.current.style.setProperty('--sidebar-width', `${width}px`);
+      sidebarRef.current.style.setProperty('--sidebar-left', `${position.x}px`);
+      sidebarRef.current.style.setProperty('--sidebar-top', `${position.y}px`);
+    }
+  }, [width, position]);
+
   return (
-    <aside className="w-[380px] shrink-0 flex flex-col border-r border-white/5 bg-obsidian-100 relative z-20">
-      <div className="flex bg-obsidian-200/50 h-14 border-b border-white/5">
-        {tabs.map(tab => (
-          <button 
-            key={tab.id}
-            onClick={() => setState(prev => ({ ...prev, activeTab: tab.id }))}
-            className={`flex-1 flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-[0.25em] transition-all relative ${
-              state.activeTab === tab.id ? 'text-primary' : 'text-obsidian-500 hover:text-white'
-            }`}
-          >
-            <span className="material-symbols-outlined text-[18px] opacity-70">{tab.icon}</span>
-            {tab.label}
-            {state.activeTab === tab.id && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary xi-popping-glow"></div>
-            )}
-          </button>
-        ))}
+    <aside 
+      ref={sidebarRef}
+      className="xibalba-sidebar shrink-0 flex flex-col relative z-20 sidebar-positioned xibalba-dockable-palette"
+      onPointerDown={handleDragStart}
+      data-palette-id="left-sidebar"
+    >
+      {/* Resize Handle */}
+      <Tooltip content="Drag to resize sidebar" position="right">
+        <div
+          ref={resizeHandleRef}
+          onPointerDown={handleResizeStart}
+          className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-[var(--xibalba-text-100)] opacity-0 hover:opacity-100 transition-opacity z-30"
+        />
+      </Tooltip>
+
+      {/* Tools Panel Header - Background layer with title */}
+      <div className="relative bg-[var(--xibalba-bg-secondary)] border-b border-white/10">
+        {/* Construction Paper Layer for readability */}
+        <div className="construction-paper-layer-menu" />
+        
+        {/* Header Content */}
+        <div className="relative z-10 p-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="xibalba-toolbar-button-professional p-1"
+              title={isCollapsed ? 'Expand Tools Panel' : 'Collapse Tools Panel'}
+            >
+              <span className="material-symbols-outlined text-[14px]">
+                {isCollapsed ? 'chevron_right' : 'chevron_left'}
+              </span>
+            </button>
+            <span className="text-[9px] font-bold text-[var(--xibalba-text-primary)] uppercase tracking-widest">Tools Panel</span>
+          </div>
+          <span className="text-[8px] text-[var(--xibalba-text-muted)] normal-case">Press key to switch</span>
+        </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto custom-scrollbar bg-obsidian-200/20">
-        {state.activeTab === 'chat' && (
-          <div className="flex flex-col h-full p-6 animate-in slide-in-from-left-4">
-            <div ref={chatHistoryRef} className="flex-1 space-y-6 mb-6 overflow-y-auto custom-scrollbar pr-2">
-              {state.chatHistory.map((msg, i) => (
-                <div key={i} className={`flex flex-col text-sm ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
-                  <div className={`max-w-[90%] p-4 rounded-2xl ${msg.role === 'user' ? 'bg-primary text-black' : 'bg-obsidian-100 text-white'}`}>
-                    <p className="font-bold text-[10px] uppercase tracking-widest mb-2">{msg.role === 'user' ? 'You' : 'Forge AI'}</p>
-                    <p className="text-[11px] leading-relaxed">{msg.content}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="relative">
-              <textarea
-                value={userInput}
-                onChange={(e) => setUserInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-                disabled={state.isGenerating}
-                placeholder="Describe your vector design..."
-                className="w-full h-24 bg-obsidian-100 border-2 border-white/5 rounded-2xl p-4 pr-16 text-xs text-white resize-none focus:ring-2 focus:ring-primary focus:outline-none transition-all"
-              />
-              <button
-                onClick={handleSend}
-                disabled={state.isGenerating || !userInput.trim()}
-                className="absolute top-4 right-4 size-10 rounded-lg bg-primary text-black flex items-center justify-center hover:bg-primary-hover active:scale-90 disabled:opacity-30 transition-all"
-              >
-                <span className="material-symbols-outlined">send</span>
-              </button>
-            </div>
+      {/* Quick Tool Selector - Single column layout, collapsible */}
+      {!isCollapsed && activeTool && onToolChange && (
+        <div className="p-3 border-b border-white/10 bg-[var(--xibalba-bg-secondary)]">
+          <div className="flex flex-col gap-1.5">
+            {tools.map(tool => {
+              const tooltipContent = tool.id === 'select' ? `Select Tool (${tool.shortcut}) - Select and move objects` :
+                tool.id === 'pen' ? `Pen Tool (${tool.shortcut}) - Draw freeform paths` :
+                tool.id === 'rectangle' ? `Rectangle Tool (${tool.shortcut}) - Draw rectangles` :
+                tool.id === 'ellipse' ? `Ellipse Tool (${tool.shortcut}) - Draw circles and ellipses` :
+                tool.id === 'text' ? `Text Tool (${tool.shortcut}) - Add text to canvas` :
+                tool.id === 'pan' ? `Pan Tool (${tool.shortcut}) - Move canvas view` :
+                tool.id === 'zoom' ? `Zoom Tool (${tool.shortcut}) - Zoom in/out` :
+                `${tool.label} (${tool.shortcut || 'N/A'})`;
+              
+              return (
+                <Tooltip
+                  key={tool.id}
+                  content={tooltipContent}
+                  position="right"
+                >
+                  <button
+                    onClick={() => onToolChange(tool.id)}
+                    className={`xibalba-button-professional text-[9px] py-1.5 px-2 flex items-center gap-1.5 transition-all ${
+                      activeTool === tool.id 
+                        ? 'bg-[var(--xibalba-bg-hover)] border border-[var(--xibalba-accent)] shadow-sm' 
+                        : 'hover:bg-[var(--xibalba-bg-tertiary)]'
+                    }`}
+                  >
+                <span className={`material-symbols-outlined text-[14px] ${activeTool === tool.id ? 'text-[var(--xibalba-accent)]' : ''}`}>
+                  {tool.icon}
+                </span>
+                <span className={`flex-1 text-left ${activeTool === tool.id ? 'font-semibold' : ''}`}>
+                  {tool.label}
+                </span>
+                {tool.shortcut && (
+                  <span className={`text-[8px] font-mono px-1 py-0.5 rounded ${
+                    activeTool === tool.id 
+                      ? 'bg-[var(--xibalba-accent)]/20 text-[var(--xibalba-accent)]' 
+                      : 'bg-[var(--xibalba-bg-tertiary)] text-[var(--xibalba-text-muted)]'
+                  }`}>
+                    {tool.shortcut}
+                  </span>
+                )}
+                  </button>
+                </Tooltip>
+              );
+            })}
           </div>
-        )}
+        </div>
+      )}
 
-        {state.activeTab === 'terminal' && (
-          <div className="flex flex-col h-full p-6 mono text-[10px] animate-in slide-in-from-left-4">
-            <div className="flex-1 space-y-2 overflow-y-auto custom-scrollbar">
-               {state.terminalLogs.map(log => (
-                 <div key={log.id} className="flex gap-3">
-                    <span className="text-obsidian-500 select-none">{new Date(log.timestamp).toLocaleTimeString([], { hour12: false })}</span>
-                    <span className={log.type === 'error' ? 'text-red-400' : log.type === 'success' ? 'text-primary' : 'text-white/80'}>{log.text}</span>
-                 </div>
-               ))}
-            </div>
-            <input 
-              type="text" value={terminalInput} onChange={(e) => setTerminalInput(e.target.value)}
-              onKeyDown={(e) => { if(e.key === 'Enter') { onTerminalCommand(terminalInput); setTerminalInput(''); }}}
-              className="w-full bg-obsidian-100 border border-white/10 rounded-lg py-2 px-3 mt-4 text-xs text-primary focus:outline-none focus:ring-1 focus:ring-primary"
-              placeholder="root@xibalba:~$ "
-            />
+      {/* Pinned Tool Palettes Area - For custom palettes pinned to this panel, collapsible */}
+      {!isCollapsed && (
+        <div className="flex-1 overflow-y-auto xibalba-scrollbar p-4">
+          {/* Empty state when no palettes pinned */}
+          <div className="text-center text-[var(--xibalba-text-300)] text-sm py-8">
+            <span className="material-symbols-outlined text-4xl mb-2 block opacity-50">palette</span>
+            <p className="text-xs mt-2 opacity-75">Pin tool palettes here from the Palettes menu</p>
+            <p className="text-[10px] mt-1 opacity-60">Window → Palettes</p>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
-      <div className="p-4 border-t border-white/10 bg-obsidian-100 flex items-center justify-between text-[9px] font-bold text-obsidian-500 uppercase tracking-widest">
+      <div className="p-4 border-t border-white/10 bg-[var(--xibalba-bg-secondary)] flex items-center justify-between text-[9px] font-bold text-[var(--xibalba-text-muted)] uppercase tracking-widest">
         <div className="flex items-center gap-2">
-          <div className={`size-2 rounded-full ${state.isGenerating ? 'bg-primary animate-pulse' : 'bg-green-400'}`}></div>
+          <div className={`size-2 ${state.isGenerating ? 'bg-[var(--xibalba-bg-tertiary)] animate-pulse' : 'bg-green-500'}`}></div>
           <span>{state.isGenerating ? 'AI SYNTHESIZING' : 'SYSTEM READY'}</span>
         </div>
         <span>CREDITS: {state.credits}</span>

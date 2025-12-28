@@ -1,133 +1,69 @@
 /**
  * Product Registry Type Definitions
- * Defines types for the component registry system
+ * Part of Patch 2: Product Registry
  */
 
-/**
- * Registry Entry Status
- */
-export type RegistryStatus = 'active' | 'deprecated' | 'planned' | 'experimental';
+export interface ComponentMetadata {
+  id: string;
+  name: string;
+  description: string;
+  version: string;
+  type: 'component' | 'service' | 'utility' | 'layout' | 'other';
+  category: string;
+  tags: string[];
+  dependencies: string[];
+  filePath: string;
+  exports: string[];
+  props?: Record<string, unknown>;
+  createdAt: number;
+  updatedAt: number;
+}
 
-/**
- * Registry Entry Category
- */
-export type RegistryCategory = 
-  | 'component' 
-  | 'service' 
-  | 'tool' 
-  | 'panel' 
-  | 'workflow'
-  | 'type'
-  | 'hook'
-  | 'utility';
+export interface ServiceMetadata {
+  id: string;
+  name: string;
+  description: string;
+  version: string;
+  type: 'service';
+  category: string;
+  tags: string[];
+  dependencies: string[];
+  filePath: string;
+  exports: string[];
+  methods: string[];
+  createdAt: number;
+  updatedAt: number;
+}
 
-/**
- * Registry Entry
- */
 export interface RegistryEntry {
   id: string;
   name: string;
-  category: RegistryCategory;
-  version: string;
   description: string;
+  version: string;
+  type: ComponentMetadata['type'] | ServiceMetadata['type'];
+  category: string;
   tags: string[];
-  dependencies: string[]; // IDs of other registry entries
-  api: {
-    exports: string[]; // Exported functions/components
-    imports: string[]; // Imported dependencies
-    props?: Record<string, any>; // Component props (if component)
-  };
-  location: {
-    file: string;
-    line?: number;
-  };
-  status: RegistryStatus;
-  maintainer?: string;
-  lastUpdated: Date | string;
-  documentation: string;
+  dependencies: string[];
+  filePath: string;
+  exports: string[];
+  metadata: ComponentMetadata | ServiceMetadata;
+  createdAt: number;
+  updatedAt: number;
 }
 
-/**
- * Registry Search Filters
- */
-export interface RegistryFilters {
-  category?: RegistryCategory | RegistryCategory[];
-  status?: RegistryStatus | RegistryStatus[];
+export interface RegistrySearchOptions {
+  query?: string;
+  type?: RegistryEntry['type'];
+  category?: string;
   tags?: string[];
-  search?: string; // Text search in name, description, tags
+  dependencies?: string[];
+  limit?: number;
+  offset?: number;
 }
 
-/**
- * Registry Search Result
- */
 export interface RegistrySearchResult {
   entries: RegistryEntry[];
   total: number;
-  filters: RegistryFilters;
+  limit: number;
+  offset: number;
 }
-
-/**
- * Registry Service Interface
- */
-export interface IRegistryService {
-  /**
-   * Register a component/service/tool
-   */
-  register(entry: RegistryEntry): void;
-
-  /**
-   * Get entry by ID
-   */
-  get(id: string): RegistryEntry | null;
-
-  /**
-   * Search entries with filters
-   */
-  search(filters: RegistryFilters): RegistrySearchResult;
-
-  /**
-   * Get all entries
-   */
-  getAll(): RegistryEntry[];
-
-  /**
-   * Get entries by category
-   */
-  getByCategory(category: RegistryCategory): RegistryEntry[];
-
-  /**
-   * Get entries by status
-   */
-  getByStatus(status: RegistryStatus): RegistryEntry[];
-
-  /**
-   * Get dependency graph for an entry
-   */
-  getDependencyGraph(id: string): RegistryEntry[];
-
-  /**
-   * Get dependents (entries that depend on this one)
-   */
-  getDependents(id: string): RegistryEntry[];
-
-  /**
-   * Update entry
-   */
-  update(id: string, updates: Partial<RegistryEntry>): void;
-
-  /**
-   * Remove entry
-   */
-  remove(id: string): void;
-
-  /**
-   * Export registry to JSON
-   */
-  export(): string;
-
-  /**
-   * Import registry from JSON
-   */
-  import(data: string): void;
-}
-

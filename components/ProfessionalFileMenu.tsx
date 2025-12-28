@@ -7,6 +7,283 @@
 import React, { useState } from 'react';
 import XibalbaLogomark from './XibalbaLogomark';
 import LayoutSwitcher from './LayoutSwitcher';
+import Tooltip from './Tooltip';
+
+// Submenu definitions
+const getSubmenuItems = (action: string): Array<{ label: string; action: string; icon?: string }> => {
+    // Load recent files from localStorage
+    const recentFiles = (() => {
+      try {
+        const stored = localStorage.getItem('vforge_recent_files');
+        if (stored) {
+          const files = JSON.parse(stored);
+          return files.slice(0, 10).map((f: any, i: number) => ({
+            label: f.name || `Document ${i + 1}.vf`,
+            action: `FILE_OPEN_RECENT_${i + 1}`,
+            icon: 'description'
+          }));
+        }
+      } catch (e) {
+        console.error('Failed to load recent files:', e);
+      }
+      return [];
+    })();
+
+    const submenus: Record<string, Array<{ label: string; action: string; icon?: string; disabled?: boolean }>> = {
+      'FILE_OPEN_RECENT': recentFiles.length > 0 ? recentFiles : [
+        { label: 'No recent files', action: 'FILE_OPEN_RECENT_1', icon: 'description', disabled: true }
+      ],
+    'FILE_EXPORT': [
+      { label: 'Export as SVG...', action: 'FILE_EXPORT_SVG', icon: 'code' },
+      { label: 'Export as PNG...', action: 'FILE_EXPORT_PNG', icon: 'image' },
+      { label: 'Export as PDF...', action: 'FILE_EXPORT_PDF', icon: 'picture_as_pdf' },
+      { label: 'Export as EPS...', action: 'FILE_EXPORT_EPS', icon: 'description' },
+      { label: 'Export for Animation Studio...', action: 'FILE_EXPORT_ANIMATION', icon: 'movie' },
+    ],
+    'FILE_COLOR_MODE': [
+      { label: 'RGB', action: 'FILE_COLOR_MODE_RGB', icon: 'palette' },
+      { label: 'CMYK', action: 'FILE_COLOR_MODE_CMYK', icon: 'palette' },
+      { label: 'Grayscale', action: 'FILE_COLOR_MODE_GRAYSCALE', icon: 'palette' },
+    ],
+    'EDIT_PREFERENCES': [
+      { label: 'General...', action: 'EDIT_PREFERENCES_GENERAL', icon: 'settings' },
+      { label: 'Interface...', action: 'EDIT_PREFERENCES_INTERFACE', icon: 'dashboard' },
+      { label: 'Performance...', action: 'EDIT_PREFERENCES_PERFORMANCE', icon: 'speed' },
+      { label: 'AI Settings...', action: 'EDIT_PREFERENCES_AI', icon: 'smart_toy' },
+    ],
+    'OBJECT_TRANSFORM': [
+      { label: 'Move...', action: 'OBJECT_TRANSFORM_MOVE', icon: 'open_with' },
+      { label: 'Rotate...', action: 'OBJECT_TRANSFORM_ROTATE', icon: 'rotate_right' },
+      { label: 'Reflect...', action: 'OBJECT_TRANSFORM_REFLECT', icon: 'flip' },
+      { label: 'Scale...', action: 'OBJECT_TRANSFORM_SCALE', icon: 'aspect_ratio' },
+      { label: 'Shear...', action: 'OBJECT_TRANSFORM_SHEAR', icon: 'transform' },
+      { label: 'Transform Each...', action: 'OBJECT_TRANSFORM_EACH', icon: 'auto_awesome' },
+    ],
+    'OBJECT_ARRANGE': [
+      { label: 'Bring to Front', action: 'OBJECT_ARRANGE_FRONT', icon: 'vertical_align_top' },
+      { label: 'Bring Forward', action: 'OBJECT_ARRANGE_FORWARD', icon: 'keyboard_arrow_up' },
+      { label: 'Send Backward', action: 'OBJECT_ARRANGE_BACKWARD', icon: 'keyboard_arrow_down' },
+      { label: 'Send to Back', action: 'OBJECT_ARRANGE_BACK', icon: 'vertical_align_bottom' },
+    ],
+    'OBJECT_PATH': [
+      { label: 'Join', action: 'OBJECT_PATH_JOIN', icon: 'call_merge' },
+      { label: 'Average...', action: 'OBJECT_PATH_AVERAGE', icon: 'center_focus_strong' },
+      { label: 'Outline Stroke', action: 'OBJECT_PATH_OUTLINE', icon: 'format_shapes' },
+      { label: 'Offset Path...', action: 'OBJECT_PATH_OFFSET', icon: 'open_in_full' },
+      { label: 'Simplify...', action: 'OBJECT_PATH_SIMPLIFY', icon: 'tune' },
+      { label: 'Add Anchor Points', action: 'OBJECT_PATH_ADD_ANCHOR', icon: 'add_circle' },
+      { label: 'Remove Anchor Points', action: 'OBJECT_PATH_REMOVE_ANCHOR', icon: 'remove_circle' },
+      { label: 'Divide Objects Below', action: 'OBJECT_PATH_DIVIDE', icon: 'call_split' },
+      { label: 'Split Into Grid...', action: 'OBJECT_PATH_SPLIT_GRID', icon: 'grid_on' },
+    ],
+    'OBJECT_BLEND': [
+      { label: 'Make', action: 'OBJECT_BLEND_MAKE', icon: 'blur_on' },
+      { label: 'Release', action: 'OBJECT_BLEND_RELEASE', icon: 'close' },
+      { label: 'Blend Options...', action: 'OBJECT_BLEND_OPTIONS', icon: 'settings' },
+      { label: 'Expand', action: 'OBJECT_BLEND_EXPAND', icon: 'expand' },
+      { label: 'Replace Spine', action: 'OBJECT_BLEND_REPLACE_SPINE', icon: 'swap_horiz' },
+      { label: 'Reverse Spine', action: 'OBJECT_BLEND_REVERSE_SPINE', icon: 'swap_vert' },
+    ],
+    'OBJECT_ENVELOPE': [
+      { label: 'Make with Warp...', action: 'OBJECT_ENVELOPE_WARP', icon: 'waves' },
+      { label: 'Make with Mesh...', action: 'OBJECT_ENVELOPE_MESH', icon: 'grid_4x4' },
+      { label: 'Make with Top Object', action: 'OBJECT_ENVELOPE_TOP', icon: 'vertical_align_top' },
+      { label: 'Release', action: 'OBJECT_ENVELOPE_RELEASE', icon: 'close' },
+      { label: 'Envelope Options...', action: 'OBJECT_ENVELOPE_OPTIONS', icon: 'settings' },
+    ],
+    'OBJECT_COMPOUND_PATH': [
+      { label: 'Make', action: 'OBJECT_COMPOUND_PATH_MAKE', icon: 'call_merge' },
+      { label: 'Release', action: 'OBJECT_COMPOUND_PATH_RELEASE', icon: 'close' },
+    ],
+    'OBJECT_GRAPH': [
+      { label: 'Type...', action: 'OBJECT_GRAPH_TYPE', icon: 'bar_chart' },
+      { label: 'Data...', action: 'OBJECT_GRAPH_DATA', icon: 'table_chart' },
+      { label: 'Design...', action: 'OBJECT_GRAPH_DESIGN', icon: 'palette' },
+      { label: 'Column...', action: 'OBJECT_GRAPH_COLUMN', icon: 'view_column' },
+    ],
+    'TYPE_FONT': [
+      { label: 'Arial', action: 'TYPE_FONT_ARIAL', icon: 'text_fields' },
+      { label: 'Helvetica', action: 'TYPE_FONT_HELVETICA', icon: 'text_fields' },
+      { label: 'Times New Roman', action: 'TYPE_FONT_TIMES', icon: 'text_fields' },
+      { label: 'Courier New', action: 'TYPE_FONT_COURIER', icon: 'text_fields' },
+      { label: 'More Fonts...', action: 'TYPE_FONT_MORE', icon: 'add' },
+    ],
+    'TYPE_SIZE': [
+      { label: '6pt', action: 'TYPE_SIZE_6', icon: 'format_size' },
+      { label: '8pt', action: 'TYPE_SIZE_8', icon: 'format_size' },
+      { label: '10pt', action: 'TYPE_SIZE_10', icon: 'format_size' },
+      { label: '12pt', action: 'TYPE_SIZE_12', icon: 'format_size' },
+      { label: '14pt', action: 'TYPE_SIZE_14', icon: 'format_size' },
+      { label: '18pt', action: 'TYPE_SIZE_18', icon: 'format_size' },
+      { label: '24pt', action: 'TYPE_SIZE_24', icon: 'format_size' },
+      { label: '36pt', action: 'TYPE_SIZE_36', icon: 'format_size' },
+      { label: '48pt', action: 'TYPE_SIZE_48', icon: 'format_size' },
+      { label: 'Other...', action: 'TYPE_SIZE_OTHER', icon: 'more_horiz' },
+    ],
+    'TYPE_THREADED_TEXT': [
+      { label: 'Create', action: 'TYPE_THREADED_TEXT_CREATE', icon: 'link' },
+      { label: 'Release Selection', action: 'TYPE_THREADED_TEXT_RELEASE', icon: 'link_off' },
+      { label: 'Remove Threading', action: 'TYPE_THREADED_TEXT_REMOVE', icon: 'close' },
+    ],
+    'SELECT_SAME': [
+      { label: 'Blending Mode', action: 'SELECT_SAME_BLEND', icon: 'blur_on' },
+      { label: 'Fill & Stroke', action: 'SELECT_SAME_FILL_STROKE', icon: 'palette' },
+      { label: 'Fill Color', action: 'SELECT_SAME_FILL', icon: 'format_color_fill' },
+      { label: 'Opacity', action: 'SELECT_SAME_OPACITY', icon: 'opacity' },
+      { label: 'Stroke Color', action: 'SELECT_SAME_STROKE', icon: 'format_color_text' },
+      { label: 'Stroke Weight', action: 'SELECT_SAME_STROKE_WEIGHT', icon: 'show_chart' },
+      { label: 'Style', action: 'SELECT_SAME_STYLE', icon: 'auto_awesome' },
+      { label: 'Symbol Instance', action: 'SELECT_SAME_SYMBOL', icon: 'bookmark' },
+    ],
+    'SELECT_OBJECT': [
+      { label: 'All on Same Layer', action: 'SELECT_OBJECT_SAME_LAYER', icon: 'layers' },
+      { label: 'Direction Handles', action: 'SELECT_OBJECT_HANDLES', icon: 'open_with' },
+      { label: 'Brush Strokes', action: 'SELECT_OBJECT_BRUSH', icon: 'brush' },
+      { label: 'Clipping Masks', action: 'SELECT_OBJECT_CLIPPING', icon: 'crop' },
+      { label: 'Stray Points', action: 'SELECT_OBJECT_STRAY', icon: 'adjust' },
+      { label: 'Text Objects', action: 'SELECT_OBJECT_TEXT', icon: 'text_fields' },
+    ],
+    'EFFECT_3D': [
+      { label: 'Extrude & Bevel...', action: 'EFFECT_3D_EXTRUDE', icon: 'view_in_ar' },
+      { label: 'Revolve...', action: 'EFFECT_3D_REVOLVE', icon: '360' },
+      { label: 'Rotate...', action: 'EFFECT_3D_ROTATE', icon: 'rotate_3d' },
+    ],
+    'EFFECT_SVG_FILTERS': [
+      { label: 'Apply SVG Filter...', action: 'EFFECT_SVG_APPLY', icon: 'filter_alt' },
+      { label: 'Import SVG Filter...', action: 'EFFECT_SVG_IMPORT', icon: 'upload' },
+    ],
+    'EFFECT_DISTORT': [
+      { label: 'Free Distort...', action: 'EFFECT_DISTORT_FREE', icon: 'transform' },
+      { label: 'Pucker & Bloat...', action: 'EFFECT_DISTORT_PUCKER', icon: 'compress' },
+      { label: 'Roughen...', action: 'EFFECT_DISTORT_ROUGHEN', icon: 'texture' },
+      { label: 'Scribble...', action: 'EFFECT_DISTORT_SCRIBBLE', icon: 'gesture' },
+      { label: 'Tweak...', action: 'EFFECT_DISTORT_TWEAK', icon: 'tune' },
+      { label: 'Twist...', action: 'EFFECT_DISTORT_TWIST', icon: 'rotate_right' },
+      { label: 'Zig Zag...', action: 'EFFECT_DISTORT_ZIGZAG', icon: 'timeline' },
+    ],
+    'EFFECT_PATH': [
+      { label: 'Offset Path...', action: 'EFFECT_PATH_OFFSET', icon: 'open_in_full' },
+      { label: 'Outline Object', action: 'EFFECT_PATH_OUTLINE', icon: 'format_shapes' },
+      { label: 'Outline Stroke', action: 'EFFECT_PATH_OUTLINE_STROKE', icon: 'show_chart' },
+    ],
+    'EFFECT_PATHFINDER': [
+      { label: 'Add', action: 'EFFECT_PATHFINDER_ADD', icon: 'add' },
+      { label: 'Intersect', action: 'EFFECT_PATHFINDER_INTERSECT', icon: 'call_merge' },
+      { label: 'Exclude', action: 'EFFECT_PATHFINDER_EXCLUDE', icon: 'remove' },
+      { label: 'Subtract', action: 'EFFECT_PATHFINDER_SUBTRACT', icon: 'remove_circle' },
+      { label: 'Minus Back', action: 'EFFECT_PATHFINDER_MINUS_BACK', icon: 'arrow_back' },
+      { label: 'Divide', action: 'EFFECT_PATHFINDER_DIVIDE', icon: 'call_split' },
+      { label: 'Trim', action: 'EFFECT_PATHFINDER_TRIM', icon: 'content_cut' },
+      { label: 'Merge', action: 'EFFECT_PATHFINDER_MERGE', icon: 'merge' },
+      { label: 'Crop', action: 'EFFECT_PATHFINDER_CROP', icon: 'crop' },
+      { label: 'Outline', action: 'EFFECT_PATHFINDER_OUTLINE', icon: 'format_shapes' },
+      { label: 'Minus Front', action: 'EFFECT_PATHFINDER_MINUS_FRONT', icon: 'arrow_forward' },
+    ],
+    'EFFECT_STYLIZE': [
+      { label: 'Drop Shadow...', action: 'EFFECT_STYLIZE_DROP_SHADOW', icon: 'shadow' },
+      { label: 'Feather...', action: 'EFFECT_STYLIZE_FEATHER', icon: 'blur' },
+      { label: 'Inner Glow...', action: 'EFFECT_STYLIZE_INNER_GLOW', icon: 'light_mode' },
+      { label: 'Outer Glow...', action: 'EFFECT_STYLIZE_OUTER_GLOW', icon: 'flare' },
+      { label: 'Round Corners...', action: 'EFFECT_STYLIZE_ROUND_CORNERS', icon: 'rounded_corner' },
+      { label: 'Scribble...', action: 'EFFECT_STYLIZE_SCRIBBLE', icon: 'gesture' },
+    ],
+    'WINDOW_WORKSPACE': [
+      { label: 'Default', action: 'WINDOW_WORKSPACE_DEFAULT', icon: 'dashboard' },
+      { label: 'Essentials', action: 'WINDOW_WORKSPACE_ESSENTIALS', icon: 'star' },
+      { label: 'Animation', action: 'WINDOW_WORKSPACE_ANIMATION', icon: 'movie' },
+      { label: 'Typography', action: 'WINDOW_WORKSPACE_TYPOGRAPHY', icon: 'text_fields' },
+      { label: 'Web', action: 'WINDOW_WORKSPACE_WEB', icon: 'web' },
+      { label: 'New Workspace...', action: 'WINDOW_WORKSPACE_NEW', icon: 'add' },
+      { label: 'Manage Workspaces...', action: 'WINDOW_WORKSPACE_MANAGE', icon: 'settings' },
+    ],
+    'WINDOW_TYPE': [
+      { label: 'Character', action: 'WINDOW_TYPE_CHARACTER', icon: 'text_fields' },
+      { label: 'Paragraph', action: 'WINDOW_TYPE_PARAGRAPH', icon: 'format_align_left' },
+      { label: 'OpenType', action: 'WINDOW_TYPE_OPENTYPE', icon: 'font_download' },
+      { label: 'Glyphs', action: 'WINDOW_TYPE_GLYPHS', icon: 'abc' },
+      { label: 'Character Styles', action: 'WINDOW_TYPE_CHAR_STYLES', icon: 'style' },
+      { label: 'Paragraph Styles', action: 'WINDOW_TYPE_PARA_STYLES', icon: 'format_paragraph' },
+    ],
+    'WINDOW_BRUSH_LIBRARIES': [
+      { label: 'Arrows', action: 'WINDOW_BRUSH_LIB_ARROWS', icon: 'arrow_forward' },
+      { label: 'Artistic', action: 'WINDOW_BRUSH_LIB_ARTISTIC', icon: 'palette' },
+      { label: 'Borders', action: 'WINDOW_BRUSH_LIB_BORDERS', icon: 'border_style' },
+      { label: 'Decorative', action: 'WINDOW_BRUSH_LIB_DECORATIVE', icon: 'auto_awesome' },
+      { label: 'More Libraries...', action: 'WINDOW_BRUSH_LIB_MORE', icon: 'library_books' },
+    ],
+    'WINDOW_SYMBOL_LIBRARIES': [
+      { label: '3D Symbols', action: 'WINDOW_SYMBOL_LIB_3D', icon: 'view_in_ar' },
+      { label: 'Charts', action: 'WINDOW_SYMBOL_LIB_CHARTS', icon: 'bar_chart' },
+      { label: 'Maps', action: 'WINDOW_SYMBOL_LIB_MAPS', icon: 'map' },
+      { label: 'More Libraries...', action: 'WINDOW_SYMBOL_LIB_MORE', icon: 'library_books' },
+    ],
+    'WINDOW_SWATCH_LIBRARIES': [
+      { label: 'ANPA Colors', action: 'WINDOW_SWATCH_LIB_ANPA', icon: 'palette' },
+      { label: 'DIC Color Guide', action: 'WINDOW_SWATCH_LIB_DIC', icon: 'palette' },
+      { label: 'HKS Colors', action: 'WINDOW_SWATCH_LIB_HKS', icon: 'palette' },
+      { label: 'PANTONE', action: 'WINDOW_SWATCH_LIB_PANTONE', icon: 'palette' },
+      { label: 'System (Macintosh)', action: 'WINDOW_SWATCH_LIB_MAC', icon: 'palette' },
+      { label: 'System (Windows)', action: 'WINDOW_SWATCH_LIB_WIN', icon: 'palette' },
+      { label: 'Toyo Color Finder', action: 'WINDOW_SWATCH_LIB_TOYO', icon: 'palette' },
+      { label: 'Trumatch', action: 'WINDOW_SWATCH_LIB_TRUMATCH', icon: 'palette' },
+      { label: 'Web', action: 'WINDOW_SWATCH_LIB_WEB', icon: 'web' },
+      { label: 'More Libraries...', action: 'WINDOW_SWATCH_LIB_MORE', icon: 'library_books' },
+    ],
+    'WINDOW_PALETTES': [
+      { label: 'Fonts', action: 'WINDOW_PALETTE_FONTS', icon: 'font_download', description: 'Font selection and management' },
+      { label: 'Character', action: 'WINDOW_PALETTE_CHARACTER', icon: 'text_fields', description: 'Character formatting options' },
+      { label: 'Paragraph', action: 'WINDOW_PALETTE_PARAGRAPH', icon: 'format_align_left', description: 'Paragraph formatting options' },
+      { label: 'Character Styles', action: 'WINDOW_PALETTE_CHAR_STYLES', icon: 'style', description: 'Character style presets' },
+      { label: 'Paragraph Styles', action: 'WINDOW_PALETTE_PARA_STYLES', icon: 'format_paragraph', description: 'Paragraph style presets' },
+      { divider: true },
+      { label: 'Rigging', action: 'WINDOW_PALETTE_RIGGING', icon: 'account_tree', description: 'Animation rigging tools' },
+      { label: 'Node Optimization', action: 'WINDOW_PALETTE_NODE_OPT', icon: 'tune', description: 'Spline and path node optimization' },
+      { label: 'Path Tools', action: 'WINDOW_PALETTE_PATH_TOOLS', icon: 'polyline', description: 'Advanced path editing tools' },
+      { divider: true },
+      { label: 'Brushes', action: 'WINDOW_PALETTE_BRUSHES', icon: 'brush', description: 'Brush presets and libraries' },
+      { label: 'Swatches', action: 'WINDOW_PALETTE_SWATCHES', icon: 'colorize', description: 'Color swatches and palettes' },
+      { label: 'Symbols', action: 'WINDOW_PALETTE_SYMBOLS', icon: 'bookmark', description: 'Symbol libraries and management' },
+      { divider: true },
+      { label: 'Transform Tools', action: 'WINDOW_PALETTE_TRANSFORM', icon: 'transform', description: 'Transform and alignment tools' },
+      { label: 'Effects', action: 'WINDOW_PALETTE_EFFECTS', icon: 'auto_awesome', description: 'Visual effects and filters' },
+      { divider: true },
+      { label: 'New Custom Palette...', action: 'WINDOW_PALETTE_NEW', icon: 'add', description: 'Create a custom tool palette' },
+      { label: 'Manage Palettes...', action: 'WINDOW_PALETTE_MANAGE', icon: 'settings', description: 'Edit and organize palettes' },
+    ],
+  };
+  return submenus[action] || [];
+};
+
+// Tooltip content helper
+const getMenuTooltip = (action: string): string => {
+  const tooltips: Record<string, string> = {
+    'FILE_NEW': 'Create a new document',
+    'FILE_OPEN': 'Open an existing document',
+    'FILE_SAVE': 'Save the current document',
+    'FILE_SAVE_AS': 'Save the document with a new name',
+    'FILE_SAVE_COPY': 'Save a copy of the document',
+    'FILE_CLOSE': 'Close the current document',
+    'FILE_EXPORT': 'Export document in various formats',
+    'FILE_PLACE': 'Place an image or file into the document',
+    'FILE_IMPORT': 'Import layers from another file',
+    'FILE_REVERT': 'Revert to last saved version',
+    'FILE_EXIT': 'Exit VectorForge',
+    'EDIT_UNDO': 'Undo last action',
+    'EDIT_REDO': 'Redo last undone action',
+    'EDIT_CUT': 'Cut selection to clipboard',
+    'EDIT_COPY': 'Copy selection to clipboard',
+    'EDIT_PASTE': 'Paste from clipboard',
+    'OBJECT_GROUP': 'Group selected objects',
+    'OBJECT_UNGROUP': 'Ungroup selected group',
+    'OBJECT_LOCK': 'Lock selected object',
+    'OBJECT_UNLOCK': 'Unlock all objects',
+    'VIEW_ZOOM_IN': 'Zoom in',
+    'VIEW_ZOOM_OUT': 'Zoom out',
+    'VIEW_FIT': 'Fit document to window',
+    'VIEW_ACTUAL': 'View at 100% size',
+  };
+  return tooltips[action] || 'Menu action';
+};
 
 interface ProfessionalFileMenuProps {
   onAction: (action: string) => void;
@@ -15,6 +292,21 @@ interface ProfessionalFileMenuProps {
 
 const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({ onAction, onLayoutChange }) => {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null);
+  const menuTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+  const submenuTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  // Cleanup timeouts on unmount
+  React.useEffect(() => {
+    return () => {
+      if (menuTimeoutRef.current) {
+        clearTimeout(menuTimeoutRef.current);
+      }
+      if (submenuTimeoutRef.current) {
+        clearTimeout(submenuTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const menus = [
     {
@@ -206,6 +498,8 @@ const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({ onAction, o
         { label: 'Brush Libraries', action: 'WINDOW_BRUSH_LIBRARIES', shortcut: '', icon: 'library_books', submenu: true },
         { label: 'Symbol Libraries', action: 'WINDOW_SYMBOL_LIBRARIES', shortcut: '', icon: 'bookmark', submenu: true },
         { label: 'Swatch Libraries', action: 'WINDOW_SWATCH_LIBRARIES', shortcut: '', icon: 'palette', submenu: true },
+        { divider: true },
+        { label: 'Palettes', action: 'WINDOW_PALETTES', shortcut: '', icon: 'palette', submenu: true },
       ]
     },
     {
@@ -252,13 +546,19 @@ const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({ onAction, o
               className="relative h-full"
             >
               <button 
-                className={`px-5 h-full text-[11px] font-black uppercase tracking-widest bg-transparent border-none hover:bg-[var(--xibalba-grey-150)] transition-colors ${activeMenu === menu.label ? 'bg-[var(--xibalba-grey-200)]' : ''}`}
-                onMouseEnter={() => setActiveMenu(menu.label)}
-                onMouseLeave={(e) => {
-                  // Don't close if moving to submenu
-                  if (!(e.relatedTarget as HTMLElement)?.closest('.xibalba-card')) {
-                    setActiveMenu(null);
+                className={`px-5 h-full text-[11px] font-black uppercase tracking-widest bg-transparent border-none hover:bg-[var(--xibalba-bg-hover)] transition-colors ${activeMenu === menu.label ? 'bg-[var(--xibalba-bg-tertiary)]' : ''}`}
+                onMouseEnter={() => {
+                  if (menuTimeoutRef.current) {
+                    clearTimeout(menuTimeoutRef.current);
+                    menuTimeoutRef.current = null;
                   }
+                  setActiveMenu(menu.label);
+                }}
+                onMouseLeave={() => {
+                  // Delay closing to allow movement to dropdown
+                  menuTimeoutRef.current = setTimeout(() => {
+                    setActiveMenu(null);
+                  }, 150);
                 }}
               >
                 {menu.label}
@@ -266,33 +566,107 @@ const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({ onAction, o
               
               {activeMenu === menu.label && (
                 <div 
-                  className="xibalba-card absolute top-full left-0 mt-1 w-64 py-2 z-[110] xibalba-animate-in max-h-[80vh] overflow-y-auto xibalba-scrollbar shadow-lg border border-white/10"
-                  onMouseEnter={() => setActiveMenu(menu.label)}
-                  onMouseLeave={() => setActiveMenu(null)}
+                  className="xibalba-card menu-dropdown absolute top-full left-0 mt-1 w-64 py-0 z-[110] xibalba-animate-in max-h-[80vh] overflow-hidden"
+                  onMouseEnter={() => {
+                    if (menuTimeoutRef.current) {
+                      clearTimeout(menuTimeoutRef.current);
+                      menuTimeoutRef.current = null;
+                    }
+                    setActiveMenu(menu.label);
+                  }}
+                  onMouseLeave={() => {
+                    menuTimeoutRef.current = setTimeout(() => {
+                      setActiveMenu(null);
+                    }, 150);
+                  }}
                 >
+                  {/* Construction Paper Intermediary Layer for Text Readability */}
+                  <div className="construction-paper-layer-menu" />
+                  
+                  {/* Scrollable content area - only shows scrollbar when needed */}
+                  <div className="menu-items-container max-h-[80vh] overflow-y-auto">
                   {menu.items.map((item, idx) => {
                     if ('divider' in item) {
                       return <div key={idx} className="h-px bg-white/10 my-1 mx-2" />;
                     }
+                    const submenuId = `${menu.label}-${item.label}`;
+                    const hasSubmenu = item.submenu;
+                    const submenuItems = hasSubmenu ? getSubmenuItems(item.action) : [];
+                    
+                    // // const tooltipContent = item.shortcut ? `${item.label} (${item.shortcut}) - ${getMenuTooltip(item.action)}` : `${item.label} - ${getMenuTooltip(item.action)}`;
                     return (
-                      <button 
-                        key={item.label}
-                        onClick={() => { onAction(item.action); setActiveMenu(null); }}
-                        className="w-full text-left px-5 py-2 text-[10px] font-medium text-[var(--xibalba-text-100)] hover:text-[var(--xibalba-text-000)] hover:bg-[var(--xibalba-grey-150)] flex items-center gap-4 group bg-transparent border-none cursor-pointer"
-                      >
-                        <span className="material-symbols-outlined text-[16px] opacity-70">{item.icon}</span>
-                        <span className="flex-1">{item.label}</span>
-                        {item.shortcut && (
-                          <span className="xibalba-text-xs font-mono text-[var(--xibalba-text-200)] opacity-0 group-hover:opacity-100">
-                            {item.shortcut}
-                          </span>
+                      <div key={item.label} className="relative">
+                        <button 
+                          onClick={() => { 
+                            if (!hasSubmenu) {
+                              onAction(item.action); 
+                              setActiveMenu(null);
+                            }
+                          }}
+                          onMouseEnter={() => {
+                            if (hasSubmenu) {
+                              if (submenuTimeoutRef.current) {
+                                clearTimeout(submenuTimeoutRef.current);
+                                submenuTimeoutRef.current = null;
+                              }
+                              setActiveSubmenu(submenuId);
+                            }
+                          }}
+                          onMouseLeave={() => {
+                            if (hasSubmenu) {
+                              submenuTimeoutRef.current = setTimeout(() => {
+                                setActiveSubmenu(null);
+                              }, 200);
+                            }
+                          }}
+                          className="w-full text-left px-5 py-2 text-[11px] font-semibold text-[var(--xibalba-text-primary)] hover:text-[var(--xibalba-text-primary)] hover:bg-[var(--xibalba-bg-hover)] flex items-center gap-4 group bg-transparent border-none cursor-pointer relative z-10 transition-colors"
+                        >
+                          <span className="material-symbols-outlined text-[16px] opacity-70">{item.icon}</span>
+                          <span className="flex-1">{item.label}</span>
+                          {item.shortcut && (
+                            <span className="xibalba-text-xs font-mono text-[var(--xibalba-text-200)] opacity-0 group-hover:opacity-100">
+                              {item.shortcut}
+                            </span>
+                          )}
+                          {hasSubmenu && (
+                            <span className="material-symbols-outlined text-[14px] opacity-50">chevron_right</span>
+                          )}
+                        </button>
+                        {hasSubmenu && activeSubmenu === submenuId && submenuItems.length > 0 && (
+                          <div 
+                            className="xibalba-card menu-dropdown absolute left-full top-0 ml-1 w-56 py-0 z-[120] xibalba-animate-in"
+                            onMouseEnter={() => {
+                              if (submenuTimeoutRef.current) {
+                                clearTimeout(submenuTimeoutRef.current);
+                                submenuTimeoutRef.current = null;
+                              }
+                              setActiveSubmenu(submenuId);
+                            }}
+                            onMouseLeave={() => {
+                              submenuTimeoutRef.current = setTimeout(() => {
+                                setActiveSubmenu(null);
+                              }, 150);
+                            }}
+                          >
+                            {/* Construction Paper Intermediary Layer for Text Readability */}
+                            <div className="construction-paper-layer-menu" />
+                            {submenuItems.map((subItem, subIdx) => (
+                              <button
+                                key={subIdx}
+                                onClick={() => { onAction(subItem.action); setActiveMenu(null); setActiveSubmenu(null); }}
+                                disabled={subItem.disabled}
+                                className={`w-full text-left px-4 py-2 text-[11px] font-semibold text-[var(--xibalba-text-primary)] hover:text-[var(--xibalba-text-primary)] hover:bg-[var(--xibalba-bg-hover)] flex items-center gap-3 bg-transparent border-none cursor-pointer relative z-10 transition-colors ${subItem.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                              >
+                                <span className="material-symbols-outlined text-[14px] opacity-70">{subItem.icon || 'circle'}</span>
+                                <span>{subItem.label}</span>
+                              </button>
+                            ))}
+                          </div>
                         )}
-                        {item.submenu && (
-                          <span className="material-symbols-outlined text-[14px] opacity-50">chevron_right</span>
-                        )}
-                      </button>
+                      </div>
                     );
                   })}
+                  </div>
                 </div>
               )}
             </div>
@@ -305,17 +679,17 @@ const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({ onAction, o
          <div className="flex items-center gap-3">
             <LayoutSwitcher onLayoutChange={onLayoutChange} />
             <div className="xibalba-panel-elevated flex items-center gap-3 px-4 py-1.5 border border-white/10">
-               <div className="size-2 bg-[var(--xibalba-grey-200)] animate-pulse"></div>
-               <span className="text-[10px] font-black text-[var(--xibalba-text-100)] uppercase tracking-widest mono">25,000 CORE_LIBS</span>
+               <div className="size-2 bg-[var(--xibalba-bg-tertiary)] animate-pulse"></div>
+               <span className="text-[10px] font-black text-[var(--xibalba-text-secondary)] uppercase tracking-widest mono">25,000 CORE_LIBS</span>
             </div>
          </div>
          {/* Execution Status */}
          <div className="flex items-center gap-3 pl-6 border-l border-white/10">
             <div className="flex flex-col items-end -space-y-1 mr-2">
-               <span className="text-[9px] font-bold text-[var(--xibalba-text-100)] uppercase">Execution Layer</span>
-               <span className="text-[8px] font-mono text-[var(--xibalba-text-200)] uppercase">Active_Session</span>
+               <span className="text-[9px] font-bold text-[var(--xibalba-text-secondary)] uppercase">Execution Layer</span>
+               <span className="text-[8px] font-mono text-[var(--xibalba-text-muted)] uppercase">Active_Session</span>
             </div>
-            <div className="size-9 bg-[var(--xibalba-grey-150)] border border-white/10 overflow-hidden cursor-pointer xibalba-interactive">
+            <div className="size-9 bg-[var(--xibalba-bg-tertiary)] border border-white/10 overflow-hidden cursor-pointer xibalba-interactive">
                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=IllustrationPro" alt="User" className="w-full h-full object-cover" />
             </div>
          </div>

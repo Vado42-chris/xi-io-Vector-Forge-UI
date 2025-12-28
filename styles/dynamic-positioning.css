@@ -1,0 +1,116 @@
+/**
+ * Dynamic Positioning CSS
+ * Uses CSS custom properties for dynamic values
+ * NO inline styles - all positioning via CSS variables
+ */
+
+/* Timeline frame positioning */
+.timeline-frame-number {
+  left: var(--frame-position, 0%);
+  transform: translateX(-50%);
+}
+
+.timeline-frame-marker {
+  left: var(--frame-marker-position, 0%);
+  width: var(--frame-marker-width, 1%);
+}
+
+.timeline-keyframe-marker {
+  left: var(--keyframe-position, 0%);
+  transform: translateX(-50%);
+}
+
+.timeline-layer-keyframe {
+  left: var(--layer-keyframe-position, 0%);
+  transform: translateX(-50%) translateY(-50%);
+}
+
+.timeline-playhead {
+  left: var(--playhead-position, 0%);
+}
+
+.timeline-positioned {
+  bottom: var(--timeline-bottom, 48px);
+  left: 0;
+  right: var(--timeline-right, 360px);
+}
+
+/* Floating toolbar positioning */
+.floating-toolbar-positioned {
+  right: var(--toolbar-right, 0px);
+  top: var(--toolbar-top, 0px);
+}
+
+.power-toolbar-positioned {
+  right: var(--toolbar-right, 0px);
+  top: var(--toolbar-top, 0px);
+}
+
+/* Color picker swatch */
+.layer-color-swatch {
+  --layer-color: #ffffff;
+  background-color: var(--layer-color);
+}
+
+/* Progress bars */
+.usage-progress-bar {
+  --progress-width: 0%;
+}
+
+.usage-progress-fill {
+  width: var(--progress-width);
+}
+
+/* Node positioning */
+.node-positioned {
+  --node-left: 0px;
+  --node-top: 0px;
+  left: var(--node-left);
+  top: var(--node-top);
+}
+
+/* Sidebar positioning */
+.sidebar-positioned {
+  position: fixed;
+  left: var(--sidebar-left, 0px);
+  top: var(--sidebar-top, 0px);
+  width: var(--sidebar-width, 320px);
+  height: 100%;
+}
+
+.sidebar-right-positioned {
+  position: fixed;
+  right: var(--sidebar-right, 0px);
+  top: var(--sidebar-top, 48px);
+  width: var(--sidebar-width, 360px);
+  height: var(--sidebar-height, calc(100vh - 48px));
+  z-index: var(--z-sidebar-right, 20);
+}
+
+/* Palette positioning - FIXED: Converted from inline style */
+.palette-positioned {
+  position: fixed;
+  left: var(--palette-left, auto);
+  right: var(--palette-right, auto);
+  top: var(--palette-top, auto);
+  bottom: var(--palette-bottom, auto);
+  width: var(--palette-width, 300px);
+  height: var(--palette-height, 400px);
+  z-index: var(--palette-z-index, 1000);
+}
+
+/* Palette content height - FIXED: Converted from inline calc() */
+.palette-content-height {
+  height: calc(100% - 32px);
+}
+
+/* Palette resize handle clip corner - FIXED: Converted from inline clipPath */
+.palette-clip-corner {
+  clip-path: polygon(100% 0, 0 100%, 100% 100%);
+}
+
+/* DnD Kit sortable item - FIXED: Converted from library style object */
+.dnd-sortable-item {
+  transform: var(--dnd-transform, none);
+  transition: var(--dnd-transition, none);
+}

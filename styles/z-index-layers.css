@@ -1,0 +1,114 @@
+/**
+ * Z-Index Layer System
+ * Named layers for managing z-stack hierarchy (like Photoshop/Illustrator)
+ * 
+ * Usage:
+ * - Use layer names instead of arbitrary z-index values
+ * - Layers are organized from bottom to top
+ * - Each layer has a base value and can have sub-layers
+ */
+
+:root {
+  /* Base Layers (Bottom to Top) */
+  --z-base: 0;
+  --z-background: 1;
+  --z-canvas: 10;
+  --z-canvas-content: 11;
+  --z-canvas-overlay: 12;
+  
+  /* Sidebars & Panels */
+  --z-sidebar-left: 20;
+  --z-sidebar-right: 20;
+  --z-sidebar-resize-handle: 30;
+  
+  /* Canvas Tools & Guides */
+  --z-guides: 40;
+  --z-transform-handles: 50;
+  --z-canvas-controls: 45;
+  
+  /* Timeline (should be above sidebars when expanded) */
+  --z-timeline-collapsed: 40;
+  --z-timeline-expanded: 100;
+  --z-timeline-drag-handle: 110;
+  --z-timeline-keyframes: 120;
+  --z-timeline-tooltips: 130;
+  
+  /* Floating Elements */
+  --z-floating-toolbar: 50;
+  --z-power-toolbar: 50;
+  --z-rulers: 50;
+  
+  /* Dropdowns & Menus */
+  --z-dropdown: 100;
+  --z-menu: 110;
+  --z-submenu: 120;
+  --z-context-menu: 130;
+  
+  /* Modals & Dialogs */
+  --z-modal-backdrop: 200;
+  --z-modal: 201;
+  --z-dialog: 202;
+  
+  /* Notifications & Toasts */
+  --z-toast: 10000;
+  --z-welcome: 10000;
+  
+  /* Tooltips (always on top) */
+  --z-tooltip: 10001;
+  
+  /* Special Cases */
+  --z-scanning-overlay: 200;
+  --z-lock-indicator: 300;
+}
+
+/* Base Layer Classes */
+.z-base { z-index: var(--z-base); }
+.z-background { z-index: var(--z-background); }
+.z-canvas { z-index: var(--z-canvas); }
+.z-canvas-content { z-index: var(--z-canvas-content); }
+.z-canvas-overlay { z-index: var(--z-canvas-overlay); }
+
+/* Sidebar Classes */
+.z-sidebar-left { z-index: var(--z-sidebar-left); }
+.z-sidebar-right { z-index: var(--z-sidebar-right); }
+.z-sidebar-resize-handle { z-index: var(--z-sidebar-resize-handle); }
+
+/* Canvas Classes */
+.z-guides { z-index: var(--z-guides); }
+.z-transform-handles { z-index: var(--z-transform-handles); }
+.z-canvas-controls { z-index: var(--z-canvas-controls); }
+
+/* Timeline Classes */
+.z-timeline-collapsed { z-index: var(--z-timeline-collapsed); }
+.z-timeline-expanded { z-index: var(--z-timeline-expanded); }
+.z-timeline-drag-handle { z-index: var(--z-timeline-drag-handle); }
+.z-timeline-keyframes { z-index: var(--z-timeline-keyframes); }
+.z-timeline-tooltips { z-index: var(--z-timeline-tooltips); }
+
+/* Floating Element Classes */
+.z-floating-toolbar { z-index: var(--z-floating-toolbar); }
+.z-power-toolbar { z-index: var(--z-power-toolbar); }
+.z-rulers { z-index: var(--z-rulers); }
+
+/* Menu Classes */
+.z-dropdown { z-index: var(--z-dropdown); }
+.z-menu { z-index: var(--z-menu); }
+.z-submenu { z-index: var(--z-submenu); }
+.z-context-menu { z-index: var(--z-context-menu); }
+
+/* Modal Classes */
+.z-modal-backdrop { z-index: var(--z-modal-backdrop); }
+.z-modal { z-index: var(--z-modal); }
+.z-dialog { z-index: var(--z-dialog); }
+
+/* Notification Classes */
+.z-toast { z-index: var(--z-toast); }
+.z-welcome { z-index: var(--z-welcome); }
+
+/* Tooltip Class */
+.z-tooltip { z-index: var(--z-tooltip); }
+
+/* Special Classes */
+.z-scanning-overlay { z-index: var(--z-scanning-overlay); }
+.z-lock-indicator { z-index: var(--z-lock-indicator); }
+

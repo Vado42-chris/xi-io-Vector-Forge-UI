@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useRef } from 'react';
 
 interface TimelineProps {
   isPlaying: boolean;
@@ -11,16 +11,16 @@ interface TimelineProps {
 
 const Timeline: React.FC<TimelineProps> = ({ isPlaying, currentTime, duration, onPlayPause, onScrub }) => {
   return (
-    <div className="h-24 bg-obsidian-100 border-t border-white/5 flex items-center px-6 gap-6">
+    <div className="h-24 bg-[var(--xibalba-grey-050)] border-t border-white/5 flex items-center px-6 gap-6">
       <button
         onClick={onPlayPause}
-        className="size-10 flex items-center justify-center rounded-full bg-primary text-black"
+        className="size-10 flex items-center justify-center rounded-none bg-[var(--xibalba-grey-200)] text-[var(--xibalba-text-000)]"
       >
         <span className="material-symbols-outlined">{isPlaying ? 'pause' : 'play_arrow'}</span>
       </button>
       <div className="flex-1 flex items-center gap-4">
-        <span className="text-xs font-mono text-obsidian-500 w-16">{currentTime.toFixed(2)}s</span>
-        <div className="flex-1 h-1.5 bg-obsidian-300 rounded-full relative">
+        <span className="text-xs font-mono text-[var(--xibalba-text-300)] w-16">{currentTime.toFixed(2)}s</span>
+        <div className="flex-1 h-1.5 bg-[var(--xibalba-grey-200)] rounded-none relative">
           <input
             type="range"
             min="0"
@@ -31,11 +31,15 @@ const Timeline: React.FC<TimelineProps> = ({ isPlaying, currentTime, duration, o
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
           />
           <div
-            className="absolute top-0 left-0 h-full bg-primary rounded-full"
-            style={{ width: `${(currentTime / duration) * 100}%` }}
+            ref={(node) => {
+              if (node) {
+                node.style.setProperty('--progress-width', `${(currentTime / duration) * 100}%`);
+              }
+            }}
+            className="absolute top-0 left-0 h-full bg-[var(--xibalba-text-200)] rounded-none progress-bar-fill"
           />
         </div>
-        <span className="text-xs font-mono text-obsidian-500">{duration.toFixed(2)}s</span>
+        <span className="text-xs font-mono text-[var(--xibalba-text-300)]">{duration.toFixed(2)}s</span>
       </div>
     </div>
   );

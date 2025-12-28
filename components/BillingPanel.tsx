@@ -11,7 +11,7 @@
  * Approved By: Chris Hallberg, CEO, Xibalba Mixed Media Studio
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { subscriptionService, Subscription, BillingHistory } from '../services/subscriptionService';
 import ErrorBoundary from './ErrorBoundary';
 
@@ -263,8 +263,12 @@ export default function BillingPanel({ onClose, onUpgradeClick }: BillingPanelPr
                 </span>
               </div>
               <div 
+                ref={(node) => {
+                  if (node) {
+                    node.style.setProperty('--progress-width', `${storageUsage}%`);
+                  }
+                }}
                 className="usage-progress-bar"
-                style={{ '--progress-width': `${storageUsage}%` } as React.CSSProperties}
               >
                 <div className="usage-progress-fill" />
               </div>
@@ -284,8 +288,12 @@ export default function BillingPanel({ onClose, onUpgradeClick }: BillingPanelPr
                 </span>
               </div>
               <div 
+                ref={(node) => {
+                  if (node) {
+                    node.style.setProperty('--progress-width', `${apiUsage}%`);
+                  }
+                }}
                 className="usage-progress-bar"
-                style={{ '--progress-width': `${apiUsage}%` } as React.CSSProperties}
               >
                 <div className="usage-progress-fill" />
               </div>

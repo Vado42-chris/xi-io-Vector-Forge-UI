@@ -218,7 +218,15 @@ export interface TextShape {
   strokeWidth: number;
 }
 
-export type Shape = Path | ParametricRectangle | TextShape;
+export interface EllipseShape {
+  type: 'ellipse';
+  x: number; // Center x
+  y: number; // Center y
+  radiusX: number;
+  radiusY: number;
+}
+
+export type Shape = Path | ParametricRectangle | TextShape | EllipseShape;
 
 // --- End Parametric Shape System ---
 

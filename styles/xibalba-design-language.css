@@ -1,0 +1,525 @@
+/* Xibalba Design Language */
+
+/* Canvas Styles */
+.canvas-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(var(--canvas-zoom-scale, 1));
+  transform-origin: center center;
+  width: var(--canvas-width, 1920px);
+  height: var(--canvas-height, 1080px);
+  min-width: var(--canvas-width, 1920px);
+  min-height: var(--canvas-height, 1080px);
+}
+
+.canvas-transform {
+  transform: translate(calc(-50% + var(--canvas-pan-x, 0px)), calc(-50% + var(--canvas-pan-y, 0px))) scale(var(--canvas-zoom-scale, 1));
+}
+
+.grid-background {
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: var(--grid-size, 40px) var(--grid-size, 40px);
+  background-position: var(--grid-offset-x, 0px) var(--grid-offset-y, 0px);
+}
+
+.guide-line-vertical {
+  position: absolute;
+  left: var(--guide-position-x, 0px);
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(255, 152, 0, 0.5);
+  pointer-events: none;
+}
+
+.guide-line-horizontal {
+  position: absolute;
+  top: var(--guide-position-y, 0px);
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(255, 152, 0, 0.5);
+  pointer-events: none;
+}
+
+/* Ruler Styles */
+.ruler-horizontal {
+  position: absolute !important;
+  top: 0 !important;
+  left: 32px !important;
+  right: 0 !important;
+  height: 32px !important;
+  background: var(--xibalba-grey-050) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  z-index: 50 !important;
+  overflow: visible !important;
+}
+
+.ruler-vertical {
+  position: absolute !important;
+  top: 32px !important;
+  left: 0 !important;
+  bottom: 0 !important;
+  width: 32px !important;
+  background: var(--xibalba-grey-050) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+  z-index: 50 !important;
+  overflow: visible !important;
+}
+
+.ruler-marking {
+  position: absolute !important;
+  left: var(--ruler-position, 0px) !important;
+  top: 0 !important;
+  width: 1px !important;
+  height: 8px !important;
+  background: rgba(255, 255, 255, 0.3) !important;
+  font-size: 9px !important;
+  color: var(--xibalba-text-200) !important;
+  line-height: 1 !important;
+  padding-top: 2px !important;
+  padding-left: 2px !important;
+  white-space: nowrap !important;
+  pointer-events: none !important;
+}
+
+.ruler-marking-major {
+  height: 12px !important;
+  background: rgba(255, 255, 255, 0.5) !important;
+}
+
+.ruler-marking-vertical {
+  position: absolute !important;
+  top: var(--ruler-position, 0px) !important;
+  left: 0 !important;
+  width: 8px !important;
+  height: 1px !important;
+  background: rgba(255, 255, 255, 0.3) !important;
+  font-size: 9px !important;
+  color: var(--xibalba-text-200) !important;
+  line-height: 1 !important;
+  padding-left: 2px !important;
+  padding-top: 2px !important;
+  white-space: nowrap !important;
+  transform: rotate(-90deg) !important;
+  transform-origin: top left !important;
+  pointer-events: none !important;
+}
+
+.ruler-marking-vertical-minor {
+  position: absolute !important;
+  top: var(--ruler-position, 0px) !important;
+  left: 0 !important;
+  width: 4px !important;
+  height: 1px !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+  pointer-events: none !important;
+}
+
+.ruler-unit-selector {
+  font-size: 9px !important;
+  padding: 0 !important;
+  height: 100% !important;
+  border: none !important;
+  background: transparent !important;
+  color: var(--xibalba-text-100) !important;
+  cursor: pointer !important;
+}
+
+.ruler-marking-label {
+  font-size: 9px;
+  color: var(--xibalba-text-200);
+  padding-left: 2px;
+  line-height: 1;
+}
+
+/* Canvas Content Wrapper - NO INLINE STYLES */
+.canvas-content-wrapper {
+  top: 50%;
+  left: 50%;
+  width: var(--canvas-width, 1920px);
+  height: var(--canvas-height, 1080px);
+  transform: translate(calc(-50% + var(--canvas-pan-x, 0px)), calc(-50% + var(--canvas-pan-y, 0px))) scale(var(--canvas-zoom-scale, 1));
+  transform-origin: center center;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.05), inset 0 0 40px rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  min-width: var(--canvas-width, 1920px);
+  min-height: var(--canvas-height, 1080px);
+}
+
+.canvas-svg {
+  pointer-events: none;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.canvas-layer {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.canvas-layer-selected {
+  pointer-events: auto;
+  cursor: move;
+  outline: 2px solid var(--xibalba-accent);
+  outline-offset: 2px;
+}
+
+/* Construction Paper Texture Layer - Between glassmorphism layers */
+.construction-paper-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 999;
+  opacity: 0.15;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* Construction Paper Layer for Menus and Palettes - Flat intermediary layer for text readability */
+.construction-paper-layer-menu {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background-color: var(--xibalba-bg-secondary);
+  opacity: 0.95;
+  mix-blend-mode: normal;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* Menu items container - hide scrollbar unless needed, responsive */
+.menu-items-container {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+  padding: 4px 0;
+}
+
+.menu-items-container::-webkit-scrollbar {
+  width: 4px;
+}
+
+.menu-items-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.menu-items-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+}
+
+.menu-items-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Menu dropdown styling - integrated with UI */
+.menu-dropdown {
+  background: var(--xibalba-bg-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.4),
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+}
+
+/* Menu dropdown positioning - ensure proper stacking */
+.menu-dropdown {
+  position: relative;
+}
+
+/* Tool Palette Styles - NO INLINE STYLES */
+.tool-palette {
+  min-width: 200px;
+  max-width: 320px;
+  background: var(--xibalba-bg-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.tool-palette-floating {
+  position: fixed;
+  left: var(--palette-left, 100px);
+  top: var(--palette-top, 100px);
+  z-index: 1000;
+}
+
+.tool-palette-pinned {
+  position: relative;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.palette-drag-handle {
+  user-select: none;
+}
+
+.palette-item-button {
+  transition: background-color 0.15s ease;
+}
+
+.palette-item-button:hover {
+  background-color: var(--xibalba-grey-150);
+}
+
+/* Orange Glow Backlight for Canvas */
+.canvas-backlight {
+  position: absolute;
+  inset: -20px;
+  pointer-events: none;
+  z-index: -1;
+  background: radial-gradient(ellipse at center, rgba(255, 152, 0, 0.15) 0%, transparent 70%);
+  filter: blur(40px);
+}
+
+/* Responsive Toolbar */
+.toolbar-responsive {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs, 4px);
+  max-width: 200px;
+  width: auto;
+}
+
+.toolbar-responsive .xibalba-toolbar-button-professional {
+  flex: 0 0 auto;
+  width: var(--unit-5, 32px);
+  height: var(--unit-5, 32px);
+}
+
+.toolbar-drag-handle {
+  width: 100%;
+  flex-basis: 100%;
+}
+
+/* Xibalba Logomark Styles */
+.xibalba-logomark-container {
+  /* Cursor handled by className (cursor-pointer or cursor-default) */
+  user-select: none;
+}
+
+.xibalba-logomark-rectangle {
+  /* FIXED: Use CSS custom properties for dynamic values (set via .style.setProperty) */
+  width: var(--logomark-size, 40px);
+  height: var(--logomark-size, 40px);
+  background-color: var(--logomark-bg-color, var(--xibalba-accent));
+  padding: var(--logomark-padding, 8px);
+  border-radius: 0; /* Sharp geometric only - no rounded corners */
+  transition: all 0.2s ease;
+}
+
+.xibalba-logomark-rectangle:hover {
+  transform: scale(1.05);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.xibalba-logomark-mask {
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+}
+
+/* Enhanced Panel System - Visual Grouping Indicators */
+.xibalba-panel-grouping-indicator {
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+/* FIXED: Grouping indicator styles via CSS classes */
+.panel-group-border {
+  border-left: 3px solid var(--xibalba-accent);
+}
+
+.panel-group-border[data-level="0"] { border-left-opacity: 0.3; }
+.panel-group-border[data-level="1"] { border-left-opacity: 0.25; }
+.panel-group-border[data-level="2"] { border-left-opacity: 0.2; }
+.panel-group-border[data-level="3"] { border-left-opacity: 0.15; }
+
+.panel-group-bg {
+  background-color: color-mix(in srgb, var(--xibalba-accent) 30%, transparent);
+}
+
+.panel-group-bg[data-level="1"] { background-color: color-mix(in srgb, var(--xibalba-accent) 25%, transparent); }
+.panel-group-bg[data-level="2"] { background-color: color-mix(in srgb, var(--xibalba-accent) 20%, transparent); }
+.panel-group-bg[data-level="3"] { background-color: color-mix(in srgb, var(--xibalba-accent) 15%, transparent); }
+
+.panel-group-shadow {
+  box-shadow: inset 0 0 0 1px var(--xibalba-accent);
+}
+
+.xibalba-panel-grouping-indicator.is-grouped {
+  /* Visual hardening when grouped */
+}
+
+.xibalba-panel-grouping-indicator[data-type="panel"].is-grouped {
+  border-left: 3px solid var(--xibalba-accent);
+  background: color-mix(in srgb, var(--xibalba-accent) 10%, transparent);
+}
+
+.xibalba-panel-grouping-indicator[data-type="palette"].is-grouped {
+  border-left: 2px solid var(--xibalba-accent);
+  background: color-mix(in srgb, var(--xibalba-accent) 8%, transparent);
+}
+
+.xibalba-panel-grouping-indicator[data-type="tool"].is-grouped {
+  border-left: 1px solid var(--xibalba-accent);
+  background: color-mix(in srgb, var(--xibalba-accent) 5%, transparent);
+}
+
+/* Nesting level visual indicators */
+.xibalba-panel-grouping-indicator[data-level="0"] {
+  /* Root level - strongest indicator */
+}
+
+.xibalba-panel-grouping-indicator[data-level="1"] {
+  border-left-width: 2px;
+  opacity: 0.9;
+}
+
+.xibalba-panel-grouping-indicator[data-level="2"] {
+  border-left-width: 1px;
+  opacity: 0.8;
+}
+
+.xibalba-panel-grouping-indicator[data-level="3"] {
+  border-left-width: 1px;
+  opacity: 0.7;
+}
+
+/* Panel Group Container */
+.xibalba-panel-group {
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--xibalba-grey-050);
+  margin: 2px;
+}
+
+.xibalba-panel-group-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--xibalba-grey-100);
+}
+
+.xibalba-panel-group-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 2px;
+}
+
+/* Panel Content Areas */
+.xibalba-panel-content {
+  padding: 8px;
+}
+
+.xibalba-panel-main-content {
+  /* Main content area */
+}
+
+.xibalba-panel-nested-container {
+  /* Container for nested panels/palettes */
+  margin-top: 8px;
+  padding-top: 8px;
+}
+
+/* Panel Group Zone Indicators */
+.xibalba-panel-group[data-zone="left"] {
+  border-left: 3px solid var(--xibalba-accent);
+}
+
+.xibalba-panel-group[data-zone="right"] {
+  border-right: 3px solid var(--xibalba-accent);
+}
+
+.xibalba-panel-group[data-zone="top"] {
+  border-top: 3px solid var(--xibalba-accent);
+}
+
+.xibalba-panel-group[data-zone="bottom"] {
+  border-bottom: 3px solid var(--xibalba-accent);
+}
+
+.xibalba-panel-group[data-zone="floating"] {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Production Quality Interactions - Animations */
+@keyframes ripple {
+  0% {
+    width: 0;
+    height: 0;
+    opacity: 0.5;
+  }
+  100% {
+    width: 200px;
+    height: 200px;
+    opacity: 0;
+  }
+}
+
+.animate-ripple {
+  animation: ripple 0.6s ease-out;
+}
+
+/* Tool Locking System */
+.xibalba-tool-lock-indicator {
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* Smooth Transitions for All Interactive Elements */
+.xibalba-toolbar-button-professional,
+.xibalba-button-professional,
+.xibalba-tab-professional,
+.xibalba-palette {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Production Quality Hover States */
+.xibalba-toolbar-button-professional:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.xibalba-toolbar-button-professional:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Focus States for Accessibility */
+.xibalba-toolbar-button-professional:focus-visible,
+.xibalba-button-professional:focus-visible,
+.xibalba-tab-professional:focus-visible {
+  outline: 2px solid var(--xibalba-accent);
+  outline-offset: 2px;
+}
+
+/* Disabled States */
+.xibalba-toolbar-button-professional:disabled,
+.xibalba-button-professional:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Tool Lock Visual Indicator */
+.xibalba-toolbar-button-professional[data-locked="true"] {
+  position: relative;
+}
+
+.xibalba-toolbar-button-professional[data-locked="true"]::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 8px;
+  height: 8px;
+  background: var(--xibalba-accent);
+  border-radius: 50%;
+  box-shadow: 0 0 4px var(--xibalba-accent);
+}

@@ -1,262 +1,155 @@
 {
   "version": "1.0.0",
-  "lastUpdated": "2025-01-XX",
+  "lastUpdated": 1735344000000,
+  "defaultLayout": "default",
   "layouts": [
     {
-      "id": "layout-vector-editing",
-      "name": "Vector Editing",
-      "description": "Optimized layout for vector graphics editing with tools, layers, and properties",
-      "default": true,
+      "id": "default",
+      "name": "Default Layout",
+      "description": "Standard layout with all panels visible",
+      "category": "default",
       "panels": [
         {
-          "id": "panel-tools",
-          "type": "tools",
+          "id": "left-sidebar",
+          "type": "sidebar",
+          "position": "left",
+          "width": 320,
           "visible": true,
-          "position": {
-            "x": 0,
-            "y": 56,
-            "width": 200,
-            "height": 800,
-            "docked": true,
-            "dockZone": "left"
-          }
+          "order": 1
         },
         {
-          "id": "panel-canvas",
+          "id": "right-sidebar",
+          "type": "sidebar",
+          "position": "right",
+          "width": 320,
+          "visible": true,
+          "order": 2
+        },
+        {
+          "id": "toolbar",
+          "type": "toolbar",
+          "position": "top",
+          "height": 64,
+          "visible": true,
+          "order": 3
+        },
+        {
+          "id": "canvas",
           "type": "canvas",
+          "position": "center",
           "visible": true,
-          "position": {
-            "x": 200,
-            "y": 56,
-            "width": 1200,
-            "height": 800,
-            "docked": true,
-            "dockZone": "center"
-          }
+          "order": 4
         },
         {
-          "id": "panel-layers",
-          "type": "layers",
-          "visible": true,
-          "position": {
-            "x": 1400,
-            "y": 56,
-            "width": 360,
-            "height": 400,
-            "docked": true,
-            "dockZone": "right"
-          },
-          "tabs": ["layers"],
-          "activeTab": "layers"
-        },
-        {
-          "id": "panel-properties",
-          "type": "properties",
-          "visible": true,
-          "position": {
-            "x": 1400,
-            "y": 456,
-            "width": 360,
-            "height": 400,
-            "docked": true,
-            "dockZone": "right"
-          },
-          "tabs": ["tool", "inspector"],
-          "activeTab": "tool"
-        },
-        {
-          "id": "panel-timeline",
+          "id": "timeline",
           "type": "timeline",
+          "position": "bottom",
+          "height": 200,
+          "visible": true,
+          "order": 5
+        }
+      ],
+      "createdAt": 1735344000000,
+      "updatedAt": 1735344000000
+    },
+    {
+      "id": "minimal",
+      "name": "Minimal Layout",
+      "description": "Clean layout with only essential panels",
+      "category": "preset",
+      "panels": [
+        {
+          "id": "left-sidebar",
+          "type": "sidebar",
+          "position": "left",
+          "width": 240,
+          "visible": true,
+          "collapsed": false,
+          "order": 1
+        },
+        {
+          "id": "canvas",
+          "type": "canvas",
+          "position": "center",
+          "visible": true,
+          "order": 2
+        },
+        {
+          "id": "timeline",
+          "type": "timeline",
+          "position": "bottom",
+          "height": 150,
+          "visible": true,
+          "order": 3
+        },
+        {
+          "id": "right-sidebar",
+          "type": "sidebar",
+          "position": "right",
+          "width": 280,
           "visible": false,
-          "position": {
-            "x": 200,
-            "y": 856,
-            "width": 1200,
-            "height": 200,
-            "docked": true,
-            "dockZone": "bottom"
-          }
+          "order": 4
+        },
+        {
+          "id": "toolbar",
+          "type": "toolbar",
+          "position": "top",
+          "height": 64,
+          "visible": true,
+          "order": 5
         }
-      ]
+      ],
+      "createdAt": 1735344000000,
+      "updatedAt": 1735344000000
     },
     {
-      "id": "layout-animation",
-      "name": "Animation",
-      "description": "Layout optimized for frame-based animation with timeline and keyframes",
-      "default": false,
+      "id": "full-workspace",
+      "name": "Full Workspace",
+      "description": "Maximum panels for power users",
+      "category": "preset",
       "panels": [
         {
-          "id": "panel-tools-animation",
-          "type": "tools",
+          "id": "left-sidebar",
+          "type": "sidebar",
+          "position": "left",
+          "width": 360,
           "visible": true,
-          "position": {
-            "x": 0,
-            "y": 56,
-            "width": 200,
-            "height": 600,
-            "docked": true,
-            "dockZone": "left"
-          }
+          "order": 1
         },
         {
-          "id": "panel-canvas-animation",
+          "id": "right-sidebar",
+          "type": "sidebar",
+          "position": "right",
+          "width": 360,
+          "visible": true,
+          "order": 2
+        },
+        {
+          "id": "toolbar",
+          "type": "toolbar",
+          "position": "top",
+          "height": 64,
+          "visible": true,
+          "order": 3
+        },
+        {
+          "id": "canvas",
           "type": "canvas",
+          "position": "center",
           "visible": true,
-          "position": {
-            "x": 200,
-            "y": 56,
-            "width": 1200,
-            "height": 600,
-            "docked": true,
-            "dockZone": "center"
-          }
+          "order": 4
         },
         {
-          "id": "panel-timeline-animation",
+          "id": "timeline",
           "type": "timeline",
+          "position": "bottom",
+          "height": 250,
           "visible": true,
-          "position": {
-            "x": 200,
-            "y": 656,
-            "width": 1200,
-            "height": 200,
-            "docked": true,
-            "dockZone": "bottom"
-          }
-        },
-        {
-          "id": "panel-keyframes-animation",
-          "type": "properties",
-          "visible": true,
-          "position": {
-            "x": 1400,
-            "y": 56,
-            "width": 360,
-            "height": 800,
-            "docked": true,
-            "dockZone": "right"
-          },
-          "tabs": ["scripts", "layers"],
-          "activeTab": "scripts"
+          "order": 5
         }
-      ]
-    },
-    {
-      "id": "layout-full-studio",
-      "name": "Full Studio",
-      "description": "Complete studio layout with all panels visible and customizable",
-      "default": false,
-      "panels": [
-        {
-          "id": "panel-tools-studio",
-          "type": "tools",
-          "visible": true,
-          "position": {
-            "x": 0,
-            "y": 56,
-            "width": 200,
-            "height": 400,
-            "docked": true,
-            "dockZone": "left"
-          }
-        },
-        {
-          "id": "panel-terminal-studio",
-          "type": "terminal",
-          "visible": true,
-          "position": {
-            "x": 0,
-            "y": 456,
-            "width": 200,
-            "height": 400,
-            "docked": true,
-            "dockZone": "left"
-          }
-        },
-        {
-          "id": "panel-canvas-studio",
-          "type": "canvas",
-          "visible": true,
-          "position": {
-            "x": 200,
-            "y": 56,
-            "width": 1000,
-            "height": 600,
-            "docked": true,
-            "dockZone": "center"
-          }
-        },
-        {
-          "id": "panel-preview-studio",
-          "type": "preview",
-          "visible": true,
-          "position": {
-            "x": 200,
-            "y": 656,
-            "width": 500,
-            "height": 200,
-            "docked": true,
-            "dockZone": "bottom"
-          }
-        },
-        {
-          "id": "panel-timeline-studio",
-          "type": "timeline",
-          "visible": true,
-          "position": {
-            "x": 700,
-            "y": 656,
-            "width": 500,
-            "height": 200,
-            "docked": true,
-            "dockZone": "bottom"
-          }
-        },
-        {
-          "id": "panel-layers-studio",
-          "type": "layers",
-          "visible": true,
-          "position": {
-            "x": 1200,
-            "y": 56,
-            "width": 360,
-            "height": 300,
-            "docked": true,
-            "dockZone": "right"
-          },
-          "tabs": ["layers", "registry"],
-          "activeTab": "layers"
-        },
-        {
-          "id": "panel-properties-studio",
-          "type": "properties",
-          "visible": true,
-          "position": {
-            "x": 1200,
-            "y": 356,
-            "width": 360,
-            "height": 300,
-            "docked": true,
-            "dockZone": "right"
-          },
-          "tabs": ["tool", "inspector", "scripts"],
-          "activeTab": "tool"
-        },
-        {
-          "id": "panel-chat-studio",
-          "type": "chat",
-          "visible": true,
-          "position": {
-            "x": 1200,
-            "y": 656,
-            "width": 360,
-            "height": 200,
-            "docked": true,
-            "dockZone": "right"
-          }
-        }
-      ]
+      ],
+      "createdAt": 1735344000000,
+      "updatedAt": 1735344000000
     }
   ]
 }
-

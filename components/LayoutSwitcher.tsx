@@ -19,7 +19,7 @@ const LayoutSwitcher: React.FC<LayoutSwitcherProps> = ({ onLayoutChange }) => {
   useEffect(() => {
     const loadLayouts = async () => {
       await workflowLayoutService.initialize();
-      const allLayouts = workflowLayoutService.getLayouts();
+      const allLayouts = workflowLayoutService.getAllLayouts();
       setLayouts(allLayouts);
       
       const current = workflowLayoutService.getCurrentLayout();
@@ -46,7 +46,7 @@ const LayoutSwitcher: React.FC<LayoutSwitcherProps> = ({ onLayoutChange }) => {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-1.5 bg-[var(--xibalba-grey-100)] border border-white/10 hover:border-[var(--xibalba-accent)] text-[10px] font-black uppercase tracking-widest text-[var(--xibalba-text-100)] hover:text-[var(--xibalba-text-000)] transition-colors"
+        className="flex items-center gap-2 px-3 py-1.5 bg-[var(--xibalba-bg-tertiary)] border border-white/10 hover:border-[var(--xibalba-accent)] text-[10px] font-black uppercase tracking-widest text-[var(--xibalba-text-primary)] hover:text-[var(--xibalba-text-primary)] transition-colors"
         title="Switch Workflow Layout"
       >
         <span className="material-symbols-outlined text-[14px]">view_quilt</span>
@@ -68,8 +68,8 @@ const LayoutSwitcher: React.FC<LayoutSwitcherProps> = ({ onLayoutChange }) => {
                   onClick={() => handleLayoutSelect(layout)}
                   className={`w-full text-left px-4 py-2.5 text-[10px] font-medium transition-colors ${
                     currentLayout?.id === layout.id
-                      ? 'bg-[var(--xibalba-grey-150)] text-[var(--xibalba-text-000)]'
-                      : 'text-[var(--xibalba-text-100)] hover:text-[var(--xibalba-text-000)] hover:bg-[var(--xibalba-grey-150)]'
+                      ? 'bg-[var(--xibalba-bg-hover)] text-[var(--xibalba-text-primary)]'
+                      : 'text-[var(--xibalba-text-secondary)] hover:text-[var(--xibalba-text-primary)] hover:bg-[var(--xibalba-bg-hover)]'
                   }`}
                 >
                   <div className="flex items-center justify-between">
@@ -81,7 +81,7 @@ const LayoutSwitcher: React.FC<LayoutSwitcherProps> = ({ onLayoutChange }) => {
                         {layout.description}
                       </div>
                     </div>
-                    {layout.default && (
+                    {layout.category === 'default' && (
                       <span className="text-[8px] px-1.5 py-0.5 bg-[var(--xibalba-accent)]/20 text-[var(--xibalba-accent)] uppercase">
                         Default
                       </span>

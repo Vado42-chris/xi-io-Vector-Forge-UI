@@ -1,0 +1,149 @@
+/**
+ * Hallberg Maths Balance
+ * #hashtag: #hallberg-maths #golden-ratio #design-system
+ * 
+ * Applies Golden Ratio (PHI), Euler's number (E), and Pi for spacing and typography
+ * Based on Master Chris's professional UX standards
+ */
+
+:root {
+  /* Golden Ratio (PHI) = 1.618033988749895 */
+  --phi: 1.618033988749895;
+  --phi-inverse: 0.618033988749895;
+  
+  /* Euler's number (E) = 2.718281828459045 */
+  --euler: 2.718281828459045;
+  
+  /* Pi = 3.141592653589793 */
+  --pi: 3.141592653589793;
+  
+  /* Base unit using PHI */
+  --base-unit: 8px;
+  --unit-1: calc(var(--base-unit) * var(--phi-inverse)); /* ~4.94px */
+  --unit-2: var(--base-unit); /* 8px */
+  --unit-3: calc(var(--base-unit) * var(--phi)); /* ~12.94px */
+  --unit-4: calc(var(--base-unit) * var(--phi) * var(--phi)); /* ~20.94px */
+  --unit-5: calc(var(--base-unit) * var(--phi) * var(--phi) * var(--phi)); /* ~33.89px */
+  --unit-6: calc(var(--base-unit) * var(--phi) * var(--phi) * var(--phi) * var(--phi)); /* ~54.83px */
+  
+  /* Typography scale using PHI */
+  --font-size-xs: calc(var(--base-unit) * var(--phi-inverse)); /* ~4.94px */
+  --font-size-sm: calc(var(--base-unit) * 1.2); /* ~9.6px */
+  --font-size-base: calc(var(--base-unit) * var(--phi)); /* ~12.94px */
+  --font-size-md: calc(var(--base-unit) * var(--phi) * 1.2); /* ~15.53px */
+  --font-size-lg: calc(var(--base-unit) * var(--phi) * var(--phi)); /* ~20.94px */
+  --font-size-xl: calc(var(--base-unit) * var(--phi) * var(--phi) * 1.2); /* ~25.13px */
+  --font-size-2xl: calc(var(--base-unit) * var(--phi) * var(--phi) * var(--phi)); /* ~33.89px */
+  
+  /* Line heights using PHI */
+  --line-height-tight: var(--phi-inverse);
+  --line-height-normal: var(--phi);
+  --line-height-relaxed: calc(var(--phi) * 1.2);
+  
+  /* Spacing using PHI progression */
+  --spacing-xs: var(--unit-1);
+  --spacing-sm: var(--unit-2);
+  --spacing-md: var(--unit-3);
+  --spacing-lg: var(--unit-4);
+  --spacing-xl: var(--unit-5);
+  --spacing-2xl: var(--unit-6);
+  
+  /* Border radius using PHI */
+  --radius-sm: calc(var(--base-unit) * var(--phi-inverse));
+  --radius-md: var(--base-unit);
+  --radius-lg: calc(var(--base-unit) * var(--phi));
+  
+  /* Component sizing using PHI */
+  --button-height-sm: calc(var(--base-unit) * var(--phi));
+  --button-height-md: calc(var(--base-unit) * var(--phi) * var(--phi));
+  --button-height-lg: calc(var(--base-unit) * var(--phi) * var(--phi) * var(--phi));
+  
+  --input-height-sm: calc(var(--base-unit) * var(--phi));
+  --input-height-md: calc(var(--base-unit) * var(--phi) * var(--phi));
+  --input-height-lg: calc(var(--base-unit) * var(--phi) * var(--phi) * var(--phi));
+  
+  /* Panel widths using PHI */
+  --sidebar-width-sm: calc(var(--base-unit) * var(--phi) * var(--phi) * var(--phi) * var(--phi)); /* ~54.83px */
+  --sidebar-width-md: calc(var(--base-unit) * var(--phi) * var(--phi) * var(--phi) * var(--phi) * var(--phi)); /* ~88.72px */
+  --sidebar-width-lg: calc(var(--base-unit) * var(--phi) * var(--phi) * var(--phi) * var(--phi) * var(--phi) * var(--phi)); /* ~143.55px */
+  
+  /* Z-index scale using PHI */
+  --z-base: 1;
+  --z-dropdown: calc(var(--z-base) * var(--phi) * var(--phi)); /* ~2.62 */
+  --z-sticky: calc(var(--z-base) * var(--phi) * var(--phi) * var(--phi)); /* ~4.24 */
+  --z-fixed: calc(var(--z-base) * var(--phi) * var(--phi) * var(--phi) * var(--phi)); /* ~6.85 */
+  --z-modal: calc(var(--z-base) * var(--phi) * var(--phi) * var(--phi) * var(--phi) * var(--phi)); /* ~11.09 */
+  --z-popover: calc(var(--z-base) * var(--phi) * var(--phi) * var(--phi) * var(--phi) * var(--phi) * var(--phi)); /* ~17.94 */
+  --z-tooltip: calc(var(--z-base) * var(--phi) * var(--phi) * var(--phi) * var(--phi) * var(--phi) * var(--phi) * var(--phi)); /* ~29.03 */
+}
+
+/* Apply Hallberg Maths to all components */
+* {
+  /* Use PHI-based spacing for margins and padding */
+  --spacing-default: var(--spacing-md);
+}
+
+/* Typography using Hallberg Maths */
+body {
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+  letter-spacing: calc(var(--base-unit) * 0.01);
+}
+
+/* Buttons using Hallberg Maths */
+button {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-tight);
+}
+
+/* Inputs using Hallberg Maths */
+input, textarea, select {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  min-height: var(--input-height-md);
+}
+
+/* Panels using Hallberg Maths */
+.xibalba-panel-professional,
+.xibalba-panel-elevated-professional {
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  gap: var(--spacing-sm);
+}
+
+/* Sidebars using Hallberg Maths */
+.xibalba-sidebar {
+  min-width: calc(var(--sidebar-width-lg) * 2);
+  max-width: calc(var(--sidebar-width-lg) * 4);
+}
+
+/* Toolbar using Hallberg Maths */
+.toolbar-responsive {
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-md);
+}
+
+.toolbar-drag-handle {
+  height: var(--unit-3);
+  margin-bottom: var(--spacing-xs);
+}
+
+/* Cards using Hallberg Maths */
+.xi-card {
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  gap: var(--spacing-sm);
+}
+
+/* Headings using Hallberg Maths */
+h1 { font-size: var(--font-size-2xl); line-height: var(--line-height-tight); }
+h2 { font-size: var(--font-size-xl); line-height: var(--line-height-tight); }
+h3 { font-size: var(--font-size-lg); line-height: var(--line-height-normal); }
+h4 { font-size: var(--font-size-md); line-height: var(--line-height-normal); }
+h5 { font-size: var(--font-size-base); line-height: var(--line-height-normal); }
+h6 { font-size: var(--font-size-sm); line-height: var(--line-height-normal); }

@@ -1,0 +1,42 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-12-27T00:00:00Z",
+  "workTrackingId": "WT-2025-01-27-036",
+  "patentTrackingId": "P-2025-01-27-033",
+  "blockchainSeed": "seed001",
+  "changes": [
+    {
+      "id": "CHG-2025-12-27-001",
+      "timestamp": "2025-12-27T00:58:00Z",
+      "component": "XibalbaLogomark",
+      "file": "components/XibalbaLogomark.tsx",
+      "lines": [43, 48-53],
+      "changeType": "inline-style-removal",
+      "before": "style={{ cursor: onClick ? 'pointer' : 'default' }}\nstyle={{ width: `${containerSize}px`, height: `${containerSize}px`, backgroundColor: backgroundColor, padding: `${padding}px` }}",
+      "after": "className={onClick ? 'cursor-pointer' : 'cursor-default'}\nCSS custom properties: --logomark-size, --logomark-bg-color, --logomark-padding (set via .style.setProperty)",
+      "reason": "Remove inline styles to comply with Xibalba component system. Cursor converted to className, dynamic values use CSS custom properties (correct pattern).",
+      "dependencies": [],
+      "affectedPages": ["All pages with header (all pages)"],
+      "testCases": ["XIBALBA-LOGOMARK-001: Logo displays correctly", "XIBALBA-LOGOMARK-002: Cursor changes on hover when onClick provided", "XIBALBA-LOGOMARK-003: Size/padding/color props work correctly"],
+      "rollbackPlan": "Revert commit CHG-2025-12-27-001 or restore from git history",
+      "workTrackingId": "WT-2025-01-27-037",
+      "patentTrackingId": "P-2025-01-27-034",
+      "blockchainSeed": "seed001",
+      "status": "completed",
+      "buildStatus": "success",
+      "testStatus": "pending"
+    }
+  ],
+  "metadata": {
+    "purpose": "Track all inline style removal changes with full context for rollback and impact analysis",
+    "format": "Each change record includes before/after code, dependencies, affected pages, test cases, and rollback plan"
+  },
+  "status": {
+    "totalChanges": 1,
+    "completed": 1,
+    "pending": 6,
+    "rolledBack": 0
+  },
+  "lastUpdated": "2025-12-27T00:58:00Z"
+}
+
