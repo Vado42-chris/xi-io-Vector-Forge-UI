@@ -50,6 +50,17 @@ export type ToolType =
 export type MeasurementUnit = 'px' | 'mm' | 'cm' | 'in' | 'pt';
 
 export interface ToolProperties {
+  // Common properties (used across multiple tools)
+  strokeWidth?: number;
+  fill?: string;
+  stroke?: string;
+  opacity?: number;
+  strokeDasharray?: string;
+  strokeLinecap?: 'butt' | 'round' | 'square';
+  strokeLinejoin?: 'miter' | 'round' | 'bevel';
+  fillRule?: 'nonzero' | 'evenodd';
+  fontSize?: number;
+  fontFamily?: string;
   // Pen Tool
   pen?: {
     fill?: boolean;
@@ -193,6 +204,7 @@ export interface VectorNode {
 export interface Path {
   type: 'path';
   nodes: VectorNode[];
+  d?: string; // SVG path data string (for compatibility)
 }
 
 export interface ParametricRectangle {
@@ -283,6 +295,12 @@ export interface AppState {
     apiKey: string;
     thinkingBudget: number;
   };
+  mcpServers?: Array<{
+    id: string;
+    name: string;
+    url: string;
+    enabled: boolean;
+  }>;
 }
 
 // --- Animation System ---

@@ -57,6 +57,10 @@ const App: React.FC = () => {
         toasts: [],
         guides: [],
         showRulers: true,
+        toolProperties: {},
+        measurementUnit: 'px',
+        workspaceLayout: 'default',
+        dockedPanels: [],
         engineConfig: { provider: 'gemini-pro' as any, apiKey: '', thinkingBudget: 32768 }
       };
       return saved ? { ...baseState, ...JSON.parse(saved), isGenerating: false, toasts: [] } : baseState;
@@ -159,7 +163,7 @@ const App: React.FC = () => {
 
   // Update tool properties when tool changes
   useEffect(() => {
-    const defaultProps: Record<ToolType, Partial<ToolProperties>> = {
+    const defaultProps: Partial<Record<ToolType, Partial<ToolProperties>>> = {
       select: {},
       pen: { strokeWidth: 2, fill: 'none', stroke: 'var(--xibalba-text-000, #ffffff)' },
       rectangle: { strokeWidth: 1, fill: 'var(--xibalba-text-000, #ffffff)', stroke: 'var(--xibalba-grey-000, #000000)' },
@@ -225,6 +229,7 @@ const App: React.FC = () => {
         stroke: p.getAttribute('stroke') || 'var(--xibalba-grey-000, #000000)',
         strokeWidth: parseFloat(p.getAttribute('stroke-width') || '0'),
         opacity: parseFloat(p.getAttribute('opacity') || '1'),
+        blendMode: (p.getAttribute('data-blend-mode') || 'normal') as VectorLayer['blendMode'],
         shape: p.tagName === 'rect' ? {
           type: 'rect' as const,
           x: parseFloat(p.getAttribute('x') || '0'),
@@ -264,16 +269,16 @@ const App: React.FC = () => {
         const doc = parser.parseFromString(currentSvg, "image/svg+xml");
         
         // FIXED: Better workspace root handling
-        let workspaceRoot = doc.getElementById('workspace_root');
+        let workspaceRoot: SVGGElement | null = doc.getElementById('workspace_root') as SVGGElement | null;
         if (!workspaceRoot) {
-          workspaceRoot = doc.querySelector('g[id="workspace_root"]');
+          workspaceRoot = doc.querySelector('g[id="workspace_root"]') as SVGGElement | null;
         }
         if (!workspaceRoot) {
-          workspaceRoot = doc.querySelector('g');
+          workspaceRoot = doc.querySelector('g') as SVGGElement | null;
         }
         if (!workspaceRoot) {
           // Create workspace_root if it doesn't exist
-          workspaceRoot = doc.createElementNS('http://www.w3.org/2000/svg', 'g');
+          workspaceRoot = doc.createElementNS('http://www.w3.org/2000/svg', 'g') as SVGGElement;
           workspaceRoot.setAttribute('id', 'workspace_root');
           const svgRoot = doc.documentElement;
           svgRoot.appendChild(workspaceRoot);
@@ -802,6 +807,7 @@ const App: React.FC = () => {
                 stroke: selectedLayer.stroke,
                 strokeWidth: selectedLayer.strokeWidth,
                 opacity: selectedLayer.opacity,
+                blendMode: 'normal',
                 shape: { type: 'path', d: '', nodes: [] },
                 children: [selectedLayer]
               };
@@ -1264,6 +1270,7 @@ const App: React.FC = () => {
                   opacity: toolProperties.opacity || 1,
                   visible: true,
                   locked: false,
+                  blendMode: 'normal',
                   shape: { type: 'path', d: 'M 0 0', nodes: [] }
                 };
                 const newLayers = [...state.layers, newLayer];
@@ -1282,6 +1289,7 @@ const App: React.FC = () => {
                     opacity: toolProperties.opacity || 1,
                     visible: true,
                     locked: false,
+                    blendMode: 'normal',
                     shape: { type: 'path', d: 'M 0 0', nodes: [] }
                   };
                   const newLayers = state.layers.map(l => {
@@ -1307,6 +1315,7 @@ const App: React.FC = () => {
                     stroke: selectedLayers[0]?.stroke || 'var(--xibalba-grey-000, #000000)',
                     strokeWidth: selectedLayers[0]?.strokeWidth || 1,
                     opacity: selectedLayers[0]?.opacity || 1,
+                    blendMode: 'normal',
                     shape: { type: 'path', d: '', nodes: [] },
                     children: selectedLayers
                   };
@@ -1426,6 +1435,7 @@ const App: React.FC = () => {
                     opacity: layer.opacity,
                     visible: layer.visible,
                     locked: false,
+                    blendMode: 'normal',
                     shape: { type: 'path', d: '', nodes: [] } // TODO: Convert text to path
                   };
                   const newLayers = [...state.layers, outlineLayer];
