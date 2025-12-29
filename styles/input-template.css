@@ -1,0 +1,112 @@
+/**
+ * Input Template Styles
+ * Phase 2: Component Templates & Reusability
+ * 
+ * NO INLINE STYLES - All styling via CSS classes
+ * XIBALBA DESIGN SYSTEM COMPLIANT
+ */
+
+/* ============================================
+   INPUT WRAPPER
+   ============================================ */
+.xibalba-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 8px);
+  width: 100%;
+}
+
+/* ============================================
+   BASE INPUT STYLES
+   ============================================ */
+.xibalba-input-professional {
+  width: 100%;
+  padding: 0 var(--space-3, 12px);
+  background: var(--xibalba-grey-200) !important;
+  border: none !important;
+  color: var(--xibalba-text-000) !important;
+  font-size: var(--font-size-sm, 12px);
+  font-weight: 400;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+  font-family: inherit;
+}
+
+/* ============================================
+   INPUT SIZES
+   ============================================ */
+.xibalba-input-sm {
+  height: 24px;
+  padding: 0 var(--space-2, 8px);
+  font-size: var(--font-size-xs, 10px);
+}
+
+.xibalba-input-md {
+  height: 28px;
+  padding: 0 var(--space-3, 12px);
+  font-size: var(--font-size-sm, 12px);
+}
+
+.xibalba-input-lg {
+  height: 36px;
+  padding: 0 var(--space-4, 16px);
+  font-size: var(--font-size-base, 14px);
+}
+
+/* ============================================
+   INPUT STATES (from interaction-polish.css)
+   ============================================ */
+/* Hover, focus, disabled states are handled by interaction-polish.css */
+
+/* ============================================
+   INVALID STATE
+   ============================================ */
+.xibalba-input-invalid {
+  box-shadow: 
+    0 0 0 2px #ff0000,
+    0 0 0 4px rgba(255, 0, 0, 0.2) !important;
+}
+
+/* ============================================
+   VALIDATION MESSAGE
+   ============================================ */
+.xibalba-input-validation-message {
+  font-size: var(--font-size-xs, 10px);
+  color: #ff0000;
+  margin-top: var(--space-1, 4px);
+  padding-left: var(--space-2, 8px);
+}
+
+/* ============================================
+   LABEL
+   ============================================ */
+.xibalba-label-professional {
+  font-size: var(--font-size-sm, 12px);
+  font-weight: 500;
+  color: var(--xibalba-text-000);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1, 4px);
+}
+
+.xibalba-required-indicator {
+  color: var(--xibalba-accent, #ff9800);
+  font-weight: 700;
+}
+
+/* ============================================
+   READONLY STATE
+   ============================================ */
+.xibalba-input-professional.readonly {
+  opacity: 0.7;
+  cursor: default;
+}
+
+/* ============================================
+   PLACEHOLDER
+   ============================================ */
+.xibalba-input-professional::placeholder {
+  color: var(--xibalba-text-100) !important;
+  opacity: 1;
+}
+
