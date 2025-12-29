@@ -604,7 +604,10 @@ const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({ onAction, o
                     // // const tooltipContent = item.shortcut ? `${item.label} (${item.shortcut}) - ${getMenuTooltip(item.action)}` : `${item.label} - ${getMenuTooltip(item.action)}`;
                     return (
                       <div key={item.label} className="relative">
-                        <button 
+                        <Button
+                          icon={item.icon}
+                          label={item.label}
+                          shortcut={item.shortcut}
                           onClick={() => { 
                             if (!hasSubmenu) {
                               onAction(item.action); 
@@ -627,14 +630,12 @@ const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({ onAction, o
                               }, 200);
                             }
                           }}
-                          data-loading={
+                          loading={
                             (item.action === 'FILE_SAVE' && fileOperationLoading?.type === 'save') ||
                             (item.action === 'FILE_SAVE_AS' && fileOperationLoading?.type === 'save-as') ||
                             (item.action === 'FILE_OPEN' && fileOperationLoading?.type === 'open') ||
                             (item.action === 'FILE_EXPORT_SVG' && fileOperationLoading?.type === 'export-svg') ||
                             (item.action === 'FILE_EXPORT_PNG' && fileOperationLoading?.type === 'export-png')
-                              ? 'true'
-                              : 'false'
                           }
                           disabled={
                             (item.action === 'FILE_SAVE' && fileOperationLoading?.type === 'save') ||
@@ -643,19 +644,14 @@ const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({ onAction, o
                             (item.action === 'FILE_EXPORT_SVG' && fileOperationLoading?.type === 'export-svg') ||
                             (item.action === 'FILE_EXPORT_PNG' && fileOperationLoading?.type === 'export-png')
                           }
-                          className="w-full text-left px-5 py-2 text-sm font-semibold text-[var(--xibalba-text-000)] hover:text-[var(--xibalba-text-000)] hover:bg-[var(--xibalba-grey-200)] flex items-center gap-4 group bg-transparent border-none cursor-pointer relative transition-colors"
+                          variant="menu"
+                          size="sm"
+                          className="w-full text-left justify-start group"
                         >
-                          <span className="material-symbols-outlined text-[16px] opacity-70">{item.icon}</span>
-                          <span className="flex-1">{item.label}</span>
-                          {item.shortcut && (
-                            <span className="xibalba-text-xs font-mono text-[var(--xibalba-text-100)] opacity-0 group-hover:opacity-100">
-                              {item.shortcut}
-                            </span>
-                          )}
                           {hasSubmenu && (
-                            <span className="material-symbols-outlined text-[14px] opacity-50">chevron_right</span>
+                            <span className="material-symbols-outlined text-[14px] opacity-50 ml-auto">chevron_right</span>
                           )}
-                        </button>
+                        </Button>
                         {hasSubmenu && activeSubmenu === submenuId && submenuItems.length > 0 && (
                           <div 
                             className="xibalba-card menu-dropdown absolute left-full top-0 ml-1 w-56 py-0 zstack-submenu xibalba-animate-in"
@@ -674,15 +670,16 @@ const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({ onAction, o
                           >
                             {/* Construction Paper Intermediary Layer for Text Readability */}
                             {submenuItems.map((subItem, subIdx) => (
-                              <button
+                              <Button
                                 key={subIdx}
+                                icon={subItem.icon || 'circle'}
+                                label={subItem.label}
                                 onClick={() => { if (subItem.action) { onAction(subItem.action); } setActiveMenu(null); setActiveSubmenu(null); }}
                                 disabled={subItem.disabled}
-                                className={`w-full text-left px-4 py-2 text-sm font-semibold text-[var(--xibalba-text-000)] hover:text-[var(--xibalba-text-000)] hover:bg-[var(--xibalba-grey-200)] flex items-center gap-3 bg-transparent border-none cursor-pointer relative transition-colors ${subItem.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-                              >
-                                <span className="material-symbols-outlined text-[14px] opacity-70">{subItem.icon || 'circle'}</span>
-                                <span>{subItem.label}</span>
-                              </button>
+                                variant="menu"
+                                size="sm"
+                                className="w-full text-left justify-start"
+                              />
                             ))}
                           </div>
                         )}

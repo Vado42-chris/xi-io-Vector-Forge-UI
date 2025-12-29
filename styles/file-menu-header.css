@@ -28,6 +28,26 @@
   line-height: 48px;
 }
 
+.xibalba-header-menu-button {
+  height: 48px;
+  max-height: 48px;
+  line-height: 48px;
+  padding: 0 var(--space-5, 20px);
+  font-size: var(--font-size-sm, 12px);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  background: transparent;
+}
+
+.xibalba-header-menu-button:hover {
+  background: var(--xibalba-bg-hover);
+}
+
+.xibalba-header-menu-button.active {
+  background: var(--xibalba-bg-tertiary);
+}
+
 .xibalba-header-right {
   max-height: 48px;
   overflow: hidden;
