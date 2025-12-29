@@ -1,0 +1,56 @@
+/**
+ * File Menu Header Styles
+ * NO INLINE STYLES - All positioning via CSS classes
+ * Xibalba Design System Compliant
+ */
+
+.xibalba-header {
+  max-height: 48px;
+  overflow: hidden;
+  height: 48px;
+  min-height: 48px;
+}
+
+.xibalba-header-nav {
+  height: 48px;
+  max-height: 48px;
+  overflow: hidden;
+}
+
+.xibalba-header-menu-button {
+  height: 48px;
+  max-height: 48px;
+}
+
+.xibalba-header-menu-label {
+  height: 48px;
+  max-height: 48px;
+  line-height: 48px;
+}
+
+.xibalba-header-right {
+  max-height: 48px;
+  overflow: hidden;
+  height: 48px;
+  align-items: center;
+  display: flex;
+  gap: var(--space-6, 24px);
+}
+
+.xibalba-header-credits {
+  max-height: 48px;
+  height: 48px;
+  align-items: center;
+  display: flex;
+  gap: var(--space-3, 12px);
+}
+
+.xibalba-header-status {
+  max-height: 48px;
+  height: 48px;
+  align-items: center;
+  display: flex;
+  gap: var(--space-3, 12px);
+  padding-left: var(--space-6, 24px);
+}
+

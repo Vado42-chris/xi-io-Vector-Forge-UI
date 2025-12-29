@@ -10,7 +10,11 @@ import LayoutSwitcher from './LayoutSwitcher';
 import Tooltip from './Tooltip';
 
 // Submenu definitions
-const getSubmenuItems = (action: string): Array<{ label: string; action: string; icon?: string }> => {
+type MenuItem = 
+  | { label: string; action: string; icon?: string; description?: string; disabled?: boolean; divider?: never }
+  | { divider: true; label?: never; action?: never; icon?: never; description?: never; disabled?: never };
+  
+const getSubmenuItems = (action: string): MenuItem[] => {
     // Load recent files from localStorage
     const recentFiles = (() => {
       try {
@@ -29,7 +33,7 @@ const getSubmenuItems = (action: string): Array<{ label: string; action: string;
       return [];
     })();
 
-    const submenus: Record<string, Array<{ label: string; action: string; icon?: string; disabled?: boolean }>> = {
+    const submenus: Record<string, MenuItem[]> = {
       'FILE_OPEN_RECENT': recentFiles.length > 0 ? recentFiles : [
         { label: 'No recent files', action: 'FILE_OPEN_RECENT_1', icon: 'description', disabled: true }
       ],
@@ -49,6 +53,7 @@ const getSubmenuItems = (action: string): Array<{ label: string; action: string;
       { label: 'General...', action: 'EDIT_PREFERENCES_GENERAL', icon: 'settings' },
       { label: 'Interface...', action: 'EDIT_PREFERENCES_INTERFACE', icon: 'dashboard' },
       { label: 'Performance...', action: 'EDIT_PREFERENCES_PERFORMANCE', icon: 'speed' },
+      { label: 'Accessibility...', action: 'EDIT_PREFERENCES_ACCESSIBILITY', icon: 'accessibility' },
       { label: 'AI Settings...', action: 'EDIT_PREFERENCES_AI', icon: 'smart_toy' },
     ],
     'OBJECT_TRANSFORM': [
@@ -290,7 +295,7 @@ interface ProfessionalFileMenuProps {
   onLayoutChange?: (layout: any) => void;
 }
 
-const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({ onAction, onLayoutChange }) => {
+const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({ onAction, onLayoutChange, fileOperationLoading }) => {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null);
   const menuTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
@@ -500,6 +505,11 @@ const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({ onAction, o
         { label: 'Swatch Libraries', action: 'WINDOW_SWATCH_LIBRARIES', shortcut: '', icon: 'palette', submenu: true },
         { divider: true },
         { label: 'Palettes', action: 'WINDOW_PALETTES', shortcut: '', icon: 'palette', submenu: true },
+        { divider: true },
+        { label: 'Marketplace Publisher', action: 'WINDOW_MARKETPLACE_PUBLISHER', shortcut: '', icon: 'store' },
+        { label: 'Marketplace Analytics', action: 'WINDOW_MARKETPLACE_ANALYTICS', shortcut: '', icon: 'analytics' },
+        { divider: true },
+        { label: 'Workspace Customizer...', action: 'WINDOW_WORKSPACE_CUSTOMIZER', shortcut: '', icon: 'dashboard' },
       ]
     },
     {
@@ -515,10 +525,10 @@ const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({ onAction, o
   ];
 
   return (
-    <header className="xibalba-header shrink-0 flex items-center justify-between z-[100] select-none">
-      <div className="flex items-center gap-6">
+    <header className="xibalba-header shrink-0 flex items-center justify-between zstack-menu select-none">
+      <div className="flex items-center gap-6 xibalba-header-right">
         {/* Xibalba Brand Identity Block */}
-        <div className="flex items-center gap-4 pr-6 border-r border-white/10">
+        <div className="flex items-center gap-4 pr-6">
           {/* Xibalba Logomark - Mask on Colored Rectangle */}
           <XibalbaLogomark
             backgroundColor="var(--xibalba-accent)"
@@ -531,22 +541,23 @@ const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({ onAction, o
           {/* Product Name Mark */}
           <div className="flex flex-col -space-y-0.5">
             <div className="flex items-baseline gap-1.5">
-              <span className="text-[10px] font-mono font-medium text-[var(--xibalba-text-200)] tracking-wider">xi-io:</span>
+              <span className="text-sm font-mono font-medium text-[var(--xibalba-text-100)] tracking-wider">xi-io:</span>
               <span className="text-[13px] font-black tracking-[0.15em] text-[var(--xibalba-text-000)] uppercase">VectorFORGE</span>
             </div>
-            <span className="text-[9px] font-mono font-light text-[var(--xibalba-text-300)] tracking-widest">XIBALBA OS</span>
+            <span className="text-xs font-mono font-light text-[var(--xibalba-text-100)] tracking-widest">XIBALBA OS</span>
           </div>
         </div>
 
         {/* Professional Menu Bar - NO BUTTON BORDERS */}
-        <nav className="flex items-center h-full">
+        <nav className="flex items-center xibalba-header-nav">
           {menus.map(menu => (
             <div 
-              key={menu.label} 
-              className="relative h-full"
+              key={menu.label}
+              className="menu-container relative xibalba-header-menu-button"
             >
               <button 
-                className={`px-5 h-full text-[11px] font-black uppercase tracking-widest bg-transparent border-none hover:bg-[var(--xibalba-bg-hover)] transition-colors ${activeMenu === menu.label ? 'bg-[var(--xibalba-bg-tertiary)]' : ''}`}
+                className={`px-5 text-sm font-black uppercase tracking-widest bg-transparent border-none hover:bg-[var(--xibalba-bg-hover)] transition-colors ${activeMenu === menu.label ? 'bg-[var(--xibalba-bg-tertiary)]' : ''}`}
+                className="xibalba-header-menu-label"
                 onMouseEnter={() => {
                   if (menuTimeoutRef.current) {
                     clearTimeout(menuTimeoutRef.current);
@@ -566,7 +577,7 @@ const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({ onAction, o
               
               {activeMenu === menu.label && (
                 <div 
-                  className="xibalba-card menu-dropdown absolute top-full left-0 mt-1 w-64 py-0 z-[110] xibalba-animate-in max-h-[80vh] overflow-hidden"
+                  className="xibalba-card menu-dropdown absolute top-full left-0 mt-1 w-64 py-0 zstack-dropdown xibalba-animate-in max-h-[80vh] overflow-hidden"
                   onMouseEnter={() => {
                     if (menuTimeoutRef.current) {
                       clearTimeout(menuTimeoutRef.current);
@@ -580,14 +591,11 @@ const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({ onAction, o
                     }, 150);
                   }}
                 >
-                  {/* Construction Paper Intermediary Layer for Text Readability */}
-                  <div className="construction-paper-layer-menu" />
-                  
                   {/* Scrollable content area - only shows scrollbar when needed */}
-                  <div className="menu-items-container max-h-[80vh] overflow-y-auto">
+                  <div className="menu-items-container max-h-[80vh] overflow-y-auto relative z-10">
                   {menu.items.map((item, idx) => {
                     if ('divider' in item) {
-                      return <div key={idx} className="h-px bg-white/10 my-1 mx-2" />;
+                      return <div key={idx} className="h-px bg-[var(--xibalba-grey-200)] opacity-20 my-1 mx-2" />;
                     }
                     const submenuId = `${menu.label}-${item.label}`;
                     const hasSubmenu = item.submenu;
@@ -619,12 +627,28 @@ const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({ onAction, o
                               }, 200);
                             }
                           }}
-                          className="w-full text-left px-5 py-2 text-[11px] font-semibold text-[var(--xibalba-text-primary)] hover:text-[var(--xibalba-text-primary)] hover:bg-[var(--xibalba-bg-hover)] flex items-center gap-4 group bg-transparent border-none cursor-pointer relative z-10 transition-colors"
+                          data-loading={
+                            (item.action === 'FILE_SAVE' && fileOperationLoading?.type === 'save') ||
+                            (item.action === 'FILE_SAVE_AS' && fileOperationLoading?.type === 'save-as') ||
+                            (item.action === 'FILE_OPEN' && fileOperationLoading?.type === 'open') ||
+                            (item.action === 'FILE_EXPORT_SVG' && fileOperationLoading?.type === 'export-svg') ||
+                            (item.action === 'FILE_EXPORT_PNG' && fileOperationLoading?.type === 'export-png')
+                              ? 'true'
+                              : 'false'
+                          }
+                          disabled={
+                            (item.action === 'FILE_SAVE' && fileOperationLoading?.type === 'save') ||
+                            (item.action === 'FILE_SAVE_AS' && fileOperationLoading?.type === 'save-as') ||
+                            (item.action === 'FILE_OPEN' && fileOperationLoading?.type === 'open') ||
+                            (item.action === 'FILE_EXPORT_SVG' && fileOperationLoading?.type === 'export-svg') ||
+                            (item.action === 'FILE_EXPORT_PNG' && fileOperationLoading?.type === 'export-png')
+                          }
+                          className="w-full text-left px-5 py-2 text-sm font-semibold text-[var(--xibalba-text-000)] hover:text-[var(--xibalba-text-000)] hover:bg-[var(--xibalba-grey-200)] flex items-center gap-4 group bg-transparent border-none cursor-pointer relative transition-colors"
                         >
                           <span className="material-symbols-outlined text-[16px] opacity-70">{item.icon}</span>
                           <span className="flex-1">{item.label}</span>
                           {item.shortcut && (
-                            <span className="xibalba-text-xs font-mono text-[var(--xibalba-text-200)] opacity-0 group-hover:opacity-100">
+                            <span className="xibalba-text-xs font-mono text-[var(--xibalba-text-100)] opacity-0 group-hover:opacity-100">
                               {item.shortcut}
                             </span>
                           )}
@@ -634,7 +658,7 @@ const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({ onAction, o
                         </button>
                         {hasSubmenu && activeSubmenu === submenuId && submenuItems.length > 0 && (
                           <div 
-                            className="xibalba-card menu-dropdown absolute left-full top-0 ml-1 w-56 py-0 z-[120] xibalba-animate-in"
+                            className="xibalba-card menu-dropdown absolute left-full top-0 ml-1 w-56 py-0 zstack-submenu xibalba-animate-in"
                             onMouseEnter={() => {
                               if (submenuTimeoutRef.current) {
                                 clearTimeout(submenuTimeoutRef.current);
@@ -649,13 +673,12 @@ const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({ onAction, o
                             }}
                           >
                             {/* Construction Paper Intermediary Layer for Text Readability */}
-                            <div className="construction-paper-layer-menu" />
                             {submenuItems.map((subItem, subIdx) => (
                               <button
                                 key={subIdx}
-                                onClick={() => { onAction(subItem.action); setActiveMenu(null); setActiveSubmenu(null); }}
+                                onClick={() => { if (subItem.action) { onAction(subItem.action); } setActiveMenu(null); setActiveSubmenu(null); }}
                                 disabled={subItem.disabled}
-                                className={`w-full text-left px-4 py-2 text-[11px] font-semibold text-[var(--xibalba-text-primary)] hover:text-[var(--xibalba-text-primary)] hover:bg-[var(--xibalba-bg-hover)] flex items-center gap-3 bg-transparent border-none cursor-pointer relative z-10 transition-colors ${subItem.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                className={`w-full text-left px-4 py-2 text-sm font-semibold text-[var(--xibalba-text-000)] hover:text-[var(--xibalba-text-000)] hover:bg-[var(--xibalba-grey-200)] flex items-center gap-3 bg-transparent border-none cursor-pointer relative transition-colors ${subItem.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                               >
                                 <span className="material-symbols-outlined text-[14px] opacity-70">{subItem.icon || 'circle'}</span>
                                 <span>{subItem.label}</span>
@@ -674,22 +697,22 @@ const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({ onAction, o
         </nav>
       </div>
 
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-6 xibalba-header-right">
          {/* Credits */}
-         <div className="flex items-center gap-3">
+         <div className="flex items-center gap-3 xibalba-header-credits">
             <LayoutSwitcher onLayoutChange={onLayoutChange} />
-            <div className="xibalba-panel-elevated flex items-center gap-3 px-4 py-1.5 border border-white/10">
+            <div className="xibalba-panel-elevated flex items-center gap-3 px-4 py-1.5">
                <div className="size-2 bg-[var(--xibalba-bg-tertiary)] animate-pulse"></div>
-               <span className="text-[10px] font-black text-[var(--xibalba-text-secondary)] uppercase tracking-widest mono">25,000 CORE_LIBS</span>
+               <span className="text-sm font-black text-[var(--xibalba-text-100)] uppercase tracking-widest mono">25,000 CORE_LIBS</span>
             </div>
          </div>
          {/* Execution Status */}
-         <div className="flex items-center gap-3 pl-6 border-l border-white/10">
+         <div className="flex items-center gap-3 pl-6 xibalba-header-status">
             <div className="flex flex-col items-end -space-y-1 mr-2">
-               <span className="text-[9px] font-bold text-[var(--xibalba-text-secondary)] uppercase">Execution Layer</span>
-               <span className="text-[8px] font-mono text-[var(--xibalba-text-muted)] uppercase">Active_Session</span>
+               <span className="text-xs font-bold text-[var(--xibalba-text-100)] uppercase">Execution Layer</span>
+               <span className="text-xs font-mono text-[var(--xibalba-text-100)] uppercase">Active_Session</span>
             </div>
-            <div className="size-9 bg-[var(--xibalba-bg-tertiary)] border border-white/10 overflow-hidden cursor-pointer xibalba-interactive">
+            <div className="size-9 bg-[var(--xibalba-bg-tertiary)] overflow-hidden cursor-pointer xibalba-interactive">
                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=IllustrationPro" alt="User" className="w-full h-full object-cover" />
             </div>
          </div>

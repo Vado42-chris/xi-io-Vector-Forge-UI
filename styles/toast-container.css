@@ -7,7 +7,7 @@
   position: fixed;
   top: 80px;
   right: 24px;
-  z-index: 10000;
+  z-index: var(--z-toast);
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -20,24 +20,38 @@
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
-  border-radius: 8px;
-  background: var(--xibalba-grey-100, #1a1d24);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border-radius: 0 !important; /* Sharp geometric per Xibalba */
+  background: var(--xibalba-grey-150, #1a1d24);
+  border: none !important;
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    0 0 0 2px rgba(255, 152, 0, 0.2) !important;
   pointer-events: auto;
-  animation: slideInRight 0.3s ease-out;
+  animation: toastSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
   min-width: 280px;
   max-width: 400px;
 }
 
-@keyframes slideInRight {
+.toast:hover {
+  box-shadow: 
+    0 6px 20px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.15),
+    0 0 0 2px rgba(255, 152, 0, 0.3) !important;
+  transform: translateY(-1px);
+}
+
+@keyframes toastSlideIn {
   from {
-    transform: translateX(100%);
     opacity: 0;
+    transform: translateX(100%) scale(0.95);
   }
   to {
-    transform: translateX(0);
     opacity: 1;
+    transform: translateX(0) scale(1);
   }
 }
 
@@ -55,11 +69,12 @@
 }
 
 .toast-success {
-  border-left: 3px solid var(--xibalba-accent, #ff6b35);
+  border-left: 3px solid var(--xibalba-accent, #ff9800) !important;
+  background: color-mix(in srgb, var(--xibalba-accent, #ff9800) 5%, var(--xibalba-grey-150)) !important;
 }
 
 .toast-success .toast-icon {
-  color: var(--xibalba-accent, #ff6b35);
+  color: var(--xibalba-accent, #ff9800) !important;
 }
 
 .toast-error {
@@ -71,19 +86,22 @@
 }
 
 .toast-warning {
-  border-left: 3px solid #f59e0b;
+  border-left: 3px solid var(--xibalba-accent, #ff9800) !important;
+  background: color-mix(in srgb, var(--xibalba-accent, #ff9800) 5%, var(--xibalba-grey-150)) !important;
+  opacity: 0.9;
 }
 
 .toast-warning .toast-icon {
-  color: #f59e0b;
+  color: var(--xibalba-accent, #ff9800) !important;
 }
 
 .toast-info {
-  border-left: 3px solid var(--xibalba-text-200, #999999);
+  border-left: 3px solid var(--xibalba-accent, #ff9800) !important;
+  background: color-mix(in srgb, var(--xibalba-accent, #ff9800) 3%, var(--xibalba-grey-150)) !important;
 }
 
 .toast-info .toast-icon {
-  color: var(--xibalba-text-200, #999999);
+  color: var(--xibalba-accent, #ff9800) !important;
 }
 
 .toast-message {

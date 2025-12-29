@@ -214,6 +214,9 @@ export interface ParametricRectangle {
   width: number;
   height: number;
   borderRadius: number;
+  fill?: string;
+  stroke?: string;
+  strokeWidth?: number;
 }
 
 export interface TextShape {
@@ -238,7 +241,12 @@ export interface EllipseShape {
   radiusY: number;
 }
 
-export type Shape = Path | ParametricRectangle | TextShape | EllipseShape;
+export interface GroupShape {
+  type: 'group';
+  children: Shape[];
+}
+
+export type Shape = Path | ParametricRectangle | TextShape | EllipseShape | GroupShape;
 
 // --- End Parametric Shape System ---
 
@@ -288,6 +296,10 @@ export interface AppState {
   toasts: Array<{ id: string; message: string; type: 'info' | 'success' | 'error' | 'warning' }>;
   guides: { id: string, type: 'h' | 'v', pos: number }[];
   showRulers: boolean;
+  fileOperationLoading: {
+    type: 'save' | 'save-as' | 'open' | 'export-svg' | 'export-png' | null;
+    progress?: number;
+  };
   workspaceLayout: 'default' | 'custom';
   dockedPanels: Array<{ id: string; position: 'left' | 'right' | 'bottom'; size: number }>;
   engineConfig: {
@@ -301,6 +313,23 @@ export interface AppState {
     url: string;
     enabled: boolean;
   }>;
+  // Accessibility fields
+  screenReaderMessage?: string;
+  screenReaderPriority?: 'polite' | 'assertive';
+  // Error prevention fields
+  errorPreventionType?: 'warning' | 'error' | 'confirmation';
+  errorPreventionTitle?: string;
+  errorPreventionMessage?: string;
+  errorPreventionDetails?: string;
+  errorPreventionActions?: Array<{
+    label: string;
+    action: () => void;
+    primary?: boolean;
+  }>;
+  errorPreventionOnConfirm?: () => void;
+  errorPreventionConfirmLabel?: string;
+  errorPreventionCancelLabel?: string;
+  errorPreventionDestructive?: boolean;
 }
 
 // --- Animation System ---

@@ -1,0 +1,378 @@
+/**
+ * Interaction Polish - VectorFORGE
+ * Professional hover, active, focus, and loading states
+ * Iceberg Fullstacks: Apply systematically, verify ripple effects
+ */
+
+/* ============================================
+   BUTTON INTERACTIONS - Foundation
+   ============================================ */
+
+/* Base transition for all interactive elements */
+.xibalba-button-professional,
+.xibalba-tab-professional,
+.xibalba-toolbar-button-professional,
+.xibalba-interactive,
+button,
+[role="button"],
+[tabindex="0"] {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative;
+}
+
+/* ============================================
+   HOVER STATES - Subtle lift + glow
+   ============================================ */
+.xibalba-button-professional:hover:not(:disabled),
+.xibalba-tab-professional:hover:not(:disabled),
+.xibalba-toolbar-button-professional:hover:not(:disabled),
+.xibalba-interactive:hover:not(:disabled),
+button:hover:not(:disabled),
+[role="button"]:hover:not(:disabled) {
+  background: var(--xibalba-grey-200) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 152, 0, 0.2) !important;
+  z-index: 1;
+}
+
+/* Hover for active elements - stronger feedback */
+.xibalba-button-professional.active:hover,
+.xibalba-tab-professional.active:hover,
+.xibalba-toolbar-button-professional.active:hover {
+  background: color-mix(in srgb, var(--xibalba-accent, #ff9800) 30%, var(--xibalba-grey-100)) !important;
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 152, 0, 0.3),
+    0 0 12px rgba(255, 152, 0, 0.2) !important;
+}
+
+/* ============================================
+   ACTIVE/PRESSED STATES - Pressed down
+   ============================================ */
+.xibalba-button-professional:active:not(:disabled),
+.xibalba-tab-professional:active:not(:disabled),
+.xibalba-toolbar-button-professional:active:not(:disabled),
+.xibalba-interactive:active:not(:disabled),
+button:active:not(:disabled),
+[role="button"]:active:not(:disabled) {
+  transform: translateY(0) scale(0.98) !important;
+  box-shadow: 
+    0 1px 4px rgba(0, 0, 0, 0.3),
+    inset 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+  transition: transform 0.1s ease, box-shadow 0.1s ease !important;
+}
+
+/* Active state for already-active elements */
+.xibalba-button-professional.active:active,
+.xibalba-tab-professional.active:active,
+.xibalba-toolbar-button-professional.active:active {
+  background: color-mix(in srgb, var(--xibalba-accent, #ff9800) 35%, var(--xibalba-grey-100)) !important;
+  transform: translateY(0) scale(0.97) !important;
+}
+
+/* ============================================
+   FOCUS STATES - Accessibility + Visual
+   ============================================ */
+.xibalba-button-professional:focus-visible,
+.xibalba-tab-professional:focus-visible,
+.xibalba-toolbar-button-professional:focus-visible,
+.xibalba-interactive:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--xibalba-accent, #ff9800) !important;
+  outline-offset: 2px !important;
+  box-shadow: 
+    0 0 0 4px rgba(255, 152, 0, 0.2),
+    0 2px 8px rgba(0, 0, 0, 0.3) !important;
+  z-index: 2;
+}
+
+/* Focus for active elements */
+.xibalba-button-professional.active:focus-visible,
+.xibalba-tab-professional.active:focus-visible,
+.xibalba-toolbar-button-professional.active:focus-visible {
+  outline: 2px solid var(--xibalba-accent, #ff9800) !important;
+  outline-offset: 2px !important;
+  box-shadow: 
+    0 0 0 4px rgba(255, 152, 0, 0.3),
+    0 0 12px rgba(255, 152, 0, 0.2),
+    0 2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* ============================================
+   DISABLED STATES - Clear visual feedback
+   ============================================ */
+.xibalba-button-professional:disabled,
+.xibalba-tab-professional:disabled,
+.xibalba-toolbar-button-professional:disabled,
+.xibalba-interactive:disabled,
+button:disabled,
+[role="button"][aria-disabled="true"],
+[tabindex="-1"] {
+  opacity: 0.4 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* ============================================
+   INPUT INTERACTIONS - Focus + Validation
+   ============================================ */
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+textarea,
+select {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+input:hover:not(:disabled),
+textarea:hover:not(:disabled),
+select:hover:not(:disabled) {
+  background: var(--xibalba-grey-200) !important;
+  box-shadow: 0 0 0 1px rgba(255, 152, 0, 0.1) !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  background: var(--xibalba-grey-200) !important;
+  box-shadow: 
+    0 0 0 2px var(--xibalba-accent, #ff9800),
+    0 0 0 4px rgba(255, 152, 0, 0.2) !important;
+  outline: none !important;
+}
+
+/* Input validation states */
+input:invalid:not(:placeholder-shown),
+textarea:invalid:not(:placeholder-shown) {
+  box-shadow: 
+    0 0 0 2px #ff0000,
+    0 0 0 4px rgba(255, 0, 0, 0.2) !important;
+}
+
+input:valid:not(:placeholder-shown),
+textarea:valid:not(:placeholder-shown) {
+  box-shadow: 
+    0 0 0 1px rgba(0, 255, 0, 0.3) !important;
+}
+
+/* ============================================
+   LOADING STATES - Visual feedback
+   ============================================ */
+.xibalba-loading,
+[data-loading="true"] {
+  position: relative;
+  pointer-events: none !important;
+  opacity: 0.7 !important;
+}
+
+.xibalba-loading::after,
+[data-loading="true"]::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border: 2px solid var(--xibalba-grey-200);
+  border-top-color: var(--xibalba-accent, #ff9800);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   DRAG FEEDBACK - Visual drag states
+   ============================================ */
+[data-dragging="true"],
+.dragging {
+  opacity: 0.5 !important;
+  transform: scale(0.95) !important;
+  cursor: grabbing !important;
+  pointer-events: none !important;
+}
+
+[data-drag-over="true"],
+.drag-over {
+  background: color-mix(in srgb, var(--xibalba-accent, #ff9800) 10%, var(--xibalba-grey-100)) !important;
+  box-shadow: 
+    0 0 0 2px var(--xibalba-accent, #ff9800),
+    inset 0 0 20px rgba(255, 152, 0, 0.1) !important;
+}
+
+/* ============================================
+   SELECTION FEEDBACK - Clear selection
+   ============================================ */
+[data-selected="true"],
+.selected {
+  background: color-mix(in srgb, var(--xibalba-accent, #ff9800) 20%, var(--xibalba-grey-100)) !important;
+  box-shadow: 
+    0 0 0 1px var(--xibalba-accent, #ff9800),
+    0 0 8px rgba(255, 152, 0, 0.3) !important;
+}
+
+/* ============================================
+   TOOLTIP DELAYS - Professional timing
+   ============================================ */
+[title],
+[data-tooltip] {
+  position: relative;
+}
+
+/* Tooltip should appear after delay */
+.tooltip-trigger:hover::before {
+  animation: tooltipFadeIn 0.2s ease 0.5s both;
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   CONTEXT MENU ANIMATIONS - Slide in
+   ============================================ */
+.xibalba-context-menu,
+[role="menu"] {
+  animation: contextMenuSlideIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: top left;
+}
+
+@keyframes contextMenuSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ============================================
+   MODAL ANIMATIONS - Fade + scale
+   ============================================ */
+.xibalba-modal {
+  animation: modalFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.xibalba-modal-backdrop {
+  animation: backdropFadeIn 0.3s ease;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes backdropFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ============================================
+   PANEL TRANSITIONS - Smooth open/close
+   ============================================ */
+.xibalba-panel,
+.xibalba-sidebar {
+  transition: 
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    height 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* ============================================
+   LIST ITEM HOVER - Smooth background
+   ============================================ */
+.xibalba-list-item,
+[role="listitem"],
+li[role="option"] {
+  transition: background-color 0.15s ease, transform 0.15s ease !important;
+}
+
+.xibalba-list-item:hover,
+[role="listitem"]:hover,
+li[role="option"]:hover {
+  background: var(--xibalba-grey-200) !important;
+  transform: translateX(2px) !important;
+}
+
+/* ============================================
+   PROGRESS INDICATORS - Animated
+   ============================================ */
+.xibalba-progress-bar {
+  overflow: hidden;
+  position: relative;
+}
+
+.xibalba-progress-bar-fill {
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  animation: progressShimmer 2s infinite;
+}
+
+@keyframes progressShimmer {
+  0% {
+    background-position: -100% 0;
+  }
+  100% {
+    background-position: 100% 0;
+  }
+}
+
+/* ============================================
+   RIPPLE EFFECTS - Material-style feedback
+   ============================================ */
+.xibalba-ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.xibalba-ripple::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.xibalba-ripple:active::after {
+  width: 300px;
+  height: 300px;
+  opacity: 0;
+}
+
