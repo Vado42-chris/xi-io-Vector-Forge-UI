@@ -1,1 +1,4 @@
-npm test
+#!/usr/bin/env sh
+# Pre-commit hook - Run lint-staged (runs linters on staged files only)
+# This is more efficient than running all tests on every commit
+npx lint-staged
