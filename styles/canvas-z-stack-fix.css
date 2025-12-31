@@ -1,0 +1,84 @@
+/**
+ * Canvas Z-Stack Fix
+ * Ensures canvas is at bottom, user files render on top with page borders
+ * Canvas is an app within an app - everything renders on top of it
+ */
+
+/* Canvas Container - LOWEST z-index */
+.app-canvas-area,
+.canvas-container,
+.xibalba-canvas-container {
+  position: relative;
+  z-index: var(--z-canvas, 5) !important; /* LOWEST - everything renders on top */
+  isolation: isolate;
+  contain: layout paint;
+}
+
+/* Canvas Background - Grid, guides, etc. */
+.canvas-grid-pattern,
+.grid-background,
+.guide-line-vertical,
+.guide-line-horizontal {
+  position: absolute;
+  z-index: var(--z-background, 1) !important; /* Below canvas content */
+  pointer-events: none;
+}
+
+/* Canvas Content - User-created files/layers render here */
+.canvas-content,
+.xibalba-canvas-content,
+svg[data-layer],
+svg[data-file] {
+  position: relative;
+  z-index: var(--z-canvas-content, 6) !important; /* Above canvas background */
+  pointer-events: auto;
+}
+
+/* Page Borders - Document boundaries */
+.page-border,
+.document-border,
+.artboard-border {
+  position: absolute;
+  z-index: var(--z-page-borders, 8) !important; /* Above canvas content */
+  border: 1px solid var(--xibalba-primary, #ff9800);
+  background: transparent;
+  pointer-events: none; /* Don't block interaction with content */
+  box-shadow: 0 0 0 1px rgba(255, 152, 0, 0.3);
+}
+
+/* Floating Tool Palettes - When undocked, float above everything */
+.floating-palette,
+.dockable-palette[data-docked="false"],
+.tool-palette[data-floating="true"] {
+  position: fixed !important;
+  z-index: var(--z-floating, 300) !important; /* Above everything except modals */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--xibalba-grey-200);
+  background: var(--xibalba-grey-100);
+}
+
+/* User Files - Render on top of canvas */
+.user-file,
+.document-file,
+[data-file-type] {
+  position: relative;
+  z-index: var(--z-canvas-content, 6) !important;
+  pointer-events: auto;
+}
+
+/* Canvas Overlays - Guides, grid, etc. */
+.canvas-overlay,
+.ruler-horizontal,
+.ruler-vertical {
+  position: absolute;
+  z-index: var(--z-canvas-overlay, 7) !important; /* Above content but below floating elements */
+  pointer-events: none;
+}
+
+/* Ensure sidebars don't interfere with canvas z-stack */
+.xibalba-sidebar.sidebar-fixed-left,
+.xibalba-sidebar.sidebar-fixed-right {
+  z-index: var(--z-sidebar-left, 100) !important; /* Sidebars are separate from canvas z-stack */
+  isolation: isolate;
+}
+

@@ -12,12 +12,13 @@
  */
 
 :root {
-  /* Base Layers (Bottom to Top) */
+  /* Base Layers (Bottom to Top) - Canvas is LOWEST */
   --z-base: 0;
   --z-background: 1;
-  --z-canvas: 10;
-  --z-canvas-content: 11;
-  --z-canvas-overlay: 12;
+  --z-canvas: 5; /* LOWEST - Canvas is at bottom of z-stack, everything renders on top */
+  --z-canvas-content: 6; /* User-created files/content render on top of canvas */
+  --z-canvas-overlay: 7; /* Overlays (guides, grid) render above content */
+  --z-page-borders: 8; /* Page borders render above canvas content */
 
   /* Surface Layers (UI Panels, Sidebars) */
   --z-surface: 100;
