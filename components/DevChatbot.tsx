@@ -833,7 +833,28 @@ Be concise, helpful, and focus on actionable responses. Format your responses wi
         </div>
 
         {/* Input - CRITICAL: Must be visible and functional */}
-        <div className="dev-chat-input-area">
+        <div 
+          className="dev-chat-input-area"
+          style={{
+            position: 'relative',
+            width: '100%',
+            padding: '12px',
+            background: 'var(--xibalba-grey-050)',
+            borderTop: '2px solid var(--xibalba-grey-200)',
+            zIndex: 1,
+            flexShrink: 0,
+            marginTop: 'auto',
+            top: 'auto',
+            bottom: 'auto',
+            left: 'auto',
+            right: 'auto',
+            transform: 'none',
+            maxWidth: '100%',
+            boxSizing: 'border-box',
+            isolation: 'isolate',
+            contain: 'layout style paint'
+          }}
+        >
           <div className="dev-chat-input-wrapper">
             <textarea
               ref={inputRef}
