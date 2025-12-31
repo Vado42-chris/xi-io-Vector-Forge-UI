@@ -12,9 +12,7 @@ import {
 // import { useUndoRedo } from './hooks/useUndoRedo';
 import { clipboardService } from './services/clipboardService';
 import ErrorBoundary from './components/ErrorBoundary';
-// TEMP DEBUG: swap ProfessionalFileMenu -> Header to validate render path
-import Header from './components/Header';
-import Header from './components/Header';
+import ProfessionalFileMenu from './components/ProfessionalFileMenu';
 import LeftSidebar from './components/LeftSidebar';
 import RightSidebar from './components/RightSidebar';
 import ProfessionalLayersPanel from './components/ProfessionalLayersPanel';
