@@ -19,22 +19,26 @@ chmod +x DEV_ENVIRONMENT_LAUNCHER.sh
 ## 📦 What You Get
 
 ### 1. **Browser Preview** ✅
+
 - Full VectorForge UI running at `http://localhost:3000`
 - Hot reload on file changes
 - React DevTools compatible
 
 ### 2. **Terminal** ✅
+
 - Access via: Right Sidebar → **Terminal** tab
 - Execute commands safely
 - See output in real-time
 - Working directory management
 
 ### 3. **File Browser** ✅
+
 - Access via: Right Sidebar → **Files** tab
 - Browse, read, edit files
 - No terminal needed for file operations
 
 ### 4. **Dev Chat** ✅
+
 - Access via: Right Sidebar → **Dev Chat** tab
 - AI assistant with self-modification
 - Can read/write files, execute commands
@@ -44,6 +48,7 @@ chmod +x DEV_ENVIRONMENT_LAUNCHER.sh
 ## 🗂️ Codebase Organization
 
 ### **Working Code** (Use These)
+
 ```
 components/          # All React components
 services/            # Backend services
@@ -57,6 +62,7 @@ package.json         # Dependencies
 ```
 
 ### **Archived/Reference** (Safe to Ignore)
+
 ```
 *.md                 # Documentation (keep for reference)
 *.sh                 # Scripts (some may be outdated)
@@ -66,6 +72,7 @@ node_modules/        # Dependencies (auto-generated)
 ```
 
 ### **Secure Location** (Important Files)
+
 ```
 /secure/
   ├── README.md              # Start here!
@@ -79,16 +86,19 @@ node_modules/        # Dependencies (auto-generated)
 ## 🎯 First Time Setup
 
 1. **Navigate to project:**
+
    ```bash
    cd /home/chrishallberg/.cursor/worktrees/xi-io-Vector-Forge-UI/asg
    ```
 
 2. **Install dependencies (if needed):**
+
    ```bash
    npm install
    ```
 
 3. **Start dev environment:**
+
    ```bash
    ./DEV_ENVIRONMENT_LAUNCHER.sh
    ```
@@ -107,17 +117,20 @@ node_modules/        # Dependencies (auto-generated)
 ## 🔧 Troubleshooting
 
 ### Port 3000 Already in Use
+
 ```bash
 lsof -ti:3000 | xargs kill -9
 ./DEV_ENVIRONMENT_LAUNCHER.sh
 ```
 
 ### Dependencies Missing
+
 ```bash
 npm install
 ```
 
 ### Browser Not Opening
+
 Manually navigate to: `http://localhost:3000`
 
 ---
@@ -152,4 +165,3 @@ Manually navigate to: `http://localhost:3000`
 ---
 
 **You're ready to go!** Just run `./DEV_ENVIRONMENT_LAUNCHER.sh` and everything starts.
-

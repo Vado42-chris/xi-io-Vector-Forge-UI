@@ -9,12 +9,14 @@
 ## What's Here
 
 ### `ProfessionalFileMenu.tsx`
+
 - **What:** Full-featured file menu with all Adobe-style menus
 - **Why Moved:** Not rendering despite correct structure
 - **Status:** 775 lines, complex state management
 - **Reintegration:** When header rendering issue is resolved
 
 ### `App.hardened.tsx`
+
 - **What:** Full-featured app with all advanced features
 - **Why Moved:** Complex state, many features, hard to debug
 - **Status:** 2750+ lines, full feature set
@@ -49,4 +51,3 @@
 ---
 
 **Goal:** Ship working product today. Reintegrate complex features later.
-

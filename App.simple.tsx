@@ -155,14 +155,14 @@ const App: React.FC = () => {
   return (
     <ErrorBoundary>
       <div className="relative w-screen h-screen text-[var(--xibalba-text-000)] font-sans overflow-hidden bg-[var(--xibalba-grey-000)]">
-        {/* Header - Simple and working */}
+        {/* Header - Simple and working - MUST be fixed at top */}
         <Header
           onAction={handleAction}
           credits={25000}
         />
 
-        {/* Main Layout */}
-        <div className="flex h-screen pt-[48px]">
+        {/* Main Layout - MUST start below fixed header */}
+        <div className="flex absolute top-[48px] left-0 right-0 bottom-0">
           {/* Left Sidebar */}
           {panelVisibility['left-sidebar'] && (
             <ErrorBoundary>

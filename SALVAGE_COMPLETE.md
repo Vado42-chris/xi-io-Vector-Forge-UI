@@ -78,4 +78,3 @@ npm run dev
 ---
 
 **Result:** Working product shipped. Complex features preserved for later.
-

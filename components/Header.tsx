@@ -34,7 +34,24 @@ const Header: React.FC<HeaderProps> = ({ onAction, credits }) => {
   ];
 
   return (
-    <header className="xibalba-header shrink-0 flex items-center justify-between z-[100] select-none">
+    <header 
+      className="xibalba-header shrink-0 flex items-center justify-between z-[100] select-none"
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        width: '100%',
+        height: '48px',
+        minHeight: '48px',
+        maxHeight: '48px',
+        zIndex: 99999,
+        display: 'flex',
+        visibility: 'visible',
+        opacity: 1,
+        background: 'var(--xibalba-grey-000, #000000)',
+      }}
+    >
       <div className="flex items-center gap-6">
         {/* Xibalba Identity Block - Grey-on-Grey, Sharp Geometric */}
         <div className="flex items-center gap-3 pr-6 border-r border-white/10 group cursor-pointer xibalba-interactive">

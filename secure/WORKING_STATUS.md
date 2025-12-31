@@ -9,6 +9,7 @@
 ## ✅ What's Working
 
 ### Dev Environment
+
 - ✅ Vite dev server (port 3000)
 - ✅ Hot module replacement
 - ✅ Browser preview
@@ -17,12 +18,14 @@
 - ✅ Dev Chat component (Right sidebar → Dev Chat tab)
 
 ### Backend Services
+
 - ✅ Terminal API (`/api/terminal/execute`)
 - ✅ File system API (`/api/filesystem/*`)
 - ✅ AI endpoints (`/api/ai/*`)
 - ✅ Express server (`server.js`)
 
 ### UI Components
+
 - ✅ Left sidebar (tools)
 - ✅ Right sidebar (tabs: Terminal, Files, Dev Chat)
 - ✅ Canvas area
@@ -34,6 +37,7 @@
 ## ⚠️ Current Issues
 
 ### File Bar (Header)
+
 - **Status:** Testing simpler `Header` component
 - **Branch:** `debug/header-swap`
 - **Issue:** `ProfessionalFileMenu` not rendering
@@ -75,4 +79,3 @@ cd /home/chrishallberg/.cursor/worktrees/xi-io-Vector-Forge-UI/asg
 ---
 
 **Status:** Dev environment functional, file bar in testing phase.
-

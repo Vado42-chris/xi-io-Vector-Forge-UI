@@ -12,6 +12,7 @@ cd /home/chrishallberg/.cursor/worktrees/xi-io-Vector-Forge-UI/asg
 ```
 
 **That's it!** Browser opens automatically with:
+
 - ✅ Dev server running
 - ✅ Terminal access (right sidebar)
 - ✅ File browser (right sidebar)
@@ -29,12 +30,14 @@ cd /home/chrishallberg/.cursor/worktrees/xi-io-Vector-Forge-UI/asg
 ## 🗂️ What's Where
 
 ### **Working Code** (Use These)
+
 - `components/` - All React components
 - `services/` - Backend services
 - `App.hardened.tsx` - Main application
 - `server.js` - Backend server
 
 ### **Archived** (Reference Only)
+
 - `*.md` files in root - Documentation
 - `App.*.tsx` backups - Old versions
 
@@ -61,4 +64,3 @@ cd /home/chrishallberg/.cursor/worktrees/xi-io-Vector-Forge-UI/asg
 ---
 
 **Ready to start?** Run `./secure/DEV_ENVIRONMENT_LAUNCHER.sh`
-
