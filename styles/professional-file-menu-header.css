@@ -1,0 +1,21 @@
+/* Professional File Menu Header - Horizontal across top, NO inline styles */
+.professional-file-menu-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  visibility: visible;
+  opacity: 1;
+  min-height: 48px;
+  height: 48px;
+  background-color: var(--xibalba-grey-050, #0b2545);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+  user-select: none;
+}
+

@@ -545,24 +545,7 @@ const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({ onAction, o
   
   try {
     return (
-    <header 
-      className="xibalba-header shrink-0 flex items-center justify-between zstack-menu select-none" 
-      style={{ 
-        zIndex: '99999', 
-        position: 'fixed', 
-        top: 0, 
-        left: 0, 
-        right: 0, 
-        width: '100%', 
-        display: 'flex', 
-        visibility: 'visible', 
-        opacity: 1, 
-        minHeight: '48px', 
-        height: '48px',
-        backgroundColor: '#000000',
-        borderBottom: '1px solid #010101'
-      }}
-    >
+    <header className="xibalba-header professional-file-menu-header">
       <div className="flex items-center gap-6 xibalba-header-right">
         {/* Xibalba Brand Identity Block */}
         <div className="flex items-center gap-4 pr-6">
@@ -641,9 +624,6 @@ const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({ onAction, o
                     }, 150);
                   }}
                 >
-                  {/* Construction Paper Intermediary Layer for Text Readability */}
-                  <div className="construction-paper-layer-menu" />
-                  
                   {/* Scrollable content area - only shows scrollbar when needed */}
                   <div className="menu-items-container max-h-[80vh] overflow-y-auto relative z-10">
                   {menu.items.map((item, idx) => {
@@ -721,9 +701,6 @@ const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({ onAction, o
                               }, 150);
                             }}
                           >
-                            {/* Construction Paper Intermediary Layer for Text Readability */}
-                            <div className="construction-paper-layer-menu" />
-                            
                             {submenuItems.map((subItem, subIdx) => (
                               <Button
                                 key={subIdx}
