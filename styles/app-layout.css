@@ -2,18 +2,19 @@
 /* Standard productized UI: Header | Main Content | Timeline | Footer */
 .app-layout-grid {
   position: relative;
-  width: 100vw;
-  height: 100vh;
+  width: 100vw !important;
+  height: 100vh !important;
   color: var(--xibalba-text-000);
   font-family: var(--font-sans, sans-serif);
   overflow: hidden;
   background: var(--xibalba-grey-000);
-  display: grid;
-  grid-template-rows: auto 1fr auto auto; /* Header | Main Content | Timeline | Footer - NO GAPS */
+  display: grid !important;
+  grid-template-rows: auto 1fr auto auto !important; /* Header | Main Content | Timeline | Footer - NO GAPS */
   grid-template-columns: auto 1fr auto;
-  grid-gap: 0; /* NO GAPS BETWEEN ROWS */
-  gap: 0; /* NO GAPS */
-  min-height: 100vh;
+  grid-gap: 0 !important; /* NO GAPS BETWEEN ROWS */
+  gap: 0 !important; /* NO GAPS */
+  min-height: 100vh !important;
+  max-height: 100vh !important; /* CRITICAL: Don't exceed viewport */
   isolation: isolate; /* Isolate grid from external styles */
 }
 
