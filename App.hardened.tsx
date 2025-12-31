@@ -2077,11 +2077,13 @@ const App: React.FC = () => {
                 activeTool={state.activeTool}
                 onToolChange={handleToolChange}
               />
-            </ErrorBoundary>
+              </ErrorBoundary>
+            </aside>
           )}
 
           {/* Center Canvas Area - 100% height/width in container */}
-          <div className="app-canvas-area">
+          <main className="app-center">
+            <div className="app-canvas-area">
             <ErrorBoundary>
               <DraftsmanCanvas
                 svgContent={state.currentSvg}
@@ -2141,12 +2143,14 @@ const App: React.FC = () => {
                 onOnionSkinFramesChange={setOnionSkinFrames}
               />
             </ErrorBoundary>
-          </div>
+            </div>
+          </main>
 
           {/* Right Sidebar */}
           {panelVisibility['right-sidebar'] && (
-            <ErrorBoundary>
-              <RightSidebar
+            <aside className="app-right">
+              <ErrorBoundary>
+                <RightSidebar
               layers={state.layers || []}
               selectedLayerId={state.selectedLayerId}
               activeTool={state.activeTool}
@@ -2417,8 +2421,9 @@ const App: React.FC = () => {
                 showToast(`Terminal: ${cmd}`, 'info');
               }}
             />
-          </ErrorBoundary>
-        )}
+              </ErrorBoundary>
+            </aside>
+          )}
 
         {/* Bottom Drawer - FIXED OVERLAY (not in grid flow) */}
         <div className="app-bottom-drawer">
