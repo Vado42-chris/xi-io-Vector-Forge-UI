@@ -773,7 +773,7 @@ const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({ onAction, o
     );
   } catch (error) {
     console.error('🔴 ProfessionalFileMenu render error:', error);
-    return <div style={{ background: 'red', color: 'white', padding: '10px' }}>ProfessionalFileMenu Error: {String(error)}</div>;
+    return <div className="professional-file-menu-error">ProfessionalFileMenu Error: {String(error)}</div>;
   }
 };
 

@@ -1,0 +1,7 @@
+/* Professional File Menu Error Display - NO INLINE STYLES */
+.professional-file-menu-error {
+  background: var(--xibalba-error-bg, #ff0000);
+  color: var(--xibalba-error-text, #ffffff);
+  padding: var(--space-3, 12px);
+}
+
