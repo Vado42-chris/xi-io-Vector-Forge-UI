@@ -9,7 +9,7 @@
   top: 48px;
   left: var(--sidebar-left-width, 320px);
   right: var(--sidebar-right-width, 360px);
-  height: calc(100vh - 48px);
+  height: 100%; /* Use grid cell height, not viewport */
   width: calc(100vw - var(--sidebar-left-width, 320px) - var(--sidebar-right-width, 360px));
   z-index: var(--z-canvas, 10);
   transition: left 0.1s ease, right 0.1s ease, width 0.1s ease;
