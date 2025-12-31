@@ -4,50 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- CRITICAL: Block meta refresh redirects to auth endpoints -->
+    <!-- CRITICAL: Block auth redirects - SINGLE consolidated script -->
     <script>
         // IMMEDIATE EXECUTION - Before ANY other code
         (function() {
-            var loc = window.location;
-            var path = loc.pathname;
-            var search = loc.search;
+            'use strict';
+            var path = window.location.pathname;
+            var search = window.location.search || '';
             
             // If we're on an auth path, redirect IMMEDIATELY
             if (path.indexOf('/api/auth') === 0 || search.indexOf('error=CredentialsSignin') !== -1) {
-                loc.replace('/');
+                window.location.replace('/');
                 return;
             }
-        })();
-    </script>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://esm.sh https://fonts.googleapis.com https://fonts.gstatic.com; script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net; style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https: blob: https://api.dicebear.com; connect-src 'self' https: ws: wss: http://localhost:*; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; worker-src 'self' blob:;">
-    <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <!-- X-Frame-Options must be set via HTTP header, not meta tag -->
-    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
-    <title>Xibalba, xi-io: VectorFORGE</title>
-    <!-- CRITICAL: Block auth redirects IMMEDIATELY - runs before ANY other script -->
-    <script>
-        (function() {
-            'use strict';
-            // Check URL immediately on page load
-            var path = window.location.pathname;
-            var search = window.location.search;
-            var hash = window.location.hash;
             
-            // If we're on an auth endpoint, redirect IMMEDIATELY
-            if (path.indexOf('/api/auth') === 0 || search.indexOf('error=CredentialsSignin') !== -1) {
-                console.warn('🚫 BLOCKED AUTH REDIRECT - Redirecting to home');
-                // Use replace to avoid adding to history
-                window.location.replace('/');
-                // Fallback: try history API
-                try {
-                    window.history.replaceState({}, '', '/');
-                } catch(e) {
-                    // If that fails, force reload
-                    window.location.href = '/';
-                }
-            }
-            
-            // Block future navigation to auth endpoints
+            // Block future navigation to auth endpoints via History API
             var originalPushState = history.pushState;
             var originalReplaceState = history.replaceState;
             
@@ -68,6 +39,13 @@
             };
         })();
     </script>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://esm.sh https://fonts.googleapis.com https://fonts.gstatic.com; script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net; style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https: blob: https://api.dicebear.com; connect-src 'self' https: ws: wss: http://localhost:*; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; worker-src 'self' blob:;">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <!-- X-Frame-Options must be set via HTTP header, not meta tag -->
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    <title>Xibalba, xi-io: VectorFORGE</title>
+    <!-- CRITICAL: Block auth redirects IMMEDIATELY - runs before ANY other script -->
+    <!-- NOTE: Location redefinition moved to single script block below to avoid "Cannot redefine property" error -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -291,84 +269,7 @@
             configureTailwind();
         }
     </script>
-    <!-- CRITICAL: Block auth redirects BEFORE ANY JavaScript runs -->
-    <script>
-        // IMMEDIATE BLOCKING - Runs before ANY other code
-        (function() {
-            'use strict';
-            var path = window.location.pathname;
-            var search = window.location.search;
-            var hash = window.location.hash;
-            
-            // Block auth redirects IMMEDIATELY
-            if (path.indexOf('/api/auth') === 0 || search.indexOf('error=CredentialsSignin') !== -1) {
-                // Force redirect to home - use replace to prevent back button issues
-                window.location.replace('/');
-                // Stop execution
-                throw new Error('Auth redirect blocked');
-            }
-            
-            // Block future navigation to auth endpoints
-            var originalPushState = history.pushState;
-            var originalReplaceState = history.replaceState;
-            
-            history.pushState = function() {
-                if (arguments[2] && typeof arguments[2] === 'string' && arguments[2].indexOf('/api/auth') !== -1) {
-                    console.warn('🚫 Blocked pushState to auth endpoint');
-                    arguments[2] = '/';
-                }
-                return originalPushState.apply(history, arguments);
-            };
-            
-            history.replaceState = function() {
-                if (arguments[2] && typeof arguments[2] === 'string' && arguments[2].indexOf('/api/auth') !== -1) {
-                    console.warn('🚫 Blocked replaceState to auth endpoint');
-                    arguments[2] = '/';
-                }
-                return originalReplaceState.apply(history, arguments);
-            };
-            
-            // Block window.location assignments to auth endpoints
-            var locationDescriptor = Object.getOwnPropertyDescriptor(window, 'location') || 
-                                     Object.getOwnPropertyDescriptor(Object.getPrototypeOf(window), 'location');
-            if (locationDescriptor && locationDescriptor.set) {
-                var originalLocationSetter = locationDescriptor.set;
-                Object.defineProperty(window, 'location', {
-                    set: function(value) {
-                        if (typeof value === 'string' && value.indexOf('/api/auth') !== -1) {
-                            console.warn('🚫 Blocked location assignment to auth endpoint');
-                            originalLocationSetter.call(window, '/');
-                            return;
-                        }
-                        originalLocationSetter.call(window, value);
-                    },
-                    get: locationDescriptor.get,
-                    configurable: true
-                });
-            }
-        })();
-    </script>
-    <!-- CRITICAL: Block auth redirects - runs IMMEDIATELY before any other code -->
-    <script>
-        // This MUST run first - before React, before anything
-        (function() {
-            'use strict';
-            try {
-                var path = window.location.pathname;
-                var search = window.location.search || '';
-                
-                // If on auth path, redirect IMMEDIATELY
-                if (path.indexOf('/api/auth') === 0 || search.indexOf('error=CredentialsSignin') !== -1) {
-                    // Use replace to prevent back button issues
-                    window.location.replace('/');
-                    // Stop all execution
-                    throw new Error('Auth redirect blocked - redirecting to home');
-                }
-            } catch (e) {
-                // Silently handle - we're redirecting anyway
-            }
-        })();
-    </script>
+    <!-- Duplicate auth blocking scripts removed - consolidated above -->
     <script type="module" src="/index.tsx"></script>
 </head>
 <body class="dark selection:bg-primary/20">
