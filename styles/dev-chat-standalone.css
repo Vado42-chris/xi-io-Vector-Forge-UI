@@ -1,0 +1,59 @@
+/* Dev Chat Standalone Page Styles */
+/* Maximum contrast, dark theme, orange accent */
+
+.dev-chat-standalone {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--xibalba-grey-000, #000000);
+  color: var(--xibalba-text-000, #ffffff);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 99999;
+}
+
+.dev-chat-standalone-header {
+  padding: 20px;
+  background: var(--xibalba-grey-050, #020202);
+  border-bottom: 1px solid var(--xibalba-grey-200, #0a0a0a);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dev-chat-standalone-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--xibalba-text-primary, #ffffff);
+}
+
+.dev-chat-standalone-subtitle {
+  margin: 8px 0 0 0;
+  font-size: 14px;
+  opacity: 0.7;
+  color: var(--xibalba-text-secondary, #f5f5f5);
+}
+
+.dev-chat-standalone-back-button {
+  padding: 10px 20px;
+  background: var(--vectorforge-accent, #ff9800);
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: bold;
+  transition: all 0.2s;
+}
+
+.dev-chat-standalone-back-button:hover {
+  background: var(--vectorforge-accent-hover, #ff6f00);
+  transform: scale(1.05);
+}
+
+.dev-chat-standalone-content {
+  flex: 1;
+  overflow: hidden;
+}
+

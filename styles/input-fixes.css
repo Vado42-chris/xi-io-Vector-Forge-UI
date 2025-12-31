@@ -13,7 +13,7 @@ select,
 option {
   background-color: var(--xibalba-grey-200) !important;
   color: var(--xibalba-text-100) !important;
-  border: var(--border-subtle) !important;
+  border: none !important;
 }
 
 input::placeholder,
@@ -25,7 +25,8 @@ input:focus,
 textarea:focus,
 select:focus {
   background-color: var(--xibalba-grey-250) !important;
-  border-color: var(--xibalba-text-200) !important;
+  border: none !important;
+  box-shadow: 0 0 0 1px rgba(255, 152, 0, 0.15), 0 0 0 2px rgba(255, 152, 0, 0.08) !important;
   outline: none !important;
 }
 
@@ -81,6 +82,6 @@ textarea {
 .suggestions-list {
   background-color: var(--xibalba-grey-200) !important;
   color: var(--xibalba-text-100) !important;
-  border: var(--border-subtle) !important;
+  border: none !important;
 }
 

@@ -3,6 +3,14 @@
  * Custom Inline Style Checker
  * Enforces "no inline styles" best practice
  * 
+ * Allows CSS custom properties (CSS variables) for dynamic values:
+ * - style={{ '--progress-value': `${progress}%`, width: 'var(--progress-value)' } as React.CSSProperties}
+ * 
+ * This is acceptable per design system audit because:
+ * 1. CSS custom properties are the recommended way to handle dynamic values
+ * 2. They maintain separation of concerns (CSS handles styling)
+ * 3. They're more performant than inline styles with computed values
+ * 
  * #hashtag: enforcement inline-styles best-practices
  */
 
@@ -61,6 +69,45 @@ function findInlineStyles(content, filePath) {
           line.trim().startsWith('*')
         ) {
           return; // Skip type definitions and comments
+        }
+        
+        // For multi-line style objects, check surrounding lines for CSS custom properties
+        let styleBlock = line;
+        if (line.includes('style={{') && !line.includes('}}') && !line.includes('} as React.CSSProperties')) {
+          // Multi-line style object - collect the block (up to 15 lines to catch the full object)
+          let blockEnd = index;
+          let braceCount = (line.match(/\{/g) || []).length - (line.match(/\}/g) || []).length;
+          for (let i = index + 1; i < Math.min(index + 15, lines.length); i++) {
+            braceCount += (lines[i].match(/\{/g) || []).length - (lines[i].match(/\}/g) || []).length;
+            if (braceCount <= 0 || lines[i].includes('} as React.CSSProperties')) {
+              blockEnd = i;
+              break;
+            }
+          }
+          styleBlock = lines.slice(index, blockEnd + 1).join('\n');
+        }
+        
+        // Allow CSS custom properties (CSS variables) for dynamic values
+        // This is acceptable per design system audit
+        const hasCSSProperty = /--[\w-]+/.test(styleBlock) && (
+          styleBlock.includes('as React.CSSProperties') || 
+          styleBlock.includes('CSSProperties') ||
+          styleBlock.includes('var(--') // Uses CSS variable reference
+        );
+        
+        if (hasCSSProperty) {
+          return; // Skip CSS custom properties with type assertion or variable usage
+        }
+        
+        // Allow minimal inline styles for dynamic values that can't be CSS classes
+        // Only if they use CSS custom properties
+        if (styleBlock.includes('var(--') && styleBlock.includes('style={{')) {
+          return; // Skip styles that use CSS variables
+        }
+        
+        // Skip if it's just a type assertion with CSS properties
+        if (styleBlock.includes('as React.CSSProperties') && /--[\w-]+/.test(styleBlock)) {
+          return;
         }
         
         violations.push({
@@ -157,16 +204,31 @@ function main() {
     process.exit(0);
   }
   
-  console.error(`❌ Found ${violations.length} inline style violation(s):\n`);
-  
-  violations.forEach((violation, index) => {
+  // Group violations by file for better reporting
+  const violationsByFile = {};
+  violations.forEach(violation => {
     const relativePath = violation.file.replace(projectRoot + '/', '');
-    console.error(`${index + 1}. ${relativePath}:${violation.line}:${violation.column}`);
-    console.error(`   ${violation.content}`);
+    if (!violationsByFile[relativePath]) {
+      violationsByFile[relativePath] = [];
+    }
+    violationsByFile[relativePath].push(violation);
+  });
+  
+  console.error(`❌ Found ${violations.length} inline style violation(s) in ${Object.keys(violationsByFile).length} file(s):\n`);
+  
+  // Report by file
+  Object.entries(violationsByFile).forEach(([file, fileViolations]) => {
+    console.error(`${file} (${fileViolations.length} violation${fileViolations.length > 1 ? 's' : ''}):`);
+    fileViolations.forEach((violation, index) => {
+      console.error(`  ${index + 1}. Line ${violation.line}:${violation.column}`);
+      console.error(`     ${violation.content.substring(0, 80)}${violation.content.length > 80 ? '...' : ''}`);
+    });
     console.error('');
   });
   
-  console.error('\n💡 Fix: Use CSS classes from Xibalba design system instead of inline styles.');
+  console.error('💡 Fix: Use CSS classes from Xibalba design system instead of inline styles.');
+  console.error('   For dynamic values, use CSS custom properties:');
+  console.error('   style={{ \'--progress-value\': `${progress}%`, width: \'var(--progress-value)\' } as React.CSSProperties}');
   console.error('   See docs/BEST_PRACTICES.md for details.\n');
   
   process.exit(1);

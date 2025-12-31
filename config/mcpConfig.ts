@@ -41,11 +41,11 @@ export const DEFAULT_MCP_CONFIG: MCPConfig = {
   model: import.meta.env.VITE_XIBALBA_MODEL || 'xibalba-local',
   timeout: 5000, // 5 seconds
   retryAttempts: 3,
-  // Local AI defaults - prioritize local GGUF models
+  // Local AI defaults - AUTO-ENABLE OLLAMA
   useLocalAI: true,
   localAIProvider: 'ollama', // Default to Ollama (most common for GGUF)
   localAIServerUrl: import.meta.env.VITE_LOCAL_AI_URL || 'http://localhost:11434',
-  localAIModelName: import.meta.env.VITE_LOCAL_AI_MODEL || '',
+  localAIModelName: import.meta.env.VITE_LOCAL_AI_MODEL || 'codellama:latest', // Auto-select available model
   ggufPath: import.meta.env.VITE_GGUF_PATH || '',
   features: {
     completion: true,

@@ -1,0 +1,271 @@
+diff --git a/components/actions/signAndAppend.ts b/components/actions/signAndAppend.ts
+new file mode 100644
+index 0000000..7967d4e
+--- /dev/null
++++ b/components/actions/signAndAppend.ts
+@@ -0,0 +1,123 @@
++/**
++ * Sign and Append Helper
++ * Wraps proof API calls for signing, appending to ledger, and creating bundles
++ * #hashtag: proof signing verification helper
++ */
++
++export interface SignAndAppendOptions {
++  /** Optional progress callback */
++  onProgress?: (step: string) => void;
++}
++
++export interface SignAndAppendResult {
++  success: boolean;
++  eventId?: string;
++  bundlePath?: string;
++  error?: string;
++}
++
++/**
++ * Canonicalize SVG by removing extra whitespace and normalizing
++ */
++function canonicalizeSvg(svg: string): string {
++  return svg
++    .replace(/>\s+</g, '><') // Remove whitespace between tags
++    .replace(/\s+/g, ' ') // Normalize whitespace
++    .trim();
++}
++
++/**
++ * Sign and append SVG to ledger, then create proof bundle
++ * 
++ * @param svgContent - The SVG content to sign
++ * @param options - Optional progress callback
++ * @returns Result with success status, eventId, bundlePath, or error
++ */
++export async function signAndAppend(
++  svgContent: string,
++  options?: SignAndAppendOptions
++): Promise<SignAndAppendResult> {
++  const { onProgress } = options || {};
++
++  try {
++    if (!svgContent || svgContent.trim().length === 0) {
++      return {
++        success: false,
++        error: 'No drawing to sign. Please create a drawing first.'
++      };
++    }
++
++    // Step 1: Canonicalize SVG
++    onProgress?.('Canonicalizing SVG...');
++    const canonicalSvg = canonicalizeSvg(svgContent);
++
++    // Step 2: Sign (call backend API)
++    onProgress?.('Signing...');
++    const signResponse = await fetch('/api/proof/sign', {
++      method: 'POST',
++      headers: { 'Content-Type': 'application/json' },
++      body: JSON.stringify({
++        canonicalSvg,
++        timestamp: new Date().toISOString()
++      })
++    });
++
++    if (!signResponse.ok) {
++      const errorData = await signResponse.json().catch(() => ({}));
++      throw new Error(errorData.error || `Signing failed: ${signResponse.statusText}`);
++    }
++
++    const signResult = await signResponse.json();
++    const eventId = signResult.eventId;
++
++    // Step 3: Append to ledger
++    onProgress?.('Appending to ledger...');
++    const appendResponse = await fetch('/api/proof/append', {
++      method: 'POST',
++      headers: { 'Content-Type': 'application/json' },
++      body: JSON.stringify({
++        eventId,
++        canonicalSvg,
++        signature: signResult.signature,
++        publicKey: signResult.publicKey
++      })
++    });
++
++    if (!appendResponse.ok) {
++      const errorData = await appendResponse.json().catch(() => ({}));
++      throw new Error(errorData.error || `Append failed: ${appendResponse.statusText}`);
++    }
++
++    // Step 4: Create bundle
++    onProgress?.('Creating proof bundle...');
++    const bundleResponse = await fetch('/api/proof/bundle', {
++      method: 'POST',
++      headers: { 'Content-Type': 'application/json' },
++      body: JSON.stringify({
++        eventId
++      })
++    });
++
++    if (!bundleResponse.ok) {
++      const errorData = await bundleResponse.json().catch(() => ({}));
++      throw new Error(errorData.error || `Bundle creation failed: ${bundleResponse.statusText}`);
++    }
++
++    const bundleResult = await bundleResponse.json();
++    const bundlePath = bundleResult.bundlePath || 'proof_bundle.zip';
++
++    onProgress?.('Signed and appended');
++    return {
++      success: true,
++      eventId,
++      bundlePath
++    };
++  } catch (error) {
++    const errorMsg = error instanceof Error ? error.message : 'Unknown error';
++    return {
++      success: false,
++      error: errorMsg
++    };
++  }
++}
++
++diff --git a/components/SignButton.tsx b/components/SignButton.tsx
++new file mode 100644
++index 0000000..6addf0c
++--- /dev/null
++++ b/components/SignButton.tsx
+@@ -0,0 +1,107 @@
++/**
++ * Sign & Append Button
++ * Creates proof bundle from current drawing
++ * #hashtag: proof signing verification
++ */
++
++import React, { useState } from 'react';
++import ErrorBoundary from './ErrorBoundary';
++import { signAndAppend } from './actions/signAndAppend';
++
++interface SignButtonProps {
++  /** Current SVG content to sign */
++  svgContent: string;
++  /** Callback when signing completes */
++  onSigned?: (bundlePath: string) => void;
++  /** Callback for errors */
++  onError?: (error: string) => void;
++  /** Button label */
++  label?: string;
++  /** Button className */
++  className?: string;
++}
++
++export const SignButton: React.FC<SignButtonProps> = ({
++  svgContent,
++  onSigned,
++  onError,
++  label = 'Sign & Create Proof',
++  className = ''
++}) => {
++  const [isSigning, setIsSigning] = useState(false);
++  const [status, setStatus] = useState<'idle' | 'signing' | 'success' | 'error'>('idle');
++
++  const handleSign = async () => {
++    if (!svgContent || svgContent.trim().length === 0) {
++      const errorMsg = 'No drawing to sign. Please create a drawing first.';
++      setStatus('error');
++      onError?.(errorMsg);
++      return;
++    }
++
++    setIsSigning(true);
++    setStatus('signing');
++
++    try {
++      const result = await signAndAppend(svgContent, {
++        onProgress: (step) => {
++          // Update status message based on progress
++          if (step.includes('Signing')) setStatus('signing');
++        }
++      });
++
++      if (!result.success) {
++        throw new Error(result.error || 'Signing failed');
++      }
++
++      setStatus('success');
++      onSigned?.(result.bundlePath || 'proof_bundle.zip');
++
++      // Reset status after 2 seconds
++      setTimeout(() => setStatus('idle'), 2000);
++    } catch (error) {
++      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
++      setStatus('error');
++      onError?.(errorMsg);
++      console.error('Signing error:', error);
++    } finally {
++      setIsSigning(false);
++    }
++  };
++
++  const getButtonText = () => {
++    if (status === 'signing') return 'Signing...';
++    if (status === 'success') return '✓ Signed!';
++    if (status === 'error') return 'Error - Try Again';
++    return label;
++  };
++
++  const getButtonClass = () => {
++    const base = 'px-4 py-2 rounded font-medium transition-colors';
++    const state = status === 'signing' 
++      ? 'bg-[var(--vectorforge-accent)] opacity-75 cursor-wait'
++      : status === 'success'
++      ? 'bg-green-600 hover:bg-green-700'
++      : status === 'error'
++      ? 'bg-red-600 hover:bg-red-700'
++      : 'bg-[var(--vectorforge-accent)] hover:bg-[var(--vectorforge-accent-hover)] text-white';
++    return `${base} ${state} ${className}`;
++  };
++
++  return (
++    <ErrorBoundary>
++      <button
++        onClick={handleSign}
++        disabled={isSigning || !svgContent || svgContent.trim().length === 0}
++        className={getButtonClass()}
++        aria-label={label}
++        title={svgContent ? 'Sign current drawing and create proof bundle' : 'Create a drawing first'}
++      >
++        {getButtonText()}
++      </button>
++    </ErrorBoundary>
++  );
++};
++
++export default SignButton;
++
++diff --git a/App.hardened.tsx b/App.hardened.tsx
++index 3c7d99c..a52b783 100644
++--- a/App.hardened.tsx
+++++ b/App.hardened.tsx
+@@ -7,6 +7,7 @@ import RightSidebar from './components/RightSidebar';
+ import ProfessionalLayersPanel from './components/ProfessionalLayersPanel';
+ import DraftsmanCanvas from './components/DraftsmanCanvas';
+ import PowerUserToolbar from './components/PowerUserToolbar';
++import SignButton from './components/SignButton';
+ import AnimationTimeline from './components/AnimationTimeline';
+@@ -1997,6 +1998,15 @@ const App: React.FC = () => {
+               onLayoutChange={handleLayoutChange}
+             />
+             <div className="ml-auto mr-4">
++              <SignButton
++                svgContent={state.currentSvg}
++                onSigned={(bundlePath) => {
++                  showToast(`✅ Proof bundle created: ${bundlePath}`, 'success');
++                }}
++                onError={(error) => {
++                  showToast(`❌ Signing failed: ${error}`, 'error');
++                }}
++                label="Sign & Create Proof"
++                className="text-sm"
++              />
+             </div>
+           </div>
+         </ErrorBoundary>
+

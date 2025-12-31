@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="refresh" content="0;url=/" />
+    <title>VectorForge - Redirecting</title>
+    <style>
+        body {
+            background: #000000;
+            color: #ff9800;
+            font-family: monospace;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .progress-container {
+            width: 400px;
+            height: 8px;
+            background: #010101;
+            border: 1px solid #ff9800;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: #ff9800;
+            transition: width 0.3s;
+            animation: progress 2s forwards;
+        }
+        @keyframes progress {
+            to { width: 100%; }
+        }
+        h1 { margin: 0; font-size: 24px; }
+        p { margin: 0; opacity: 0.8; }
+    </style>
+    <script>
+        // If we're on auth path, redirect immediately
+        if (window.location.pathname.indexOf('/api/auth') === 0 || 
+            window.location.search.indexOf('error=CredentialsSignin') !== -1) {
+            window.location.replace('/');
+        }
+    </script>
+</head>
+<body>
+    <h1>✅ VectorForge</h1>
+    <p>Redirecting to main app...</p>
+    <div class="progress-container">
+        <div class="progress-fill"></div>
+    </div>
+    <script>
+        setTimeout(() => {
+            window.location.href = '/';
+        }, 2000);
+    </script>
+</body>
+</html>
+

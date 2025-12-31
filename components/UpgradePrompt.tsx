@@ -97,7 +97,7 @@ export default function UpgradePrompt({
   if (variant === 'toast') {
     return (
       <ErrorBoundary>
-        <div className="xibalba-panel bg-[var(--xibalba-grey-050)] border border-white/10 rounded-lg p-4 shadow-2xl max-w-sm">
+        <div className="xibalba-panel bg-[var(--xibalba-grey-050)] rounded-lg p-4 shadow-2xl max-w-sm">
           <div className="flex items-start gap-3">
             <span className="material-symbols-outlined text-[var(--xibalba-accent)] text-2xl">
               lock
@@ -106,7 +106,7 @@ export default function UpgradePrompt({
               <h3 className="text-sm font-semibold text-[var(--xibalba-text-000)] mb-1">
                 {featureName} requires {requiredTier} plan
               </h3>
-              <p className="text-xs text-[var(--xibalba-text-200)] mb-3">
+              <p className="text-xs text-[var(--xibalba-text-100)] mb-3">
                 Upgrade to unlock this feature and more.
               </p>
               <button
@@ -122,7 +122,7 @@ export default function UpgradePrompt({
                 className="xibalba-interactive p-1 hover:bg-[var(--xibalba-grey-100)] rounded transition-colors"
                 aria-label="Dismiss"
               >
-                <span className="material-symbols-outlined text-sm text-[var(--xibalba-text-200)]">close</span>
+                <span className="material-symbols-outlined text-sm text-[var(--xibalba-text-100)]">close</span>
               </button>
             )}
           </div>
@@ -143,7 +143,7 @@ export default function UpgradePrompt({
               <h3 className="text-sm font-semibold text-[var(--xibalba-text-000)] mb-1">
                 {featureName} is locked
               </h3>
-              <p className="text-xs text-[var(--xibalba-text-200)]">
+              <p className="text-xs text-[var(--xibalba-text-100)]">
                 Upgrade to {requiredTier} plan to unlock this feature.
               </p>
             </div>
@@ -162,15 +162,15 @@ export default function UpgradePrompt({
   // Dialog variant (default)
   return (
     <ErrorBoundary>
-      <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 backdrop-blur-sm">
-        <div className="xibalba-panel bg-[var(--xibalba-grey-050)] border border-white/10 rounded-lg w-[90vw] max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
+      <div className="fixed inset-0 zstack-modal-backdrop flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div className="xibalba-panel bg-[var(--xibalba-grey-050)] rounded-lg w-[90vw] max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-white/10">
+          <div className="flex items-center justify-between p-6">
             <div className="flex items-center gap-3">
               <span className="material-symbols-outlined text-2xl text-[var(--xibalba-accent)]">lock</span>
               <div>
                 <h2 className="text-xl font-bold text-[var(--xibalba-text-000)]">Upgrade Required</h2>
-                <p className="text-sm text-[var(--xibalba-text-200)] mt-1">
+                <p className="text-sm text-[var(--xibalba-text-100)] mt-1">
                   {featureName} requires {requiredTier} plan
                 </p>
               </div>
@@ -181,7 +181,7 @@ export default function UpgradePrompt({
                 className="xibalba-interactive p-2 hover:bg-[var(--xibalba-grey-100)] rounded transition-colors"
                 aria-label="Close"
               >
-                <span className="material-symbols-outlined text-[var(--xibalba-text-200)]">close</span>
+                <span className="material-symbols-outlined text-[var(--xibalba-text-100)]">close</span>
               </button>
             )}
           </div>
@@ -195,7 +195,7 @@ export default function UpgradePrompt({
                 className={`px-4 py-2 text-sm font-medium rounded transition-colors ${
                   billingCycle === 'monthly'
                     ? 'bg-[var(--xibalba-accent)] text-white'
-                    : 'bg-[var(--xibalba-grey-100)] text-[var(--xibalba-text-200)] hover:text-[var(--xibalba-text-000)]'
+                    : 'bg-[var(--xibalba-grey-100)] text-[var(--xibalba-text-100)] hover:text-[var(--xibalba-text-000)]'
                 }`}
               >
                 Monthly
@@ -205,7 +205,7 @@ export default function UpgradePrompt({
                 className={`px-4 py-2 text-sm font-medium rounded transition-colors ${
                   billingCycle === 'annual'
                     ? 'bg-[var(--xibalba-accent)] text-white'
-                    : 'bg-[var(--xibalba-grey-100)] text-[var(--xibalba-text-200)] hover:text-[var(--xibalba-text-000)]'
+                    : 'bg-[var(--xibalba-grey-100)] text-[var(--xibalba-text-100)] hover:text-[var(--xibalba-text-000)]'
                 }`}
               >
                 Annual <span className="text-xs opacity-75">(Save 17%)</span>
@@ -221,7 +221,7 @@ export default function UpgradePrompt({
                   className={`xibalba-panel-professional p-4 rounded-lg border-2 transition-all text-left ${
                     selectedTier === tier
                       ? 'border-[var(--xibalba-accent)] bg-[var(--xibalba-accent)]/10'
-                      : 'border-white/10 hover:border-white/20'
+                      : 'hover:bg-[var(--xibalba-grey-150)]'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-2">
@@ -236,14 +236,14 @@ export default function UpgradePrompt({
                   </div>
                   <div className="text-2xl font-bold text-[var(--xibalba-text-000)] mb-2">
                     {formatPrice(TIER_PRICES[tier][billingCycle])}
-                    <span className="text-sm font-normal text-[var(--xibalba-text-200)]">
+                    <span className="text-sm font-normal text-[var(--xibalba-text-100)]">
                       /{billingCycle === 'monthly' ? 'mo' : 'yr'}
                     </span>
                   </div>
-                  <ul className="text-xs text-[var(--xibalba-text-200)] space-y-1 mt-3">
+                  <ul className="text-xs text-[var(--xibalba-text-100)] space-y-1 mt-3">
                     {TIER_FEATURES[tier].slice(0, 4).map((feature, idx) => (
                       <li key={idx} className="flex items-center gap-2">
-                        <span className="material-symbols-outlined text-sm text-green-400">check</span>
+                        <span className="material-symbols-outlined text-sm text-[var(--vectorforge-accent)]">check</span>
                         {feature}
                       </li>
                     ))}

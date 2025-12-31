@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VectorForge Diagnostics - One Click Test</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', monospace;
+            background: #000000;
+            color: #ffffff;
+            padding: 40px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #ff9800;
+            font-size: 32px;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #ff9800;
+            padding-bottom: 15px;
+        }
+        .diagnostic-button {
+            display: block;
+            width: 100%;
+            padding: 30px;
+            background: #ff9800;
+            color: #000000;
+            border: none;
+            border-radius: 8px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 30px 0;
+            transition: all 0.2s;
+            box-shadow: 0 4px 20px rgba(255, 152, 0, 0.4);
+        }
+        .diagnostic-button:hover {
+            background: #ff6f00;
+            transform: scale(1.02);
+        }
+        .diagnostic-button:active {
+            transform: scale(0.98);
+        }
+        .results {
+            background: #010101;
+            border: 2px solid #ff9800;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            min-height: 200px;
+        }
+        .result-item {
+            padding: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #ff9800;
+            padding-left: 15px;
+        }
+        .success { color: #4caf50; }
+        .error { color: #f44336; }
+        .warning { color: #ff9800; }
+        .info { color: #2196f3; }
+        .link {
+            color: #ff9800;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px 10px 10px 0;
+            padding: 12px 24px;
+            background: #020202;
+            border-radius: 6px;
+            border: 1px solid #ff9800;
+        }
+        .link:hover {
+            background: #ff9800;
+            color: #000000;
+        }
+        pre {
+            background: #020202;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 VectorForge Diagnostics - One Click Test</h1>
+        
+        <button class="diagnostic-button" onclick="runDiagnostics()">
+            🚀 CLICK HERE TO RUN DIAGNOSTICS
+        </button>
+        
+        <div class="results" id="results">
+            <p class="info">Click the button above to run diagnostics...</p>
+        </div>
+        
+        <div style="margin-top: 30px;">
+            <h2 style="color: #ff9800; margin-bottom: 15px;">Quick Links:</h2>
+            <a href="/" class="link">👉 Main App</a>
+            <a href="/devchat" class="link">👉 Dev Chat</a>
+            <a href="/test.html" class="link">👉 Test Page</a>
+        </div>
+    </div>
+
+    <script>
+        function addResult(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result-item ${type}`;
+            div.innerHTML = message;
+            results.appendChild(div);
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        async function runDiagnostics() {
+            clearResults();
+            addResult('🔍 Starting diagnostics...', 'info');
+            
+            // Test 1: Current URL
+            addResult(`📍 Current URL: <strong>${window.location.href}</strong>`, 'info');
+            
+            // Test 2: Check if we're on auth redirect
+            if (window.location.pathname.includes('/api/auth')) {
+                addResult('❌ <strong>REDIRECTED TO AUTH ENDPOINT</strong> - This is the problem!', 'error');
+                addResult('💡 Solution: Browser extension or service worker is redirecting. Try incognito mode.', 'warning');
+            } else {
+                addResult('✅ Not redirected to auth endpoint', 'success');
+            }
+            
+            // Test 3: Server health check
+            addResult('🔍 Testing server connection...', 'info');
+            try {
+                const healthResponse = await fetch('/api/health');
+                if (healthResponse.ok) {
+                    const health = await healthResponse.json();
+                    addResult(`✅ Server is running: <strong>${health.status}</strong>`, 'success');
+                    addResult(`📡 Service: <strong>${health.service}</strong>`, 'info');
+                } else {
+                    addResult(`⚠️ Server returned: <strong>${healthResponse.status}</strong>`, 'warning');
+                }
+            } catch (error) {
+                addResult(`❌ Cannot reach server: <strong>${error.message}</strong>`, 'error');
+                addResult('💡 Make sure dev server is running: <code>npm run dev</code>', 'warning');
+            }
+            
+            // Test 4: Try to fetch main app
+            addResult('🔍 Testing main app accessibility...', 'info');
+            try {
+                const appResponse = await fetch('/', { method: 'HEAD' });
+                if (appResponse.ok) {
+                    addResult('✅ Main app is accessible', 'success');
+                } else {
+                    addResult(`⚠️ Main app returned: <strong>${appResponse.status}</strong>`, 'warning');
+                }
+            } catch (error) {
+                addResult(`❌ Cannot fetch main app: <strong>${error.message}</strong>`, 'error');
+            }
+            
+            // Test 5: Check for browser extensions
+            addResult('🔍 Checking for common issues...', 'info');
+            const userAgent = navigator.userAgent;
+            addResult(`🌐 Browser: <strong>${userAgent}</strong>`, 'info');
+            
+            // Test 6: Check localStorage for auth tokens
+            try {
+                const hasAuthTokens = Object.keys(localStorage).some(key => 
+                    key.toLowerCase().includes('auth') || 
+                    key.toLowerCase().includes('token') ||
+                    key.toLowerCase().includes('nextauth')
+                );
+                if (hasAuthTokens) {
+                    addResult('⚠️ Found auth-related localStorage keys - may cause redirects', 'warning');
+                } else {
+                    addResult('✅ No auth tokens in localStorage', 'success');
+                }
+            } catch (error) {
+                addResult(`⚠️ Cannot check localStorage: ${error.message}`, 'warning');
+            }
+            
+            // Test 7: Check service workers
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    if (registrations.length > 0) {
+                        addResult(`⚠️ Found <strong>${registrations.length}</strong> service worker(s) - may cause redirects`, 'warning');
+                        registrations.forEach((reg, i) => {
+                            addResult(`   Service Worker ${i + 1}: <code>${reg.scope}</code>`, 'warning');
+                        });
+                    } else {
+                        addResult('✅ No service workers registered', 'success');
+                    }
+                });
+            }
+            
+            // Test 8: Try to access devchat route
+            addResult('🔍 Testing Dev Chat route...', 'info');
+            try {
+                const devchatResponse = await fetch('/devchat', { method: 'HEAD' });
+                if (devchatResponse.ok) {
+                    addResult('✅ Dev Chat route is accessible', 'success');
+                } else {
+                    addResult(`⚠️ Dev Chat returned: <strong>${devchatResponse.status}</strong>`, 'warning');
+                }
+            } catch (error) {
+                addResult(`❌ Cannot fetch Dev Chat: <strong>${error.message}</strong>`, 'error');
+            }
+            
+            // Summary
+            addResult('<hr style="border-color: #ff9800; margin: 20px 0;">', 'info');
+            addResult('📋 <strong>Summary:</strong>', 'info');
+            addResult('1. If you see "REDIRECTED TO AUTH ENDPOINT" → Try incognito mode', 'warning');
+            addResult('2. If server is not running → Run <code>npm run dev</code>', 'warning');
+            addResult('3. If service workers found → Unregister them in browser DevTools', 'warning');
+            addResult('4. Click "Main App" link above to test the full app', 'info');
+        }
+        
+        // Auto-run on load if on diagnostics page
+        if (window.location.pathname === '/diagnostics.html') {
+            // Don't auto-run, wait for button click
+        }
+    </script>
+</body>
+</html>

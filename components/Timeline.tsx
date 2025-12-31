@@ -19,7 +19,7 @@ const Timeline: React.FC<TimelineProps> = ({ isPlaying, currentTime, duration, o
         <span className="material-symbols-outlined">{isPlaying ? 'pause' : 'play_arrow'}</span>
       </button>
       <div className="flex-1 flex items-center gap-4">
-        <span className="text-xs font-mono text-[var(--xibalba-text-300)] w-16">{currentTime.toFixed(2)}s</span>
+        <span className="text-xs font-mono text-[var(--xibalba-text-100)] w-16">{currentTime.toFixed(2)}s</span>
         <div className="flex-1 h-1.5 bg-[var(--xibalba-grey-200)] rounded-none relative">
           <input
             type="range"
@@ -39,7 +39,7 @@ const Timeline: React.FC<TimelineProps> = ({ isPlaying, currentTime, duration, o
             className="absolute top-0 left-0 h-full bg-[var(--xibalba-text-200)] rounded-none progress-bar-fill"
           />
         </div>
-        <span className="text-xs font-mono text-[var(--xibalba-text-300)]">{duration.toFixed(2)}s</span>
+        <span className="text-xs font-mono text-[var(--xibalba-text-100)]">{duration.toFixed(2)}s</span>
       </div>
     </div>
   );

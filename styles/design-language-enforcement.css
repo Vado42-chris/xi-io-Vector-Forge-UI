@@ -1,0 +1,173 @@
+/**
+ * Design Language Enforcement - VectorForge
+ * CRITICAL: All design language violations fixed here
+ */
+
+/* ============================================
+   CHECKBOXES - ORANGE ONLY, NO BLUE
+   ============================================ */
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--xibalba-accent, #ff9800) !important;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--xibalba-grey-200);
+  background: var(--xibalba-grey-100);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+input[type="checkbox"]:checked,
+input[type="radio"]:checked {
+  background: var(--xibalba-accent, #ff9800) !important;
+  border-color: var(--xibalba-accent, #ff9800) !important;
+}
+
+input[type="checkbox"]:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--xibalba-grey-000) !important;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+input[type="checkbox"]:hover,
+input[type="radio"]:hover {
+  border-color: var(--xibalba-accent, #ff9800);
+  box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.2);
+}
+
+/* ============================================
+   ACTIVE STATES - ORANGE, NOT GREY
+   ============================================ */
+.xibalba-tab-professional.active,
+.xibalba-button-professional.active,
+.xibalba-toolbar-button-professional.active,
+button.active,
+[class*="active"] {
+  background: color-mix(in srgb, var(--xibalba-accent, #ff9800) 25%, var(--xibalba-grey-100)) !important;
+  color: var(--xibalba-text-000) !important;
+  border-left: 3px solid var(--xibalba-accent, #ff9800) !important;
+  box-shadow: 0 0 8px rgba(255, 152, 0, 0.3), inset 0 0 0 1px rgba(255, 152, 0, 0.2) !important;
+}
+
+/* Active tool buttons in left sidebar */
+.xibalba-toolbar-button-professional[data-active="true"],
+button[data-active="true"] {
+  background: color-mix(in srgb, var(--xibalba-accent, #ff9800) 25%, var(--xibalba-grey-100)) !important;
+  border-left: 3px solid var(--xibalba-accent, #ff9800) !important;
+  box-shadow: 0 0 8px rgba(255, 152, 0, 0.3) !important;
+}
+
+.xibalba-tab-professional.active::before,
+.xibalba-button-professional.active::before,
+.xibalba-toolbar-button-professional.active::before {
+  background: rgba(255, 152, 0, 0.2) !important;
+}
+
+/* ============================================
+   TYPOGRAPHY CONSISTENCY
+   ============================================ */
+:root {
+  --font-size-xs: 10px;
+  --font-size-sm: 12px;
+  --font-size-base: 14px;
+  --font-size-md: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+  
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+  font-size: var(--font-size-base) !important;
+  font-weight: var(--font-weight-normal) !important;
+  line-height: var(--line-height-normal) !important;
+}
+
+.xibalba-label-professional {
+  font-size: var(--font-size-sm) !important;
+  font-weight: var(--font-weight-medium) !important;
+  line-height: var(--line-height-tight) !important;
+}
+
+.xibalba-text-body {
+  font-size: var(--font-size-base) !important;
+  font-weight: var(--font-weight-normal) !important;
+  line-height: var(--line-height-normal) !important;
+}
+
+.xibalba-text-caption {
+  font-size: var(--font-size-xs) !important;
+  font-weight: var(--font-weight-normal) !important;
+  line-height: var(--line-height-tight) !important;
+}
+
+/* ============================================
+   INTERACTION POLISH - HOVER STATES
+   ============================================ */
+/* Moved to interaction-polish.css for comprehensive interaction system */
+
+/* ============================================
+   ELIMINATE ALL BLUE TONES
+   ============================================ */
+* {
+  /* Override any blue colors */
+  --blue-color: var(--xibalba-accent, #ff9800) !important;
+  --primary-color: var(--xibalba-accent, #ff9800) !important;
+}
+
+/* Force orange for any blue references */
+[style*="#007acc"],
+[style*="rgb(0, 122, 204)"],
+[style*="rgba(0, 122, 204"] {
+  color: var(--xibalba-accent, #ff9800) !important;
+  background-color: var(--xibalba-accent, #ff9800) !important;
+  border-color: var(--xibalba-accent, #ff9800) !important;
+}
+
+/* ============================================
+   TIMELINE VISIBILITY - FIXED AT BOTTOM
+   ============================================ */
+.xibalba-timeline {
+  position: fixed !important;
+  bottom: 48px !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 200 !important;
+  background: var(--xibalba-grey-100) !important;
+  border-top: 2px solid rgba(255, 152, 0, 0.3) !important;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+.animation-timeline-container {
+  position: fixed !important;
+  bottom: 48px !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 200px !important;
+  z-index: var(--z-timeline, 200) !important;
+  background: var(--xibalba-grey-050) !important;
+  border-top: 1px solid var(--xibalba-grey-200) !important;
+}
+
+/* Support for dynamic timeline position via data attribute */
+.animation-timeline-container[data-timeline-bottom] {
+  bottom: calc(48px + attr(data-timeline-bottom px));
+}
+

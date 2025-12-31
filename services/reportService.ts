@@ -51,14 +51,16 @@ export class ReportService {
    */
   public async generateProjectReport(summary?: string): Promise<ProjectReport> {
     const serverTimestamp = Date.now(); // Server timestamp for validation
-    const version = changeLogService.getLatestVersion();
+    // Generate changelog to get version - use current date as version
+    const changelog = changeLogService.generateChangeLog('1.0.0');
+    const version = changelog.version;
     const allTasks = await taskManagementService.getTasks();
     const tasksByStatus = allTasks.reduce((acc, task) => {
       acc[task.status] = (acc[task.status] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
 
-    const changelogEntries = changeLogService.getEntries().slice(0, 20);
+    const changelogEntries = changeLogService.getChanges().slice(0, 20);
 
     return {
       date: new Date().toISOString(),
@@ -88,12 +90,12 @@ export class ReportService {
         },
       ],
       patents: patentTrackingService.generatePatentReport(),
-      clicks: clickTrackingService.generateClickReport(),
+      clicks: clickTrackingService.exportData(),
       work: workTrackingService.generateWorkReportString(), // Work tracking for seed001 Blockchain
       changelog: `
 === CHANGE LOG (Last 20 Entries) ===
 ${changelogEntries.map(entry => 
-  `[${entry.date}] ${entry.type}: ${entry.description}`
+  `[${new Date(entry.timestamp).toISOString().split('T')[0]}] ${entry.type}: ${entry.description}`
 ).join('\n')}
 === END CHANGE LOG ===
       `.trim(),

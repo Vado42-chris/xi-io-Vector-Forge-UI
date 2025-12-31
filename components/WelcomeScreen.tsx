@@ -8,17 +8,53 @@ import React, { useState } from 'react';
 interface WelcomeScreenProps {
   onDismiss: () => void;
   onStartTutorial?: () => void;
+  onNewFile?: () => void;
+  onSave?: () => void;
+  onSelectTool?: (tool: 'select' | 'pen' | 'rectangle') => void;
+  onOpenLayers?: () => void;
 }
 
-const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onDismiss, onStartTutorial }) => {
+const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ 
+  onDismiss, 
+  onStartTutorial,
+  onNewFile,
+  onSave,
+  onSelectTool,
+  onOpenLayers
+}) => {
   const [showMore, setShowMore] = useState(false);
 
   const quickStartSteps = [
-    { icon: 'add', text: 'Press Ctrl+N to create a new file', shortcut: 'Ctrl+N' },
-    { icon: 'edit', text: 'Select a tool (V=Select, P=Pen, M=Rectangle)', shortcut: 'V, P, M' },
-    { icon: 'gesture', text: 'Draw on the canvas to create shapes', shortcut: 'Click & Drag' },
-    { icon: 'layers', text: 'Manage layers in the right sidebar', shortcut: 'Right Panel' },
-    { icon: 'save', text: 'Press Ctrl+S to save your work', shortcut: 'Ctrl+S' },
+    { 
+      icon: 'add', 
+      text: 'Press Ctrl+N to create a new file', 
+      shortcut: 'Ctrl+N',
+      action: () => onNewFile?.()
+    },
+    { 
+      icon: 'edit', 
+      text: 'Select a tool (V=Select, P=Pen, M=Rectangle)', 
+      shortcut: 'V, P, M',
+      action: () => onSelectTool?.('select')
+    },
+    { 
+      icon: 'gesture', 
+      text: 'Draw on the canvas to create shapes', 
+      shortcut: 'Click & Drag',
+      action: undefined // Informational only
+    },
+    { 
+      icon: 'layers', 
+      text: 'Manage layers in the right sidebar', 
+      shortcut: 'Right Panel',
+      action: () => onOpenLayers?.()
+    },
+    { 
+      icon: 'save', 
+      text: 'Press Ctrl+S to save your work', 
+      shortcut: 'Ctrl+S',
+      action: () => onSave?.()
+    },
   ];
 
   return (
@@ -36,7 +72,19 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onDismiss, onStartTutoria
           <h2 className="welcome-section-title">Quick Start</h2>
           <div className="welcome-steps">
             {quickStartSteps.map((step, idx) => (
-              <div key={idx} className="welcome-step">
+              <div 
+                key={idx} 
+                className={`welcome-step ${step.action ? 'welcome-step-actionable' : 'welcome-step-informational'}`}
+                onClick={step.action}
+                role={step.action ? 'button' : undefined}
+                tabIndex={step.action ? 0 : undefined}
+                onKeyDown={step.action ? (e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    step.action?.();
+                  }
+                } : undefined}
+              >
                 <div className="welcome-step-icon">
                   <span className="material-symbols-outlined">{step.icon}</span>
                 </div>

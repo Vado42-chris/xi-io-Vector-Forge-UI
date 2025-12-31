@@ -29,27 +29,38 @@ const PowerUserToolbar: React.FC<PowerUserToolbarProps> = ({
   showOnionSkin, onShowOnionSkinChange,
   onionSkinFrames, onOnionSkinFramesChange
 }) => {
-  const [isExpanded, setIsExpanded] = useState(true); // FIXED: Default to expanded so user can see toolbar
+  const [isExpanded, setIsExpanded] = useState(false); // Default to collapsed - user can expand when needed
   const [isDragging, setIsDragging] = useState(false);
-  const [position, setPosition] = useState({ x: window.innerWidth - 300, y: 80 }); // FIXED: Position below header
+  const [position, setPosition] = useState({ x: 0, y: 0 }); // Position relative to canvas container
   const dragStartPos = useRef({ x: 0, y: 0 });
   const toolbarRef = useRef<HTMLDivElement>(null);
   const dragHandleRef = useRef<HTMLDivElement>(null);
 
   const handleDragStart = (e: React.PointerEvent) => {
-    if (dragHandleRef.current?.contains(e.target as Node)) {
+    if (dragHandleRef.current?.contains(e.target as Node) && toolbarRef.current) {
       setIsDragging(true);
-      dragStartPos.current = { x: e.clientX - position.x, y: e.clientY - position.y };
+      const container = toolbarRef.current.parentElement;
+      if (container) {
+        const rect = container.getBoundingClientRect();
+        dragStartPos.current = { 
+          x: e.clientX - rect.left - position.x, 
+          y: e.clientY - rect.top - position.y 
+        };
+      }
       (e.target as HTMLElement).setPointerCapture(e.pointerId);
       e.preventDefault();
     }
   };
 
   const handleDragMove = (e: React.PointerEvent) => {
-    if (isDragging) {
-      const newX = Math.max(0, Math.min(window.innerWidth - 300, e.clientX - dragStartPos.current.x));
-      const newY = Math.max(0, Math.min(window.innerHeight - 400, e.clientY - dragStartPos.current.y));
-      setPosition({ x: newX, y: newY });
+    if (isDragging && toolbarRef.current) {
+      const container = toolbarRef.current.parentElement;
+      if (container) {
+        const rect = container.getBoundingClientRect();
+        const newX = Math.max(0, Math.min(rect.width - 300, e.clientX - rect.left - dragStartPos.current.x));
+        const newY = Math.max(0, Math.min(rect.height - 400, e.clientY - rect.top - dragStartPos.current.y));
+        setPosition({ x: newX, y: newY });
+      }
     }
   };
 
@@ -62,15 +73,29 @@ const PowerUserToolbar: React.FC<PowerUserToolbarProps> = ({
 
   useEffect(() => {
     if (toolbarRef.current) {
-      toolbarRef.current.style.setProperty('--toolbar-right', `${window.innerWidth - position.x}px`);
-      toolbarRef.current.style.setProperty('--toolbar-top', `${position.y}px`);
+      if (position.x === 0 && position.y === 0) {
+        // Initial position - top right of canvas area
+        toolbarRef.current.style.right = '8px';
+        toolbarRef.current.style.top = '8px';
+      } else {
+        toolbarRef.current.style.right = `${position.x}px`;
+        toolbarRef.current.style.top = `${position.y}px`;
+      }
     }
   }, [position]);
 
   return (
     <div 
       ref={toolbarRef}
-      className="fixed z-50 power-toolbar-positioned bg-[var(--xibalba-grey-100)] border-2 border-[var(--xibalba-accent)]/20 shadow-lg rounded-lg"
+      className="absolute zstack-power-toolbar bg-[var(--xibalba-grey-100)] border-2 border-[var(--xibalba-accent)]/20 shadow-lg rounded-lg"
+      style={{
+        position: 'absolute',
+        top: position.y === 0 ? '8px' : `${position.y}px`,
+        right: position.x === 0 ? '8px' : `${position.x}px`,
+        zIndex: 'var(--z-power-toolbar, 50)',
+        pointerEvents: 'auto',
+        contain: 'layout style paint',
+      } as React.CSSProperties}
       onPointerMove={handleDragMove}
       onPointerUp={handleDragEnd}
       onPointerCancel={handleDragEnd}
@@ -81,7 +106,7 @@ const PowerUserToolbar: React.FC<PowerUserToolbarProps> = ({
           <div
             ref={dragHandleRef}
             onPointerDown={handleDragStart}
-            className="w-full h-4 cursor-grab active:cursor-grabbing flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity mb-1 border-b border-white/10 power-toolbar-drag-handle"
+            className="power-toolbar-drag-handle w-full h-6 cursor-grab active:cursor-grabbing flex items-center justify-center transition-all mb-1 border-b border-white/10"
           >
             <div className="flex gap-1">
               <div className="w-1.5 h-1.5 bg-[var(--xibalba-text-200)]"></div>

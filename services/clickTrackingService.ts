@@ -39,8 +39,16 @@ class ClickTrackingService {
 
   constructor() {
     this.sessionId = this.generateSessionId();
-    this.loadEvents();
-    this.cleanupOldSessions();
+    // Lazy initialization - defer localStorage access to prevent blocking
+    if (typeof window !== 'undefined') {
+      try {
+        this.loadEvents();
+        this.cleanupOldSessions();
+      } catch (error) {
+        console.error('ClickTracking Service: Failed to initialize, using defaults:', error);
+        // Continue with empty events array (non-critical)
+      }
+    }
   }
 
   private generateSessionId(): string {

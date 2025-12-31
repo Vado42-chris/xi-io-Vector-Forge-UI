@@ -1,0 +1,404 @@
+/**
+ * Elegant Containers - High-End Media Experience
+ * Kipsche/Dennon level refinement using Hallberg Maths
+ * 
+ * Subtle but important interactions
+ * NOT massive buttons and blobs
+ * Intuitive interfaces with elegance and style
+ */
+
+/* ============================================
+   CONTAINER REFINEMENTS - HALLBERG MATHS
+   ============================================ */
+
+/* Sidebar Containers - Refined, Elegant */
+.xibalba-sidebar {
+  /* Use PHI-based spacing for internal padding */
+  padding: var(--spacing-md, 12.94px) var(--spacing-sm, 8px);
+  gap: var(--spacing-xs, 4.94px);
+  
+  /* Subtle transitions - not jarring */
+  transition: 
+    width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Elegant shadow - not heavy */
+  box-shadow: 
+    inset -1px 0 0 rgba(255, 255, 255, 0.03),
+    0 0 0 0 rgba(0, 0, 0, 0);
+  
+  /* Refined border - almost invisible */
+  border-right: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+.xibalba-sidebar:hover {
+  /* Subtle glow on hover - not a massive change */
+  box-shadow: 
+    inset -1px 0 0 rgba(255, 255, 255, 0.05),
+    0 0 0 1px rgba(255, 152, 0, 0.05);
+}
+
+/* Panel Containers - Elegant, Not Blobby */
+.xibalba-panel-professional,
+.xibalba-panel-template {
+  /* Refined padding using PHI */
+  padding: var(--spacing-md, 12.94px);
+  gap: var(--spacing-xs, 4.94px);
+  
+  /* Subtle shadow - depth without weight */
+  box-shadow: 
+    0 1px 2px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.02);
+  
+  /* Elegant transitions */
+  transition: 
+    transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.xibalba-panel-professional:hover {
+  /* Lift on hover - subtle, not massive */
+  transform: translateY(-0.5px);
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+/* Toolbar Containers - Compact, Refined */
+.xibalba-toolbar,
+.xibalba-toolbar-professional {
+  /* Compact spacing - not bloated */
+  padding: var(--spacing-xs, 4.94px) var(--spacing-sm, 8px);
+  gap: var(--spacing-xs, 4.94px);
+  
+  /* Minimal shadow */
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
+  
+  /* Elegant transitions */
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Canvas Container - Clean, Focused */
+.xibalba-canvas-container {
+  /* No padding - canvas should breathe */
+  padding: 0;
+  
+  /* Subtle border - almost invisible */
+  border: 1px solid rgba(255, 255, 255, 0.01);
+  
+  /* Smooth transitions */
+  transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Drawer Containers - Elegant Slide */
+.xibalba-drawer,
+.xibalba-drawer-container {
+  /* PHI-based padding */
+  padding: var(--spacing-md, 12.94px);
+  gap: var(--spacing-sm, 8px);
+  
+  /* Elegant slide animation */
+  transition: 
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Subtle shadow when open */
+  box-shadow: 
+    -2px 0 8px rgba(0, 0, 0, 0.2),
+    inset 1px 0 0 rgba(255, 255, 255, 0.02);
+}
+
+/* ============================================
+   BUTTON REFINEMENTS - NOT MASSIVE BLOBS
+   ============================================ */
+
+/* Base Button - Compact, Refined */
+.xibalba-button-professional {
+  /* Compact padding using PHI */
+  padding: var(--spacing-xs, 4.94px) var(--spacing-md, 12.94px);
+  min-height: calc(var(--base-unit, 8px) * var(--phi, 1.618)); /* ~12.94px */
+  height: auto;
+  
+  /* Refined font size */
+  font-size: var(--font-size-sm, 9.6px);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  
+  /* Subtle transitions */
+  transition: 
+    all 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Minimal shadow */
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+.xibalba-button-professional:hover {
+  /* Subtle lift - not massive */
+  transform: translateY(-0.5px);
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.15);
+}
+
+.xibalba-button-professional:active {
+  /* Subtle press - not jarring */
+  transform: translateY(0);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+/* Icon-Only Buttons - Compact, Elegant */
+.xibalba-button-icon-only {
+  /* Compact size using PHI */
+  width: calc(var(--base-unit, 8px) * var(--phi, 1.618) * 1.5); /* ~19.4px */
+  height: calc(var(--base-unit, 8px) * var(--phi, 1.618) * 1.5);
+  min-width: calc(var(--base-unit, 8px) * var(--phi, 1.618) * 1.5);
+  padding: var(--spacing-xs, 4.94px);
+  
+  /* Icon size - not massive */
+  font-size: var(--font-size-base, 12.94px);
+}
+
+/* Button Sizes - Refined Scale */
+.xibalba-button-sm {
+  padding: calc(var(--spacing-xs, 4.94px) * 0.5) var(--spacing-sm, 8px);
+  min-height: calc(var(--base-unit, 8px) * var(--phi-inverse, 0.618) * 3); /* ~14.8px */
+  font-size: var(--font-size-xs, 4.94px);
+}
+
+.xibalba-button-md {
+  padding: var(--spacing-xs, 4.94px) var(--spacing-md, 12.94px);
+  min-height: calc(var(--base-unit, 8px) * var(--phi, 1.618)); /* ~12.94px */
+  font-size: var(--font-size-sm, 9.6px);
+}
+
+.xibalba-button-lg {
+  padding: var(--spacing-sm, 8px) var(--spacing-lg, 20.94px);
+  min-height: calc(var(--base-unit, 8px) * var(--phi, 1.618) * 1.5); /* ~19.4px */
+  font-size: var(--font-size-base, 12.94px);
+}
+
+/* ============================================
+   INTERACTION REFINEMENTS - SUBTLE BUT IMPORTANT
+   ============================================ */
+
+/* Hover States - Elegant, Not Jarring */
+.xibalba-interactive:hover,
+.xibalba-button-professional:hover,
+.xibalba-tab-professional:hover,
+.xibalba-toolbar-button-professional:hover {
+  /* Subtle background change */
+  background: color-mix(in srgb, var(--xibalba-grey-200) 80%, var(--xibalba-grey-150));
+  
+  /* Subtle lift - not massive */
+  transform: translateY(-0.5px) scale(1.005);
+  
+  /* Elegant shadow */
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(255, 152, 0, 0.1);
+}
+
+/* Active States - Refined Press */
+.xibalba-interactive:active,
+.xibalba-button-professional:active,
+.xibalba-tab-professional:active,
+.xibalba-toolbar-button-professional:active {
+  /* Subtle press - not massive */
+  transform: translateY(0) scale(0.998);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Focus States - Elegant Outline */
+.xibalba-interactive:focus-visible,
+.xibalba-button-professional:focus-visible,
+.xibalba-input-professional:focus-visible {
+  /* Subtle outline - not massive ring */
+  outline: none;
+  box-shadow: 
+    0 0 0 1px var(--xibalba-accent, #ff9800),
+    0 0 0 3px rgba(255, 152, 0, 0.1);
+}
+
+/* ============================================
+   PANEL HEADER REFINEMENTS
+   ============================================ */
+
+.xibalba-panel-header {
+  /* Compact padding */
+  padding: var(--spacing-sm, 8px) var(--spacing-md, 12.94px);
+  
+  /* Subtle border */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  
+  /* Refined background */
+  background: color-mix(in srgb, var(--xibalba-grey-050) 95%, var(--xibalba-grey-100));
+}
+
+.xibalba-panel-title {
+  /* Refined typography */
+  font-size: var(--font-size-sm, 9.6px);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* ============================================
+   PANEL CONTENT REFINEMENTS
+   ============================================ */
+
+.xibalba-panel-content {
+  /* PHI-based padding */
+  padding: var(--spacing-md, 12.94px);
+  gap: var(--spacing-sm, 8px);
+  
+  /* Smooth scrolling */
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: var(--xibalba-grey-300) var(--xibalba-grey-100);
+}
+
+/* ============================================
+   TOOLBAR BUTTON REFINEMENTS
+   ============================================ */
+
+.xibalba-toolbar-button-professional {
+  /* Compact size */
+  width: calc(var(--base-unit, 8px) * var(--phi, 1.618) * 2); /* ~25.9px */
+  height: calc(var(--base-unit, 8px) * var(--phi, 1.618) * 2);
+  padding: var(--spacing-xs, 4.94px);
+  
+  /* Icon size - not massive */
+  font-size: var(--font-size-base, 12.94px);
+  
+  /* Subtle transitions */
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.xibalba-toolbar-button-professional:hover {
+  /* Subtle background change */
+  background: color-mix(in srgb, var(--xibalba-grey-200) 60%, var(--xibalba-grey-150));
+  
+  /* Subtle lift */
+  transform: translateY(-0.5px);
+}
+
+/* ============================================
+   INPUT REFINEMENTS
+   ============================================ */
+
+.xibalba-input-professional {
+  /* Compact padding */
+  padding: var(--spacing-xs, 4.94px) var(--spacing-sm, 8px);
+  min-height: calc(var(--base-unit, 8px) * var(--phi, 1.618) * 1.5); /* ~19.4px */
+  
+  /* Refined font */
+  font-size: var(--font-size-sm, 9.6px);
+  
+  /* Subtle border */
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  
+  /* Elegant transitions */
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.xibalba-input-professional:focus {
+  /* Subtle focus - not massive */
+  border-color: var(--xibalba-accent, #ff9800);
+  box-shadow: 
+    0 0 0 1px var(--xibalba-accent, #ff9800),
+    0 0 0 3px rgba(255, 152, 0, 0.08);
+}
+
+/* ============================================
+   RESIZE HANDLES - ELEGANT, NOT OBTRUSIVE
+   ============================================ */
+
+.xibalba-resize-handle {
+  /* Thin, elegant handle */
+  width: 2px;
+  background: transparent;
+  transition: background 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.xibalba-resize-handle:hover {
+  /* Subtle visibility on hover */
+  background: rgba(255, 152, 0, 0.3);
+}
+
+.xibalba-resize-handle:active {
+  /* Active state */
+  background: var(--xibalba-accent, #ff9800);
+}
+
+/* ============================================
+   DRAG HANDLES - SUBTLE, ELEGANT
+   ============================================ */
+
+.xibalba-drag-handle {
+  /* Compact, elegant */
+  width: 100%;
+  height: 4px;
+  background: transparent;
+  cursor: move;
+  transition: background 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.xibalba-drag-handle:hover {
+  /* Subtle visibility */
+  background: rgba(255, 152, 0, 0.2);
+}
+
+.xibalba-drag-handle:active {
+  /* Active drag */
+  background: rgba(255, 152, 0, 0.4);
+}
+
+/* ============================================
+   TAB SYSTEM REFINEMENTS
+   ============================================ */
+
+.xibalba-tab-professional {
+  /* Compact padding */
+  padding: var(--spacing-xs, 4.94px) var(--spacing-md, 12.94px);
+  min-height: calc(var(--base-unit, 8px) * var(--phi, 1.618)); /* ~12.94px */
+  
+  /* Refined font */
+  font-size: var(--font-size-sm, 9.6px);
+  font-weight: 500;
+  
+  /* Subtle transitions */
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.xibalba-tab-professional.active {
+  /* Subtle active state */
+  background: color-mix(in srgb, var(--xibalba-accent, #ff9800) 15%, var(--xibalba-grey-100));
+  border-left: 2px solid var(--xibalba-accent, #ff9800);
+  box-shadow: 0 0 4px rgba(255, 152, 0, 0.2);
+}
+
+/* ============================================
+   SPACING REFINEMENTS - HALLBERG MATHS
+   ============================================ */
+
+/* Apply PHI-based spacing to all containers */
+.xibalba-container,
+.xibalba-wrapper {
+  gap: var(--spacing-sm, 8px);
+  padding: var(--spacing-md, 12.94px);
+}
+
+/* Compact containers */
+.xibalba-container-compact {
+  gap: var(--spacing-xs, 4.94px);
+  padding: var(--spacing-sm, 8px);
+}
+
+/* Relaxed containers */
+.xibalba-container-relaxed {
+  gap: var(--spacing-md, 12.94px);
+  padding: var(--spacing-lg, 20.94px);
+}
+

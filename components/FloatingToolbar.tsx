@@ -6,6 +6,7 @@
 import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { ToolType } from '../types';
 import ErrorBoundary from './ErrorBoundary';
+import { ToolButton } from './shared/ToolButton';
 
 interface FloatingToolbarProps {
   activeTool: ToolType;
@@ -117,8 +118,8 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
   return (
     <ErrorBoundary
       fallback={
-        <div className="xibalba-panel-elevated-professional absolute left-4 p-2 z-[100] border border-red-500/50">
-          <p className="xibalba-text-caption text-red-400">Toolbar error</p>
+        <div className="xibalba-panel-elevated-professional absolute left-4 p-2 z-[100] border border-[var(--vectorforge-accent)]/50">
+          <p className="xibalba-text-caption text-[var(--vectorforge-accent)]">Toolbar error</p>
         </div>
       }
     >
@@ -143,17 +144,12 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
 
         {tools.map((tool, idx) => (
           <React.Fragment key={tool.id}>
-            <button
-              onClick={() => setTool(tool.id)}
-              className={`xibalba-toolbar-button-professional size-12 flex items-center justify-center relative group ${
-                activeTool === tool.id 
-                  ? 'bg-[var(--xibalba-grey-200)] border-2 border-[var(--xibalba-text-100)]' 
-                  : 'hover:bg-[var(--xibalba-grey-150)] border-2 border-transparent'
-              }`}
-              title={`${tool.label}${tool.shortcut ? ` (${tool.shortcut})` : ''}`}
-            >
-              <span className="material-symbols-outlined text-[20px]">{tool.icon}</span>
-            </button>
+            <ToolButton
+              tool={tool}
+              activeTool={activeTool}
+              onClick={setTool}
+              variant="icon-only"
+            />
             {/* Visual dividers between tool groups */}
             {(idx === selectionEnd - 1 || idx === drawingEnd - 1 || idx === shapesEnd - 1 || idx === textEnd - 1 || idx === transformEnd - 1 || idx === paintEnd - 1) && idx < tools.length - 1 && (
               <div className="h-px w-10 bg-white/10 my-1 mx-auto" />
@@ -168,7 +164,7 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
           className="xibalba-toolbar-button-professional size-12 flex items-center justify-center relative group overflow-hidden bg-[var(--xibalba-grey-200)] hover:bg-[var(--xibalba-grey-250)] border-2 border-[var(--xibalba-text-100)]"
           title="Smart Magic"
         >
-          <span className="material-symbols-outlined text-[20px] relative z-10">auto_awesome</span>
+          <span className="material-symbols-outlined text-[20px] relative z-10" aria-hidden="true" data-icon="auto_awesome"></span>
         </button>
       </div>
     </ErrorBoundary>

@@ -56,12 +56,12 @@ class ErrorBoundary extends Component<Props, State> {
         return props.fallback;
       }
       return (
-        <div className="xibalba-panel-professional p-4 border border-red-500/50 bg-red-500/10">
+        <div className="xibalba-panel-professional p-4 bg-[var(--vectorforge-accent)]/10">
           <div className="flex items-center gap-2 mb-2">
-            <span className="material-symbols-outlined text-red-400">error</span>
-            <span className="xibalba-text-caption text-red-400">Component Error</span>
+            <span className="material-symbols-outlined text-[var(--vectorforge-accent)]" aria-hidden="true" data-icon="error"></span>
+            <span className="xibalba-text-caption text-[var(--vectorforge-accent)]">Component Error</span>
           </div>
-          <p className="xibalba-text-xs text-[var(--xibalba-text-300)]">
+          <p className="xibalba-text-xs text-[var(--xibalba-text-100)]">
             {this.state.error?.message || 'An error occurred'}
           </p>
         </div>

@@ -13,6 +13,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { settingsService, UserSettings } from '../services/settingsService';
+import { accessibilityService } from '../services/accessibilityService';
 import ErrorBoundary from './ErrorBoundary';
 
 interface PreferencesDialogProps {
@@ -44,6 +45,8 @@ export default function PreferencesDialog({
   useEffect(() => {
     const unsubscribe = settingsService.subscribe((newSettings) => {
       setSettings(newSettings);
+      // Apply accessibility settings when they change
+      accessibilityService.applySettings(newSettings.accessibility);
     });
     return unsubscribe;
   }, []);
@@ -81,10 +84,10 @@ export default function PreferencesDialog({
 
   return (
     <ErrorBoundary>
-      <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 backdrop-blur-sm">
-        <div className="xibalba-panel bg-[var(--xibalba-grey-050)] border border-white/10 rounded-lg w-[90vw] max-w-4xl h-[85vh] max-h-[800px] flex flex-col shadow-2xl">
+      <div className="fixed inset-0 zstack-modal-backdrop flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div className="xibalba-panel bg-[var(--xibalba-grey-050)] rounded-lg w-[90vw] max-w-4xl h-[85vh] max-h-[800px] flex flex-col shadow-2xl">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-white/10">
+          <div className="flex items-center justify-between p-6">
             <div className="flex items-center gap-3">
               <span className="material-symbols-outlined text-2xl text-[var(--xibalba-accent)]">settings</span>
               <h2 className="text-xl font-bold text-[var(--xibalba-text-000)]">Preferences</h2>
@@ -94,13 +97,13 @@ export default function PreferencesDialog({
               className="xibalba-interactive p-2 hover:bg-[var(--xibalba-grey-100)] rounded transition-colors"
               aria-label="Close"
             >
-              <span className="material-symbols-outlined text-[var(--xibalba-text-200)]">close</span>
+              <span className="material-symbols-outlined text-[var(--xibalba-text-100)]">close</span>
             </button>
           </div>
 
           <div className="flex-1 flex overflow-hidden">
             {/* Sidebar */}
-            <div className="w-48 border-r border-white/10 bg-[var(--xibalba-grey-100)] p-4 overflow-y-auto">
+            <div className="w-48 bg-[var(--xibalba-grey-100)] p-4 overflow-y-auto">
               <nav className="space-y-1">
                 {categories.map((category) => (
                   <button
@@ -109,7 +112,7 @@ export default function PreferencesDialog({
                     className={`w-full text-left px-4 py-3 rounded transition-colors flex items-center gap-3 ${
                       activeCategory === category.id
                         ? 'bg-[var(--xibalba-accent)] text-white'
-                        : 'text-[var(--xibalba-text-200)] hover:bg-[var(--xibalba-grey-150)] hover:text-[var(--xibalba-text-000)]'
+                        : 'text-[var(--xibalba-text-100)] hover:bg-[var(--xibalba-grey-150)] hover:text-[var(--xibalba-text-000)]'
                     }`}
                   >
                     <span className="material-symbols-outlined text-lg">{category.icon}</span>
@@ -152,7 +155,10 @@ export default function PreferencesDialog({
                 <AccessibilitySettings
                   settings={settings}
                   onChange={(prefs) => {
+                    const newAccessibility = { ...settings.accessibility, ...prefs };
                     settingsService.updateAccessibilityPreferences(prefs);
+                    accessibilityService.applySettings(newAccessibility);
+                    setSettings({ ...settings, accessibility: newAccessibility });
                     setHasChanges(true);
                   }}
                 />
@@ -170,17 +176,17 @@ export default function PreferencesDialog({
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-between p-6 border-t border-white/10">
+          <div className="flex items-center justify-between p-6">
             <button
               onClick={handleReset}
-              className="xibalba-interactive px-4 py-2 text-sm text-[var(--xibalba-text-200)] hover:text-[var(--xibalba-text-000)] transition-colors"
+              className="xibalba-interactive px-4 py-2 text-sm text-[var(--xibalba-text-100)] hover:text-[var(--xibalba-text-000)] transition-colors"
             >
               Reset to Defaults
             </button>
             <div className="flex items-center gap-3">
               <button
                 onClick={handleCancel}
-                className="xibalba-interactive px-6 py-2 text-sm text-[var(--xibalba-text-200)] hover:text-[var(--xibalba-text-000)] transition-colors"
+                className="xibalba-interactive px-6 py-2 text-sm text-[var(--xibalba-text-100)] hover:text-[var(--xibalba-text-000)] transition-colors"
               >
                 Cancel
               </button>
@@ -415,7 +421,7 @@ function AccessibilitySettings({
               id="screenReader"
               checked={settings.accessibility.screenReader}
               onChange={(e) => onChange({ screenReader: e.target.checked })}
-              className="xibalba-checkbox"
+              className="xibalba-checkbox min-w-[20px] min-h-[20px]"
             />
             <label htmlFor="screenReader" className="xibalba-label-professional cursor-pointer">
               Screen Reader Support
@@ -427,7 +433,7 @@ function AccessibilitySettings({
               id="keyboardNavigation"
               checked={settings.accessibility.keyboardNavigation}
               onChange={(e) => onChange({ keyboardNavigation: e.target.checked })}
-              className="xibalba-checkbox"
+              className="xibalba-checkbox min-w-[20px] min-h-[20px]"
             />
             <label htmlFor="keyboardNavigation" className="xibalba-label-professional cursor-pointer">
               Enhanced Keyboard Navigation
@@ -439,7 +445,7 @@ function AccessibilitySettings({
               id="highContrast"
               checked={settings.accessibility.highContrast}
               onChange={(e) => onChange({ highContrast: e.target.checked })}
-              className="xibalba-checkbox"
+              className="xibalba-checkbox min-w-[20px] min-h-[20px]"
             />
             <label htmlFor="highContrast" className="xibalba-label-professional cursor-pointer">
               High Contrast Mode
@@ -451,11 +457,131 @@ function AccessibilitySettings({
               id="reducedMotion"
               checked={settings.accessibility.reducedMotion}
               onChange={(e) => onChange({ reducedMotion: e.target.checked })}
-              className="xibalba-checkbox"
+              className="xibalba-checkbox min-w-[20px] min-h-[20px]"
             />
             <label htmlFor="reducedMotion" className="xibalba-label-professional cursor-pointer">
               Reduce Motion
             </label>
+          </div>
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="dyslexiaFont"
+              checked={settings.accessibility.dyslexiaFont || false}
+              onChange={(e) => onChange({ dyslexiaFont: e.target.checked })}
+              className="xibalba-checkbox min-w-[20px] min-h-[20px]"
+            />
+            <label htmlFor="dyslexiaFont" className="xibalba-label-professional cursor-pointer">
+              Dyslexia-Friendly Font (OpenDyslexic)
+            </label>
+          </div>
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="enhancedFocusIndicators"
+              checked={settings.accessibility.enhancedFocusIndicators || false}
+              onChange={(e) => onChange({ enhancedFocusIndicators: e.target.checked })}
+              className="xibalba-checkbox min-w-[20px] min-h-[20px]"
+            />
+            <label htmlFor="enhancedFocusIndicators" className="xibalba-label-professional cursor-pointer">
+              Enhanced Focus Indicators
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-lg font-semibold text-[var(--xibalba-text-000)] mb-4">Typography</h3>
+        <div className="space-y-4">
+          <div>
+            <label htmlFor="fontSize" className="block text-sm font-semibold text-[var(--xibalba-text-000)] mb-2">
+              Font Size: {settings.accessibility.fontSize || 14}px
+            </label>
+            <input
+              id="fontSize"
+              type="range"
+              min="12"
+              max="24"
+              value={settings.accessibility.fontSize || 14}
+              onChange={(e) => onChange({ fontSize: Number(e.target.value) })}
+              className="w-full min-h-[44px]"
+              aria-label="Font size slider"
+            />
+            <div className="flex justify-between text-xs text-[var(--xibalba-text-100)] mt-1">
+              <span>12px</span>
+              <span>24px</span>
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="lineSpacing" className="block text-sm font-semibold text-[var(--xibalba-text-000)] mb-2">
+              Line Spacing: {settings.accessibility.lineSpacing || 1.5}
+            </label>
+            <input
+              id="lineSpacing"
+              type="range"
+              min="1.0"
+              max="2.0"
+              step="0.1"
+              value={settings.accessibility.lineSpacing || 1.5}
+              onChange={(e) => onChange({ lineSpacing: Number(e.target.value) })}
+              className="w-full min-h-[44px]"
+              aria-label="Line spacing slider"
+            />
+            <div className="flex justify-between text-xs text-[var(--xibalba-text-100)] mt-1">
+              <span>1.0</span>
+              <span>2.0</span>
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="letterSpacing" className="block text-sm font-semibold text-[var(--xibalba-text-000)] mb-2">
+              Letter Spacing: {settings.accessibility.letterSpacing || 0}em
+            </label>
+            <input
+              id="letterSpacing"
+              type="range"
+              min="0"
+              max="0.2"
+              step="0.01"
+              value={settings.accessibility.letterSpacing || 0}
+              onChange={(e) => onChange({ letterSpacing: Number(e.target.value) })}
+              className="w-full min-h-[44px]"
+              aria-label="Letter spacing slider"
+            />
+            <div className="flex justify-between text-xs text-[var(--xibalba-text-100)] mt-1">
+              <span>Normal</span>
+              <span>0.2em</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-lg font-semibold text-[var(--xibalba-text-000)] mb-4">Color Override</h3>
+        <div className="space-y-4">
+          <div>
+            <label htmlFor="colorOverride" className="block text-sm font-semibold text-[var(--xibalba-text-000)] mb-2">
+              High Contrast Color
+            </label>
+            <div className="flex items-center gap-3">
+              <input
+                id="colorOverride"
+                type="color"
+                value={settings.accessibility.colorOverride || 'var(--xibalba-text-000)'}
+                onChange={(e) => onChange({ colorOverride: e.target.value })}
+                className="w-16 h-16 cursor-pointer min-w-[64px] min-h-[64px]"
+                aria-label="Color override picker"
+              />
+              <input
+                type="text"
+                value={settings.accessibility.colorOverride || 'var(--xibalba-text-000)'}
+                onChange={(e) => onChange({ colorOverride: e.target.value })}
+                className="xibalba-input flex-1 min-h-[44px]"
+                placeholder="var(--xibalba-text-000)"
+                aria-label="Color override hex value"
+              />
+            </div>
           </div>
         </div>
       </div>

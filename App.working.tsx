@@ -29,40 +29,22 @@ const App: React.FC = () => {
     toasts: [],
     guides: [],
     showRulers: true,
-    engineConfig: { provider: 'gemini-pro' as any, apiKey: '', thinkingBudget: 32768 }
+    engineConfig: { provider: 'gemini-pro' as any, apiKey: '', thinkingBudget: 32768 },
+    toolProperties: {},
+    measurementUnit: 'px',
+    workspaceLayout: 'default',
+    dockedPanels: [],
   }));
 
   return (
-    <div style={{ 
-      width: '100vw', 
-      height: '100vh', 
-      backgroundColor: 'var(--xibalba-grey-000, #0a0b0e)',
-      color: 'var(--xibalba-text-000, #ffffff)',
-      display: 'flex',
-      flexDirection: 'column',
-      fontFamily: 'Inter, sans-serif'
-    }}>
-      <div style={{ 
-        padding: '16px', 
-        borderBottom: '1px solid rgba(255,255,255,0.1)',
-        backgroundColor: 'var(--xibalba-grey-050, #12141a)'
-      }}>
-        <ProfessionalFileMenu 
-          onAction={() => {}}
-        />
+    <div className="w-screen h-screen bg-[var(--xibalba-grey-000)] text-[var(--xibalba-text-000)] flex flex-col font-sans">
+      <div className="p-4 border-b border-white/10 bg-[var(--xibalba-grey-050)]">
+        <ProfessionalFileMenu onAction={() => {}} />
       </div>
-      <div style={{ 
-        flex: 1, 
-        display: 'flex',
-        backgroundColor: 'var(--xibalba-grey-000, #0a0b0e)'
-      }}>
-        <LeftSidebar 
-          state={state}
-          setState={() => {}}
-          onGenerate={() => {}}
-        />
-        <div style={{ flex: 1 }}>
-          <DraftsmanCanvas 
+      <div className="flex-1 flex bg-[var(--xibalba-grey-000)]">
+        <LeftSidebar state={state} setState={() => {}} onGenerate={async () => {}} />
+        <div className="flex-1">
+          <DraftsmanCanvas
             svgContent={state.currentSvg}
             layers={state.layers}
             activeTool={state.activeTool}
@@ -71,15 +53,19 @@ const App: React.FC = () => {
             pan={state.pan}
             onPan={() => {}}
             onZoom={() => {}}
-            onLayerSelect={() => {}}
-            onSvgChange={() => {}}
-            onToolChange={() => {}}
+            onSelectLayer={() => {}}
+            onCreateLayer={() => {}}
+            onUpdateLayer={() => {}}
+            frameState={{ currentFrame: 0, fps: 24, isPlaying: false, totalFrames: 100, isLooping: false }}
             keyframes={[]}
-            frameState={{ currentFrame: 0, fps: 24, isPlaying: false }}
-            onKeyframeAdd={() => {}}
-            onKeyframeUpdate={() => {}}
-            onKeyframeDelete={() => {}}
+            onAddKeyframe={() => {}}
+            onUpdateKeyframe={() => {}}
+            showGuides={false}
+            snapToGrid={false}
+            snapToGuides={false}
+            gridSize={10}
             measurementUnit="px"
+            onUnitChange={() => {}}
           />
         </div>
       </div>
@@ -88,4 +74,3 @@ const App: React.FC = () => {
 };
 
 export default App;
-

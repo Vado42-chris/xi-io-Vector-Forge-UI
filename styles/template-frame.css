@@ -1,0 +1,212 @@
+/**
+ * Template Frame Styles
+ * CSS for template frame system
+ * 
+ * Template frames are containers that components can attach to.
+ * This CSS provides the styling for frames and attached components.
+ * 
+ * #hashtag: templates template-frames css
+ */
+
+/* ============================================
+   TEMPLATE FRAME CONTAINER
+   ============================================ */
+.template-frame-container {
+  position: var(--template-frame-container-position, relative);
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* Allow clicks to pass through to content */
+}
+
+/* ============================================
+   TEMPLATE FRAME
+   ============================================ */
+.template-frame {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  background: var(--xibalba-grey-100);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  pointer-events: auto; /* Re-enable clicks for frame content */
+  overflow: hidden;
+  transition: 
+    opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  /* CSS custom properties for dynamic positioning */
+  z-index: var(--template-frame-z-index, 1000);
+  left: var(--template-frame-left, auto);
+  top: var(--template-frame-top, auto);
+  width: var(--template-frame-width, auto);
+  height: var(--template-frame-height, auto);
+}
+
+/* Template frame visibility */
+.template-frame[data-visible="false"] {
+  display: none;
+}
+
+/* ============================================
+   TEMPLATE FRAME ATTACHED COMPONENTS
+   ============================================ */
+.template-frame-attached {
+  /* Components attached to a template frame */
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* Component attached to frame indicator */
+.template-frame-attached::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--xibalba-accent, #ff9800);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.template-frame-attached:hover::before {
+  opacity: 1;
+}
+
+/* ============================================
+   TEMPLATE FRAME VARIANTS
+   ============================================ */
+.template-frame-floating {
+  /* Floating frame (not docked) */
+  border-radius: 4px;
+}
+
+.template-frame-docked {
+  /* Docked frame (attached to edge) */
+  border-radius: 0;
+}
+
+.template-frame-docked-left {
+  border-left: 3px solid var(--xibalba-accent, #ff9800);
+}
+
+.template-frame-docked-right {
+  border-right: 3px solid var(--xibalba-accent, #ff9800);
+}
+
+.template-frame-docked-top {
+  border-top: 3px solid var(--xibalba-accent, #ff9800);
+}
+
+.template-frame-docked-bottom {
+  border-bottom: 3px solid var(--xibalba-accent, #ff9800);
+}
+
+/* ============================================
+   TEMPLATE FRAME Z-STACK
+   ============================================ */
+.template-frame {
+  z-index: var(--z-template-frame, 1000);
+}
+
+.template-frame[data-z-index] {
+  z-index: attr(data-z-index number);
+}
+
+/* ============================================
+   TEMPLATE FRAME CONTENT
+   ============================================ */
+.template-frame-content {
+  flex: 1;
+  overflow: auto;
+  padding: var(--spacing-md, 12.94px);
+}
+
+.template-frame-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm, 8px) var(--spacing-md, 12.94px);
+  background: var(--xibalba-grey-150);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.template-frame-title {
+  font-size: var(--font-size-sm, 9.6px);
+  font-weight: 600;
+  color: var(--xibalba-text-000);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ============================================
+   TEMPLATE FRAME CSS VARIABLES
+   ============================================ */
+.template-frame {
+  --template-frame-bg: var(--xibalba-grey-100);
+  --template-frame-border: rgba(255, 255, 255, 0.1);
+  --template-frame-accent: var(--xibalba-accent, #ff9800);
+  --template-frame-padding: var(--spacing-md, 12.94px);
+  --template-frame-z-index: var(--z-template-frame, 1000);
+}
+
+/* Template frame context for components */
+.template-frame .xibalba-button-professional,
+.template-frame .xibalba-input-professional,
+.template-frame .xibalba-panel-professional {
+  /* Components inside template frames can use template-specific styles */
+}
+
+/* Components attached to template frames */
+.template-frame-attached {
+  /* Component is attached to a template frame */
+  position: relative;
+}
+
+.template-frame-attached.xibalba-palette {
+  /* Palette attached to template frame */
+  border-left: 2px solid var(--xibalba-accent, #ff9800);
+}
+
+.template-frame-attached .xibalba-button-professional,
+.template-frame-attached .xibalba-input-professional {
+  /* Buttons and inputs in attached components */
+  /* Use template-specific styling if needed */
+}
+
+/* Ensure component isolation in template frames */
+.template-frame > * {
+  /* All direct children of template frames */
+  contain: layout style paint;
+}
+
+/* Template frame z-stack integration */
+.template-frame {
+  z-index: var(--z-template-frame, 1000);
+}
+
+/* Template frame with attached components */
+.template-frame[data-has-attachments="true"] {
+  /* Frame has attached components */
+  border-color: var(--xibalba-accent, #ff9800);
+}
+
+/* ============================================
+   TEMPLATE FRAME INTERACTIONS
+   ============================================ */
+.template-frame:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.template-frame:focus-within {
+  border-color: var(--xibalba-accent, #ff9800);
+  box-shadow: 
+    0 0 0 2px rgba(255, 152, 0, 0.2),
+    0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Empty template frame container (hidden when no frames) */
+.template-frame-container-empty {
+  display: none;
+}
+

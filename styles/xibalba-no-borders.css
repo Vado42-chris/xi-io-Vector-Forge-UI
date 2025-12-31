@@ -1,0 +1,274 @@
+/**
+ * Xibalba Design System - No Borders Policy
+ * Based on historic ChatGPT conversations and Xibalba Design System Bible
+ * 
+ * Core Principles:
+ * 1. Borders restrain - we use subtle background color differences instead
+ * 2. Selected states use background colors + subtle glow, not borders
+ * 3. Interactive elements get subtle glow (1-2px, 8-15% opacity) behind container
+ * 4. Dark grey on grey theme with orange accent only (#ff9800)
+ * 5. Backgrounds must be darker than container borders (luminance rule)
+ */
+
+/* ============================================
+   DIVIDER LINES - Use background color, not borders
+   ============================================ */
+.xibalba-divider,
+.xibalba-divider-horizontal {
+  height: 1px;
+  background: var(--xibalba-grey-200);
+  opacity: 0.3;
+  margin: var(--space-2) 0;
+  border: none !important;
+}
+
+.xibalba-divider-vertical {
+  width: 1px;
+  background: var(--xibalba-grey-200);
+  opacity: 0.3;
+  margin: 0 var(--space-2);
+  border: none !important;
+}
+
+/* ============================================
+   INTERACTIVE GLOW SYSTEM
+   Based on Xibalba Bible: "Interaction = Glow, Not Color Fill"
+   ============================================ */
+
+/* Base interactive element - subtle glow on hover/focus/active/selected */
+.xibalba-interactive {
+  position: relative;
+  transition: all var(--transition-fast);
+}
+
+.xibalba-interactive::before {
+  content: '';
+  position: absolute;
+  inset: -1px; /* 1px glow around element */
+  background: rgba(255, 152, 0, 0); /* Orange accent, transparent by default */
+  border-radius: inherit;
+  z-index: -1;
+  transition: background-color var(--transition-fast);
+  pointer-events: none;
+}
+
+.xibalba-interactive:hover::before,
+.xibalba-interactive:focus::before,
+.xibalba-interactive:active::before,
+.xibalba-interactive.selected::before {
+  background: rgba(255, 152, 0, 0.1); /* 10% opacity - subtle but visible */
+}
+
+/* Stronger glow for selected/active states */
+.xibalba-interactive.selected::before,
+.xibalba-interactive.active::before {
+  background: rgba(255, 152, 0, 0.15); /* 15% opacity for selected */
+}
+
+/* ============================================
+   SELECTED STATES - Background colors + glow, NOT borders
+   ============================================ */
+.xibalba-selected,
+.xibalba-active,
+.xibalba-button-professional.active,
+.xibalba-tab-professional.active {
+  background: color-mix(in srgb, var(--xibalba-accent, #ff9800) 25%, var(--xibalba-grey-100)) !important;
+  border-left: 3px solid var(--xibalba-accent, #ff9800) !important;
+  box-shadow: 0 0 8px rgba(255, 152, 0, 0.3), inset 0 0 0 1px rgba(255, 152, 0, 0.2) !important;
+  position: relative;
+}
+
+/* Add glow to selected states */
+.xibalba-selected::before,
+.xibalba-active::before,
+.xibalba-button-professional.active::before,
+.xibalba-tab-professional.active::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  background: rgba(255, 152, 0, 0.12);
+  border-radius: inherit;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* ============================================
+   HOVER STATES - Subtle background change
+   ============================================ */
+.xibalba-interactive:hover,
+.xibalba-button-professional:hover,
+.xibalba-tab-professional:hover {
+  background: var(--xibalba-bg-tertiary) !important;
+  border: none !important;
+}
+
+/* ============================================
+   FOCUS STATES - Subtle background glow, no border
+   ============================================ */
+.xibalba-focus-visible:focus-visible {
+  outline: none !important;
+  background: var(--xibalba-bg-hover) !important;
+  /* Subtle glow instead of border */
+  box-shadow: 0 0 0 1px rgba(255, 152, 0, 0.15), 0 0 0 2px rgba(255, 152, 0, 0.08) !important;
+  border: none !important;
+}
+
+/* ============================================
+   INPUT FIELDS - No borders, use background contrast + glow
+   ============================================ */
+.xibalba-input-professional {
+  background: var(--xibalba-grey-200) !important;
+  border: none !important;
+  position: relative;
+}
+
+.xibalba-input-professional:hover {
+  background: var(--xibalba-grey-250) !important;
+}
+
+.xibalba-input-professional:focus {
+  background: var(--xibalba-grey-250) !important;
+  /* Subtle glow instead of border */
+  box-shadow: 0 0 0 1px rgba(255, 152, 0, 0.15), 0 0 0 2px rgba(255, 152, 0, 0.08) !important;
+  border: none !important;
+  outline: none !important;
+}
+
+/* Panels and cards - no borders, use subtle background differences */
+.xibalba-panel,
+.xibalba-card {
+  background: var(--xibalba-bg-secondary) !important;
+  border: none !important;
+  /* Subtle shadow for depth instead of border */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+.xibalba-panel-elevated {
+  background: var(--xibalba-bg-tertiary) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Sidebar separators - use background color, not border */
+.sidebar-separator {
+  height: 1px;
+  background: var(--xibalba-grey-200);
+  opacity: 0.2;
+  margin: var(--space-2) 0;
+}
+
+/* Menu dropdowns - no borders */
+.menu-dropdown {
+  border: none !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Remove all white/light colors - replace with dark greys */
+.border-white,
+.border-white\/5,
+.border-white\/10,
+.border-white\/20,
+[class*="border-white"] {
+  border: none !important;
+}
+
+/* Replace white backgrounds with dark greys */
+.bg-white,
+.bg-white\/5,
+.bg-white\/10,
+.bg-white\/20,
+[class*="bg-white"] {
+  background: var(--xibalba-grey-200) !important;
+}
+
+/* Text colors - ensure no white text on light backgrounds */
+.text-white {
+  color: var(--xibalba-text-000) !important;
+}
+
+/* Override Tailwind border utilities - AGGRESSIVE */
+[class*="border-"],
+[class*="border"],
+.border,
+.border-t,
+.border-r,
+.border-b,
+.border-l {
+  border: none !important;
+  border-top: none !important;
+  border-right: none !important;
+  border-bottom: none !important;
+  border-left: none !important;
+}
+
+/* Aggressive overrides for all border definitions in other CSS files */
+.xibalba-header,
+.xibalba-sidebar,
+.xibalba-panel,
+.xibalba-card,
+.xibalba-button,
+.xibalba-input,
+.xibalba-tab,
+.xibalba-toolbar-button,
+.xibalba-list-item,
+.xibalba-section-header,
+.xibalba-color-picker,
+.ruler-horizontal,
+.ruler-vertical,
+.menu-dropdown,
+.xibalba-action-center-dropdown,
+.xibalba-dropdown,
+.xibalba-select,
+select,
+select.xibalba-input-professional,
+select.xibalba-select,
+input,
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+textarea,
+button,
+button.xibalba-button-professional {
+  border: none !important;
+  border-top: none !important;
+  border-right: none !important;
+  border-bottom: none !important;
+  border-left: none !important;
+  background: var(--xibalba-grey-200) !important;
+  color: var(--xibalba-text-000) !important;
+}
+
+select:hover,
+select:focus,
+input:hover,
+input:focus,
+textarea:hover,
+textarea:focus {
+  background: var(--xibalba-grey-250) !important;
+  border: none !important;
+  box-shadow: 0 0 0 1px rgba(255, 152, 0, 0.15), 0 0 0 2px rgba(255, 152, 0, 0.08) !important;
+}
+
+/* Remove all border-color definitions */
+* {
+  border-color: transparent !important;
+}
+
+/* Exception: Only allow orange accent glow (not borders) */
+.xibalba-input-professional:focus,
+.xibalba-button-professional:focus,
+.xibalba-tab-professional:focus {
+  border: none !important;
+  box-shadow: 0 0 0 1px rgba(255, 152, 0, 0.15), 0 0 0 2px rgba(255, 152, 0, 0.08) !important;
+}
+
+/* Exception: Only allow orange accent for focus/active states (as background, not border) */
+.xibalba-accent-background {
+  background: rgba(255, 152, 0, 0.1) !important;
+}
+
+.xibalba-accent-background-strong {
+  background: rgba(255, 152, 0, 0.2) !important;
+}
+

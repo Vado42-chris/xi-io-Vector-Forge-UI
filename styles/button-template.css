@@ -13,19 +13,22 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-2, 8px);
-  padding: 0 var(--space-4, 16px);
+  gap: var(--spacing-xs, 4.94px);
+  padding: var(--spacing-xs, 4.94px) var(--spacing-md, 12.94px);
+  min-height: calc(var(--base-unit, 8px) * var(--phi, 1.618));
   background: var(--xibalba-grey-150);
   border: none !important;
   color: var(--xibalba-text-000);
-  font-size: var(--font-size-sm, 12px);
+  font-size: var(--font-size-sm, 9.6px);
   font-weight: 500;
+  letter-spacing: 0.01em;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   user-select: none;
   position: relative;
   outline: none;
   text-decoration: none;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
 }
 
 /* ============================================
@@ -57,10 +60,10 @@
 }
 
 .xibalba-button-icon-only {
-  padding: var(--space-2, 8px);
-  width: 32px;
-  height: 32px;
-  min-width: 32px;
+  padding: var(--spacing-xs, 4.94px);
+  width: calc(var(--base-unit, 8px) * var(--phi, 1.618) * 1.5);
+  height: calc(var(--base-unit, 8px) * var(--phi, 1.618) * 1.5);
+  min-width: calc(var(--base-unit, 8px) * var(--phi, 1.618) * 1.5);
 }
 
 .xibalba-button-menu {
@@ -75,21 +78,21 @@
    BUTTON SIZES
    ============================================ */
 .xibalba-button-sm {
-  height: 24px;
-  padding: 0 var(--space-2, 8px);
-  font-size: var(--font-size-xs, 10px);
+  min-height: calc(var(--base-unit, 8px) * var(--phi-inverse, 0.618) * 3);
+  padding: calc(var(--spacing-xs, 4.94px) * 0.5) var(--spacing-sm, 8px);
+  font-size: var(--font-size-xs, 4.94px);
 }
 
 .xibalba-button-md {
-  height: 28px;
-  padding: 0 var(--space-4, 16px);
-  font-size: var(--font-size-sm, 12px);
+  min-height: calc(var(--base-unit, 8px) * var(--phi, 1.618));
+  padding: var(--spacing-xs, 4.94px) var(--spacing-md, 12.94px);
+  font-size: var(--font-size-sm, 9.6px);
 }
 
 .xibalba-button-lg {
-  height: 36px;
-  padding: 0 var(--space-5, 20px);
-  font-size: var(--font-size-base, 14px);
+  min-height: calc(var(--base-unit, 8px) * var(--phi, 1.618) * 1.5);
+  padding: var(--spacing-sm, 8px) var(--spacing-lg, 20.94px);
+  font-size: var(--font-size-base, 12.94px);
 }
 
 /* ============================================

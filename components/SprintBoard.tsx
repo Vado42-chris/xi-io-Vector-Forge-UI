@@ -14,7 +14,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, closestCorners } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Task, TaskStatus } from '../types/task';
+import { Task, TaskStatus, TaskPriority } from '../types/task';
 import { taskManagementService } from '../services/taskManagementService';
 import { clickTrackingService } from '../services/clickTrackingService';
 import { workTrackingService } from '../services/workTrackingService';
@@ -25,7 +25,7 @@ interface SprintBoardProps {
   projectId?: string;
   filters?: {
     assignee?: string;
-    priority?: string[];
+    priority?: TaskPriority | TaskPriority[];
     tags?: string[];
   };
   onTaskMove?: (taskId: string, newStatus: TaskStatus) => void;
@@ -41,11 +41,11 @@ interface Column {
 
 const COLUMNS: Column[] = [
   { id: 'backlog', title: 'Backlog', color: '#666' },
-  { id: 'planning', title: 'Planning', color: '#ff9800' },
-  { id: 'in_progress', title: 'In Progress', color: '#007acc' },
-  { id: 'review', title: 'Review', color: '#9c27b0' },
-  { id: 'done', title: 'Done', color: '#4caf50' },
-  { id: 'blocked', title: 'Blocked', color: '#f44336' },
+  { id: 'planning', title: 'Planning', color: '#ff9800' }, // VectorFORGE Orange
+  { id: 'in_progress', title: 'In Progress', color: '#ff9800' }, // VectorFORGE Orange
+  { id: 'review', title: 'Review', color: '#ff9800' }, // VectorFORGE Orange
+  { id: 'done', title: 'Done', color: '#ff9800' }, // VectorFORGE Orange
+  { id: 'blocked', title: 'Blocked', color: '#ff9800' }, // VectorFORGE Orange
 ];
 
 const SortableTaskCard: React.FC<{
@@ -132,16 +132,10 @@ const SprintBoard: React.FC<SprintBoardProps> = ({
       });
       setTasks(loadedTasks);
       
-      clickTrackingService.trackEvent({
-        type: 'hover',
-        component: 'SprintBoard',
-        action: 'load-tasks',
-        target: 'sprintboard',
-        context: {
-          taskCount: loadedTasks.length,
-          sprintId,
-          projectId,
-        },
+      clickTrackingService.trackClick('SprintBoard', 'load-tasks', 'Load Tasks', 'hover', {
+        taskCount: loadedTasks.length,
+        sprintId,
+        projectId,
       });
     } catch (error) {
       console.error('SprintBoard: Error loading tasks:', error);
@@ -154,7 +148,7 @@ const SprintBoard: React.FC<SprintBoardProps> = ({
     const task = tasks.find(t => t.id === event.active.id);
     if (task) {
       setActiveTask(task);
-      clickTrackingService.trackClick('SprintBoard', 'drag-start', task.id, {
+      clickTrackingService.trackClick('SprintBoard', 'drag-start', 'Drag Start', 'drag', {
         taskId: task.id,
         currentStatus: task.status,
       });
@@ -182,7 +176,7 @@ const SprintBoard: React.FC<SprintBoardProps> = ({
         prevTasks.map(t => (t.id === taskId ? { ...t, status: newStatus } : t))
       );
 
-      clickTrackingService.trackClick('SprintBoard', 'drag-end', taskId, {
+      clickTrackingService.trackClick('SprintBoard', 'drag-end', 'Drag End', 'drag', {
         taskId,
         oldStatus: task.status,
         newStatus,
@@ -197,7 +191,7 @@ const SprintBoard: React.FC<SprintBoardProps> = ({
   };
 
   const handleTaskSelect = (task: Task) => {
-    clickTrackingService.trackClick('SprintBoard', 'select-task', task.id, {
+    clickTrackingService.trackClick('SprintBoard', 'select-task', 'Select Task', 'click', {
       taskId: task.id,
     });
     workTrackingService.recordCalculation();
@@ -278,12 +272,9 @@ const SprintBoard: React.FC<SprintBoardProps> = ({
                   }
                 }}
                 onMouseEnter={() => {
-                  clickTrackingService.trackEvent({
-                    type: 'hover',
-                    component: 'SprintBoard',
-                    action: 'hover-column',
-                    target: column.id,
-                    context: { columnId: column.id, taskCount },
+                  clickTrackingService.trackClick('SprintBoard', 'hover-column', 'Hover Column', 'hover', {
+                    columnId: column.id,
+                    taskCount,
                   });
                 }}
               >

@@ -40,6 +40,10 @@ const NodeEditor: React.FC<NodeEditorProps> = ({
     });
   }, []);
 
+  const handleNodePointerDown = useCallback((e: React.PointerEvent, node: VectorNode) => {
+    handleNodeMouseDown(e as any, node);
+  }, [handleNodeMouseDown]);
+
   const handleControlPointMouseDown = useCallback((e: React.MouseEvent, nodeId: string, cpIndex: 1 | 2) => {
     e.stopPropagation();
     setIsDragging(`${nodeId}-cp${cpIndex}`);
@@ -53,6 +57,10 @@ const NodeEditor: React.FC<NodeEditorProps> = ({
       nodeY: cpIndex === 1 ? (node.cy1 ?? node.y) : (node.cy2 ?? node.y)
     });
   }, [nodes]);
+
+  const handleControlPointPointerDown = useCallback((e: React.PointerEvent, nodeId: string, cpIndex: 1 | 2) => {
+    handleControlPointMouseDown(e as any, nodeId, cpIndex);
+  }, [handleControlPointMouseDown]);
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
     if (!isDragging) return;
@@ -68,6 +76,10 @@ const NodeEditor: React.FC<NodeEditorProps> = ({
       onNodeMove(isDragging, dragStart.nodeX + deltaX, dragStart.nodeY + deltaY);
     }
   }, [isDragging, dragStart, zoom, onNodeMove, onControlPointMove]);
+
+  const handlePointerMove = useCallback((e: PointerEvent) => {
+    handleMouseMove(e as any);
+  }, [handleMouseMove]);
 
   const handlePointerUp = useCallback((e: PointerEvent) => {
     setIsDragging(null);

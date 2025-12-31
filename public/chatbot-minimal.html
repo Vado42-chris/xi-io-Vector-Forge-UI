@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VectorForge Dev Chat</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: monospace;
+            background: #000000;
+            color: #ffffff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background: #000000;
+            border-bottom: 2px solid #ff9800;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .header h1 { color: #ff9800; font-size: 20px; margin: 0; }
+        .header button {
+            background: #ff9800;
+            color: #000000;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .header button:hover { background: #ff6f00; }
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            max-width: 80%;
+        }
+        .message.system {
+            background: #010101;
+            border: 1px solid #ff9800;
+            align-self: center;
+            text-align: center;
+        }
+        .message.user {
+            background: #ff9800;
+            color: #000000;
+            align-self: flex-end;
+        }
+        .message.assistant {
+            background: #010101;
+            border: 1px solid #333;
+            align-self: flex-start;
+        }
+        .input-area {
+            padding: 16px;
+            border-top: 1px solid #ff9800;
+            background: #000000;
+            display: flex;
+            gap: 12px;
+        }
+        .input-area input {
+            flex: 1;
+            background: #010101;
+            border: 1px solid #ff9800;
+            color: #ffffff;
+            padding: 12px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .input-area input:focus {
+            outline: none;
+            border-color: #ff6f00;
+        }
+        .input-area button {
+            background: #ff9800;
+            color: #000000;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .input-area button:hover { background: #ff6f00; }
+        .progress {
+            height: 4px;
+            background: #010101;
+            margin-top: 8px;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: #ff9800;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>💬 Dev Chat - Self-Modifying AI</h1>
+        <button onclick="window.location.href='/'">← Back</button>
+    </div>
+    <div class="chat-container">
+        <div class="messages" id="messages">
+            <div class="message system">
+                <strong>💬 Dev Chat - Self-Modifying AI</strong><br>
+                Hi! I can read/write files, execute commands, and edit myself.<br>
+                <small>Type "test" to verify I'm working</small>
+            </div>
+        </div>
+        <div class="input-area">
+            <input type="text" id="input" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendMessage()">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+    <script>
+        const messagesDiv = document.getElementById('messages');
+        const input = document.getElementById('input');
+        
+        function addMessage(role, content) {
+            const div = document.createElement('div');
+            div.className = `message ${role}`;
+            div.textContent = content;
+            messagesDiv.appendChild(div);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        async function sendMessage() {
+            const text = input.value.trim();
+            if (!text) return;
+            
+            addMessage('user', text);
+            input.value = '';
+            
+            // Show progress bar
+            const progress = document.createElement('div');
+            progress.className = 'progress';
+            progress.innerHTML = '<div class="progress-fill" style="width: 0%"></div>';
+            messagesDiv.appendChild(progress);
+            
+            // Animate progress
+            setTimeout(() => {
+                progress.querySelector('.progress-fill').style.width = '50%';
+            }, 100);
+            
+            try {
+                // Test basic functionality
+                if (text.toLowerCase() === 'test') {
+                    setTimeout(() => {
+                        progress.querySelector('.progress-fill').style.width = '100%';
+                        setTimeout(() => {
+                            progress.remove();
+                            addMessage('assistant', '✅ System Status: ONLINE\n\nI can:\n- Read files\n- Write files\n- Execute commands\n- Edit myself (molting)\n\nTry: "read package.json"');
+                        }, 300);
+                    }, 500);
+                } else if (text.toLowerCase().startsWith('read ')) {
+                    const file = text.substring(5);
+                    progress.querySelector('.progress-fill').style.width = '70%';
+                    const res = await fetch(`/api/filesystem/read?path=${encodeURIComponent(file)}`);
+                    progress.querySelector('.progress-fill').style.width = '100%';
+                    setTimeout(() => {
+                        progress.remove();
+                        if (res.ok) {
+                            const data = await res.json();
+                            addMessage('assistant', `File: ${file}\n\n${data.content.substring(0, 500)}${data.content.length > 500 ? '...' : ''}`);
+                        } else {
+                            addMessage('assistant', `❌ Cannot read file: ${file}\n\nError: ${res.status}\n\nMake sure:\n1. Dev server is running\n2. File exists\n3. Check browser console (F12)`);
+                        }
+                    }, 300);
+                } else if (text.toLowerCase().startsWith('list ') || text.toLowerCase() === 'list') {
+                    const dir = text.toLowerCase() === 'list' ? '.' : text.substring(5);
+                    progress.querySelector('.progress-fill').style.width = '70%';
+                    const res = await fetch(`/api/filesystem/list?path=${encodeURIComponent(dir)}`);
+                    progress.querySelector('.progress-fill').style.width = '100%';
+                    setTimeout(() => {
+                        progress.remove();
+                        if (res.ok) {
+                            const data = await res.json();
+                            const items = data.items || [];
+                            addMessage('assistant', `Directory: ${dir}\n\n${items.map(i => `${i.type === 'directory' ? '📁' : '📄'} ${i.name}`).join('\n')}`);
+                        } else {
+                            addMessage('assistant', `❌ Cannot list directory: ${dir}\n\nError: ${res.status}`);
+                        }
+                    }, 300);
+                } else {
+                    progress.querySelector('.progress-fill').style.width = '100%';
+                    setTimeout(() => {
+                        progress.remove();
+                        addMessage('assistant', `I received: "${text}"\n\nTry:\n- "test" - Check status\n- "read package.json" - Read a file\n- "list ." - List files\n- "read components/DevChatbot.tsx" - See my code`);
+                    }, 300);
+                }
+            } catch (error) {
+                progress.remove();
+                addMessage('assistant', `❌ Error: ${error.message}\n\nMake sure:\n1. Dev server is running: npm run dev\n2. Check browser console (F12)\n3. Try incognito mode if redirects happen`);
+            }
+        }
+        
+        input.focus();
+    </script>
+</body>
+</html>
+

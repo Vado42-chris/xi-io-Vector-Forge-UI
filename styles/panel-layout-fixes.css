@@ -1,0 +1,478 @@
+/**
+ * Panel Layout Fixes - Information Architecture Compliance
+ * Fixes broken panels, unorganized tools, and readability issues
+ * 
+ * Information Architecture Principles:
+ * 1. Clear hierarchy (header → content → footer)
+ * 2. Proper spacing (Hallberg Maths)
+ * 3. Readable typography
+ * 4. Organized tool grids
+ * 5. Proper container sizing
+ */
+
+/* ============================================
+   SIDEBAR CONTAINER FIXES
+   ============================================ */
+
+.xibalba-sidebar {
+  /* Proper container sizing */
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-width: 0; /* Allow flex shrinking */
+  max-width: 100%;
+  overflow: hidden; /* Prevent overflow */
+  
+  /* Proper spacing */
+  padding: 0;
+  gap: 0;
+}
+
+/* ============================================
+   TOOL GRID ORGANIZATION
+   ============================================ */
+
+/* Tools Panel - Organized Grid */
+.xibalba-tools-panel {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 8px;
+  padding: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Tool Button Container - Fits properly */
+.xibalba-tool-button-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 80px;
+  min-height: 80px;
+  padding: 8px;
+  gap: 4px;
+  box-sizing: border-box;
+}
+
+/* Tool Label - Readable */
+.xibalba-tool-label {
+  font-size: 11px;
+  font-weight: 500;
+  text-align: center;
+  line-height: 1.2;
+  color: var(--xibalba-text-100);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* Tool Shortcut - Subtle */
+.xibalba-tool-shortcut {
+  font-size: 9px;
+  color: var(--xibalba-text-200);
+  font-family: monospace;
+  text-align: center;
+}
+
+/* ============================================
+   PANEL CONTENT ORGANIZATION
+   ============================================ */
+
+/* Panel Content - Proper Layout */
+.xibalba-panel-content,
+.xibalba-panel-professional {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0; /* Allow flex shrinking */
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Panel Content Inner - Scrollable */
+.xibalba-panel-content-inner {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 12px;
+  gap: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Panel Section - Organized Groups */
+.xibalba-panel-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.xibalba-panel-section:not(:last-child) {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+}
+
+/* Panel Section Header */
+.xibalba-panel-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  margin-bottom: 8px;
+}
+
+.xibalba-panel-section-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--xibalba-text-000);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ============================================
+   FORM CONTROLS ORGANIZATION
+   ============================================ */
+
+/* Form Group - Proper Spacing */
+.xibalba-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Form Row - Horizontal Layout */
+.xibalba-form-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Form Label - Readable */
+.xibalba-form-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--xibalba-text-100);
+  min-width: fit-content;
+  flex-shrink: 0;
+}
+
+/* Form Input - Fits Container */
+.xibalba-form-input {
+  flex: 1;
+  min-width: 0; /* Allow shrinking */
+  box-sizing: border-box;
+}
+
+/* Form Input Group - Multiple Inputs */
+.xibalba-form-input-group {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.xibalba-form-input-group > * {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ============================================
+   RIGHT SIDEBAR CONTENT FIXES
+   ============================================ */
+
+/* Right Sidebar Content Area */
+.xibalba-right-sidebar-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Tab Content - Proper Layout */
+.xibalba-tab-content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 12px;
+  gap: 8px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* ============================================
+   TOOL PROPERTIES PANEL FIXES
+   ============================================ */
+
+/* Tool Properties - Organized */
+.xibalba-tool-properties {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Tool Property Group */
+.xibalba-tool-property-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  background: var(--xibalba-grey-100);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  box-sizing: border-box;
+}
+
+/* Tool Property Row */
+.xibalba-tool-property-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ============================================
+   LAYER PANEL FIXES
+   ============================================ */
+
+/* Layer List - Proper Layout */
+.xibalba-layer-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Layer Item - Fits Container */
+.xibalba-layer-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 8px;
+  width: 100%;
+  min-height: calc(var(--base-unit, 8px) * var(--phi, 1.618) * 2); /* ~25.9px */
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Layer Item Content - Proper Truncation */
+.xibalba-layer-item-content {
+  flex: 1;
+  min-width: 0; /* Allow text truncation */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.xibalba-layer-item-label {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  color: var(--xibalba-text-000);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============================================
+   READABILITY FIXES
+   ============================================ */
+
+/* Text Hierarchy - Clear */
+.xibalba-text-heading {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--xibalba-text-000);
+  line-height: 1.2;
+  margin: 0;
+}
+
+.xibalba-text-subheading {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--xibalba-text-100);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.xibalba-text-body {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--xibalba-text-000);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.xibalba-text-caption {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--xibalba-text-100);
+  line-height: 1.2;
+  margin: 0;
+}
+
+/* Proper Contrast */
+.xibalba-text-primary {
+  color: var(--xibalba-text-000);
+}
+
+.xibalba-text-secondary {
+  color: var(--xibalba-text-100);
+}
+
+.xibalba-text-muted {
+  color: var(--xibalba-text-200);
+}
+
+/* ============================================
+   CONTAINER OVERFLOW FIXES
+   ============================================ */
+
+/* Prevent Overflow */
+.xibalba-container,
+.xibalba-wrapper,
+.xibalba-panel,
+.xibalba-sidebar {
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Allow Scrolling Only Where Needed */
+.xibalba-scrollable {
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--xibalba-grey-300) var(--xibalba-grey-100);
+}
+
+/* ============================================
+   INFORMATION ARCHITECTURE COMPLIANCE
+   ============================================ */
+
+/* Clear Visual Hierarchy */
+.xibalba-ia-primary {
+  /* Primary actions/content */
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--xibalba-text-000);
+}
+
+.xibalba-ia-secondary {
+  /* Secondary information */
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--xibalba-text-100);
+}
+
+.xibalba-ia-tertiary {
+  /* Tertiary/supporting info */
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--xibalba-text-200);
+}
+
+/* Organized Groups */
+.xibalba-ia-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  background: var(--xibalba-grey-100);
+  box-sizing: border-box;
+}
+
+.xibalba-ia-group-header {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--xibalba-text-000);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+/* ============================================
+   RESPONSIVE FIXES
+   ============================================ */
+
+/* Ensure containers respect parent size */
+.xibalba-sidebar,
+.xibalba-panel,
+.xibalba-container {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+/* Prevent content from breaking layout */
+.xibalba-sidebar > *,
+.xibalba-panel > *,
+.xibalba-container > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* ============================================
+   SPECIFIC COMPONENT FIXES
+   ============================================ */
+
+/* Left Sidebar Tools - Organized Grid */
+.left-sidebar-tools {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  padding: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Right Sidebar Content - Proper Layout */
+.right-sidebar-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.right-sidebar-content > * {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Tool Properties - Organized Sections */
+.tool-properties-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  box-sizing: border-box;
+}
+

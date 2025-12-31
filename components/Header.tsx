@@ -37,7 +37,7 @@ const Header: React.FC<HeaderProps> = ({ onAction, credits }) => {
             <span className="material-symbols-outlined text-[var(--xibalba-text-000)] text-[18px] font-bold">polyline</span>
           </div>
           <div className="flex flex-col -space-y-1">
-            <span className="text-[11px] font-black tracking-[0.2em] text-[var(--xibalba-text-000)]">XIBALBA</span>
+            <span className="text-sm font-black tracking-[0.2em] text-[var(--xibalba-text-000)]">XIBALBA</span>
             <span className="text-[13px] font-bold text-[var(--xibalba-text-100)] tracking-tighter">VECTORFORGE</span>
           </div>
         </div>
@@ -49,7 +49,7 @@ const Header: React.FC<HeaderProps> = ({ onAction, credits }) => {
               className="relative h-full"
             >
               <button 
-                className={`xibalba-button px-5 h-full text-[11px] font-black uppercase tracking-widest ${activeMenu === menu.label ? 'xibalba-selected' : ''}`}
+                className={`xibalba-button px-5 h-full text-sm font-black uppercase tracking-widest ${activeMenu === menu.label ? 'xibalba-selected' : ''}`}
                 onMouseEnter={() => setActiveMenu(menu.label)}
                 onMouseLeave={() => setActiveMenu(null)}
               >
@@ -62,7 +62,7 @@ const Header: React.FC<HeaderProps> = ({ onAction, credits }) => {
                     <button 
                       key={item.label}
                       onClick={() => { onAction(item.action); setActiveMenu(null); }}
-                      className="xibalba-interactive w-full text-left px-5 py-2.5 text-[9px] font-black uppercase tracking-widest text-[var(--xibalba-text-secondary)] hover:text-[var(--xibalba-text-[var(--xibalba-text-100)])] flex items-center gap-4"
+                      className="xibalba-interactive w-full text-left px-5 py-2.5 text-xs font-black uppercase tracking-widest text-[var(--xibalba-text-100)] hover:text-[var(--xibalba-text-[var(--xibalba-text-100)])] flex items-center gap-4"
                     >
                       <span className="material-symbols-outlined text-[18px] opacity-70">{item.icon}</span>
                       {item.label}
@@ -79,13 +79,13 @@ const Header: React.FC<HeaderProps> = ({ onAction, credits }) => {
          {/* Credits - Pattern #211: Compact Utility - Grey Panel */}
          <div className="xibalba-panel-elevated flex items-center gap-3 px-4 py-1.5 border border-white/10">
             <div className="size-2 bg-[var(--xibalba-grey-200)] animate-pulse"></div>
-            <span className="text-[10px] font-black text-[var(--xibalba-text-100)] uppercase tracking-widest mono">{credits.toLocaleString()} CORE_LIBS</span>
+            <span className="text-sm font-black text-[var(--xibalba-text-100)] uppercase tracking-widest mono">{credits.toLocaleString()} CORE_LIBS</span>
          </div>
          {/* Execution Status - Grey Text */}
          <div className="flex items-center gap-3 pl-6 border-l border-white/10">
             <div className="flex flex-col items-end -space-y-1 mr-2">
-               <span className="text-[9px] font-bold text-[var(--xibalba-text-100)] uppercase">Execution Layer</span>
-               <span className="text-[8px] font-mono text-[var(--xibalba-text-200)] uppercase">Active_Session</span>
+               <span className="text-xs font-bold text-[var(--xibalba-text-100)] uppercase">Execution Layer</span>
+               <span className="text-xs font-mono text-[var(--xibalba-text-100)] uppercase">Active_Session</span>
             </div>
             <div className="size-9 bg-[var(--xibalba-grey-150)] border border-white/10 overflow-hidden cursor-pointer xibalba-interactive">
                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=IllustrationPro" alt="User" className="w-full h-full object-cover" />

@@ -73,13 +73,14 @@ const InspectorPanel: React.FC<InspectorPanelProps> = ({
       
       // Load linked tasks if this is a VectorForge item
       if ('type' in item && (item.type === 'layer' || item.type === 'keyframe' || item.type === 'canvas')) {
-        const tasks = await vectorForgeTaskLinkService.getTasksLinkedToAsset(item.id, item.type);
-        setLinkedTasks(tasks);
+        // TODO: Implement getTasksLinkedToAsset method
+        // const tasks = await vectorForgeTaskLinkService.getTasksLinkedToAsset(item.id, item.type);
+        setLinkedTasks([]);
       }
       
       // Load linked VectorForge items if this is a task
       if ('status' in item) {
-        const task = item as Task;
+        const task = item;
         if (task.metadata?.relatedVectorForgeItems) {
           // TODO: Load VectorForge items from IDs
           setLinkedVectorForgeItems([]);
@@ -93,7 +94,7 @@ const InspectorPanel: React.FC<InspectorPanelProps> = ({
   };
 
   const handleTabChange = (tab: TabType) => {
-    clickTrackingService.trackClick('InspectorPanel', 'switch-tab', tab, {
+    clickTrackingService.trackClick('InspectorPanel', 'switch-tab', `Switch to ${tab}`, 'click', {
       itemId: item?.id,
       tab,
     });
@@ -104,7 +105,7 @@ const InspectorPanel: React.FC<InspectorPanelProps> = ({
   const handleLink = async (targetId: string, targetType: 'task' | 'vectorforge' | 'timeline') => {
     if (!item) return;
     
-    clickTrackingService.trackClick('InspectorPanel', 'link-item', targetId, {
+    clickTrackingService.trackClick('InspectorPanel', 'link-item', 'Link Item', 'click', {
       sourceId: item.id,
       targetId,
       targetType,
@@ -120,7 +121,7 @@ const InspectorPanel: React.FC<InspectorPanelProps> = ({
   const handleUpdate = (updates: Partial<Task>) => {
     if (!item || !('status' in item)) return;
     
-    clickTrackingService.trackClick('InspectorPanel', 'update-item', item.id, {
+    clickTrackingService.trackClick('InspectorPanel', 'update-item', 'Update Item', 'click', {
       updates,
     });
     workTrackingService.recordCalculation();
@@ -140,9 +141,9 @@ const InspectorPanel: React.FC<InspectorPanelProps> = ({
   }
 
   const isTask = 'status' in item;
-  const task = isTask ? (item as Task) : null;
+  const task = isTask ? (item) : null;
 
-  const tabs: { id: TabType; label: string; icon: string }[] = [
+  const tabs: { id: string; label: string; icon: string }[] = [
     { id: 'details', label: 'Details', icon: 'info' },
     ...(isTask ? [
       { id: 'timeline', label: 'Timeline', icon: 'timeline' },
@@ -159,7 +160,7 @@ const InspectorPanel: React.FC<InspectorPanelProps> = ({
       <div className="xibalba-inspector-panel-header">
         <div className="flex items-center justify-between">
           <h2 className="xibalba-inspector-panel-title">
-            {isTask ? task!.title : (item as VectorForgeItem | TimelineItem).name || 'Item'}
+            {isTask ? task!.title : ('name' in item ? item.name : 'Item')}
           </h2>
           {onClose && (
             <button
@@ -179,7 +180,7 @@ const InspectorPanel: React.FC<InspectorPanelProps> = ({
           <button
             key={tab.id}
             className={`xibalba-inspector-panel-tab ${activeTab === tab.id ? 'active' : ''}`}
-            onClick={() => handleTabChange(tab.id)}
+            onClick={() => handleTabChange(tab.id as TabType)}
             aria-label={tab.label}
           >
             <span className="material-icons text-sm">{tab.icon}</span>
@@ -336,8 +337,8 @@ const InspectorPanel: React.FC<InspectorPanelProps> = ({
                   {task!.comments.map((comment) => (
                     <li key={comment.id} className="xibalba-inspector-panel-comment">
                       <div className="xibalba-inspector-panel-comment-header">
-                        <span>{comment.userId}</span>
-                        <span>{new Date(comment.timestamp).toLocaleString()}</span>
+                        <span>{comment.author?.id || comment.author?.username || 'Unknown'}</span>
+                        <span>{new Date(comment.createdAt).toLocaleString()}</span>
                       </div>
                       <p>{comment.content}</p>
                     </li>

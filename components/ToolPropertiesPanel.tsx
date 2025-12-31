@@ -71,33 +71,40 @@ const ToolPropertiesPanel: React.FC<ToolPropertiesPanelProps> = ({
       switch (activeTool) {
         case 'pen':
           return (
-            <div className="space-y-4">
-              <div>
-                <label className="xibalba-label-professional">Fill</label>
-                <input
-                  type="checkbox"
-                  checked={toolProperties.pen?.fill ?? true}
-                  onChange={(e) => handlePropertyChange('fill', e.target.checked)}
-                  className="xibalba-focus-professional"
-                />
-              </div>
-              <div>
-                <label className="xibalba-label-professional">Stroke</label>
-                <input
-                  type="checkbox"
-                  checked={toolProperties.pen?.stroke ?? true}
-                  onChange={(e) => handlePropertyChange('stroke', e.target.checked)}
-                  className="xibalba-focus-professional"
-                />
-              </div>
-              <div>
-                <label className="xibalba-label-professional">Close Path</label>
-                <input
-                  type="checkbox"
-                  checked={toolProperties.pen?.closePath ?? false}
-                  onChange={(e) => handlePropertyChange('closePath', e.target.checked)}
-                  className="xibalba-focus-professional"
-                />
+            <div className="xibalba-tool-properties tool-properties-container">
+              <div className="xibalba-panel-section">
+                <div className="xibalba-panel-section-header">
+                  <span className="xibalba-panel-section-title">Pen Tool Properties</span>
+                </div>
+                <div className="xibalba-form-group">
+                  <div className="xibalba-form-row">
+                    <label className="xibalba-form-label">Fill</label>
+                    <input
+                      type="checkbox"
+                      checked={toolProperties.pen?.fill ?? true}
+                      onChange={(e) => handlePropertyChange('fill', e.target.checked)}
+                      className="xibalba-focus-professional"
+                    />
+                  </div>
+                  <div className="xibalba-form-row">
+                    <label className="xibalba-form-label">Stroke</label>
+                    <input
+                      type="checkbox"
+                      checked={toolProperties.pen?.stroke ?? true}
+                      onChange={(e) => handlePropertyChange('stroke', e.target.checked)}
+                      className="xibalba-focus-professional"
+                    />
+                  </div>
+                  <div className="xibalba-form-row">
+                    <label className="xibalba-form-label">Close Path</label>
+                    <input
+                      type="checkbox"
+                      checked={toolProperties.pen?.closePath ?? false}
+                      onChange={(e) => handlePropertyChange('closePath', e.target.checked)}
+                      className="xibalba-focus-professional"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           );
@@ -715,9 +722,9 @@ const ToolPropertiesPanel: React.FC<ToolPropertiesPanelProps> = ({
         default:
           return (
             <div className="text-center py-8 opacity-50">
-              <span className="material-symbols-outlined text-4xl mb-2 text-[var(--xibalba-text-200)]">tune</span>
-              <p className="xibalba-text-caption text-[var(--xibalba-text-200)]">Select a tool to configure its properties</p>
-              <p className="xibalba-text-xs text-[var(--xibalba-text-300)] mt-2">Tool: {activeTool}</p>
+              <span className="material-symbols-outlined text-4xl mb-2 text-[var(--xibalba-text-100)]" aria-hidden="true" data-icon="tune"></span>
+              <p className="xibalba-text-caption text-[var(--xibalba-text-100)]">Select a tool to configure its properties</p>
+              <p className="xibalba-text-xs text-[var(--xibalba-text-100)] mt-2">Current tool: <span className="font-semibold">{activeTool}</span></p>
             </div>
           );
       }
@@ -725,8 +732,8 @@ const ToolPropertiesPanel: React.FC<ToolPropertiesPanelProps> = ({
       console.error('Error rendering tool properties:', error);
       return (
         <div className="text-center py-8 opacity-50">
-          <span className="material-symbols-outlined text-4xl mb-2 text-red-400">error</span>
-          <p className="xibalba-text-caption text-red-400">Error loading tool properties</p>
+          <span className="material-symbols-outlined text-4xl mb-2 text-[var(--vectorforge-accent)]" aria-hidden="true" data-icon="error"></span>
+          <p className="xibalba-text-caption text-[var(--vectorforge-accent)]">Error loading tool properties</p>
         </div>
       );
     }
@@ -736,11 +743,13 @@ const ToolPropertiesPanel: React.FC<ToolPropertiesPanelProps> = ({
     <ErrorBoundary
       fallback={
         <div className="xibalba-panel-professional p-4">
-          <p className="xibalba-text-caption text-red-400">Tool properties panel error</p>
+          <p className="xibalba-text-caption text-[var(--vectorforge-accent)]">Tool properties panel error</p>
         </div>
       }
     >
-      <div className={`tool-properties-panel ${className}`}>
+      <div 
+        className={`tool-properties-panel ${className} bg-transparent text-white min-h-[200px] p-4`}
+      >
         {renderToolProperties}
       </div>
     </ErrorBoundary>

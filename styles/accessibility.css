@@ -1,0 +1,118 @@
+/**
+ * Accessibility Styles
+ * Dyslexia-friendly fonts, high contrast, enhanced focus indicators
+ * 
+ * #hashtag: accessibility css
+ */
+
+/* Dyslexia-Friendly Font */
+.dyslexia-font {
+  font-family: 'OpenDyslexic', 'Comic Sans MS', 'Arial', sans-serif;
+  /* OpenDyslexic is loaded via link tag in index.html */
+}
+
+/* High Contrast Mode */
+.high-contrast {
+  --xibalba-text-000: #ffffff;
+  --xibalba-text-200: #ffffff;
+  --xibalba-bg-primary: #000000;
+  --xibalba-bg-secondary: #1a1a1a;
+  --xibalba-accent: #ff9800;
+}
+
+.high-contrast * {
+  border-color: var(--xibalba-text-000) !important;
+}
+
+/* Enhanced Focus Indicators */
+.enhanced-focus *:focus {
+  outline: 3px solid var(--xibalba-accent, #ff9800) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.5) !important;
+}
+
+.enhanced-focus button:focus,
+.enhanced-focus input:focus,
+.enhanced-focus select:focus,
+.enhanced-focus textarea:focus {
+  outline: 3px solid var(--xibalba-accent, #ff9800) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.5) !important;
+}
+
+/* Reduced Motion */
+.reduced-motion *,
+.reduced-motion *::before,
+.reduced-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Screen Reader Only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Accessibility Font Size Override */
+[style*="--accessibility-font-size"] {
+  font-size: var(--accessibility-font-size, 14px) !important;
+}
+
+/* Accessibility Line Height Override */
+[style*="--accessibility-line-height"] {
+  line-height: var(--accessibility-line-height, 1.5) !important;
+}
+
+/* Accessibility Letter Spacing Override */
+[style*="--accessibility-letter-spacing"] {
+  letter-spacing: var(--accessibility-letter-spacing, 0) !important;
+}
+
+/* Color Override */
+[style*="--accessibility-color-override"] {
+  color: var(--accessibility-color-override, inherit) !important;
+}
+
+/* Minimum Touch Target Size */
+button,
+a,
+input[type="button"],
+input[type="submit"],
+input[type="checkbox"],
+input[type="radio"] {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+/* Focus Visible for Keyboard Navigation */
+*:focus-visible {
+  outline: 2px solid var(--xibalba-accent, #ff9800);
+  outline-offset: 2px;
+}
+
+/* Skip Link for Screen Readers */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--xibalba-accent, #ff9800);
+  color: white;
+  padding: 8px;
+  text-decoration: none;
+  z-index: var(--z-tooltip);
+}
+
+.skip-link:focus {
+  top: 0;
+}
+

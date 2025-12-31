@@ -1,5 +1,8 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { AppState, ToolType, VectorLayer, VectorNode, ToolProperties, TextShape } from './types';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { AppState, ToolType, VectorLayer, VectorNode, ToolProperties, TextShape, AnimationKeyframe } from './types';
+// TEMPORARILY DISABLED: useUndoRedo hook causing errors - will fix after UI is working
+// import { useUndoRedo } from './hooks/useUndoRedo';
+import { clipboardService } from './services/clipboardService';
 import ErrorBoundary from './components/ErrorBoundary';
 import ProfessionalFileMenu from './components/ProfessionalFileMenu';
 import LeftSidebar from './components/LeftSidebar';
@@ -7,6 +10,7 @@ import RightSidebar from './components/RightSidebar';
 import ProfessionalLayersPanel from './components/ProfessionalLayersPanel';
 import DraftsmanCanvas from './components/DraftsmanCanvas';
 import PowerUserToolbar from './components/PowerUserToolbar';
+import SignButton from './components/SignButton';
 import AnimationTimeline from './components/AnimationTimeline';
 import Footer from './components/Footer';
 import ToastContainer from './components/ToastContainer';
@@ -25,8 +29,11 @@ import TestGeneratorPanel from './components/TestGeneratorPanel';
 import KeyboardShortcutsPanel from './components/KeyboardShortcutsPanel';
 import GuidedWorkflowPanel from './components/GuidedWorkflowPanel';
 import ActionCenter from './components/ActionCenter';
+import TemplateFrameContainer from './components/TemplateFrameContainer';
+import FloatingDevChatButton from './components/FloatingDevChatButton';
 import { accessibilityService } from './services/accessibilityService';
 import { settingsService } from './services/settingsService';
+import { templateFrameService } from './services/templateFrameService';
 // Gamification Components
 import XPDisplay from './components/XPDisplay';
 import AchievementPanel from './components/AchievementPanel';
@@ -169,6 +176,36 @@ const App: React.FC = () => {
     }
   });
 
+  // TEMPORARILY DISABLED: Undo/redo integration causing errors - will fix after UI is working
+  // const [undoState, undoRedoState] = useUndoRedo<AppState>(state, {
+  //   maxHistorySize: 50,
+  //   debounceMs: 300,
+  // });
+  // const isUndoRedoRef = useRef(false);
+  // useEffect(() => {
+  //   if (isUndoRedoRef.current) {
+  //     setState(undoState);
+  //     isUndoRedoRef.current = false;
+  //   }
+  // }, [undoState]);
+  // const prevStateRef = useRef<AppState>(state);
+  // useEffect(() => {
+  //   if (!isUndoRedoRef.current && JSON.stringify(prevStateRef.current) !== JSON.stringify(state)) {
+  //     undoRedoState.recordState(state);
+  //     prevStateRef.current = state;
+  //   }
+  // }, [state, undoRedoState]);
+  
+  // Temporary stub for undo/redo
+  const undoRedoState = {
+    canUndo: false,
+    canRedo: false,
+    undo: () => {},
+    redo: () => {},
+    recordState: () => {},
+    clearHistory: () => {},
+  };
+
   const [keyframes, setKeyframes] = useState<any[]>([]);
   const [frameState, setFrameState] = useState({
     currentFrame: 0,
@@ -188,18 +225,51 @@ const App: React.FC = () => {
 
   // Workflow layout state
   const [currentLayout, setCurrentLayout] = useState<WorkflowLayout | null>(null);
+  // CRITICAL: Right sidebar MUST be visible by default for Dev Chat access
   const [panelVisibility, setPanelVisibility] = useState<Record<string, boolean>>({
     'left-sidebar': true,
-    'right-sidebar': true,
+    'right-sidebar': true, // MUST be true - Dev Chat is in Right Sidebar
     toolbar: true,
     canvas: true,
     timeline: true,
   });
+  
+  // Debug: Log panel visibility on mount
+  useEffect(() => {
+    console.log('✅ App mounted - Right Sidebar visibility:', panelVisibility['right-sidebar']);
+    // Force right sidebar to be visible if somehow it's not
+    if (!panelVisibility['right-sidebar']) {
+      console.warn('⚠️ Right Sidebar was hidden, forcing it visible for Dev Chat access');
+      setPanelVisibility(prev => ({ ...prev, 'right-sidebar': true }));
+    }
+  }, []);
 
   // Apply accessibility settings on mount
   useEffect(() => {
     const settings = settingsService.getSettings();
     accessibilityService.applySettings(settings.accessibility);
+  }, []);
+
+  // Initialize default template frames
+  useEffect(() => {
+    const existingFrames = templateFrameService.getAllFrames();
+    if (existingFrames.length === 0) {
+      // Create a default template frame
+      templateFrameService.registerFrame({
+        id: 'default-template-frame',
+        name: 'Default Template Frame',
+        containerId: 'template-frame-default',
+        position: {
+          x: 100,
+          y: 100,
+          width: 400,
+          height: 300,
+        },
+        zIndex: 1000,
+        visible: true,
+        attachedComponents: [],
+      });
+    }
   }, []);
 
   // Keyboard shortcuts for UI automation components
@@ -764,8 +834,8 @@ const App: React.FC = () => {
                   setState(prev => ({ ...prev, fileOperationLoading: { type: 'open' } }));
                   try {
                     const text = await file.text();
-                  const data = JSON.parse(text);
-                  if (data.svg && data.layers) {
+                    const data = JSON.parse(text);
+                    if (data.svg && data.layers) {
                     const openData = {
                       ...data,
                       name: file.name,
@@ -849,7 +919,16 @@ const App: React.FC = () => {
               const img = new Image();
               const svgBlob = new Blob([state.currentSvg], { type: 'image/svg+xml' });
               const url = URL.createObjectURL(svgBlob);
+              
+              // Set timeout to prevent stuck loading state
+              const timeoutId = setTimeout(() => {
+                setState(prev => ({ ...prev, fileOperationLoading: { type: null } }));
+                showToast('PNG export timed out', 'error');
+                URL.revokeObjectURL(url);
+              }, 10000); // 10 second timeout
+              
               img.onload = () => {
+                clearTimeout(timeoutId);
                 // eslint-disable-next-line no-case-declarations
                 const canvas = document.createElement('canvas');
                 canvas.width = img.width || 1024;
@@ -867,11 +946,26 @@ const App: React.FC = () => {
                       URL.revokeObjectURL(pngUrl);
                       setState(prev => ({ ...prev, fileOperationLoading: { type: null } }));
                       showToast('PNG exported', 'success');
+                    } else {
+                      setState(prev => ({ ...prev, fileOperationLoading: { type: null } }));
+                      showToast('PNG export failed - could not create blob', 'error');
                     }
+                    URL.revokeObjectURL(url);
                   }, 'image/png');
+                } else {
+                  setState(prev => ({ ...prev, fileOperationLoading: { type: null } }));
+                  showToast('PNG export failed - could not get canvas context', 'error');
+                  URL.revokeObjectURL(url);
                 }
+              };
+              
+              img.onerror = () => {
+                clearTimeout(timeoutId);
+                setState(prev => ({ ...prev, fileOperationLoading: { type: null } }));
+                showToast('PNG export failed - image could not be loaded', 'error');
                 URL.revokeObjectURL(url);
               };
+              
               img.src = url;
             } catch (error) {
               setState(prev => ({ ...prev, fileOperationLoading: { type: null } }));
@@ -1087,8 +1181,8 @@ const App: React.FC = () => {
                   try {
                     if (file.name.endsWith('.xibalba') || file.type === 'application/json') {
                       const text = await file.text();
-                    const data = JSON.parse(text);
-                    if (data.layers && Array.isArray(data.layers)) {
+                      const data = JSON.parse(text);
+                      if (data.layers && Array.isArray(data.layers)) {
                       const importedLayers = data.layers.map((l: VectorLayer) => ({
                         ...l,
                         id: `imported_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -1150,7 +1244,26 @@ const App: React.FC = () => {
               false
             );
             break;
-          case 'EDIT_UNDO':
+          case 'EDIT_UNDO': {
+            // TEMPORARILY DISABLED: Using old undo system until hook is fixed
+            if (state.history && state.history.length > 1) {
+              const prevSvg = state.history[state.history.length - 2];
+              const newHistory = [...state.history];
+              newHistory.pop();
+              setState(prev => ({
+                ...prev,
+                currentSvg: prevSvg,
+                layers: syncLayersFromSvg(prevSvg),
+                history: newHistory,
+                redoHistory: [...prev.redoHistory, prev.currentSvg],
+              }));
+              showToast('Undone', 'success');
+            } else {
+              showToast('Nothing to undo', 'info');
+            }
+            break;
+          }
+          case 'EDIT_UNDO_OLD':
             if (state.history && state.history.length > 1) {
               const prevSvg = state.history[state.history.length - 2];
               const newHistory = [...state.history];
@@ -1165,7 +1278,26 @@ const App: React.FC = () => {
               showToast('Undone', 'success');
             }
             break;
-          case 'EDIT_REDO':
+          case 'EDIT_REDO': {
+            // TEMPORARILY DISABLED: Using old redo system until hook is fixed
+            if (state.redoHistory && state.redoHistory.length > 0) {
+              const nextSvg = state.redoHistory[state.redoHistory.length - 1];
+              const newRedoHistory = [...state.redoHistory];
+              newRedoHistory.pop();
+              setState(prev => ({
+                ...prev,
+                currentSvg: nextSvg,
+                layers: syncLayersFromSvg(nextSvg),
+                history: [...prev.history, nextSvg],
+                redoHistory: newRedoHistory,
+              }));
+              showToast('Redone', 'success');
+            } else {
+              showToast('Nothing to redo', 'info');
+            }
+            break;
+          }
+          case 'EDIT_REDO_OLD':
             if (state.redoHistory && state.redoHistory.length > 0) {
               const nextSvg = state.redoHistory[state.redoHistory.length - 1];
               const newRedoHistory = [...state.redoHistory];
@@ -1180,7 +1312,29 @@ const App: React.FC = () => {
               showToast('Redone', 'success');
             }
             break;
-          case 'EDIT_CUT':
+          case 'EDIT_CUT': {
+            // Copy selected layer/object to clipboard, then delete
+            if (state.selectedLayerId) {
+              const selectedLayer = state.layers.find(l => l.id === state.selectedLayerId);
+              if (selectedLayer) {
+                clipboardService.copy({
+                  type: 'layer',
+                  data: selectedLayer,
+                  timestamp: Date.now(),
+                });
+                setState(prev => ({
+                  ...prev,
+                  layers: prev.layers.filter(l => l.id !== state.selectedLayerId),
+                  selectedLayerId: null,
+                }));
+                showToast('Cut to clipboard', 'success');
+              }
+            } else {
+              showToast('Nothing selected to cut', 'warning');
+            }
+            break;
+          }
+          case 'EDIT_CUT_OLD':
             if (state.selectedLayerId && state.layers) {
               const layer = state.layers.find(l => l.id === state.selectedLayerId);
               if (layer) {
@@ -1192,7 +1346,24 @@ const App: React.FC = () => {
               }
             }
             break;
-          case 'EDIT_COPY':
+          case 'EDIT_COPY': {
+            // Copy selected layer/object to clipboard
+            if (state.selectedLayerId) {
+              const selectedLayer = state.layers.find(l => l.id === state.selectedLayerId);
+              if (selectedLayer) {
+                clipboardService.copy({
+                  type: 'layer',
+                  data: selectedLayer,
+                  timestamp: Date.now(),
+                });
+                showToast('Copied to clipboard', 'success');
+              }
+            } else {
+              showToast('Nothing selected to copy', 'warning');
+            }
+            break;
+          }
+          case 'EDIT_COPY_OLD':
             if (state.selectedLayerId && state.layers) {
               const layer = state.layers.find(l => l.id === state.selectedLayerId);
               if (layer) {
@@ -1202,6 +1373,36 @@ const App: React.FC = () => {
             }
             break;
           case 'EDIT_PASTE': {
+            // Paste from clipboard
+            const clipboardItem = clipboardService.paste();
+            if (clipboardItem) {
+              if (clipboardItem.type === 'layer') {
+                const newLayer = {
+                  ...clipboardItem.data,
+                  id: `layer-${Date.now()}`,
+                  name: `${clipboardItem.data.name} (copy)`,
+                };
+                setState(prev => ({
+                  ...prev,
+                  layers: [...prev.layers, newLayer],
+                  selectedLayerId: newLayer.id,
+                }));
+                showToast('Pasted from clipboard', 'success');
+              } else if (clipboardItem.type === 'text') {
+                // Handle text paste
+                const text = await clipboardService.pasteFromSystemClipboard();
+                if (text) {
+                  showToast(`Pasted text: ${text.substring(0, 20)}...`, 'success');
+                }
+              } else {
+                showToast('Unsupported clipboard format', 'warning');
+              }
+            } else {
+              showToast('Clipboard is empty', 'warning');
+            }
+            break;
+          }
+          case 'EDIT_PASTE_OLD': {
             void (async () => {
               try {
                 const text = await navigator.clipboard.readText();
@@ -1286,6 +1487,17 @@ const App: React.FC = () => {
           case 'VIEW_SHOW_RULERS':
             setState(prev => ({ ...prev, showRulers: !prev.showRulers }));
             showToast(state.showRulers ? 'Rulers hidden' : 'Rulers shown', 'info');
+            break;
+          case 'VIEW_DEV_CHAT':
+          case 'WINDOW_DEV_CHAT':
+            // Open Dev Chat - ensure right sidebar is visible and switch to Dev Chat tab
+            setPanelVisibility(prev => ({ ...prev, 'right-sidebar': true }));
+            if (typeof window !== 'undefined' && (window as any).__switchToDevChatTab) {
+              setTimeout(() => {
+                (window as any).__switchToDevChatTab();
+              }, 100);
+            }
+            showToast('Opening Dev Chat (Ctrl+K)', 'info');
             break;
           case 'VIEW_ERROR_DASHBOARD':
             setShowErrorDashboard(true);
@@ -1703,8 +1915,23 @@ const App: React.FC = () => {
 
       // UI Automation shortcuts
       if (ctrlOrCmd) {
-        // Ctrl+K or Cmd+K - Open Keyboard Shortcuts Panel
+        // Ctrl+K or Cmd+K - Open Dev Chat (Self-Modifying AI)
         if (e.key === 'k' || e.key === 'K') {
+          e.preventDefault();
+          // Ensure right sidebar is visible
+          setPanelVisibility(prev => ({ ...prev, 'right-sidebar': true }));
+          // Switch to Dev Chat tab
+          if (typeof window !== 'undefined' && (window as any).__switchToDevChatTab) {
+            setTimeout(() => {
+              (window as any).__switchToDevChatTab();
+            }, 100);
+          }
+          // Show toast notification
+          showToast('Opening Dev Chat (Ctrl+K)', 'info');
+          return;
+        }
+        // Ctrl+Shift+K or Cmd+Shift+K - Open Keyboard Shortcuts Panel
+        if (e.shiftKey && (e.key === 'k' || e.key === 'K')) {
           e.preventDefault();
           setShowKeyboardShortcuts(true);
           return;
@@ -1762,18 +1989,30 @@ const App: React.FC = () => {
     <ErrorBoundary>
       <div
         className="relative w-screen h-screen text-[var(--xibalba-text-000)] font-sans overflow-hidden bg-[var(--xibalba-grey-000)]"
-        style={{
-          '--sidebar-left-width': panelVisibility['left-sidebar'] ? '320px' : '0px',
-          '--sidebar-right-width': panelVisibility['right-sidebar'] ? '360px' : '0px',
-        } as React.CSSProperties}
+        data-sidebar-left-visible={panelVisibility['left-sidebar'] ? 'true' : 'false'}
+        data-sidebar-right-visible={panelVisibility['right-sidebar'] ? 'true' : 'false'}
       >
         {/* Header with File Menu - Fixed at top */}
         <ErrorBoundary>
-          <ProfessionalFileMenu 
-          onAction={handleAction} 
-          onLayoutChange={handleLayoutChange}
-          fileOperationLoading={state.fileOperationLoading}
-        />
+          <div className="flex items-center w-full">
+            <ProfessionalFileMenu 
+              onAction={handleAction} 
+              onLayoutChange={handleLayoutChange}
+            />
+            <div className="ml-auto mr-4">
+              <SignButton
+                svgContent={state.currentSvg}
+                onSigned={(bundlePath) => {
+                  showToast(`✅ Proof bundle created: ${bundlePath}`, 'success');
+                }}
+                onError={(error) => {
+                  showToast(`❌ Signing failed: ${error}`, 'error');
+                }}
+                label="Sign & Create Proof"
+                className="text-sm"
+              />
+            </div>
+          </div>
         </ErrorBoundary>
 
         {/* Left Sidebar - Fixed position (positioned via CSS class) */}
@@ -1792,6 +2031,7 @@ const App: React.FC = () => {
         {/* Right Sidebar - Fixed position (positioned via CSS class) */}
         {panelVisibility['right-sidebar'] && (
           <ErrorBoundary>
+            {/* CRITICAL: Right Sidebar MUST be visible and expanded for Dev Chat access */}
             <RightSidebar
               layers={state.layers || []}
               selectedLayerId={state.selectedLayerId}
@@ -2131,6 +2371,7 @@ const App: React.FC = () => {
             layers={state.layers}
             presets={[]}
             onApplyPreset={(preset, layerId) => {
+              if (!layerId) return; // Skip if no layer selected
               const startKeyframe: AnimationKeyframe = {
                 id: `kf-${Date.now()}`,
                 frame: frameState.currentFrame,
@@ -2151,6 +2392,10 @@ const App: React.FC = () => {
               // Switch to Scripts tab in RightSidebar
               showToast('Switch to Scripts tab to edit animation scripts', 'info');
             }}
+            onImportFromStudio={() => {
+              // Placeholder for import functionality
+              showToast('Import from Animation Studio - Coming soon', 'info');
+            }}
           />
         </ErrorBoundary>
 
@@ -2170,6 +2415,28 @@ const App: React.FC = () => {
             <XPDisplay compact={true} showLevel={true} showProgress={true} />
           </div>
         </ErrorBoundary>
+
+        {/* Template Frame Container */}
+        <ErrorBoundary>
+          <TemplateFrameContainer />
+        </ErrorBoundary>
+
+        {/* Floating Dev Chat Button - Always Visible */}
+        <ErrorBoundary>
+          <FloatingDevChatButton
+            onOpen={() => {
+              // Ensure right sidebar is visible
+              setPanelVisibility(prev => ({ ...prev, 'right-sidebar': true }));
+              // Switch to Dev Chat tab
+              if (typeof window !== 'undefined' && (window as any).__switchToDevChatTab) {
+                setTimeout(() => {
+                  (window as any).__switchToDevChatTab();
+                }, 100);
+              }
+              showToast('Opening Dev Chat', 'info');
+            }}
+          />
+        </ErrorBoundary>
       </div>
 
       {/* Toast Notifications */}
@@ -2186,6 +2453,29 @@ const App: React.FC = () => {
             setShowWelcome(false);
             localStorage.setItem('vforge_welcome_dismissed', 'true');
             showToast('Tutorial coming soon!', 'info');
+          }}
+          onNewFile={() => {
+            handleAction('FILE_NEW');
+            showToast('New file created', 'success');
+          }}
+          onSave={() => {
+            handleAction('FILE_SAVE');
+            showToast('File saved', 'success');
+          }}
+          onSelectTool={(tool) => {
+            setState(prev => ({ ...prev, activeTool: tool }));
+            showToast(`Switched to ${tool} tool`, 'info');
+          }}
+          onOpenLayers={() => {
+            // Ensure right sidebar is visible and switch to layers tab
+            setPanelVisibility(prev => ({ ...prev, 'right-sidebar': true }));
+            // Switch to layers tab via window method
+            if (typeof window !== 'undefined' && (window as any).__switchToLayersTab) {
+              setTimeout(() => {
+                (window as any).__switchToLayersTab();
+              }, 100);
+            }
+            showToast('Layers panel opened', 'info');
           }}
         />
       )}

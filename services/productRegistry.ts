@@ -184,7 +184,7 @@ class ProductRegistry {
   /**
    * Load registry from localStorage
    */
-  private loadRegistry(): void {
+  public loadRegistry(): void {
     if (typeof window !== 'undefined') {
       try {
         const stored = localStorage.getItem('productRegistry');

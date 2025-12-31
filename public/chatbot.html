@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VectorForge Dev Chat - Self-Modifying AI</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', monospace;
+            background: #000000;
+            color: #ffffff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .header {
+            background: #010101;
+            border-bottom: 2px solid #ff9800;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .header h1 {
+            color: #ff9800;
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0;
+        }
+        .header button {
+            background: #ff9800;
+            color: #000000;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        .header button:hover {
+            background: #ff6f00;
+        }
+        .content {
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .progress-container {
+            width: 400px;
+            height: 8px;
+            background: #010101;
+            border: 1px solid #ff9800;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: #ff9800;
+            animation: progress 2s forwards;
+        }
+        @keyframes progress {
+            to { width: 100%; }
+        }
+        .status {
+            color: #ff9800;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>💬 Dev Chat - Self-Modifying AI</h1>
+        <button onclick="window.location.href='/'">← Back to App</button>
+    </div>
+    <div class="content" id="root">
+        <div class="loading">
+            <div class="status">Loading Dev Chat...</div>
+            <div class="progress-container">
+                <div class="progress-fill"></div>
+            </div>
+        </div>
+    </div>
+    <script type="module">
+        // Load React and DevChatbot
+        import React from 'https://esm.sh/react@18';
+        import ReactDOM from 'https://esm.sh/react-dom@18/client';
+        import { DevChatbot } from '/components/DevChatbot.tsx';
+        
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(React.createElement(DevChatbot));
+    </script>
+    <script>
+        // Fallback: If React doesn't load, show error
+        setTimeout(() => {
+            const root = document.getElementById('root');
+            if (root.querySelector('.loading')) {
+                root.innerHTML = `
+                    <div class="loading">
+                        <div class="status">❌ React failed to load</div>
+                        <div style="color: #999; margin-top: 20px;">
+                            <p>Try: <a href="/" style="color: #ff9800;">Main App</a></p>
+                            <p>Or: <a href="/verify.html" style="color: #ff9800;">Verification Page</a></p>
+                        </div>
+                    </div>
+                `;
+            }
+        }, 5000);
+    </script>
+</body>
+</html>
+

@@ -3,7 +3,7 @@
  * Tool properties, Object inspector, Layers, History
  */
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { VectorLayer, ToolType, ToolProperties, AnimationKeyframe, FrameState, AppState } from '../types';
 import ToolPropertiesPanel from './ToolPropertiesPanel';
 import ProfessionalLayersPanel from './ProfessionalLayersPanel';
@@ -15,6 +15,14 @@ import ContextualHelpPanel from './ContextualHelpPanel';
 import Tooltip from './Tooltip';
 import MCPSettings from './MCPSettings';
 import TerminalSettings from './TerminalSettings';
+import FileBrowser from './FileBrowser';
+import Terminal from './Terminal';
+import DevChatbot from './DevChatbot';
+import DevChatTestSimple from './DevChatTestSimple';
+import { usePanelResize } from '../hooks/usePanelResize';
+import { useClickTracking } from '../hooks/useClickTracking';
+import { TabSystem } from './shared/TabSystem';
+import { IconButton } from './shared/IconButton';
 
 interface RightSidebarProps {
   layers: VectorLayer[];
@@ -55,6 +63,10 @@ interface RightSidebarProps {
   state?: AppState;
   setState?: React.Dispatch<React.SetStateAction<AppState>>;
   onScriptGenerated?: (script: string) => void;
+  // Terminal command handler
+  onTerminalCommand?: (cmd: string) => void;
+  // Conversation history
+  onShowConversationHistory?: () => void;
 }
 
 const RightSidebar: React.FC<RightSidebarProps> = ({
@@ -67,10 +79,20 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
   onExpandAppearance, onCreateOutlines,
   snapshots, onRestoreSnapshot,
   keyframes, frameState, onScriptChange, onScriptExecute,
-  state, setState, onScriptGenerated, onTerminalCommand
+  state, setState,   onScriptGenerated, onTerminalCommand, onShowConversationHistory
 }) => {
   const selectedLayer = layers.find(l => l.id === selectedLayerId);
-  const [activeRightTab, setActiveRightTab] = useState<'tool' | 'inspector' | 'layers' | 'scripts' | 'chat' | 'console' | 'engine' | 'registry' | 'checkpoints' | 'help'>('tool');
+  // Default to Dev Chat tab for easy access - ALWAYS devchat on mount
+  const [activeRightTab, setActiveRightTab] = useState<'tool' | 'inspector' | 'layers' | 'scripts' | 'chat' | 'console' | 'engine' | 'registry' | 'checkpoints' | 'help' | 'files' | 'terminal' | 'devchat' | 'tasks'>('devchat');
+  
+  // Debug: Log when RightSidebar renders
+  useEffect(() => {
+    console.log('✅ RightSidebar mounted - Dev Chat tab should be active');
+    console.log('✅ Active tab:', activeRightTab);
+  }, [activeRightTab]);
+  
+  // TRACKING: Patent-safe click tracking
+  const { trackClick } = useClickTracking({ componentName: 'RightSidebar' });
   const [showTerminalSettings, setShowTerminalSettings] = useState(false);
   const [terminalInput, setTerminalInput] = useState('');
   
@@ -79,76 +101,37 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
     // This will be triggered externally when needed
   }, []);
 
-  // Expose method to switch to scripts tab (can be called from parent)
+  // Expose methods to switch tabs (can be called from parent)
   useEffect(() => {
-    // Store reference for external access if needed
+    // Store references for external access if needed
     (window as any).__switchToScriptsTab = () => setActiveRightTab('scripts');
+    (window as any).__switchToLayersTab = () => setActiveRightTab('layers');
+    (window as any).__switchToDevChatTab = () => setActiveRightTab('devchat');
   }, []);
-  const [isResizing, setIsResizing] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const [width, setWidth] = useState(360);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const dragStartPos = useRef({ x: 0, y: 0 });
-  const sidebarRef = useRef<HTMLDivElement>(null);
-  const resizeHandleRef = useRef<HTMLDivElement>(null);
 
-  // Resize handling
-  const handleResizeStart = (e: React.PointerEvent) => {
-    if (resizeHandleRef.current?.contains(e.target as Node)) {
-      setIsResizing(true);
-      (e.target as HTMLElement).setPointerCapture(e.pointerId);
-      e.preventDefault();
-    }
-  };
+  // REUSE: Extract common resize/drag logic to shared hook
+  const {
+    width,
+    isCollapsed,
+    setIsCollapsed,
+    sidebarRef,
+    resizeHandleRef,
+    handleResizeStart,
+    handleDragStart,
+  } = usePanelResize({
+    defaultWidth: 360,
+    minWidth: 200,
+    maxWidth: 600,
+    side: 'right',
+  });
 
-  // Use window-level pointer events for proper dragging/resizing
+  // CRITICAL: Force sidebar to be expanded on mount (for Dev Chat access)
   useEffect(() => {
-    const handlePointerMove = (e: PointerEvent) => {
-      if (isResizing) {
-        const newWidth = window.innerWidth - e.clientX;
-        if (newWidth >= 200 && newWidth <= 600) {
-          setWidth(newWidth);
-        }
-      } else if (isDragging) {
-        setPosition({ x: e.clientX - dragStartPos.current.x, y: e.clientY - dragStartPos.current.y });
-      }
-    };
-
-    const handlePointerUp = (e: PointerEvent) => {
-      if (isResizing && e.target instanceof HTMLElement) {
-        e.target.releasePointerCapture(e.pointerId);
-      }
-      setIsResizing(false);
-      setIsDragging(false);
-    };
-
-    if (isResizing || isDragging) {
-      window.addEventListener('pointermove', handlePointerMove);
-      window.addEventListener('pointerup', handlePointerUp);
-      return () => {
-        window.removeEventListener('pointermove', handlePointerMove);
-        window.removeEventListener('pointerup', handlePointerUp);
-      };
+    if (isCollapsed) {
+      console.log('⚠️ Right Sidebar was collapsed, forcing it expanded for Dev Chat access');
+      setIsCollapsed(false);
     }
-  }, [isResizing, isDragging, dragStartPos]);
-
-  const handleResizeEnd = (e: React.PointerEvent) => {
-    if (isResizing && e.target instanceof HTMLElement) {
-      e.target.releasePointerCapture(e.pointerId);
-    }
-    setIsResizing(false);
-    setIsDragging(false);
-  };
-
-  const handleDragStart = (e: React.PointerEvent) => {
-    if (resizeHandleRef.current?.contains(e.target as Node)) {
-      return; // Don't drag when resizing
-    }
-    setIsDragging(true);
-    dragStartPos.current = { x: e.clientX - position.x, y: e.clientY - position.y };
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
-    e.preventDefault();
-  };
+  }, [isCollapsed, setIsCollapsed]);
 
   const renderParametricControls = () => {
     if (!selectedLayer || selectedLayer.shape.type !== 'rect' || !onUpdateShapeProperty) return null;
@@ -205,81 +188,58 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
     );
   };
 
-  // Update CSS variables for positioning - FIXED: Ensure proper fixed positioning
-  useEffect(() => {
-    if (sidebarRef.current) {
-      sidebarRef.current.style.setProperty('--sidebar-width', `${width}px`);
-      sidebarRef.current.style.setProperty('--sidebar-right', `${position.x}px`);
-      sidebarRef.current.style.setProperty('--sidebar-top', `${position.y}px`);
-      // Ensure it's positioned correctly relative to viewport
-      const headerHeight = 48; // Approximate header height
-      sidebarRef.current.style.setProperty('--sidebar-top', `${headerHeight}px`);
-      sidebarRef.current.style.setProperty('--sidebar-height', `calc(100vh - ${headerHeight}px)`);
-    }
-  }, [width, position]);
+  // Update CSS variables for positioning - REUSE: Now handled by usePanelResize hook
 
   return (
-    <div 
-      ref={sidebarRef}
-      className="flex flex-col min-h-0 shrink-0 sidebar-right-positioned xibalba-dockable-palette z-sidebar-right"
-      onPointerDown={handleDragStart}
-      data-palette-id="right-sidebar"
-    >
-      {/* Resize Handle - Visible drag handle */}
+        <div 
+          ref={sidebarRef}
+          className="flex flex-col min-h-0 shrink-0 xibalba-dockable-palette sidebar-fixed-right bg-[var(--xibalba-grey-050)]"
+          onPointerDown={handleDragStart}
+          data-palette-id="right-sidebar"
+          data-sidebar-right-width={width}
+          data-sidebar-width={width}
+        >
+      {/* Resize Handle - Always Visible */}
       <Tooltip content="Drag to resize sidebar" position="right">
         <div
           ref={resizeHandleRef}
-          onPointerDown={handleResizeStart}
-          className="absolute left-0 top-0 bottom-0 w-2 cursor-col-resize bg-[var(--xibalba-grey-200)] hover:bg-[var(--xibalba-text-100)] opacity-60 hover:opacity-100 transition-opacity z-sidebar-resize-handle border-r border-white/10"
+          onPointerDown={(e) => {
+            trackClick('resize-handle', 'drag');
+            handleResizeStart(e);
+          }}
+          className="absolute left-0 top-0 bottom-0 w-2 cursor-col-resize bg-[var(--xibalba-grey-200)] hover:bg-[var(--xibalba-accent)] opacity-40 hover:opacity-100 transition-all z-sidebar-resize-handle z-[1000]"
         />
       </Tooltip>
 
-      {/* Improved Tab Layout - Grouped by category for better UX */}
-      <div className="shrink-0 border-b border-white/10">
-        {/* Primary Tabs - Most Used */}
-        <div className="xibalba-tabs-professional">
-          {[
+      {/* REUSE: Using TabSystem component */}
+      <div className="shrink-0">
+        <TabSystem
+          tabs={[
+            // DEV CHAT FIRST - Most important, always visible
+            { id: 'devchat', label: '💬 Dev Chat', icon: 'chat', tooltip: 'Dev Chat - AI assistant with file and CLI access (PRIORITY)', category: 'system' },
             { id: 'tool', label: 'Tool', icon: 'tune', tooltip: 'Tool Properties - Adjust settings for the active tool', category: 'primary' },
             { id: 'inspector', label: 'Object', icon: 'deployed_code', tooltip: 'Object Inspector - View and edit selected object properties', category: 'primary' },
             { id: 'layers', label: 'Layers', icon: 'layers', tooltip: 'Layers - Manage document layers and hierarchy', category: 'primary' },
-            { id: 'scripts', label: 'Scripts', icon: 'code', tooltip: 'Scripts - Edit animation scripts and hashtag commands', category: 'primary' }
-          ].map((tab) => (
-            <button 
-              key={tab.id}
-              onClick={() => setActiveRightTab(tab.id as any)}
-              className={`xibalba-tab-professional ${activeRightTab === tab.id ? 'active' : ''}`}
-              title={tab.tooltip}
-            >
-              <span className="material-symbols-outlined text-[14px] mr-1.5">{tab.icon}</span>
-              <span className="text-[11px] font-medium">{tab.label}</span>
-            </button>
-          ))}
-        </div>
-        
-        {/* Secondary Tabs - System & Help */}
-        <div className="xibalba-tabs-professional border-t border-white/5 bg-[var(--xibalba-grey-050)]">
-          {[
-            { id: 'console', label: 'Console', icon: 'terminal', tooltip: 'Terminal Console - Execute commands and view logs', category: 'system' },
+            { id: 'scripts', label: 'Scripts', icon: 'code', tooltip: 'Scripts - Edit animation scripts and hashtag commands', category: 'primary' },
+            { id: 'files', label: 'Files', icon: 'folder', tooltip: 'File Browser - Browse and edit files visually', category: 'system' },
+            { id: 'terminal', label: 'Terminal', icon: 'terminal', tooltip: 'Terminal - Execute commands safely', category: 'system' },
+            { id: 'console', label: 'Console', icon: 'code', tooltip: 'Terminal Console - Execute commands and view logs', category: 'system' },
             { id: 'engine', label: 'Engine', icon: 'settings_input_component', tooltip: 'MCP Engine - Configure AI and MCP settings', category: 'system' },
             { id: 'chat', label: 'AI Chat', icon: 'smart_toy', tooltip: 'AI Chat - Get help and generate scripts with AI', category: 'system' },
             { id: 'registry', label: 'Registry', icon: 'apps', tooltip: 'Registry - Browse components, services, and tools', category: 'system' },
             { id: 'checkpoints', label: 'History', icon: 'history', tooltip: 'History - View and restore document snapshots', category: 'system' },
-            { id: 'help', label: 'Help', icon: 'help', tooltip: 'Help - Contextual help and documentation', category: 'help' }
-          ].map((tab) => (
-            <button 
-              key={tab.id}
-              onClick={() => setActiveRightTab(tab.id as any)}
-              className={`xibalba-tab-professional text-[10px] py-1.5 ${activeRightTab === tab.id ? 'active' : ''}`}
-              title={tab.tooltip}
-            >
-              <span className="material-symbols-outlined text-[12px] mr-1">{tab.icon}</span>
-              <span className="text-[10px]">{tab.label}</span>
-            </button>
-          ))}
-        </div>
+            { id: 'help', label: 'Help', icon: 'help', tooltip: 'Help - Contextual help and documentation', category: 'help' },
+          ]}
+          activeTab={activeRightTab}
+          onTabChange={(tabId) => setActiveRightTab(tabId as any)}
+          grouped={true}
+          className="bg-[var(--xibalba-grey-050)]"
+        />
       </div>
 
-      <div className="flex-1 overflow-y-auto xibalba-scrollbar p-6 min-h-0">
+              <div 
+                className="xibalba-right-sidebar-content xibalba-tab-content xibalba-scrollable bg-[var(--xibalba-grey-050)] text-[var(--xibalba-text-000)]"
+              >
         {activeRightTab === 'tool' ? (
           <ToolPropertiesPanel
             activeTool={activeTool}
@@ -287,44 +247,44 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
             onPropertiesChange={onToolPropertiesChange}
           />
         ) : activeRightTab === 'inspector' ? (
-          <div className="space-y-6 xibalba-animate-fade-in">
+          <div className="xibalba-panel-content-inner">
             {selectedLayer ? (
               <>
-                <div className="xibalba-panel-professional">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex-1">
-                      <label className="xibalba-label-professional" htmlFor="layer-name-input">Node Address</label>
+                <div className="xibalba-panel-section xibalba-ia-group">
+                  <div className="xibalba-ia-group-header">Object Properties</div>
+                  <div className="xibalba-form-group">
+                    <div className="xibalba-form-row">
+                      <label className="xibalba-form-label" htmlFor="layer-name-input">Node Address</label>
                       <input 
                         id="layer-name-input"
-                        className="xibalba-input-professional w-full text-base font-semibold"
+                        className="xibalba-form-input xibalba-input-professional"
                         value={selectedLayer.name}
                         onChange={(e) => onRenameLayer(selectedLayer.id, e.target.value)}
                         aria-label="Layer name"
                       />
                     </div>
-                    <div className="flex items-center gap-2 ml-4">
-                      <button 
-                        onClick={() => onDuplicateLayer(selectedLayer.id)} 
-                        className="xibalba-toolbar-button-professional"
-                        title="Duplicate"
-                      >
-                        <span className="material-symbols-outlined text-[18px]">content_copy</span>
-                      </button>
-                      <button 
-                        onClick={() => onDeleteLayer(selectedLayer.id)} 
-                        className="xibalba-toolbar-button-professional delete-button-text"
-                        title="Delete"
-                      >
-                        <span className="material-symbols-outlined text-[18px]">delete</span>
-                      </button>
+                    <div className="xibalba-form-row xibalba-form-row-actions">
+                      <IconButton
+                        icon="content_copy"
+                        onClick={() => onDuplicateLayer(selectedLayer.id)}
+                        tooltip="Duplicate"
+                        size="md"
+                      />
+                      <IconButton
+                        icon="delete"
+                        onClick={() => onDeleteLayer(selectedLayer.id)}
+                        tooltip="Delete"
+                        variant="danger"
+                        size="md"
+                      />
                     </div>
                   </div>
                   
-                  <div className="space-y-6">
+                  <div className="xibalba-form-group">
                     <Tooltip content="Fill Color - Set the fill color for the selected object" position="left">
-                      <div>
-                        <label className="xibalba-label-professional">Fill Color</label>
-                        <div className="flex items-center gap-4">
+                      <div className="xibalba-form-group">
+                        <label className="xibalba-form-label">Fill Color</label>
+                        <div className="xibalba-form-input-group">
                           <div 
                             ref={(node) => {
                               if (node && selectedLayer) {
@@ -335,7 +295,7 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
                           >
                             <input 
                               type="color" 
-                              value={selectedLayer.color || '#ffffff'}
+                              value={selectedLayer.color || 'var(--xibalba-text-000)'}
                               onChange={(e) => onUpdateProperty(selectedLayer.id, 'color', e.target.value)}
                               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                               aria-label="Fill color picker"
@@ -343,19 +303,19 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
                           </div>
                           <input
                             type="text"
-                            value={selectedLayer.color || '#ffffff'}
+                            value={selectedLayer.color || 'var(--xibalba-text-000)'}
                             onChange={(e) => onUpdateProperty(selectedLayer.id, 'color', e.target.value)}
                             className="xibalba-input-professional flex-1"
-                            placeholder="#ffffff"
+                            placeholder="var(--xibalba-text-000)"
                           />
                         </div>
                       </div>
                     </Tooltip>
 
                     <Tooltip content="Stroke Color - Set the stroke (outline) color for the selected object" position="left">
-                      <div>
-                        <label className="xibalba-label-professional">Stroke Color</label>
-                        <div className="flex items-center gap-4">
+                      <div className="xibalba-form-group">
+                        <label className="xibalba-form-label">Stroke Color</label>
+                        <div className="xibalba-form-input-group">
                           <div 
                             ref={(node) => {
                               if (node && selectedLayer) {
@@ -383,24 +343,24 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
                       </div>
                     </Tooltip>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="xibalba-form-input-group">
                       <Tooltip content="Stroke Width - Set the thickness of the stroke (outline) in pixels" position="left">
-                        <div>
-                          <label className="xibalba-label-professional">Stroke Width</label>
+                        <div className="xibalba-form-group">
+                          <label className="xibalba-form-label">Stroke Width</label>
                           <input
                             type="number"
                             min="0"
                             step="0.1"
                             value={selectedLayer.strokeWidth || 0}
                             onChange={(e) => onUpdateProperty(selectedLayer.id, 'strokeWidth', parseFloat(e.target.value) || 0)}
-                            className="xibalba-input-professional w-full"
+                            className="xibalba-form-input xibalba-input-professional"
                             placeholder="0"
                           />
                         </div>
                       </Tooltip>
                       <Tooltip content="Opacity - Set the transparency of the object (0 = transparent, 1 = opaque)" position="left">
-                        <div>
-                          <label className="xibalba-label-professional">Opacity</label>
+                        <div className="xibalba-form-group">
+                          <label className="xibalba-form-label">Opacity</label>
                           <input
                             type="number"
                             min="0"
@@ -413,7 +373,7 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
                                 onUpdateProperty(selectedLayer.id, 'opacity', val);
                               }
                             }}
-                            className="xibalba-input-professional w-full"
+                            className="xibalba-form-input xibalba-input-professional"
                             placeholder="1"
                           />
                         </div>
@@ -426,8 +386,8 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
               </>
             ) : (
               <div className="text-center py-8 opacity-50">
-                <span className="material-symbols-outlined text-4xl mb-2 text-[var(--xibalba-text-200)]">deployed_code</span>
-                <p className="xibalba-text-caption text-[var(--xibalba-text-200)]">No object selected</p>
+                <span className="material-symbols-outlined text-4xl mb-2 text-[var(--xibalba-text-100)]">deployed_code</span>
+                <p className="xibalba-text-caption text-[var(--xibalba-text-100)]">No object selected</p>
               </div>
             )}
           </div>
@@ -480,6 +440,27 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
               onExecute={onScriptExecute}
             />
           </ErrorBoundary>
+        ) : activeRightTab === 'files' ? (
+          <ErrorBoundary>
+            <FileBrowser
+              onFileSelect={(path) => {
+                // File selected - implement file opening logic
+              }}
+            />
+          </ErrorBoundary>
+        ) : activeRightTab === 'terminal' ? (
+          <ErrorBoundary>
+            <Terminal />
+          </ErrorBoundary>
+        ) : activeRightTab === 'devchat' ? (
+          <ErrorBoundary>
+            <DevChatbot
+              onFileSelect={(path) => {
+                setActiveRightTab('files');
+              }}
+              onShowHistory={onShowConversationHistory}
+            />
+          </ErrorBoundary>
         ) : activeRightTab === 'chat' && state && setState && onScriptGenerated ? (
           <ErrorBoundary>
             <AIChatbot
@@ -494,15 +475,13 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
               }
               onScriptGenerated={onScriptGenerated}
               onExecuteScript={onScriptExecute}
-              state={state}
-              setState={setState}
             />
           </ErrorBoundary>
         ) : activeRightTab === 'registry' ? (
           <ErrorBoundary>
             <RegistryBrowser
               onSelectEntry={(entry) => {
-                console.log('Selected registry entry:', entry);
+                // Registry entry selected - implement registry logic
               }}
             />
           </ErrorBoundary>
@@ -518,7 +497,7 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
         ) : activeRightTab === 'console' ? (
           <div className="flex flex-col h-full animate-in slide-in-from-left-4">
             {/* Terminal Settings Toggle */}
-            <div className="shrink-0 p-4 border-b border-white/10 flex items-center justify-between">
+            <div className="shrink-0 p-4 flex items-center justify-between">
               <span className="xibalba-text-subheading">Terminal Console</span>
               <Tooltip content="Terminal Settings - Configure terminal behavior and appearance" position="left">
                 <button
@@ -533,20 +512,20 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
 
             {/* Terminal Settings Panel */}
             {showTerminalSettings && (
-              <div className="shrink-0 border-b border-white/10 max-h-[60vh] overflow-y-auto xibalba-scrollbar">
+              <div className="shrink-0 max-h-[60vh] overflow-y-auto xibalba-scrollbar">
                 <TerminalSettings />
               </div>
             )}
 
             {/* Terminal Console */}
-            <div className="flex-1 flex flex-col p-6 mono text-[10px] min-h-0">
+            <div className="flex-1 flex flex-col p-6 mono text-sm min-h-0">
               <div className="flex-1 space-y-2 overflow-y-auto custom-scrollbar mb-4">
                  {state?.terminalLogs?.map(log => (
                    <div key={log.id} className="flex gap-3">
-                      <span className="text-[var(--xibalba-text-300)] select-none">{new Date(log.timestamp).toLocaleTimeString([], { hour12: false })}</span>
-                      <span className={log.type === 'error' ? 'text-red-400' : log.type === 'success' ? 'text-[var(--xibalba-text-100)]' : 'text-[var(--xibalba-text-000)]'}>{log.text}</span>
+                      <span className="text-[var(--xibalba-text-100)] select-none">{new Date(log.timestamp).toLocaleTimeString([], { hour12: false })}</span>
+                      <span className={log.type === 'error' ? 'text-[var(--vectorforge-accent)]' : log.type === 'success' ? 'text-[var(--xibalba-text-100)]' : 'text-[var(--xibalba-text-000)]'}>{log.text}</span>
                    </div>
-                 )) || <div className="text-[var(--xibalba-text-300)]">No terminal logs yet</div>}
+                 )) || <div className="text-[var(--xibalba-text-100)]">No terminal logs yet</div>}
               </div>
               <input 
                 type="text" 
@@ -571,15 +550,14 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
           <ErrorBoundary>
             <ContextualHelpPanel
               context={{
-                activeTool: activeTool,
-                selectedObjectId: selectedLayerId,
+                activeTool,
+                selectedObjectId: selectedLayerId || undefined,
                 activeWorkflow: 'vectorforge',
                 hasError: false,
               }}
               maxPriority="P1"
               onHelpClick={(elementId) => {
-                console.log('Help clicked:', elementId);
-                // TODO: Navigate to help content or open help dialog
+                // Help clicked - implement help navigation
               }}
             />
           </ErrorBoundary>

@@ -84,8 +84,8 @@ class TaskManagementService implements ITaskManagementService {
         if (filters.search) params.search = filters.search;
       }
 
-      const tasks = await apiService.get<Task[]>('/api/tasks', params);
-      return tasks || [];
+      const response = await apiService.get<Task[]>('/api/tasks', params);
+      return response.data || [];
     } catch (error) {
       console.error('Failed to get tasks:', error);
       return [];
@@ -97,8 +97,8 @@ class TaskManagementService implements ITaskManagementService {
    */
   async getTask(id: string): Promise<Task | null> {
     try {
-      const task = await apiService.get<Task>(`/api/tasks/${id}`);
-      return task || null;
+      const response = await apiService.get<Task>(`/api/tasks/${id}`);
+      return response.data || null;
     } catch (error) {
       console.error(`Failed to get task ${id}:`, error);
       return null;
@@ -110,7 +110,8 @@ class TaskManagementService implements ITaskManagementService {
    */
   async createTask(task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>): Promise<Task> {
     try {
-      const newTask = await apiService.post<Task>('/api/tasks', task);
+      const response = await apiService.post<Task>('/api/tasks', task);
+      const newTask = response.data;
       
       await checkpointService.createCheckpoint(
         `task-created-${newTask.id}`,
@@ -131,7 +132,8 @@ class TaskManagementService implements ITaskManagementService {
    */
   async updateTask(id: string, updates: Partial<Task>): Promise<Task> {
     try {
-      const updatedTask = await apiService.post<Task>(`/api/tasks/${id}`, updates);
+      const response = await apiService.post<Task>(`/api/tasks/${id}`, updates);
+      const updatedTask = response.data;
       
       await checkpointService.createCheckpoint(
         `task-updated-${id}`,
@@ -193,8 +195,8 @@ class TaskManagementService implements ITaskManagementService {
         if (filters.departmentId) params.departmentId = filters.departmentId;
       }
 
-      const sprints = await apiService.get<Sprint[]>('/api/sprints', params);
-      return sprints || [];
+      const response = await apiService.get<Sprint[]>('/api/sprints', params);
+      return response.data || [];
     } catch (error) {
       console.error('Failed to get sprints:', error);
       return [];
@@ -206,8 +208,8 @@ class TaskManagementService implements ITaskManagementService {
    */
   async getSprint(id: string): Promise<Sprint | null> {
     try {
-      const sprint = await apiService.get<Sprint>(`/api/sprints/${id}`);
-      return sprint || null;
+      const response = await apiService.get<Sprint>(`/api/sprints/${id}`);
+      return response.data || null;
     } catch (error) {
       console.error(`Failed to get sprint ${id}:`, error);
       return null;
@@ -219,7 +221,8 @@ class TaskManagementService implements ITaskManagementService {
    */
   async createSprint(sprint: Omit<Sprint, 'id' | 'createdAt' | 'updatedAt'>): Promise<Sprint> {
     try {
-      const newSprint = await apiService.post<Sprint>('/api/sprints', sprint);
+      const response = await apiService.post<Sprint>('/api/sprints', sprint);
+      const newSprint = response.data;
       
       await checkpointService.createCheckpoint(
         `sprint-created-${newSprint.id}`,
@@ -240,7 +243,8 @@ class TaskManagementService implements ITaskManagementService {
    */
   async updateSprint(id: string, updates: Partial<Sprint>): Promise<Sprint> {
     try {
-      const updatedSprint = await apiService.post<Sprint>(`/api/sprints/${id}`, updates);
+      const response = await apiService.post<Sprint>(`/api/sprints/${id}`, updates);
+      const updatedSprint = response.data;
       
       await checkpointService.createCheckpoint(
         `sprint-updated-${id}`,
@@ -280,8 +284,8 @@ class TaskManagementService implements ITaskManagementService {
    */
   async getSprintTasks(sprintId: string): Promise<Task[]> {
     try {
-      const tasks = await apiService.get<Task[]>(`/api/sprints/${sprintId}/tasks`);
-      return tasks || [];
+      const response = await apiService.get<Task[]>(`/api/sprints/${sprintId}/tasks`);
+      return response.data || [];
     } catch (error) {
       console.error(`Failed to get sprint tasks for ${sprintId}:`, error);
       return [];
@@ -302,8 +306,8 @@ class TaskManagementService implements ITaskManagementService {
         if (filters.departmentId) params.departmentId = filters.departmentId;
       }
 
-      const projects = await apiService.get<Project[]>('/api/projects', params);
-      return projects || [];
+      const response = await apiService.get<Project[]>('/api/projects', params);
+      return response.data || [];
     } catch (error) {
       console.error('Failed to get projects:', error);
       return [];
@@ -315,8 +319,8 @@ class TaskManagementService implements ITaskManagementService {
    */
   async getProject(id: string): Promise<Project | null> {
     try {
-      const project = await apiService.get<Project>(`/api/projects/${id}`);
-      return project || null;
+      const response = await apiService.get<Project>(`/api/projects/${id}`);
+      return response.data || null;
     } catch (error) {
       console.error(`Failed to get project ${id}:`, error);
       return null;
@@ -328,7 +332,8 @@ class TaskManagementService implements ITaskManagementService {
    */
   async createProject(project: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>): Promise<Project> {
     try {
-      const newProject = await apiService.post<Project>('/api/projects', project);
+      const response = await apiService.post<Project>('/api/projects', project);
+      const newProject = response.data;
       
       await checkpointService.createCheckpoint(
         `project-created-${newProject.id}`,
@@ -349,7 +354,8 @@ class TaskManagementService implements ITaskManagementService {
    */
   async updateProject(id: string, updates: Partial<Project>): Promise<Project> {
     try {
-      const updatedProject = await apiService.post<Project>(`/api/projects/${id}`, updates);
+      const response = await apiService.post<Project>(`/api/projects/${id}`, updates);
+      const updatedProject = response.data;
       
       await checkpointService.createCheckpoint(
         `project-updated-${id}`,

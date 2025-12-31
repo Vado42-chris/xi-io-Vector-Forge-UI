@@ -32,7 +32,15 @@ class ErrorLogger {
 
   constructor() {
     this.sessionId = this.generateSessionId();
-    this.setupGlobalErrorHandlers();
+    // Lazy initialization - defer error handler setup to prevent blocking
+    if (typeof window !== 'undefined') {
+      try {
+        this.setupGlobalErrorHandlers();
+      } catch (error) {
+        console.error('ErrorLogger: Failed to setup handlers:', error);
+        // Continue without global handlers (non-critical)
+      }
+    }
   }
 
   /**

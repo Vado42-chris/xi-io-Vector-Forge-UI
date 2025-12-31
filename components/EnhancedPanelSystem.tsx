@@ -55,7 +55,7 @@ const GroupingIndicator: React.FC<{
   const getGroupingClasses = () => {
     if (!isGrouped) return '';
     
-    const classes = [];
+    const classes: string[] = [];
     if (indicator === 'border' || indicator === 'all') {
       classes.push('panel-group-border');
     }
@@ -215,10 +215,10 @@ export const PanelGroupManager: React.FC<{
         >
           {/* Group Header */}
           <div className="xibalba-panel-group-header flex items-center justify-between px-3 py-2 bg-[var(--xibalba-grey-100)] border-b border-white/10">
-            <span className="xibalba-text-subheading text-[9px] font-black uppercase tracking-widest">
+            <span className="xibalba-text-subheading text-xs font-black uppercase tracking-widest">
               {group.title}
             </span>
-            <span className="xibalba-text-caption text-[8px] text-[var(--xibalba-text-200)]">
+            <span className="xibalba-text-caption text-xs text-[var(--xibalba-text-100)]">
               {group.panels.length} {group.panels.length === 1 ? 'panel' : 'panels'}
             </span>
           </div>

@@ -1,0 +1,45 @@
+/* Floating Dev Chat Button - Always Visible */
+.floating-dev-chat-button {
+  position: fixed;
+  bottom: 96px; /* 24 * 4 = 96px (bottom-24) */
+  right: 16px; /* 4 * 4 = 16px (right-4) */
+  z-index: 99999;
+  background: var(--vectorforge-accent, #ff9800);
+  color: white;
+  border-radius: 9999px; /* rounded-full */
+  padding: 16px; /* p-4 */
+  box-shadow: 0 4px 20px rgba(255, 152, 0, 0.6);
+  transition: all 200ms;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.floating-dev-chat-button:hover {
+  background: var(--vectorforge-accent-hover, #f57c00);
+  transform: scale(1.1);
+}
+
+.floating-dev-chat-button:active {
+  transform: scale(0.95);
+}
+
+.floating-dev-chat-button .material-symbols-outlined {
+  font-size: 24px; /* text-2xl */
+}
+
+.floating-dev-chat-button-tooltip {
+  position: absolute;
+  top: -48px; /* -top-12 */
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--xibalba-grey-300, #2a2a2a);
+  color: white;
+  font-size: 12px; /* text-xs */
+  padding: 4px 12px; /* px-3 py-1 */
+  border-radius: 4px;
+  white-space: nowrap;
+}
+

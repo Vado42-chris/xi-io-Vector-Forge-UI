@@ -10,7 +10,7 @@
 
 import React from 'react';
 
-export interface ButtonProps {
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   /** Button label text */
   label?: string;
   /** Icon name (Material Symbols) */

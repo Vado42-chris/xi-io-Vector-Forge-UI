@@ -118,11 +118,11 @@ const BugReporter: React.FC<BugReporterProps> = ({ onClose, onReportSubmitted })
         <h3 className="text-lg font-black text-[var(--xibalba-text-000)] mb-2">
           Bug Report Submitted
         </h3>
-        <p className="text-sm text-[var(--xibalba-text-200)] mb-4">
+        <p className="text-sm text-[var(--xibalba-text-100)] mb-4">
           Thank you for reporting this issue!
         </p>
         {bugId && (
-          <p className="text-xs text-[var(--xibalba-text-300)] font-mono">
+          <p className="text-xs text-[var(--xibalba-text-100)] font-mono">
             Bug ID: {bugId}
           </p>
         )}
@@ -153,7 +153,7 @@ const BugReporter: React.FC<BugReporterProps> = ({ onClose, onReportSubmitted })
         {/* Title */}
         <div>
           <label className="xibalba-label-professional mb-1 block">
-            Title <span className="text-red-400">*</span>
+            Title <span className="text-[var(--vectorforge-accent)]">*</span>
           </label>
           <input
             type="text"
@@ -168,7 +168,7 @@ const BugReporter: React.FC<BugReporterProps> = ({ onClose, onReportSubmitted })
         {/* Description */}
         <div>
           <label className="xibalba-label-professional mb-1 block">
-            Description <span className="text-red-400">*</span>
+            Description <span className="text-[var(--vectorforge-accent)]">*</span>
           </label>
           <textarea
             value={description}
@@ -268,7 +268,7 @@ const BugReporter: React.FC<BugReporterProps> = ({ onClose, onReportSubmitted })
             value={browserInfo}
             readOnly
             rows={8}
-            className="xibalba-input-professional w-full resize-none bg-[var(--xibalba-grey-200)] text-[var(--xibalba-text-200)] font-mono text-[10px]"
+            className="xibalba-input-professional w-full resize-none bg-[var(--xibalba-grey-200)] text-[var(--xibalba-text-100)] font-mono text-sm"
           />
         </div>
 

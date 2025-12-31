@@ -115,8 +115,8 @@ const TerminalSettings: React.FC<TerminalSettingsProps> = ({ onConfigChange }) =
         {testResult && (
           <div className={`p-3 rounded border ${
             testResult.success 
-              ? 'bg-green-500/10 border-green-500/30 text-green-400' 
-              : 'bg-red-500/10 border-red-500/30 text-red-400'
+              ? 'bg-[var(--vectorforge-accent)]/10 border-[var(--vectorforge-accent)]/30 text-[var(--vectorforge-accent)]' 
+              : 'bg-[var(--vectorforge-accent)]/10 border-[var(--vectorforge-accent)]/30 text-[var(--vectorforge-accent)]'
           }`}>
             <span className="xibalba-text-caption">{testResult.message}</span>
           </div>

@@ -55,7 +55,12 @@ export interface AccessibilityPreferences {
   voiceCommands: boolean;
   switchControl: boolean;
   reducedMotion: boolean;
-  fontSize: number; // Override base font size
+  fontSize: number; // Override base font size (12px - 24px)
+  dyslexiaFont: boolean; // OpenDyslexic font
+  lineSpacing: number; // 1.0 - 2.0
+  letterSpacing: number; // normal - 0.2em
+  colorOverride: string; // High contrast color picker
+  enhancedFocusIndicators: boolean; // Enhanced focus rings
 }
 
 export interface IntegrationPreferences {
@@ -119,6 +124,11 @@ const DEFAULT_SETTINGS: UserSettings = {
     switchControl: false,
     reducedMotion: false,
     fontSize: 14,
+    dyslexiaFont: false,
+    lineSpacing: 1.5,
+    letterSpacing: 0,
+    colorOverride: '#ffffff',
+    enhancedFocusIndicators: false,
   },
   integrations: {
     mcpEnabled: false,
@@ -252,6 +262,13 @@ class SettingsService {
   updateAccessibilityPreferences(preferences: Partial<AccessibilityPreferences>): void {
     this.settings.accessibility = { ...this.settings.accessibility, ...preferences };
     this.saveSettings();
+    // Apply accessibility settings immediately
+    // Use dynamic import to avoid circular dependency
+    import('./accessibilityService').then(({ accessibilityService }) => {
+      accessibilityService.applySettings(this.settings.accessibility);
+    }).catch((error) => {
+      console.warn('Failed to apply accessibility settings:', error);
+    });
   }
 
   /**

@@ -1,0 +1,10 @@
+{
+  "id": "react-component",
+  "name": "React Component",
+  "description": "React component with TypeScript and error boundary",
+  "category": "components",
+  "tags": ["react", "typescript", "component"],
+  "icon": "⚛️",
+  "code": "import React from 'react';\nimport ErrorBoundary from './ErrorBoundary';\n\ninterface {{ComponentName}}Props {\n  // Props\n}\n\nconst {{ComponentName}}: React.FC<{{ComponentName}}Props> = (props) => {\n  return (\n    <ErrorBoundary>\n      <div className=\"{{component-name}}\">\n        {/* Component content */}\n      </div>\n    </ErrorBoundary>\n  );\n};\n\nexport default {{ComponentName}};"
+}
+

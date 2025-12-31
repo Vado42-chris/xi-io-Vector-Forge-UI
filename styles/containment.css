@@ -1,0 +1,83 @@
+/**
+ * Component Containment Styles
+ * Ensures components are properly isolated and don't leak styles
+ * 
+ * #hashtag: component-isolation containment
+ */
+
+/* Panel Containment - For major UI panels */
+.panel {
+  position: relative;
+  isolation: isolate;
+  contain: layout paint;
+  overflow: hidden;
+}
+
+/* Component Containment - For all components */
+.component {
+  position: relative;
+  isolation: isolate;
+  contain: layout style paint;
+  z-index: 0; /* Within parent's z-stack group */
+}
+
+/* Prevent style bleeding */
+.panel *,
+.component * {
+  position: relative;
+  z-index: auto;
+}
+
+/* Container boundaries */
+.panel,
+.component {
+  box-sizing: border-box;
+}
+
+/* Sidebar Containment */
+.sidebar {
+  position: relative;
+  isolation: isolate;
+  contain: layout paint;
+  z-index: var(--z-surface, 100);
+}
+
+/* Timeline Containment */
+.timeline {
+  position: relative;
+  isolation: isolate;
+  contain: layout paint;
+  z-index: var(--z-timeline-collapsed, 40);
+}
+
+.timeline.expanded {
+  z-index: var(--z-timeline-expanded, 100);
+}
+
+/* Canvas Containment */
+.canvas-container {
+  position: relative;
+  isolation: isolate;
+  contain: layout paint;
+  z-index: var(--z-canvas, 10);
+}
+
+/* Modal Containment */
+.modal {
+  position: relative;
+  isolation: isolate;
+  contain: layout paint;
+  z-index: var(--z-modal, 1000);
+}
+
+/* Prevent z-index leaks from children */
+.panel > *,
+.component > *,
+.sidebar > *,
+.timeline > *,
+.canvas-container > *,
+.modal > * {
+  position: relative;
+  z-index: auto;
+}
+

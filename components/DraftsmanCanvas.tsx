@@ -4,12 +4,15 @@
  * NO INLINE STYLES - Component-based platform
  */
 
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react';
 import { ToolType, VectorLayer, AnimationKeyframe, FrameState, MeasurementUnit, VectorNode } from '../types';
 import ProfessionalRulers from './ProfessionalRulers';
 import TransformHandles from './TransformHandles';
 import NodeEditor from './NodeEditor';
 import ErrorBoundary from './ErrorBoundary';
+import { createCanvasCoordinateConverter, screenToWorld } from '../utils/coordinateConverter';
+import { CoordinateConverter } from '../lib/ourmaths/CoordinateFrame';
+import { BrushToolComponent } from './tools/BrushTool';
 
 interface DraftsmanCanvasProps {
   svgContent: string;
@@ -48,6 +51,7 @@ const DraftsmanCanvas: React.FC<DraftsmanCanvasProps> = ({
   const canvasRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const canvasContentRef = useRef<HTMLDivElement>(null);
+  const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [guides, setGuides] = useState<Array<{ id: string; type: 'h' | 'v'; position: number }>>([]);
@@ -58,6 +62,42 @@ const DraftsmanCanvas: React.FC<DraftsmanCanvasProps> = ({
   const canvasWidth = 1920;
   const canvasHeight = 1080;
   const zoomScale = zoom / 100;
+
+  // Create coordinate converter for canvas
+  const coordinateConverter = useMemo(() => {
+    if (!canvasContentRef.current) return null;
+    const rect = canvasContentRef.current.getBoundingClientRect();
+    // Only create converter if canvas has valid dimensions
+    if (rect.width === 0 || rect.height === 0) return null;
+    return createCanvasCoordinateConverter(pan, zoom, rect);
+  }, [pan, zoom, canvasSize.width, canvasSize.height]);
+
+  // Update coordinate converter when canvas dimensions change
+  useEffect(() => {
+    if (!canvasContentRef.current) return;
+    
+    const updateSize = () => {
+      const rect = canvasContentRef.current?.getBoundingClientRect();
+      if (rect && (rect.width !== canvasSize.width || rect.height !== canvasSize.height)) {
+        setCanvasSize({ width: rect.width, height: rect.height });
+      }
+    };
+
+    // Initial size check
+    updateSize();
+
+    // Use ResizeObserver to detect canvas size changes
+    const resizeObserver = new ResizeObserver(updateSize);
+    resizeObserver.observe(canvasContentRef.current);
+
+    // Also listen for window resize
+    window.addEventListener('resize', updateSize);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', updateSize);
+    };
+  }, [canvasSize.width, canvasSize.height]);
 
   // Update CSS variables for dynamic styles
   useEffect(() => {
@@ -101,13 +141,14 @@ const DraftsmanCanvas: React.FC<DraftsmanCanvasProps> = ({
   }, [snapToGuides, guides]);
 
   // Get canvas coordinates from screen coordinates
+  // MIGRATED: Now uses ourmaths coordinate frame system
   const getCanvasCoords = useCallback((clientX: number, clientY: number) => {
-    if (!canvasContentRef.current) return { x: 0, y: 0 };
+    if (!canvasContentRef.current || !coordinateConverter) {
+      return { x: 0, y: 0 };
+    }
     const rect = canvasContentRef.current.getBoundingClientRect();
-    const x = (clientX - rect.left - pan.x - (rect.width / 2)) / zoomScale;
-    const y = (clientY - rect.top - pan.y - (rect.height / 2)) / zoomScale;
-    return { x, y };
-  }, [pan, zoomScale]);
+    return screenToWorld(clientX, clientY, coordinateConverter, rect);
+  }, [coordinateConverter]);
 
   // Handle Canvas Interactions
   const handlePointerDown = (e: React.PointerEvent) => {
@@ -171,7 +212,8 @@ const DraftsmanCanvas: React.FC<DraftsmanCanvasProps> = ({
       if (clickedLayer) {
         onSelectLayer(clickedLayer.id);
       } else {
-        onSelectLayer(null);
+        // Clear selection - onSelectLayer doesn't accept null, so we pass empty string
+        onSelectLayer('');
       }
       e.preventDefault();
       return;
@@ -225,8 +267,8 @@ const DraftsmanCanvas: React.FC<DraftsmanCanvasProps> = ({
               name: `Rectangle ${layers.length + 1}`,
               visible: true,
               locked: false,
-              color: toolProperties?.fill || 'var(--xibalba-text-000, #ffffff)',
-              stroke: toolProperties?.stroke || 'var(--xibalba-grey-000, #000000)',
+              color: toolProperties?.fill || 'var(--xibalba-text-000)',
+              stroke: toolProperties?.stroke || 'var(--xibalba-accent)',
               strokeWidth: toolProperties?.strokeWidth || 1,
               opacity: toolProperties?.opacity || 1,
               blendMode: 'normal',
@@ -262,8 +304,8 @@ const DraftsmanCanvas: React.FC<DraftsmanCanvasProps> = ({
             name: `Ellipse ${layers.length + 1}`,
             visible: true,
             locked: false,
-            color: toolProperties?.ellipse?.fill !== false ? (toolProperties.fill || 'var(--xibalba-text-000, #ffffff)') : 'none',
-            stroke: toolProperties?.ellipse?.stroke !== false ? (toolProperties.stroke || 'var(--xibalba-grey-000, #000000)') : 'none',
+            color: toolProperties?.ellipse?.fill !== false ? (toolProperties.fill || 'var(--xibalba-text-000)') : 'none',
+            stroke: toolProperties?.ellipse?.stroke !== false ? (toolProperties.stroke || 'var(--xibalba-accent)') : 'none',
             strokeWidth: toolProperties?.strokeWidth || 1,
             opacity: toolProperties?.opacity || 1,
             blendMode: 'normal',
@@ -289,8 +331,8 @@ const DraftsmanCanvas: React.FC<DraftsmanCanvasProps> = ({
             name: `${activeTool.charAt(0).toUpperCase() + activeTool.slice(1)} ${layers.length + 1}`,
             visible: true,
             locked: false,
-            color: toolProperties?.pen?.fill !== false ? (toolProperties.fill || 'var(--xibalba-text-000, #ffffff)') : 'none',
-            stroke: toolProperties?.pen?.stroke !== false ? (toolProperties.stroke || 'var(--xibalba-grey-000, #000000)') : 'none',
+            color: toolProperties?.pen?.fill !== false ? (toolProperties.fill || 'var(--xibalba-text-000)') : 'none',
+            stroke: toolProperties?.pen?.stroke !== false ? (toolProperties.stroke || 'var(--xibalba-accent)') : 'none',
             strokeWidth: toolProperties?.strokeWidth || 1,
             opacity: toolProperties?.opacity || 1,
             blendMode: 'normal',
@@ -348,14 +390,15 @@ const DraftsmanCanvas: React.FC<DraftsmanCanvasProps> = ({
   return (
     <div
       ref={containerRef}
-      className="w-full h-full relative bg-[var(--xibalba-grey-000)] overflow-hidden canvas-container z-canvas"
+      className="w-full h-full relative overflow-hidden canvas-container bg-[var(--xibalba-grey-000)] min-h-[500px] flex flex-col"
+      data-cursor-type={activeTool === 'select' ? 'default' : activeTool === 'pen' ? 'crosshair' : 'default'}
       onPointerDown={handlePointerDown}
       onWheel={handleWheel}
     >
       {/* Orange Glow Backlight */}
       <div className="canvas-backlight" />
       
-      {/* Construction Paper Texture Layer */}
+      {/* Construction Paper Texture Layer - Isolated to canvas only */}
       <div className="construction-paper-layer" />
       {/* Professional Rulers with Real Measurements */}
       <ProfessionalRulers
@@ -370,48 +413,46 @@ const DraftsmanCanvas: React.FC<DraftsmanCanvasProps> = ({
       {/* Canvas Area - Draftsman's Table */}
       <div
         ref={canvasRef}
-        className={`absolute top-8 left-8 right-0 bottom-0 overflow-hidden canvas-area ${getCursorClass()}`}
+        className={`absolute inset-0 overflow-hidden canvas-area ${getCursorClass()}`}
       >
-        {/* Grid Background */}
-        {snapToGrid && (
-          <div
-            ref={gridRef}
-            className="absolute inset-0 pointer-events-none grid-background"
-          />
-        )}
+        {/* Grid Background - Always show grid for visibility */}
+        <div
+          ref={gridRef}
+          className={`absolute inset-0 pointer-events-none grid-background ${snapToGrid ? 'opacity-100' : 'opacity-30'}`}
+        />
 
         {/* Guides */}
         {showGuides && guides.map(guide => {
-          const GuideComponent: React.FC = () => {
-            const guideRef = useRef<HTMLDivElement>(null);
-            useEffect(() => {
-              if (guideRef.current) {
-                const position = guide.position * zoomScale + (guide.type === 'v' ? pan.x : pan.y);
-                guideRef.current.style.setProperty('--guide-position-' + (guide.type === 'v' ? 'x' : 'y'), `${position}px`);
-              }
-            }, [guide.position, zoomScale, pan, guide.type]);
-            
-            return (
-              <div
-                ref={guideRef}
-                className={`absolute pointer-events-none z-40 ${guide.type === 'v' ? 'guide-line-vertical' : 'guide-line-horizontal'}`}
-              />
-            );
-          };
-          
-          return <GuideComponent key={guide.id} />;
+          const position = guide.position * zoomScale + (guide.type === 'v' ? pan.x : pan.y);
+          return (
+            <div
+              key={guide.id}
+              ref={(node) => {
+                if (node) {
+                  node.style.setProperty('--guide-position-' + (guide.type === 'v' ? 'x' : 'y'), `${position}px`);
+                }
+              }}
+              className={`absolute pointer-events-none zstack-guides ${guide.type === 'v' ? 'guide-line-vertical' : 'guide-line-horizontal'}`}
+            />
+          );
         })}
 
         {/* Canvas Content */}
         <div
           ref={canvasContentRef}
-          className="absolute bg-[var(--xibalba-grey-050)] canvas-content-wrapper"
+          className="absolute inset-0 canvas-content-wrapper bg-[var(--xibalba-grey-050)] min-w-full min-h-full block"
         >
           <svg
             viewBox={`0 0 ${canvasWidth} ${canvasHeight}`}
             width={canvasWidth}
             height={canvasHeight}
-            className="canvas-svg"
+            ref={(node) => {
+              if (node) {
+                node.style.setProperty('--svg-min-width', '800px');
+                node.style.setProperty('--svg-min-height', '600px');
+              }
+            }}
+            className="canvas-svg block w-full h-full min-w-[var(--svg-min-width)] min-h-[var(--svg-min-height)]"
           >
             {/* FIXED: Recursive rendering function for groups and children - moved outside map for proper closure */}
             {(() => {
@@ -602,7 +643,7 @@ const DraftsmanCanvas: React.FC<DraftsmanCanvasProps> = ({
                         />
                         {/* Node Editor for Direct Selection Tool - FIXED: Added null checks and error boundary */}
                         {selectedLayerId === layerToRender.id && activeTool === 'direct-select' && shape.nodes && Array.isArray(shape.nodes) && shape.nodes.length > 0 && (
-                          <ErrorBoundary fallback={<div className="text-xs text-red-400">Node editor error</div>}>
+                          <ErrorBoundary fallback={<div className="text-xs text-[var(--vectorforge-accent)]">Node editor error</div>}>
                             <NodeEditor
                               nodes={shape.nodes.filter(n => n && typeof n.x === 'number' && typeof n.y === 'number')}
                               zoom={zoomScale * 100}
@@ -718,18 +759,18 @@ const DraftsmanCanvas: React.FC<DraftsmanCanvasProps> = ({
           
           {/* Empty State - Show when no layers */}
           {layers.length === 0 && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="text-center opacity-40">
-                <span className="material-symbols-outlined text-6xl mb-4 text-[var(--xibalba-text-200)] block">
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+              <div className="text-center opacity-80">
+                <span className="material-symbols-outlined text-6xl mb-4 text-[var(--xibalba-text-000)] block">
                   gesture
                 </span>
-                <p className="text-lg font-semibold text-[var(--xibalba-text-200)] mb-2">
+                <p className="text-lg font-semibold text-[var(--xibalba-text-000)] mb-2">
                   Start Creating
                 </p>
-                <p className="text-sm text-[var(--xibalba-text-300)]">
+                <p className="text-sm text-[var(--xibalba-text-200)]">
                   Select a tool and draw on the canvas
                 </p>
-                <div className="mt-4 flex items-center justify-center gap-2 text-xs text-[var(--xibalba-text-300)]">
+                <div className="mt-4 flex items-center justify-center gap-2 text-xs text-[var(--xibalba-text-200)]">
                   <span className="font-mono bg-[var(--xibalba-grey-100)] px-2 py-1 rounded">P</span>
                   <span>Pen</span>
                   <span className="mx-2">•</span>
@@ -772,7 +813,7 @@ const DraftsmanCanvas: React.FC<DraftsmanCanvasProps> = ({
           const selectedLayer = layers.find(l => l.id === selectedLayerId);
           if (!selectedLayer) return null;
           return (
-            <ErrorBoundary fallback={<div className="text-xs text-red-400">Transform handles error</div>}>
+            <ErrorBoundary fallback={<div className="text-xs text-[var(--vectorforge-accent)]">Transform handles error</div>}>
               <TransformHandles
                 key={selectedLayer.id}
                 layer={selectedLayer}
@@ -829,6 +870,88 @@ const DraftsmanCanvas: React.FC<DraftsmanCanvasProps> = ({
           );
         })()}
 
+        {/* Brush Tool Integration */}
+        {activeTool === 'brush' && containerRef.current && (
+          <BrushToolComponent
+            canvasRef={containerRef}
+            config={{
+              minWidth: toolProperties?.brush?.minWidth || 2,
+              maxWidth: toolProperties?.brush?.maxWidth || 20,
+              pressureSensitivity: toolProperties?.brush?.pressureSensitivity || 0.7,
+              smoothing: toolProperties?.brush?.smoothing || 0.3,
+              color: toolProperties?.color || '#ff9800',
+              opacity: toolProperties?.opacity || 1.0,
+            }}
+            onStrokeComplete={(stroke) => {
+              // Convert BrushStroke to VectorLayer
+              const layer: VectorLayer = {
+                id: stroke.id,
+                name: `Brush ${layers.length + 1}`,
+                visible: true,
+                locked: false,
+                color: stroke.color,
+                stroke: 'none',
+                strokeWidth: (stroke.minWidth + stroke.maxWidth) / 2,
+                opacity: stroke.opacity,
+                blendMode: 'normal',
+                shape: {
+                  type: 'path',
+                  nodes: stroke.points.map((p, i) => ({
+                    id: `node_${i}_${stroke.id}`,
+                    type: i === 0 ? 'move' : 'line',
+                    x: p.x,
+                    y: p.y,
+                  })),
+                },
+              };
+              onCreateLayer(layer);
+            }}
+            active={activeTool === 'brush'}
+            shortcut="B"
+          />
+        )}
+        {activeTool === 'brush' && (
+          <BrushToolComponent
+            canvasRef={canvasRef}
+            config={{
+              minWidth: toolProperties?.brush?.minWidth || 2,
+              maxWidth: toolProperties?.brush?.maxWidth || 20,
+              pressureSensitivity: toolProperties?.brush?.pressureSensitivity || 0.7,
+              smoothing: toolProperties?.brush?.smoothing || 0.3,
+              color: toolProperties?.color || 'var(--vectorforge-accent)',
+              opacity: toolProperties?.opacity || 1.0,
+            }}
+            onStrokeComplete={(stroke) => {
+              // Convert BrushStroke to VectorLayer
+              const nodes: VectorNode[] = stroke.points.map((p, i) => ({
+                id: `node_${i}_${Date.now()}`,
+                type: i === 0 ? 'move' : 'line',
+                x: p.x,
+                y: p.y,
+              }));
+
+              const layer: VectorLayer = {
+                id: stroke.id,
+                name: `Brush ${layers.length + 1}`,
+                visible: true,
+                locked: false,
+                color: stroke.color,
+                stroke: 'none',
+                strokeWidth: (stroke.minWidth + stroke.maxWidth) / 2,
+                opacity: stroke.opacity,
+                blendMode: 'normal',
+                shape: {
+                  type: 'path',
+                  nodes
+                }
+              };
+              onCreateLayer(layer);
+            }}
+            active={activeTool === 'brush'}
+            shortcut="B"
+          />
+        )}
+
         {/* Onion Skinning for Animation */}
         {frameState.isPlaying && (
           <div className="absolute inset-0 pointer-events-none onion-skin-overlay">
@@ -841,14 +964,14 @@ const DraftsmanCanvas: React.FC<DraftsmanCanvasProps> = ({
       </div>
 
       {/* Canvas Controls Overlay */}
-      <div className="absolute bottom-4 right-4 flex flex-col gap-2 z-50">
+      <div className="absolute bottom-4 right-4 flex flex-col gap-2 zstack-canvas-controls">
         <div className="xibalba-panel-professional flex items-center gap-2 p-2">
           <button
             onClick={() => onZoom(Math.max(25, zoom - 25))}
             className="xibalba-toolbar-button-professional"
             title="Zoom Out"
           >
-            <span className="material-symbols-outlined text-[16px]">remove</span>
+            <span className="material-symbols-outlined text-[16px]" aria-hidden="true" data-icon="remove"></span>
           </button>
           <span className="xibalba-text-caption font-mono min-w-[60px] text-center">{zoom}%</span>
           <button
@@ -856,15 +979,15 @@ const DraftsmanCanvas: React.FC<DraftsmanCanvasProps> = ({
             className="xibalba-toolbar-button-professional"
             title="Zoom In"
           >
-            <span className="material-symbols-outlined text-[16px]">add</span>
+            <span className="material-symbols-outlined text-[16px]" aria-hidden="true" data-icon="add"></span>
           </button>
-          <div className="w-px h-6 bg-white/10 mx-1" />
+          <div className="w-px h-6 bg-[var(--xibalba-grey-200)] opacity-20 mx-1" />
           <button
             onClick={() => onZoom(100)}
             className="xibalba-toolbar-button-professional"
             title="Fit to Screen"
           >
-            <span className="material-symbols-outlined text-[16px]">fit_screen</span>
+            <span className="material-symbols-outlined text-[16px]" aria-hidden="true" data-icon="fit_screen"></span>
           </button>
         </div>
       </div>

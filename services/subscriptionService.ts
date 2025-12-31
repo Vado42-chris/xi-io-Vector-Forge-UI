@@ -161,7 +161,7 @@ class SubscriptionService {
   getUsagePercentage(type: 'storage' | 'apiCalls'): number {
     if (!this.subscription) return 0;
     const used = this.subscription.usage[type];
-    const limit = this.subscription.usage[`${type}Limit` as keyof typeof this.subscription.usage] as number;
+    const limit = this.subscription.usage[`${type}Limit` as keyof typeof this.subscription.usage];
     if (limit === 0) return 0;
     return Math.min(100, (used / limit) * 100);
   }

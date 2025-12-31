@@ -1,0 +1,27 @@
+/**
+ * Layout Variables
+ * NO INLINE STYLES - All CSS variables set via data attributes
+ * Xibalba Design System Compliant
+ */
+
+/* Set sidebar widths from data attributes on root element */
+[data-sidebar-left-visible="true"] {
+  --sidebar-left-width: 320px;
+}
+
+[data-sidebar-left-visible="false"] {
+  --sidebar-left-width: 0px;
+}
+
+[data-sidebar-right-visible="true"] {
+  --sidebar-right-width: 360px;
+}
+
+[data-sidebar-right-visible="false"] {
+  --sidebar-right-width: 0px;
+}
+
+/* Set sidebar widths from component data attributes */
+/* Note: CSS attr() doesn't work for width, so we use JavaScript to set CSS variables */
+/* The width is set via the sidebar-fixed-left/right classes in xibalba-design-language.css */
+

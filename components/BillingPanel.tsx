@@ -44,7 +44,7 @@ export default function BillingPanel({ onClose, onUpgradeClick }: BillingPanelPr
   if (!displaySubscription) {
     return (
       <div className="xibalba-panel bg-[var(--xibalba-grey-050)] border border-white/10 rounded-lg p-6">
-        <p className="text-[var(--xibalba-text-200)]">Loading subscription...</p>
+        <p className="text-[var(--xibalba-text-100)]">Loading subscription...</p>
       </div>
     );
   }
@@ -77,7 +77,7 @@ export default function BillingPanel({ onClose, onUpgradeClick }: BillingPanelPr
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-xl font-bold text-[var(--xibalba-text-000)]">Billing & Subscription</h2>
-            <p className="text-sm text-[var(--xibalba-text-200)] mt-1">
+            <p className="text-sm text-[var(--xibalba-text-100)] mt-1">
               Manage your subscription and billing
             </p>
           </div>
@@ -87,7 +87,7 @@ export default function BillingPanel({ onClose, onUpgradeClick }: BillingPanelPr
               className="xibalba-interactive p-2 hover:bg-[var(--xibalba-grey-100)] rounded transition-colors"
               aria-label="Close"
             >
-              <span className="material-symbols-outlined text-[var(--xibalba-text-200)]">close</span>
+              <span className="material-symbols-outlined text-[var(--xibalba-text-100)]">close</span>
             </button>
           )}
         </div>
@@ -99,7 +99,7 @@ export default function BillingPanel({ onClose, onUpgradeClick }: BillingPanelPr
             className={`px-4 py-2 text-sm font-medium transition-colors ${
               activeTab === 'overview'
                 ? 'text-[var(--xibalba-accent)] border-b-2 border-[var(--xibalba-accent)]'
-                : 'text-[var(--xibalba-text-200)] hover:text-[var(--xibalba-text-000)]'
+                : 'text-[var(--xibalba-text-100)] hover:text-[var(--xibalba-text-000)]'
             }`}
           >
             Overview
@@ -109,7 +109,7 @@ export default function BillingPanel({ onClose, onUpgradeClick }: BillingPanelPr
             className={`px-4 py-2 text-sm font-medium transition-colors ${
               activeTab === 'billing'
                 ? 'text-[var(--xibalba-accent)] border-b-2 border-[var(--xibalba-accent)]'
-                : 'text-[var(--xibalba-text-200)] hover:text-[var(--xibalba-text-000)]'
+                : 'text-[var(--xibalba-text-100)] hover:text-[var(--xibalba-text-000)]'
             }`}
           >
             Billing History
@@ -119,7 +119,7 @@ export default function BillingPanel({ onClose, onUpgradeClick }: BillingPanelPr
             className={`px-4 py-2 text-sm font-medium transition-colors ${
               activeTab === 'usage'
                 ? 'text-[var(--xibalba-accent)] border-b-2 border-[var(--xibalba-accent)]'
-                : 'text-[var(--xibalba-text-200)] hover:text-[var(--xibalba-text-000)]'
+                : 'text-[var(--xibalba-text-100)] hover:text-[var(--xibalba-text-000)]'
             }`}
           >
             Usage
@@ -136,12 +136,12 @@ export default function BillingPanel({ onClose, onUpgradeClick }: BillingPanelPr
                   <h3 className="text-lg font-semibold text-[var(--xibalba-text-000)] capitalize">
                     {displaySubscription.tier} Plan
                   </h3>
-                  <p className="text-sm text-[var(--xibalba-text-200)] mt-1">
+                  <p className="text-sm text-[var(--xibalba-text-100)] mt-1">
                     {formatPrice(displaySubscription.price, displaySubscription.currency)} / {displaySubscription.billingCycle}
                   </p>
                 </div>
                 <div className={`px-3 py-1 rounded text-xs font-semibold ${
-                  isActive ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+                  isActive ? 'bg-[var(--vectorforge-accent)]/20 text-[var(--vectorforge-accent)]' : 'bg-[var(--vectorforge-accent)]/20 text-[var(--vectorforge-accent)]'
                 }`}>
                   {displaySubscription.status === 'active' ? 'Active' :
                    displaySubscription.status === 'trial' ? 'Trial' :
@@ -151,13 +151,13 @@ export default function BillingPanel({ onClose, onUpgradeClick }: BillingPanelPr
               </div>
 
               {isActive && daysUntilRenewal > 0 && (
-                <div className="text-sm text-[var(--xibalba-text-200)]">
+                <div className="text-sm text-[var(--xibalba-text-100)]">
                   Renews on {formatDate(displaySubscription.currentPeriodEnd)}
                 </div>
               )}
 
               {displaySubscription.cancelAtPeriodEnd && (
-                <div className="mt-3 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded text-sm text-yellow-400">
+                <div className="mt-3 p-3 bg-[var(--vectorforge-accent)]/10 border border-[var(--vectorforge-accent)]/20 rounded text-sm text-[var(--vectorforge-accent)]">
                   Subscription will cancel on {formatDate(displaySubscription.currentPeriodEnd)}
                 </div>
               )}
@@ -178,7 +178,7 @@ export default function BillingPanel({ onClose, onUpgradeClick }: BillingPanelPr
                         await subscriptionService.cancelSubscription(true);
                       }
                     }}
-                    className="xibalba-interactive px-4 py-2 text-sm text-[var(--xibalba-text-200)] hover:text-[var(--xibalba-text-000)] border border-white/10 rounded transition-colors"
+                    className="xibalba-interactive px-4 py-2 text-sm text-[var(--xibalba-text-100)] hover:text-[var(--xibalba-text-000)] border border-white/10 rounded transition-colors"
                   >
                     Cancel Subscription
                   </button>
@@ -192,7 +192,7 @@ export default function BillingPanel({ onClose, onUpgradeClick }: BillingPanelPr
                 <h3 className="text-sm font-semibold text-[var(--xibalba-text-000)] mb-3">
                   Payment Method
                 </h3>
-                <div className="text-sm text-[var(--xibalba-text-200)]">
+                <div className="text-sm text-[var(--xibalba-text-100)]">
                   {displaySubscription.paymentMethod === 'credit_card' && 'Credit Card'}
                   {displaySubscription.paymentMethod === 'paypal' && 'PayPal'}
                   {displaySubscription.paymentMethod === 'bank_transfer' && 'Bank Transfer'}
@@ -210,7 +210,7 @@ export default function BillingPanel({ onClose, onUpgradeClick }: BillingPanelPr
         {activeTab === 'billing' && (
           <div className="space-y-4">
             {billingHistory.length === 0 ? (
-              <div className="text-center py-12 text-[var(--xibalba-text-200)]">
+              <div className="text-center py-12 text-[var(--xibalba-text-100)]">
                 <span className="material-symbols-outlined text-4xl mb-3 block">receipt_long</span>
                 <p>No billing history yet</p>
               </div>
@@ -221,15 +221,15 @@ export default function BillingPanel({ onClose, onUpgradeClick }: BillingPanelPr
                     <div className="text-sm font-semibold text-[var(--xibalba-text-000)]">
                       {formatDate(bill.date)}
                     </div>
-                    <div className="text-xs text-[var(--xibalba-text-200)] mt-1">
+                    <div className="text-xs text-[var(--xibalba-text-100)] mt-1">
                       {formatPrice(bill.amount, bill.currency)}
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className={`text-xs px-2 py-1 rounded ${
-                      bill.status === 'paid' ? 'bg-green-500/20 text-green-400' :
-                      bill.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
-                      bill.status === 'failed' ? 'bg-red-500/20 text-red-400' :
+                      bill.status === 'paid' ? 'bg-[var(--vectorforge-accent)]/20 text-[var(--vectorforge-accent)]' :
+                      bill.status === 'pending' ? 'bg-[var(--vectorforge-accent)]/20 text-[var(--vectorforge-accent)]' :
+                      bill.status === 'failed' ? 'bg-[var(--vectorforge-accent)]/20 text-[var(--vectorforge-accent)]' :
                       'bg-gray-500/20 text-gray-400'
                     }`}>
                       {bill.status}
@@ -258,7 +258,7 @@ export default function BillingPanel({ onClose, onUpgradeClick }: BillingPanelPr
             <div className="xibalba-panel-professional p-4">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-semibold text-[var(--xibalba-text-000)]">Storage</h3>
-                <span className="text-xs text-[var(--xibalba-text-200)]">
+                <span className="text-xs text-[var(--xibalba-text-100)]">
                   {Math.round(displaySubscription.usage.storage)} / {displaySubscription.usage.storageLimit} MB
                 </span>
               </div>
@@ -273,7 +273,7 @@ export default function BillingPanel({ onClose, onUpgradeClick }: BillingPanelPr
                 <div className="usage-progress-fill" />
               </div>
               {storageUsage > 80 && (
-                <p className="text-xs text-yellow-400 mt-2">
+                <p className="text-xs text-[var(--vectorforge-accent)] mt-2">
                   Storage usage is high. Consider upgrading your plan.
                 </p>
               )}
@@ -283,7 +283,7 @@ export default function BillingPanel({ onClose, onUpgradeClick }: BillingPanelPr
             <div className="xibalba-panel-professional p-4">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-semibold text-[var(--xibalba-text-000)]">API Calls</h3>
-                <span className="text-xs text-[var(--xibalba-text-200)]">
+                <span className="text-xs text-[var(--xibalba-text-100)]">
                   {displaySubscription.usage.apiCalls} / {displaySubscription.usage.apiCallLimit}
                 </span>
               </div>
@@ -298,7 +298,7 @@ export default function BillingPanel({ onClose, onUpgradeClick }: BillingPanelPr
                 <div className="usage-progress-fill" />
               </div>
               {apiUsage > 80 && (
-                <p className="text-xs text-yellow-400 mt-2">
+                <p className="text-xs text-[var(--vectorforge-accent)] mt-2">
                   API call usage is high. Consider upgrading your plan.
                 </p>
               )}

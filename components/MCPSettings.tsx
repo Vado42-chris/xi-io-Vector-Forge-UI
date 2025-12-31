@@ -33,10 +33,22 @@ const MCPSettings: React.FC<MCPSettingsProps> = ({ onConfigChange }) => {
     setValidation(validation);
   }, [config]);
 
-  // Auto-detect local AI provider on mount
+  // AUTO-CONFIGURE OLLAMA ON STARTUP - No user interaction needed
   useEffect(() => {
-    if (config.useLocalAI && !config.localAIProvider) {
-      detectProvider();
+    // Auto-detect and configure Ollama if not already configured
+    if (config.useLocalAI) {
+      // If Ollama URL is default, try to auto-connect
+      if (config.localAIServerUrl === 'http://localhost:11434' || !config.localAIModelName) {
+        detectProvider().then(() => {
+          // After detection, load models and auto-select
+          setTimeout(() => {
+            loadModels();
+          }, 500);
+        });
+      } else {
+        // Already configured, just load models
+        loadModels();
+      }
     }
   }, []);
 
@@ -57,10 +69,13 @@ const MCPSettings: React.FC<MCPSettingsProps> = ({ onConfigChange }) => {
           'llama-cpp': 'http://localhost:8080',
           'text-generation-webui': 'http://localhost:7860'
         };
-        handleConfigChange({
+        const newConfig = {
           localAIProvider: provider,
           localAIServerUrl: defaultUrls[provider] || config.localAIServerUrl
-        });
+        };
+        handleConfigChange(newConfig);
+        // AUTO-SAVE configuration
+        saveMCPConfig(newConfig);
       }
     } catch (error) {
       console.error('Provider detection failed:', error);
@@ -73,9 +88,15 @@ const MCPSettings: React.FC<MCPSettingsProps> = ({ onConfigChange }) => {
     try {
       const models = await getAvailableModels(config.localAIProvider, config.localAIServerUrl);
       setAvailableModels(models);
-      // Auto-select first model if none selected
+      // Auto-select first model if none selected AND AUTO-SAVE
       if (models.length > 0 && !config.localAIModelName) {
+        const newConfig = { ...config, localAIModelName: models[0] };
         handleConfigChange({ localAIModelName: models[0] });
+        // Auto-save configuration
+        saveMCPConfig({ localAIModelName: models[0] });
+        if (onConfigChange) {
+          onConfigChange(newConfig);
+        }
       }
     } catch (error) {
       console.error('Failed to load models:', error);
@@ -275,7 +296,7 @@ const MCPSettings: React.FC<MCPSettingsProps> = ({ onConfigChange }) => {
                     </button>
                   </div>
                   {testResult && (
-                    <div className={`mt-2 text-xs ${testResult.success ? 'text-green-400' : 'text-red-400'}`}>
+                    <div className={`mt-2 text-xs ${testResult.success ? 'text-[var(--vectorforge-accent)]' : 'text-[var(--vectorforge-accent)]'}`}>
                       {testResult.message}
                     </div>
                   )}
@@ -445,10 +466,10 @@ const MCPSettings: React.FC<MCPSettingsProps> = ({ onConfigChange }) => {
 
             {/* Validation Errors */}
             {!validation.valid && (
-              <div className="xibalba-panel-professional bg-red-500/10 border border-red-500/20">
-                <div className="xibalba-label-professional text-red-400 mb-2">Configuration Errors</div>
+              <div className="xibalba-panel-professional bg-[var(--vectorforge-accent)]/10 border border-[var(--vectorforge-accent)]/20">
+                <div className="xibalba-label-professional text-[var(--vectorforge-accent)] mb-2">Configuration Errors</div>
                 {validation.errors.map((error, idx) => (
-                  <div key={idx} className="text-sm text-red-400">{error}</div>
+                  <div key={idx} className="text-sm text-[var(--vectorforge-accent)]">{error}</div>
                 ))}
               </div>
             )}

@@ -34,7 +34,7 @@ export const generateVectorData = async (prompt: string, style: string, currentS
 
     const response = await ai.models.generateContent({
       model: 'gemini-3-pro-preview',
-      contents: contents,
+      contents,
       config: {
         systemInstruction: systemPrompt,
         responseMimeType: "application/json",
@@ -61,6 +61,9 @@ export const generateVectorData = async (prompt: string, style: string, currentS
     });
 
     // Access .text property directly (not as a method) as per @google/genai guidelines.
+    if (!response.text) {
+      throw new Error('No response text from Gemini API');
+    }
     return JSON.parse(response.text) as GeneratedVector;
   } catch (error) {
     console.error("Vector Generation Error:", error);
@@ -94,6 +97,9 @@ export const getSmartSuggestions = async (svg: string, selectedId: string): Prom
       }
     });
     // Access .text property directly as per @google/genai guidelines.
+    if (!response.text) {
+      return [];
+    }
     return JSON.parse(response.text);
   } catch (e) {
     return [];
@@ -136,6 +142,9 @@ export const imageToVectorData = async (imageB64: string, prompt: string): Promi
       },
     });
     // Access .text property directly as per @google/genai guidelines.
+    if (!response.text) {
+      return null;
+    }
     return JSON.parse(response.text);
   } catch (error) {
     return null;

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VectorForge Test - No Redirects</title>
+    <style>
+        body {
+            font-family: monospace;
+            background: #010101;
+            color: #ffffff;
+            padding: 40px;
+            margin: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #ff9800;
+            border-bottom: 2px solid #ff9800;
+            padding-bottom: 10px;
+        }
+        .status {
+            background: #0a0b0e;
+            border: 1px solid #ff9800;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .link {
+            color: #ff9800;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px 10px 10px 0;
+            padding: 15px 30px;
+            background: #1a1c22;
+            border-radius: 6px;
+            border: 1px solid #ff9800;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .link:hover {
+            background: #ff9800;
+            color: #010101;
+        }
+        .success {
+            color: #4caf50;
+        }
+        .error {
+            color: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✅ VectorForge Test Page - No Redirects</h1>
+        
+        <div class="status">
+            <h2>If you see this page, the server is working!</h2>
+            <p>This is a static HTML file - no React, no auth, no redirects.</p>
+        </div>
+
+        <div class="status">
+            <h2>🧪 Test Links</h2>
+            <p>Click these to test if the app loads:</p>
+            <a href="/" class="link">👉 Main App (http://localhost:3000)</a>
+            <a href="/status.html" class="link">👉 Status Page (http://localhost:3000/status.html)</a>
+        </div>
+
+        <div class="status">
+            <h2>🔍 Diagnostic Info</h2>
+            <p><strong>Current URL:</strong> <span id="current-url"></span></p>
+            <p><strong>If you were redirected:</strong> Check browser extensions or try incognito mode.</p>
+        </div>
+
+        <div class="status">
+            <h2>📋 Next Steps</h2>
+            <ol>
+                <li>If this page loads ✅ - Server is working</li>
+                <li>Click "Main App" link above</li>
+                <li>If main app redirects - Try incognito mode</li>
+                <li>If main app loads - We can add chatbot!</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('current-url').textContent = window.location.href;
+        
+        // Test if we can fetch the main app
+        fetch('/')
+            .then(response => {
+                if (response.ok) {
+                    console.log('✅ Main app is accessible');
+                } else {
+                    console.log('❌ Main app returned:', response.status);
+                }
+            })
+            .catch(error => {
+                console.log('❌ Cannot fetch main app:', error);
+            });
+    </script>
+</body>
+</html>
+

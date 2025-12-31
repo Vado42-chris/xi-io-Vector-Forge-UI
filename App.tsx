@@ -1,16 +1,30 @@
-
 import React, { useState, useCallback, useEffect } from 'react';
-import { TabType, ToolType, DesignStyle, VectorLayer, VectorNode, AppState, AIProvider, Toast, AnimationKeyframe, FrameState, MeasurementUnit, ToolProperties } from './types';
-// Temporarily comment out all component imports to isolate circular dependency
-// import ProfessionalFileMenu from './components/ProfessionalFileMenu';
-// import LeftSidebar from './components/LeftSidebar';
-// import RightSidebar from './components/RightSidebar';
-// import ProfessionalLayersPanel from './components/ProfessionalLayersPanel';
-// import DraftsmanCanvas from './components/DraftsmanCanvas';
-// import AnimationTimeline from './components/AnimationTimeline';
-// import PowerUserToolbar from './components/PowerUserToolbar';
-// import Footer from './components/Footer';
-// import DockableToolPalette from './components/DockableToolPalette';
+import {
+  TabType,
+  ToolType,
+  DesignStyle,
+  VectorLayer,
+  VectorNode,
+  AppState,
+  AIProvider,
+  Toast,
+  AnimationKeyframe,
+  FrameState,
+  MeasurementUnit,
+  ToolProperties,
+} from './types';
+import type { ExecutionContext } from './services/scriptExecutor';
+import type { PalettePosition } from './components/PaletteDockingSystem';
+import type { CustomPalette, PaletteItem } from './components/CustomPaletteBuilder';
+import ProfessionalFileMenu from './components/ProfessionalFileMenu';
+import LeftSidebar from './components/LeftSidebar';
+import RightSidebar from './components/RightSidebar';
+import ProfessionalLayersPanel from './components/ProfessionalLayersPanel';
+import DraftsmanCanvas from './components/DraftsmanCanvas';
+import AnimationTimeline from './components/AnimationTimeline';
+import PowerUserToolbar from './components/PowerUserToolbar';
+import Footer from './components/Footer';
+import DockableToolPalette from './components/DockableToolPalette';
 // import { PalettePosition } from './components/PaletteDockingSystem';
 // import { CustomPalette, CustomPaletteRenderer, PaletteItem } from './components/CustomPaletteBuilder';
 // Temporarily comment out to isolate circular dependency
@@ -20,23 +34,22 @@ import { TabType, ToolType, DesignStyle, VectorLayer, VectorNode, AppState, AIPr
 // Temporarily comment out to isolate circular dependency
 // import { DEFAULT_ANIMATION_PRESETS } from './data/animationPresets';
 // import { importFromAnimationStudio, exportToAnimationStudio, downloadAnimation } from './services/animationStudio';
-// Temporarily comment out all component imports to isolate circular dependency
-// import ToolLockingSystem from './components/ToolLockingSystem';
+import ToolLockingSystem from './components/ToolLockingSystem';
 // Dynamic import to prevent circular dependencies
 import type { WorkflowLayout } from './types/workflow';
-// import BugReporter from './components/BugReporter';
-// import FeatureRequest from './components/FeatureRequest';
-// import ActionCenter from './components/ActionCenter';
-// import SprintBoard from './components/SprintBoard';
-// import InspectorPanel from './components/InspectorPanel';
+import BugReporter from './components/BugReporter';
+import FeatureRequest from './components/FeatureRequest';
+import ActionCenter from './components/ActionCenter';
+import SprintBoard from './components/SprintBoard';
+import InspectorPanel from './components/InspectorPanel';
 import { Task } from './types/task';
 // import { useContextualUI } from './hooks/useContextualUI';
 // import ContextualHelpPanel from './components/ContextualHelpPanel';
-// import PreferencesDialog from './components/PreferencesDialog';
-// import SubscriptionStatusIndicator from './components/SubscriptionStatusIndicator';
-// import AccountMenu from './components/AccountMenu';
-// import BillingPanel from './components/BillingPanel';
-// import UpgradePrompt from './components/UpgradePrompt';
+import PreferencesDialog from './components/PreferencesDialog';
+import SubscriptionStatusIndicator from './components/SubscriptionStatusIndicator';
+import AccountMenu from './components/AccountMenu';
+import BillingPanel from './components/BillingPanel';
+import UpgradePrompt from './components/UpgradePrompt';
 
 // Use CSS variables for colors - no hardcoded values
 const INITIAL_SVG = `<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
@@ -47,28 +60,44 @@ const INITIAL_SVG = `<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/sv
 </svg>`;
 
 const parseSvgPath = (d: string): VectorNode[] => {
-  const commands = d.match(/[a-df-z][^a-df-z]*/ig) || [];
+  const commands = d.match(/[a-df-z][^a-df-z]*/gi) || [];
   return commands.map((cmd, i) => {
     const typeChar = cmd[0].toUpperCase();
-    const args = cmd.slice(1).trim().split(/[\s,]+/).map(parseFloat);
+    const args = cmd
+      .slice(1)
+      .trim()
+      .split(/[\s,]+/)
+      .map(parseFloat);
     const id = `node_${i}_${Math.random().toString(36).substr(2, 4)}`;
-    
-    if (typeChar === 'M') return { id, type: 'move', x: args[0], y: args[1] };
-    if (typeChar === 'L') return { id, type: 'line', x: args[0], y: args[1] };
-    if (typeChar === 'C') return { id, type: 'cubic', cx1: args[0], cy1: args[1], cx2: args[2], cy2: args[3], x: args[4], y: args[5] };
-    if (typeChar === 'Z') return { id, type: 'close', x: 0, y: 0 }; // simplified
-    return { id, type: 'line', x: args[args.length-2], y: args[args.length-1] };
+
+    if (typeChar === 'M') return { id, type: 'move' as const, x: args[0] || 0, y: args[1] || 0 };
+    if (typeChar === 'L') return { id, type: 'line' as const, x: args[0] || 0, y: args[1] || 0 };
+    if (typeChar === 'C')
+      return {
+        id,
+        type: 'cubic' as const,
+        cx1: args[0] || 0,
+        cy1: args[1] || 0,
+        cx2: args[2] || 0,
+        cy2: args[3] || 0,
+        x: args[4] || 0,
+        y: args[5] || 0,
+      };
+    if (typeChar === 'Z') return { id, type: 'close' as const, x: 0, y: 0 }; // simplified
+    return { id, type: 'line' as const, x: args[args.length - 2] || 0, y: args[args.length - 1] || 0 };
   });
 };
 
 const serializePath = (nodes: VectorNode[]): string => {
-  return nodes.map(n => {
-    if (n.type === 'move') return `M ${n.x} ${n.y}`;
-    if (n.type === 'line') return `L ${n.x} ${n.y}`;
-    if (n.type === 'cubic') return `C ${n.cx1} ${n.cy1} ${n.cx2} ${n.cy2} ${n.x} ${n.y}`;
-    if (n.type === 'close') return `Z`;
-    return '';
-  }).join(' ');
+  return nodes
+    .map(n => {
+      if (n.type === 'move') return `M ${n.x} ${n.y}`;
+      if (n.type === 'line') return `L ${n.x} ${n.y}`;
+      if (n.type === 'cubic') return `C ${n.cx1} ${n.cy1} ${n.cx2} ${n.cy2} ${n.x} ${n.y}`;
+      if (n.type === 'close') return `Z`;
+      return '';
+    })
+    .join(' ');
 };
 
 const App: React.FC = () => {
@@ -91,25 +120,47 @@ const App: React.FC = () => {
       history: [INITIAL_SVG],
       redoHistory: [],
       snapshots: [],
-      chatHistory: [{ role: 'system', content: 'Xibalba OS Kernel 2.0. Geometrical Logic Active.', timestamp: Date.now() }],
-      terminalLogs: [{ id: '1', type: 'info', text: 'XI_OS: Core initialized. Rulers locked to Forge.', timestamp: Date.now() }],
+      chatHistory: [
+        {
+          role: 'system',
+          content: 'Xibalba OS Kernel 2.0. Geometrical Logic Active.',
+          timestamp: Date.now(),
+        },
+      ],
+      terminalLogs: [
+        {
+          id: '1',
+          type: 'info',
+          text: 'XI_OS: Core initialized. Rulers locked to Forge.',
+          timestamp: Date.now(),
+        },
+      ],
       terminalHistory: [],
       mcpServers: [],
       toasts: [],
-      guides: [{ id: 'g1', type: 'v', pos: 256 }, { id: 'g2', type: 'h', pos: 256 }],
+      guides: [
+        { id: 'g1', type: 'v', pos: 256 },
+        { id: 'g2', type: 'h', pos: 256 },
+      ],
       showRulers: true,
-      engineConfig: { provider: AIProvider.GEMINI_PRO, apiKey: '', thinkingBudget: 32768 }
+      engineConfig: { provider: AIProvider.GEMINI_PRO, apiKey: '', thinkingBudget: 32768 },
+      toolProperties: {},
+      measurementUnit: 'px',
+      workspaceLayout: 'default',
+      dockedPanels: [],
     };
-    return saved ? { ...baseState, ...JSON.parse(saved), isGenerating: false, toasts: [] } : baseState;
+    return saved
+      ? { ...baseState, ...JSON.parse(saved), isGenerating: false, toasts: [] }
+      : baseState;
   });
 
   const [aiSuggestions, setAiSuggestions] = useState<any[]>([]);
-  
+
   // Task Management State
   const [activeView, setActiveView] = useState<'vectorforge' | 'tasks'>('vectorforge');
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [activeSprintId, setActiveSprintId] = useState<string | undefined>(undefined);
-  
+
   // Contextual UI - temporarily disabled to isolate circular dependency
   const contextualUI = {
     surfacedElements: [],
@@ -118,9 +169,9 @@ const App: React.FC = () => {
     updateContext: () => {},
     shouldShow: () => false,
     getPriority: () => null,
-    getElementsForLocation: () => []
+    getElementsForLocation: () => [],
   } as any;
-  
+
   // Update contextual UI when state changes
   useEffect(() => {
     contextualUI.updateContext({
@@ -130,8 +181,15 @@ const App: React.FC = () => {
       hasError: state.toasts.some(t => t.type === 'error'),
       currentAction: state.isGenerating ? 'generating' : undefined,
     });
-  }, [state.activeTool, state.selectedLayerId, activeView, state.toasts, state.isGenerating, contextualUI]);
-  
+  }, [
+    state.activeTool,
+    state.selectedLayerId,
+    activeView,
+    state.toasts,
+    state.isGenerating,
+    contextualUI,
+  ]);
+
   // Animation State
   const [keyframes, setKeyframes] = useState<AnimationKeyframe[]>([]);
   const [frameState, setFrameState] = useState<FrameState>({
@@ -139,7 +197,7 @@ const App: React.FC = () => {
     totalFrames: 300, // 10 seconds at 30fps
     fps: 30,
     isPlaying: false,
-    isLooping: false
+    isLooping: false,
   });
 
   // Animation Playback with Script Execution
@@ -156,39 +214,48 @@ const App: React.FC = () => {
             return { ...prev, isPlaying: false, currentFrame: prev.totalFrames - 1 };
           }
         }
-        
+
         // Execute scripts for this frame
         const frameKeyframes = keyframes.filter(kf => kf.frame === nextFrame && kf.script);
         if (frameKeyframes.length > 0) {
-          frameKeyframes.forEach(async (kf) => {
+          frameKeyframes.forEach(async kf => {
             if (kf.script) {
-              import('./services/scriptExecutor').then(({ executeScript, ExecutionContext }) => {
+              import('./services/scriptExecutor').then(({ executeScript }) => {
                 const context: ExecutionContext = {
                   frame: nextFrame,
                   layers: state.layers,
                   variables: {},
                   eventHandlers: new Map(),
-                  pendingEvents: []
+                  pendingEvents: [],
                 };
-                
-                executeScript(kf.script, context).then(result => {
-                  if (result.success && result.updatedLayers) {
-                    updateSvgFromLayers(result.updatedLayers);
-                    setState(p => ({ ...p, layers: result.updatedLayers! }));
-                  }
-                });
+
+                if (kf.script && typeof kf.script === 'string') {
+                  executeScript(kf.script, context).then(result => {
+                    if (result.success && result.updatedLayers) {
+                      updateSvgFromLayers(result.updatedLayers);
+                      setState(p => ({ ...p, layers: result.updatedLayers! }));
+                    }
+                  });
+                }
               });
             }
           });
         }
-        
+
         return { ...prev, currentFrame: nextFrame };
       });
     }, 1000 / frameState.fps);
 
     return () => clearInterval(interval);
-  }, [frameState.isPlaying, frameState.fps, frameState.totalFrames, frameState.isLooping, keyframes, state.layers]);
-  
+  }, [
+    frameState.isPlaying,
+    frameState.fps,
+    frameState.totalFrames,
+    frameState.isLooping,
+    keyframes,
+    state.layers,
+  ]);
+
   // Power User Settings
   const [snapToGrid, setSnapToGrid] = useState(true);
   const [snapToGuides, setSnapToGuides] = useState(true);
@@ -198,7 +265,7 @@ const App: React.FC = () => {
   const [onionSkinFrames, setOnionSkinFrames] = useState(2);
   const [measurementUnit, setMeasurementUnit] = useState<MeasurementUnit>('px');
   const [toolProperties, setToolProperties] = useState<ToolProperties>({});
-  
+
   // Tool palette position - docked to left by default
   const [toolPalettePosition, setToolPalettePosition] = useState<PalettePosition>({
     zone: 'left',
@@ -206,7 +273,7 @@ const App: React.FC = () => {
     y: 56, // Below header
     width: 200,
     height: window.innerHeight - 56 - 48, // Full height minus header and footer
-    order: 0
+    order: 0,
   });
 
   // Custom palettes - user-created palettes
@@ -216,39 +283,45 @@ const App: React.FC = () => {
   // Temporarily disabled to isolate circular dependency
   // const workspaceLayout = useWorkspaceLayout();
   const workspaceLayout = { columns: [], palettes: [] } as any;
-  
+
   // Workflow Layout State
   const [currentLayout, setCurrentLayout] = useState<WorkflowLayout | null>(null);
   const [availableLayouts, setAvailableLayouts] = useState<WorkflowLayout[]>([]);
-  
+
   // Bug Reporter State
   const [showBugReporter, setShowBugReporter] = useState(false);
   const [showFeatureRequest, setShowFeatureRequest] = useState(false);
-  
+
   // Preferences Dialog State
   const [showPreferences, setShowPreferences] = useState(false);
-  const [preferencesCategory, setPreferencesCategory] = useState<'visual' | 'functional' | 'performance' | 'accessibility' | 'integrations'>('visual');
-  
+  const [preferencesCategory, setPreferencesCategory] = useState<
+    'visual' | 'functional' | 'performance' | 'accessibility' | 'integrations'
+  >('visual');
+
   // Subscription & Account State
   const [showBillingPanel, setShowBillingPanel] = useState(false);
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
-  const [upgradeFeature, setUpgradeFeature] = useState<{ id: string; name: string; tier: string } | null>(null);
-  
+  const [upgradeFeature, setUpgradeFeature] = useState<{
+    id: string;
+    name: string;
+    tier: string;
+  } | null>(null);
+
   // Initialize workflow layouts - use dynamic import to prevent circular deps
   useEffect(() => {
     const initLayouts = async () => {
       try {
         const { workflowLayoutService } = await import('./services/workflowLayoutService');
         await workflowLayoutService.initialize();
-        const layouts = workflowLayoutService.getLayouts();
+        const layouts = workflowLayoutService.getAllLayouts();
         setAvailableLayouts(layouts);
-        
+
         const current = workflowLayoutService.getCurrentLayout();
         if (current) {
           setCurrentLayout(current);
         } else if (layouts.length > 0) {
           // Set default layout
-          const defaultLayout = layouts.find(l => l.default) || layouts[0];
+          const defaultLayout = layouts.find(l => l.id === 'default') || layouts[0];
           workflowLayoutService.setCurrentLayout(defaultLayout.id);
           setCurrentLayout(defaultLayout);
         }
@@ -257,30 +330,72 @@ const App: React.FC = () => {
         setAvailableLayouts([]);
       }
     };
-    
+
     setTimeout(initLayouts, 0);
   }, []);
-  
+
+  // Toast management - declared early to avoid "used before declaration" errors
+  const showToast = useCallback((message: string, type: Toast['type'] = 'info') => {
+    const id = Math.random().toString(36).substring(2, 9);
+    setState(prev => ({ ...prev, toasts: [...prev.toasts, { id, message, type }] }));
+    setTimeout(() => {
+      setState(prev => ({ ...prev, toasts: prev.toasts.filter(t => t.id !== id) }));
+    }, 3000);
+  }, []);
+
   // Handle layout switch
-  const handleLayoutSwitch = useCallback(async (layout: WorkflowLayout) => {
-    setCurrentLayout(layout);
-    showToast(`Switched to ${layout.name} layout`, 'success');
-    try {
-      const { workflowLayoutService } = await import('./services/workflowLayoutService');
-      await workflowLayoutService.setCurrentLayout(layout.id);
-    } catch (error) {
-      console.error('Failed to save layout:', error);
-    }
-  }, [showToast]);
+  const handleLayoutSwitch = useCallback(
+    async (layout: WorkflowLayout) => {
+      setCurrentLayout(layout);
+      showToast(`Switched to ${layout.name} layout`, 'success');
+      try {
+        const { workflowLayoutService } = await import('./services/workflowLayoutService');
+        await workflowLayoutService.setCurrentLayout(layout.id);
+      } catch (error) {
+        console.error('Failed to save layout:', error);
+      }
+    },
+    [showToast]
+  );
 
   // Available items for custom palettes - all tools and components
   const availablePaletteItems: PaletteItem[] = [
     // Tools
-    { id: 'tool-select', type: 'tool', label: 'Selection Tool', icon: 'near_me', action: () => setState(p => ({...p, activeTool: 'select'})) },
-    { id: 'tool-pen', type: 'tool', label: 'Pen Tool', icon: 'edit', action: () => setState(p => ({...p, activeTool: 'pen'})) },
-    { id: 'tool-rectangle', type: 'tool', label: 'Rectangle Tool', icon: 'crop_square', action: () => setState(p => ({...p, activeTool: 'rectangle'})) },
-    { id: 'tool-ellipse', type: 'tool', label: 'Ellipse Tool', icon: 'radio_button_unchecked', action: () => setState(p => ({...p, activeTool: 'ellipse'})) },
-    { id: 'tool-text', type: 'tool', label: 'Text Tool', icon: 'text_fields', action: () => setState(p => ({...p, activeTool: 'text'})) },
+    {
+      id: 'tool-select',
+      type: 'tool',
+      label: 'Selection Tool',
+      icon: 'near_me',
+      action: () => setState(p => ({ ...p, activeTool: 'select' })),
+    },
+    {
+      id: 'tool-pen',
+      type: 'tool',
+      label: 'Pen Tool',
+      icon: 'edit',
+      action: () => setState(p => ({ ...p, activeTool: 'pen' })),
+    },
+    {
+      id: 'tool-rectangle',
+      type: 'tool',
+      label: 'Rectangle Tool',
+      icon: 'crop_square',
+      action: () => setState(p => ({ ...p, activeTool: 'rectangle' })),
+    },
+    {
+      id: 'tool-ellipse',
+      type: 'tool',
+      label: 'Ellipse Tool',
+      icon: 'radio_button_unchecked',
+      action: () => setState(p => ({ ...p, activeTool: 'ellipse' })),
+    },
+    {
+      id: 'tool-text',
+      type: 'tool',
+      label: 'Text Tool',
+      icon: 'text_fields',
+      action: () => setState(p => ({ ...p, activeTool: 'text' })),
+    },
     // Components
     { id: 'component-layers', type: 'component', label: 'Layers Panel', icon: 'layers' },
     { id: 'component-properties', type: 'component', label: 'Properties Panel', icon: 'tune' },
@@ -288,13 +403,13 @@ const App: React.FC = () => {
     { id: 'component-chat', type: 'component', label: 'AI Chat', icon: 'smart_toy' },
   ];
 
-  const syncLayersFromSvg = useCallback((svg: string) => {
+  const syncLayersFromSvg = useCallback((svg: string): VectorLayer[] => {
     const parser = new DOMParser();
-    const doc = parser.parseFromString(svg, "image/svg+xml");
+    const doc = parser.parseFromString(svg, 'image/svg+xml');
     const paths = Array.from(doc.querySelectorAll('path'));
-    
-    return paths.map(p => ({
-      id: p.id,
+
+    return paths.map((p): VectorLayer => ({
+      id: p.id || `layer_${Date.now()}_${Math.random()}`,
       name: p.getAttribute('data-name') || p.id || 'Unnamed Path',
       visible: p.getAttribute('display') !== 'none',
       locked: p.getAttribute('data-locked') === 'true',
@@ -302,87 +417,97 @@ const App: React.FC = () => {
       stroke: p.getAttribute('stroke') || 'var(--xibalba-grey-000, #000000)',
       strokeWidth: parseFloat(p.getAttribute('stroke-width') || '0'),
       opacity: parseFloat(p.getAttribute('opacity') || '1'),
+      blendMode: (p.getAttribute('data-blend-mode') || 'normal') as VectorLayer['blendMode'],
       shape: {
         type: 'path' as const,
-        nodes: parseSvgPath(p.getAttribute('d') || '')
-      }
+        d: p.getAttribute('d') || '',
+        nodes: parseSvgPath(p.getAttribute('d') || ''),
+      },
     }));
   }, []);
 
-  const updateSvgFromLayers = useCallback((layers: VectorLayer[]) => {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(state.currentSvg, "image/svg+xml");
-    const workspaceRoot = doc.getElementById('workspace_root') || doc.querySelector('g') || doc.documentElement;
-    
-    // Get all existing layer IDs
-    const existingIds = new Set(Array.from(doc.querySelectorAll('[id]')).map(el => el.id));
-    
-    layers.forEach(layer => {
-      let el = doc.getElementById(layer.id);
-      
-      // Create element if it doesn't exist
-      if (!el) {
+  const updateSvgFromLayers = useCallback(
+    (layers: VectorLayer[]) => {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(state.currentSvg, 'image/svg+xml');
+      const workspaceRoot =
+        doc.getElementById('workspace_root') || doc.querySelector('g') || doc.documentElement;
+
+      // Get all existing layer IDs
+      const existingIds = new Set(Array.from(doc.querySelectorAll('[id]')).map(el => el.id));
+
+      layers.forEach(layer => {
+        let el: SVGElement | null = doc.getElementById(layer.id) as SVGElement | null;
+
+        // Create element if it doesn't exist
+        if (!el) {
+          if (layer.shape.type === 'rect') {
+            el = doc.createElementNS('http://www.w3.org/2000/svg', 'rect') as SVGRectElement;
+          } else if (layer.shape.type === 'path') {
+            el = doc.createElementNS('http://www.w3.org/2000/svg', 'path') as SVGPathElement;
+          } else if (layer.shape.type === 'text') {
+            el = doc.createElementNS('http://www.w3.org/2000/svg', 'text') as SVGTextElement;
+          } else {
+            el = doc.createElementNS('http://www.w3.org/2000/svg', 'path') as SVGPathElement;
+          }
+          if (el && workspaceRoot) {
+            el.setAttribute('id', layer.id);
+            el.setAttribute('data-name', layer.name);
+            workspaceRoot.appendChild(el);
+          }
+        }
+
+        if (!el) return; // Guard against null
+
+        // Update attributes based on shape type
         if (layer.shape.type === 'rect') {
-          el = doc.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          el.setAttribute('x', layer.shape.x.toString());
+          el.setAttribute('y', layer.shape.y.toString());
+          el.setAttribute('width', layer.shape.width.toString());
+          el.setAttribute('height', layer.shape.height.toString());
+          if (layer.shape.borderRadius) {
+            el.setAttribute('rx', layer.shape.borderRadius.toString());
+          }
+          el.setAttribute('fill', layer.color);
+          el.setAttribute('stroke', layer.stroke);
+          el.setAttribute('stroke-width', layer.strokeWidth.toString());
+          el.setAttribute('opacity', layer.opacity.toString());
+          el.setAttribute('display', layer.visible ? 'inline' : 'none');
+          el.setAttribute('data-locked', layer.locked.toString());
         } else if (layer.shape.type === 'path') {
-          el = doc.createElementNS('http://www.w3.org/2000/svg', 'path');
+          el.setAttribute('d', serializePath(layer.shape.nodes));
+          el.setAttribute('fill', layer.color);
+          el.setAttribute('stroke', layer.stroke);
+          el.setAttribute('stroke-width', layer.strokeWidth.toString());
+          el.setAttribute('opacity', layer.opacity.toString());
+          el.setAttribute('display', layer.visible ? 'inline' : 'none');
+          el.setAttribute('data-locked', layer.locked.toString());
         } else if (layer.shape.type === 'text') {
-          el = doc.createElementNS('http://www.w3.org/2000/svg', 'text');
-        } else {
-          el = doc.createElementNS('http://www.w3.org/2000/svg', 'path');
+          el.setAttribute('x', layer.shape.x.toString());
+          el.setAttribute('y', layer.shape.y.toString());
+          el.textContent = layer.shape.content;
+          el.setAttribute('fill', layer.color);
+          el.setAttribute('stroke', layer.stroke);
+          el.setAttribute('stroke-width', layer.strokeWidth.toString());
+          el.setAttribute('opacity', layer.opacity.toString());
+          el.setAttribute('display', layer.visible ? 'inline' : 'none');
+          el.setAttribute('data-locked', layer.locked.toString());
         }
-        el.setAttribute('id', layer.id);
-        el.setAttribute('data-name', layer.name);
-        workspaceRoot.appendChild(el);
-      }
-      
-      // Update attributes based on shape type
-      if (layer.shape.type === 'rect') {
-        el.setAttribute('x', layer.shape.x.toString());
-        el.setAttribute('y', layer.shape.y.toString());
-        el.setAttribute('width', layer.shape.width.toString());
-        el.setAttribute('height', layer.shape.height.toString());
-        if (layer.shape.borderRadius) {
-          el.setAttribute('rx', layer.shape.borderRadius.toString());
+      });
+
+      // Remove layers that no longer exist
+      existingIds.forEach(id => {
+        if (!layers.find(l => l.id === id) && id !== 'workspace_root' && id !== 'bg') {
+          const elToRemove = doc.getElementById(id);
+          if (elToRemove) elToRemove.remove();
         }
-        el.setAttribute('fill', layer.color);
-        el.setAttribute('stroke', layer.stroke);
-        el.setAttribute('stroke-width', layer.strokeWidth.toString());
-        el.setAttribute('opacity', layer.opacity.toString());
-        el.setAttribute('display', layer.visible ? 'inline' : 'none');
-        el.setAttribute('data-locked', layer.locked.toString());
-      } else if (layer.shape.type === 'path') {
-        el.setAttribute('d', serializePath(layer.shape.nodes));
-        el.setAttribute('fill', layer.color);
-        el.setAttribute('stroke', layer.stroke);
-        el.setAttribute('stroke-width', layer.strokeWidth.toString());
-        el.setAttribute('opacity', layer.opacity.toString());
-        el.setAttribute('display', layer.visible ? 'inline' : 'none');
-        el.setAttribute('data-locked', layer.locked.toString());
-      } else if (layer.shape.type === 'text') {
-        el.setAttribute('x', layer.shape.x.toString());
-        el.setAttribute('y', layer.shape.y.toString());
-        el.textContent = layer.shape.content;
-        el.setAttribute('fill', layer.color);
-        el.setAttribute('stroke', layer.stroke);
-        el.setAttribute('stroke-width', layer.strokeWidth.toString());
-        el.setAttribute('opacity', layer.opacity.toString());
-        el.setAttribute('display', layer.visible ? 'inline' : 'none');
-        el.setAttribute('data-locked', layer.locked.toString());
-      }
-    });
-    
-    // Remove layers that no longer exist
-    existingIds.forEach(id => {
-      if (!layers.find(l => l.id === id) && id !== 'workspace_root' && id !== 'bg') {
-        const elToRemove = doc.getElementById(id);
-        if (elToRemove) elToRemove.remove();
-      }
-    });
-    
-    const newSvg = new XMLSerializer().serializeToString(doc);
-    setState(p => ({ ...p, currentSvg: newSvg, layers }));
-  }, [state.currentSvg, serializePath]);
+      });
+
+      const newSvg = new XMLSerializer().serializeToString(doc);
+      setState(p => ({ ...p, currentSvg: newSvg, layers }));
+    },
+    [state.currentSvg, serializePath]
+  );
 
   useEffect(() => {
     if (state.layers.length === 0) {
@@ -395,376 +520,394 @@ const App: React.FC = () => {
     localStorage.setItem('vforge_xibalba_prime', JSON.stringify(state));
   }, [state]);
 
-  const showToast = useCallback((message: string, type: Toast['type'] = 'info') => {
-    const id = Math.random().toString(36).substring(2, 9);
-    setState(prev => ({ ...prev, toasts: [...prev.toasts, { id, message, type }] }));
-    setTimeout(() => { setState(prev => ({ ...prev, toasts: prev.toasts.filter(t => t.id !== id) })); }, 3000);
-  }, []);
+  const handleAction = useCallback(
+    async (action: string) => {
+      switch (action) {
+        case 'FILE_NEW':
+          if (confirm('Confirm workspace purge?')) {
+            const freshSvg = INITIAL_SVG;
+            const freshLayers = syncLayersFromSvg(freshSvg);
+            setState(p => ({
+              ...p,
+              currentSvg: freshSvg,
+              layers: freshLayers,
+              selectedLayerId: null,
+              selectedNodeId: null,
+              history: [freshSvg],
+              redoHistory: [],
+              pan: { x: 0, y: 0 },
+              zoom: 100,
+            }));
+            updateSvgFromLayers(freshLayers);
+            showToast('New file created', 'success');
+          }
+          break;
+        case 'FILE_SAVE':
+          localStorage.setItem(
+            'vforge_xibalba_prime',
+            JSON.stringify({ ...state, currentSvg: state.currentSvg, layers: state.layers })
+          );
+          showToast('Project saved', 'success');
+          break;
+        case 'FILE_SAVE_AS':
+          const blob = new Blob(
+            [JSON.stringify({ svg: state.currentSvg, layers: state.layers, state })],
+            { type: 'application/json' }
+          );
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `xi_vector_project_${Date.now()}.xibalba`;
+          a.click();
+          showToast('Project saved as', 'success');
+          break;
+        case 'FILE_OPEN':
+          const input = document.createElement('input');
+          input.type = 'file';
+          input.accept = '.xibalba,application/json';
+          input.onchange = async e => {
+            const file = (e.target as HTMLInputElement).files?.[0];
+            if (file) {
+              try {
+                const text = await file.text();
+                const data = JSON.parse(text);
 
-  const handleAction = useCallback(async (action: string) => {
-    switch(action) {
-      case 'FILE_NEW':
-        if(confirm("Confirm workspace purge?")) {
-          const freshSvg = INITIAL_SVG;
-          const freshLayers = syncLayersFromSvg(freshSvg);
-          setState(p => ({ 
-            ...p, 
-            currentSvg: freshSvg, 
-            layers: freshLayers, 
-            selectedLayerId: null, 
-            selectedNodeId: null,
-            history: [freshSvg],
-            redoHistory: [],
-            pan: { x: 0, y: 0 },
-            zoom: 100
-          }));
-          updateSvgFromLayers(freshLayers);
-          showToast("New file created", "success");
-        }
-        break;
-      case 'FILE_SAVE':
-        localStorage.setItem('vforge_xibalba_prime', JSON.stringify({ ...state, currentSvg: state.currentSvg, layers: state.layers }));
-        showToast("Project saved", "success");
-        break;
-      case 'FILE_SAVE_AS':
-        const blob = new Blob([JSON.stringify({ svg: state.currentSvg, layers: state.layers, state })], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url; a.download = `xi_vector_project_${Date.now()}.xibalba`; a.click();
-        showToast("Project saved as", "success");
-        break;
-      case 'FILE_OPEN':
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = '.xibalba,application/json';
-        input.onchange = async (e) => {
-          const file = (e.target as HTMLInputElement).files?.[0];
-          if (file) {
-            try {
-              const text = await file.text();
-              const data = JSON.parse(text);
-              
-              // Validate and load project data
-              if (data.svg && data.layers) {
-                const loadedLayers = Array.isArray(data.layers) ? data.layers : [];
-                const loadedSvg = data.svg;
-                
-                // Update SVG with loaded layers
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(loadedSvg, "image/svg+xml");
-                const workspaceRoot = doc.getElementById('workspace_root') || doc.querySelector('g');
-                if (workspaceRoot) {
-                  // Clear existing layers (except bg and workspace_root)
-                  Array.from(workspaceRoot.children).forEach(child => {
-                    const id = child.getAttribute('id');
-                    if (id && id !== 'bg' && id !== 'workspace_root') {
-                      child.remove();
-                    }
-                  });
-                  
-                  // Add loaded layers to SVG
-                  loadedLayers.forEach((layer: VectorLayer) => {
-                    let el = doc.getElementById(layer.id);
-                    if (!el) {
-                      if (layer.shape.type === 'rect') {
-                        el = doc.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                      } else if (layer.shape.type === 'path') {
-                        el = doc.createElementNS('http://www.w3.org/2000/svg', 'path');
-                      } else {
-                        el = doc.createElementNS('http://www.w3.org/2000/svg', 'path');
+                // Validate and load project data
+                if (data.svg && data.layers) {
+                  const loadedLayers = Array.isArray(data.layers) ? data.layers : [];
+                  const loadedSvg = data.svg;
+
+                  // Update SVG with loaded layers
+                  const parser = new DOMParser();
+                  const doc = parser.parseFromString(loadedSvg, 'image/svg+xml');
+                  const workspaceRoot =
+                    doc.getElementById('workspace_root') || doc.querySelector('g');
+                  if (workspaceRoot) {
+                    // Clear existing layers (except bg and workspace_root)
+                    Array.from(workspaceRoot.children).forEach(child => {
+                      const id = child.getAttribute('id');
+                      if (id && id !== 'bg' && id !== 'workspace_root') {
+                        child.remove();
                       }
-                      el.setAttribute('id', layer.id);
-                      workspaceRoot.appendChild(el);
-                    }
-                  });
-                  
-                  const finalSvg = new XMLSerializer().serializeToString(doc);
-                  
-                  setState(p => ({ 
-                    ...p, 
-                    currentSvg: finalSvg, 
-                    layers: loadedLayers,
-                    selectedLayerId: null,
-                    history: [finalSvg],
-                    redoHistory: [],
-                    zoom: data.zoom || p.zoom,
-                    pan: data.pan || p.pan
-                  }));
-                  
-                  if (data.frameState) setFrameState(data.frameState);
-                  if (data.keyframes) setKeyframes(data.keyframes);
-                  
-                  showToast("Project opened", "success");
+                    });
+
+                    // Add loaded layers to SVG
+                    loadedLayers.forEach((layer: VectorLayer) => {
+                      let el: SVGElement | null = doc.getElementById(layer.id) as SVGElement | null;
+                      if (!el) {
+                        if (layer.shape.type === 'rect') {
+                          el = doc.createElementNS('http://www.w3.org/2000/svg', 'rect') as SVGElement;
+                        } else if (layer.shape.type === 'path') {
+                          el = doc.createElementNS('http://www.w3.org/2000/svg', 'path') as SVGElement;
+                        } else {
+                          el = doc.createElementNS('http://www.w3.org/2000/svg', 'path') as SVGElement;
+                        }
+                        if (el && workspaceRoot) {
+                          el.setAttribute('id', layer.id);
+                          workspaceRoot.appendChild(el);
+                        }
+                      }
+                    });
+
+                    const finalSvg = new XMLSerializer().serializeToString(doc);
+
+                    setState(p => ({
+                      ...p,
+                      currentSvg: finalSvg,
+                      layers: loadedLayers,
+                      selectedLayerId: null,
+                      history: [finalSvg],
+                      redoHistory: [],
+                      zoom: data.zoom || p.zoom,
+                      pan: data.pan || p.pan,
+                    }));
+
+                    if (data.frameState) setFrameState(data.frameState);
+                    if (data.keyframes) setKeyframes(data.keyframes);
+
+                    showToast('Project opened', 'success');
+                  } else {
+                    showToast('Invalid project file', 'error');
+                  }
                 } else {
-                  showToast("Invalid project file", "error");
+                  showToast('Invalid project file format', 'error');
                 }
-              } else {
-                showToast("Invalid project file format", "error");
+              } catch (error) {
+                console.error('File open error:', error);
+                showToast('Failed to open project', 'error');
               }
-            } catch (error) {
-              console.error('File open error:', error);
-              showToast("Failed to open project", "error");
+            }
+          };
+          input.click();
+          break;
+        case 'FILE_EXPORT':
+          const exportBlob = new Blob([state.currentSvg], { type: 'image/svg+xml' });
+          const exportUrl = URL.createObjectURL(exportBlob);
+          const exportA = document.createElement('a');
+          exportA.href = exportUrl;
+          exportA.download = `xi_vector_${Date.now()}.svg`;
+          exportA.click();
+          showToast('SVG Exported', 'success');
+          break;
+        case 'EDIT_PREFERENCES':
+          setShowPreferences(true);
+          setPreferencesCategory('visual');
+          break;
+        case 'EDIT_UNDO':
+          if (state.history.length > 1) {
+            const prevSvg = state.history[state.history.length - 2];
+            const newHistory = [...state.history];
+            newHistory.pop();
+            setState(p => ({
+              ...p,
+              currentSvg: prevSvg,
+              layers: syncLayersFromSvg(prevSvg),
+              history: newHistory,
+              redoHistory: [...p.redoHistory, p.currentSvg],
+            }));
+            showToast('Undone', 'success');
+          }
+          break;
+        case 'EDIT_REDO':
+          if (state.redoHistory.length > 0) {
+            const nextSvg = state.redoHistory[state.redoHistory.length - 1];
+            const newRedoHistory = [...state.redoHistory];
+            newRedoHistory.pop();
+            setState(p => ({
+              ...p,
+              currentSvg: nextSvg,
+              layers: syncLayersFromSvg(nextSvg),
+              history: [...p.history, nextSvg],
+              redoHistory: newRedoHistory,
+            }));
+            showToast('Redone', 'success');
+          }
+          break;
+        case 'OBJECT_GROUP':
+          if (state.selectedLayerId) {
+            const selectedLayers = state.layers.filter(l => l.id === state.selectedLayerId);
+            if (selectedLayers.length > 0) {
+              const groupLayer: VectorLayer = {
+                id: `group_${Date.now()}`,
+                name: `Group ${state.layers.length + 1}`,
+                visible: true,
+                locked: false,
+                color: 'var(--xibalba-text-000, #ffffff)',
+                stroke: 'var(--xibalba-grey-000, #000000)',
+                strokeWidth: 1,
+                opacity: 1,
+                blendMode: 'normal',
+                shape: { type: 'path', nodes: [] },
+                children: selectedLayers,
+              };
+              const newLayers = [
+                ...state.layers.filter(l => l.id !== state.selectedLayerId),
+                groupLayer,
+              ];
+              updateSvgFromLayers(newLayers);
+              setState(p => ({ ...p, layers: newLayers, selectedLayerId: groupLayer.id }));
+              showToast('Layers grouped', 'success');
             }
           }
-        };
-        input.click();
-        break;
-      case 'FILE_EXPORT':
-        const exportBlob = new Blob([state.currentSvg], { type: 'image/svg+xml' });
-        const exportUrl = URL.createObjectURL(exportBlob);
-        const exportA = document.createElement('a');
-        exportA.href = exportUrl; exportA.download = `xi_vector_${Date.now()}.svg`; exportA.click();
-        showToast("SVG Exported", "success");
-        break;
-      case 'EDIT_PREFERENCES':
-        setShowPreferences(true);
-        setPreferencesCategory('visual');
-        break;
-      case 'EDIT_UNDO':
-        if (state.history.length > 1) {
-          const prevSvg = state.history[state.history.length - 2];
-          const newHistory = [...state.history];
-          newHistory.pop();
-          setState(p => ({ 
-            ...p, 
-            currentSvg: prevSvg, 
-            layers: syncLayersFromSvg(prevSvg),
-            history: newHistory,
-            redoHistory: [...p.redoHistory, p.currentSvg]
-          }));
-          showToast("Undone", "success");
-        }
-        break;
-      case 'EDIT_REDO':
-        if (state.redoHistory.length > 0) {
-          const nextSvg = state.redoHistory[state.redoHistory.length - 1];
-          const newRedoHistory = [...state.redoHistory];
-          newRedoHistory.pop();
-          setState(p => ({ 
-            ...p, 
-            currentSvg: nextSvg, 
-            layers: syncLayersFromSvg(nextSvg),
-            history: [...p.history, nextSvg],
-            redoHistory: newRedoHistory
-          }));
-          showToast("Redone", "success");
-        }
-        break;
-      case 'OBJECT_GROUP':
-        if (state.selectedLayerId) {
-          const selectedLayers = state.layers.filter(l => l.id === state.selectedLayerId);
-          if (selectedLayers.length > 0) {
-            const groupLayer: VectorLayer = {
-              id: `group_${Date.now()}`,
-              name: `Group ${state.layers.length + 1}`,
-              visible: true,
-              locked: false,
-              color: 'var(--xibalba-text-000, #ffffff)',
-              stroke: 'var(--xibalba-grey-000, #000000)',
-              strokeWidth: 1,
-              opacity: 1,
-              blendMode: 'normal',
-              shape: { type: 'path', nodes: [] },
-              children: selectedLayers
-            };
-            const newLayers = [
-              ...state.layers.filter(l => l.id !== state.selectedLayerId),
-              groupLayer
-            ];
-            updateSvgFromLayers(newLayers);
-            setState(p => ({ ...p, layers: newLayers, selectedLayerId: groupLayer.id }));
-            showToast("Layers grouped", "success");
+          break;
+        case 'OBJECT_UNGROUP':
+          if (state.selectedLayerId) {
+            const groupLayer = state.layers.find(l => l.id === state.selectedLayerId);
+            if (groupLayer && groupLayer.children && groupLayer.children.length > 0) {
+              const newLayers = [
+                ...state.layers.filter(l => l.id !== state.selectedLayerId),
+                ...groupLayer.children,
+              ];
+              updateSvgFromLayers(newLayers);
+              setState(p => ({ ...p, layers: newLayers }));
+              showToast('Layers ungrouped', 'success');
+            }
           }
-        }
-        break;
-      case 'OBJECT_UNGROUP':
-        if (state.selectedLayerId) {
-          const groupLayer = state.layers.find(l => l.id === state.selectedLayerId);
-          if (groupLayer && groupLayer.children && groupLayer.children.length > 0) {
-            const newLayers = [
-              ...state.layers.filter(l => l.id !== state.selectedLayerId),
-              ...groupLayer.children
-            ];
+          break;
+        case 'AI_SIMPLIFY':
+          if (!state.selectedLayerId) {
+            showToast('Select a path to rig', 'warning');
+            return;
+          }
+          setState(p => ({ ...p, isGenerating: true }));
+          // Temporarily disabled - const res = await generateVectorData(...);
+          const res = { svg: state.currentSvg, layers: [] } as any;
+          if (res) {
+            setState(p => ({ ...p, currentSvg: res.svg, layers: syncLayersFromSvg(res.svg) }));
+            showToast('Rigging Calibrated', 'success');
+          }
+          setState(p => ({ ...p, isGenerating: false }));
+          break;
+        // Edit Menu Actions
+        case 'EDIT_CUT':
+          if (state.selectedLayerId) {
+            const layer = state.layers.find(l => l.id === state.selectedLayerId);
+            if (layer) {
+              navigator.clipboard.writeText(JSON.stringify(layer));
+              const newLayers = state.layers.filter(l => l.id !== state.selectedLayerId);
+              updateSvgFromLayers(newLayers);
+              setState(p => ({ ...p, layers: newLayers, selectedLayerId: null }));
+              showToast('Cut to clipboard', 'success');
+            }
+          }
+          break;
+        case 'EDIT_COPY':
+          if (state.selectedLayerId) {
+            const layer = state.layers.find(l => l.id === state.selectedLayerId);
+            if (layer) {
+              navigator.clipboard.writeText(JSON.stringify(layer));
+              showToast('Copied to clipboard', 'success');
+            }
+          }
+          break;
+        case 'EDIT_PASTE':
+          try {
+            const text = await navigator.clipboard.readText();
+            const layer = JSON.parse(text);
+            if (layer && layer.id) {
+              const newLayer = { ...layer, id: `layer_${Date.now()}`, name: `${layer.name} Copy` };
+              const newLayers = [...state.layers, newLayer];
+              updateSvgFromLayers(newLayers);
+              setState(p => ({ ...p, layers: newLayers, selectedLayerId: newLayer.id }));
+              showToast('Pasted', 'success');
+            }
+          } catch (e) {
+            showToast('Nothing to paste', 'warning');
+          }
+          break;
+        case 'EDIT_CLEAR':
+        case 'SELECT_DESELECT':
+          setState(p => ({ ...p, selectedLayerId: null }));
+          showToast('Deselected', 'info');
+          break;
+        case 'SELECT_ALL':
+          if (state.layers.length > 0) {
+            setState(p => ({ ...p, selectedLayerId: state.layers[0].id }));
+            showToast('Selected all', 'info');
+          }
+          break;
+        // View Menu Actions
+        case 'VIEW_ZOOM_IN':
+          setState(p => ({ ...p, zoom: Math.min(400, p.zoom + 25) }));
+          break;
+        case 'VIEW_ZOOM_OUT':
+          setState(p => ({ ...p, zoom: Math.max(25, p.zoom - 25) }));
+          break;
+        case 'VIEW_FIT':
+          setState(p => ({ ...p, zoom: 100, pan: { x: 0, y: 0 } }));
+          break;
+        case 'VIEW_ACTUAL':
+          setState(p => ({ ...p, zoom: 100 }));
+          break;
+        case 'VIEW_SHOW_GRID':
+          // Toggle grid via PowerUserToolbar state
+          break;
+        case 'VIEW_SHOW_GUIDES':
+          // Toggle guides via PowerUserToolbar state
+          break;
+        // Object Menu Actions
+        case 'OBJECT_LOCK':
+          if (state.selectedLayerId) {
+            const newLayers = state.layers.map(l =>
+              l.id === state.selectedLayerId ? { ...l, locked: true } : l
+            );
             updateSvgFromLayers(newLayers);
             setState(p => ({ ...p, layers: newLayers }));
-            showToast("Layers ungrouped", "success");
+            showToast('Locked', 'success');
           }
-        }
-        break;
-      case 'AI_SIMPLIFY':
-        if(!state.selectedLayerId) { showToast("Select a path to rig", "warning"); return; }
-        setState(p => ({ ...p, isGenerating: true }));
-        const res = await generateVectorData(`Mathematically optimize and rig the path ID "${state.selectedLayerId}". Add kinetic joints for animation.`, state.style, state.currentSvg);
-        if(res) {
-          setState(p => ({ ...p, currentSvg: res.svg, layers: syncLayersFromSvg(res.svg) }));
-          showToast("Rigging Calibrated", "success");
-        }
-        setState(p => ({ ...p, isGenerating: false }));
-        break;
-      // Edit Menu Actions
-      case 'EDIT_CUT':
-        if (state.selectedLayerId) {
-          const layer = state.layers.find(l => l.id === state.selectedLayerId);
-          if (layer) {
-            navigator.clipboard.writeText(JSON.stringify(layer));
-            const newLayers = state.layers.filter(l => l.id !== state.selectedLayerId);
-            updateSvgFromLayers(newLayers);
-            setState(p => ({ ...p, layers: newLayers, selectedLayerId: null }));
-            showToast("Cut to clipboard", "success");
-          }
-        }
-        break;
-      case 'EDIT_COPY':
-        if (state.selectedLayerId) {
-          const layer = state.layers.find(l => l.id === state.selectedLayerId);
-          if (layer) {
-            navigator.clipboard.writeText(JSON.stringify(layer));
-            showToast("Copied to clipboard", "success");
-          }
-        }
-        break;
-      case 'EDIT_PASTE':
-        try {
-          const text = await navigator.clipboard.readText();
-          const layer = JSON.parse(text);
-          if (layer && layer.id) {
-            const newLayer = { ...layer, id: `layer_${Date.now()}`, name: `${layer.name} Copy` };
-            const newLayers = [...state.layers, newLayer];
-            updateSvgFromLayers(newLayers);
-            setState(p => ({ ...p, layers: newLayers, selectedLayerId: newLayer.id }));
-            showToast("Pasted", "success");
-          }
-        } catch (e) {
-          showToast("Nothing to paste", "warning");
-        }
-        break;
-      case 'EDIT_CLEAR':
-      case 'SELECT_DESELECT':
-        setState(p => ({ ...p, selectedLayerId: null }));
-        showToast("Deselected", "info");
-        break;
-      case 'SELECT_ALL':
-        if (state.layers.length > 0) {
-          setState(p => ({ ...p, selectedLayerId: state.layers[0].id }));
-          showToast("Selected all", "info");
-        }
-        break;
-      // View Menu Actions
-      case 'VIEW_ZOOM_IN':
-        setState(p => ({ ...p, zoom: Math.min(400, p.zoom + 25) }));
-        break;
-      case 'VIEW_ZOOM_OUT':
-        setState(p => ({ ...p, zoom: Math.max(25, p.zoom - 25) }));
-        break;
-      case 'VIEW_FIT':
-        setState(p => ({ ...p, zoom: 100, pan: { x: 0, y: 0 } }));
-        break;
-      case 'VIEW_ACTUAL':
-        setState(p => ({ ...p, zoom: 100 }));
-        break;
-      case 'VIEW_SHOW_GRID':
-        // Toggle grid via PowerUserToolbar state
-        break;
-      case 'VIEW_SHOW_GUIDES':
-        // Toggle guides via PowerUserToolbar state
-        break;
-      // Object Menu Actions
-      case 'OBJECT_LOCK':
-        if (state.selectedLayerId) {
-          const newLayers = state.layers.map(l => l.id === state.selectedLayerId ? { ...l, locked: true } : l);
+          break;
+        case 'OBJECT_UNLOCK':
+          const newLayers = state.layers.map(l => ({ ...l, locked: false }));
           updateSvgFromLayers(newLayers);
           setState(p => ({ ...p, layers: newLayers }));
-          showToast("Locked", "success");
-        }
-        break;
-      case 'OBJECT_UNLOCK':
-        const newLayers = state.layers.map(l => ({ ...l, locked: false }));
-        updateSvgFromLayers(newLayers);
-        setState(p => ({ ...p, layers: newLayers }));
-        showToast("Unlocked all", "success");
-        break;
-      case 'OBJECT_HIDE':
-        if (state.selectedLayerId) {
-          const newLayers = state.layers.map(l => l.id === state.selectedLayerId ? { ...l, visible: false } : l);
-          updateSvgFromLayers(newLayers);
-          setState(p => ({ ...p, layers: newLayers }));
-          showToast("Hidden", "success");
-        }
-        break;
-      case 'OBJECT_SHOW':
-        const visibleLayers = state.layers.map(l => ({ ...l, visible: true }));
-        updateSvgFromLayers(visibleLayers);
-        setState(p => ({ ...p, layers: visibleLayers }));
-        showToast("Shown all", "success");
-        break;
-      // Path Operations
-      case 'OBJECT_PATH_UNION':
-      case 'EFFECT_PATHFINDER_UNION':
-        if (state.layers.filter(l => state.selectedLayerId === l.id).length >= 2) {
-          showToast("Union: Select 2+ objects", "info");
-          // TODO: Implement boolean union
-        }
-        break;
-      case 'OBJECT_PATH_INTERSECT':
-      case 'EFFECT_PATHFINDER_INTERSECT':
-        if (state.layers.filter(l => state.selectedLayerId === l.id).length >= 2) {
-          showToast("Intersect: Select 2+ objects", "info");
-          // TODO: Implement boolean intersect
-        }
-        break;
-      case 'OBJECT_PATH_SUBTRACT':
-      case 'EFFECT_PATHFINDER_SUBTRACT':
-        if (state.layers.filter(l => state.selectedLayerId === l.id).length >= 2) {
-          showToast("Subtract: Select 2+ objects", "info");
-          // TODO: Implement boolean subtract
-        }
-        break;
-      case 'OBJECT_PATH_EXCLUDE':
-      case 'EFFECT_PATHFINDER_EXCLUDE':
-        if (state.layers.filter(l => state.selectedLayerId === l.id).length >= 2) {
-          showToast("Exclude: Select 2+ objects", "info");
-          // TODO: Implement boolean exclude
-        }
-        break;
-      case 'OBJECT_EXPAND':
-        if (state.selectedLayerId) {
-          const layer = state.layers.find(l => l.id === state.selectedLayerId);
-          if (layer && layer.shape.type === 'path') {
-            // Convert stroke to fill
-            showToast("Expand: Convert stroke to fill", "info");
-            // TODO: Implement path expansion
+          showToast('Unlocked all', 'success');
+          break;
+        case 'OBJECT_HIDE':
+          if (state.selectedLayerId) {
+            const newLayers = state.layers.map(l =>
+              l.id === state.selectedLayerId ? { ...l, visible: false } : l
+            );
+            updateSvgFromLayers(newLayers);
+            setState(p => ({ ...p, layers: newLayers }));
+            showToast('Hidden', 'success');
           }
-        }
-        break;
-      case 'OBJECT_EXPAND_APPEARANCE':
-        if (state.selectedLayerId) {
-          showToast("Expand Appearance: Flatten effects", "info");
-          // TODO: Implement appearance expansion
-        }
-        break;
-      case 'TYPE_CREATE_OUTLINES':
-        if (state.selectedLayerId) {
-          const layer = state.layers.find(l => l.id === state.selectedLayerId);
-          if (layer && layer.shape.type === 'text') {
-            showToast("Create Outlines: Convert text to paths", "info");
-            // TODO: Implement text to outlines
+          break;
+        case 'OBJECT_SHOW':
+          const visibleLayers = state.layers.map(l => ({ ...l, visible: true }));
+          updateSvgFromLayers(visibleLayers);
+          setState(p => ({ ...p, layers: visibleLayers }));
+          showToast('Shown all', 'success');
+          break;
+        // Path Operations
+        case 'OBJECT_PATH_UNION':
+        case 'EFFECT_PATHFINDER_UNION':
+          if (state.layers.filter(l => state.selectedLayerId === l.id).length >= 2) {
+            showToast('Union: Select 2+ objects', 'info');
+            // TODO: Implement boolean union
           }
-        }
-        break;
-      // Window Menu Actions
-      case 'WINDOW_BUG_REPORTER':
-        setShowBugReporter(true);
-        break;
-      case 'WINDOW_FEATURE_REQUEST':
-        setShowFeatureRequest(true);
-        break;
-      default:
-        // Don't show toast for unimplemented actions - just silently ignore
-        break;
-    }
-  }, [state, syncLayersFromSvg, updateSvgFromLayers, showToast]);
+          break;
+        case 'OBJECT_PATH_INTERSECT':
+        case 'EFFECT_PATHFINDER_INTERSECT':
+          if (state.layers.filter(l => state.selectedLayerId === l.id).length >= 2) {
+            showToast('Intersect: Select 2+ objects', 'info');
+            // TODO: Implement boolean intersect
+          }
+          break;
+        case 'OBJECT_PATH_SUBTRACT':
+        case 'EFFECT_PATHFINDER_SUBTRACT':
+          if (state.layers.filter(l => state.selectedLayerId === l.id).length >= 2) {
+            showToast('Subtract: Select 2+ objects', 'info');
+            // TODO: Implement boolean subtract
+          }
+          break;
+        case 'OBJECT_PATH_EXCLUDE':
+        case 'EFFECT_PATHFINDER_EXCLUDE':
+          if (state.layers.filter(l => state.selectedLayerId === l.id).length >= 2) {
+            showToast('Exclude: Select 2+ objects', 'info');
+            // TODO: Implement boolean exclude
+          }
+          break;
+        case 'OBJECT_EXPAND':
+          if (state.selectedLayerId) {
+            const layer = state.layers.find(l => l.id === state.selectedLayerId);
+            if (layer && layer.shape.type === 'path') {
+              // Convert stroke to fill
+              showToast('Expand: Convert stroke to fill', 'info');
+              // TODO: Implement path expansion
+            }
+          }
+          break;
+        case 'OBJECT_EXPAND_APPEARANCE':
+          if (state.selectedLayerId) {
+            showToast('Expand Appearance: Flatten effects', 'info');
+            // TODO: Implement appearance expansion
+          }
+          break;
+        case 'TYPE_CREATE_OUTLINES':
+          if (state.selectedLayerId) {
+            const layer = state.layers.find(l => l.id === state.selectedLayerId);
+            if (layer && layer.shape.type === 'text') {
+              showToast('Create Outlines: Convert text to paths', 'info');
+              // TODO: Implement text to outlines
+            }
+          }
+          break;
+        // Window Menu Actions
+        case 'WINDOW_BUG_REPORTER':
+          setShowBugReporter(true);
+          break;
+        case 'WINDOW_FEATURE_REQUEST':
+          setShowFeatureRequest(true);
+          break;
+        default:
+          // Don't show toast for unimplemented actions - just silently ignore
+          break;
+      }
+    },
+    [state, syncLayersFromSvg, updateSvgFromLayers, showToast]
+  );
 
-  const handleUpdateNode = (layerId: string, nodeId: string, delta: {x: number, y: number}) => {
+  const handleUpdateNode = (layerId: string, nodeId: string, delta: { x: number; y: number }) => {
     const newLayers = state.layers.map(l => {
       if (l.id !== layerId) return l;
       if (l.shape.type !== 'path') return l;
@@ -772,8 +915,10 @@ const App: React.FC = () => {
         ...l,
         shape: {
           ...l.shape,
-          nodes: l.shape.nodes.map(n => n.id === nodeId ? { ...n, x: n.x + delta.x, y: n.y + delta.y } : n)
-        }
+          nodes: l.shape.nodes.map(n =>
+            n.id === nodeId ? { ...n, x: n.x + delta.x, y: n.y + delta.y } : n
+          ),
+        },
       };
     });
     updateSvgFromLayers(newLayers);
@@ -787,7 +932,8 @@ const App: React.FC = () => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
-      const isInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
+      const isInput =
+        target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
 
       // Spacebar for temporary hand tool (panning)
       if (e.key === ' ' && !isInput) {
@@ -803,7 +949,7 @@ const App: React.FC = () => {
       // Ctrl/Cmd combinations
       if (e.ctrlKey || e.metaKey) {
         if (isInput) return; // Don't override input shortcuts
-        
+
         switch (e.key.toLowerCase()) {
           case 's':
             e.preventDefault();
@@ -914,7 +1060,8 @@ const App: React.FC = () => {
             setState(p => ({ ...p, activeTool: 'scale' }));
             break;
           case 'e':
-            setState(p => ({ ...p, activeTool: 'eraser' }));
+            // Eraser tool not yet implemented in ToolType
+            // setState(p => ({ ...p, activeTool: 'eraser' }));
             break;
           case 'g':
             setState(p => ({ ...p, activeTool: 'gradient' }));
@@ -931,7 +1078,7 @@ const App: React.FC = () => {
               const newLayers = state.layers.filter(l => l.id !== state.selectedLayerId);
               updateSvgFromLayers(newLayers);
               setState(p => ({ ...p, layers: newLayers, selectedLayerId: null }));
-              showToast("Layer deleted", "success");
+              showToast('Layer deleted', 'success');
             }
             break;
         }
@@ -958,60 +1105,65 @@ const App: React.FC = () => {
     <div className="h-screen w-screen flex flex-col overflow-hidden bg-[var(--xibalba-grey-000)] text-[var(--xibalba-text-000)] antialiased">
       <div className="fixed top-14 left-1/2 -translate-x-1/2 z-[200] pointer-events-none flex flex-col gap-2">
         {state.toasts.map(toast => (
-          <div key={toast.id} className="px-5 py-3 border border-white/10 bg-[var(--xibalba-grey-050)]/90 backdrop-blur-xl text-xs font-black uppercase tracking-widest text-[var(--xibalba-accent)] shadow-2xl animate-in slide-in-from-top flex items-center gap-3">
-             <span className="material-symbols-outlined text-[18px]">verified</span> {toast.message}
+          <div
+            key={toast.id}
+            className="px-5 py-3 border border-white/10 bg-[var(--xibalba-grey-050)]/90 backdrop-blur-xl text-xs font-black uppercase tracking-widest text-[var(--xibalba-accent)] shadow-2xl animate-in slide-in-from-top flex items-center gap-3"
+          >
+            <span className="material-symbols-outlined text-[18px]">verified</span> {toast.message}
           </div>
         ))}
       </div>
 
-        <div className="header-container">
-          <ProfessionalFileMenu 
-            onAction={(action) => handleAction(action)}
-            onLayoutChange={handleLayoutSwitch}
+      <div className="header-container">
+        {/* Temporarily disabled to prevent circular dependencies */}
+        {/* <ProfessionalFileMenu
+          onAction={action => handleAction(action)}
+          onLayoutChange={handleLayoutSwitch}
+        /> */}
+        <div className="header-actions">
+          {/* Temporarily disabled to prevent circular dependencies */}
+          {/* <SubscriptionStatusIndicator
+            onAccountClick={() => setShowBillingPanel(true)}
+            onUpgradeClick={() => {
+              setUpgradeFeature({ id: 'general', name: 'Premium Features', tier: 'pro' });
+              setShowUpgradePrompt(true);
+            }}
           />
-          <div className="header-actions">
-            <SubscriptionStatusIndicator
-              onAccountClick={() => setShowBillingPanel(true)}
-              onUpgradeClick={() => {
-                setUpgradeFeature({ id: 'general', name: 'Premium Features', tier: 'pro' });
-                setShowUpgradePrompt(true);
-              }}
-            />
-            <ActionCenter 
-              userId="user-1" // TODO: Get from auth context
-              onAction={(action) => {
-                console.log('Action Center action:', action);
-                // Handle action (e.g., navigate to task, open dialog)
-              }}
-            />
-            <AccountMenu
-              userId="user-1"
-              userName="User"
-              userEmail="user@example.com"
-              onPreferencesClick={() => {
-                setShowPreferences(true);
-                setPreferencesCategory('visual');
-              }}
-              onBillingClick={() => setShowBillingPanel(true)}
-              onUpgradeClick={() => {
-                setUpgradeFeature({ id: 'general', name: 'Premium Features', tier: 'pro' });
-                setShowUpgradePrompt(true);
-              }}
-              onSignOut={() => {
-                if (confirm('Sign out?')) {
-                  // TODO: Implement sign out
-                  console.log('Sign out');
-                }
-              }}
-            />
-          </div>
+          <ActionCenter
+            userId="user-1" // TODO: Get from auth context
+            onAction={action => {
+              console.log('Action Center action:', action);
+              // Handle action (e.g., navigate to task, open dialog)
+            }}
+          />
+          <AccountMenu
+            userId="user-1"
+            userName="User"
+            userEmail="user@example.com"
+            onPreferencesClick={() => {
+              setShowPreferences(true);
+              setPreferencesCategory('visual');
+            }}
+            onBillingClick={() => setShowBillingPanel(true)}
+            onUpgradeClick={() => {
+              setUpgradeFeature({ id: 'general', name: 'Premium Features', tier: 'pro' });
+              setShowUpgradePrompt(true);
+            }}
+            onSignOut={() => {
+              if (confirm('Sign out?')) {
+                // TODO: Implement sign out
+                console.log('Sign out');
+              }
+            }}
+          /> */}
         </div>
-      
+      </div>
+
       {/* Tool Palette - Fixed position, docked to left by default, draggable */}
       {/* Wrapped in ToolLockingSystem for production-quality tool stability */}
       <ToolLockingSystem
         activeTool={state.activeTool}
-        onToolChange={(t) => setState(p => ({...p, activeTool: t}))}
+        onToolChange={t => setState(p => ({ ...p, activeTool: t }))}
         lockConfig={{
           preventChange: true,
           showIndicator: true,
@@ -1020,231 +1172,281 @@ const App: React.FC = () => {
       >
         <DockableToolPalette
           activeTool={state.activeTool}
-          setTool={(t) => setState(p => ({...p, activeTool: t}))}
+          setTool={t => setState(p => ({ ...p, activeTool: t }))}
           onSmartMagic={async () => {
-            if(!state.selectedLayerId) { showToast("Select a topological node", "warning"); return; }
-            setState(p => ({...p, isGenerating: true}));
+            if (!state.selectedLayerId) {
+              showToast('Select a topological node', 'warning');
+              return;
+            }
+            setState(p => ({ ...p, isGenerating: true }));
             // Temporarily disabled - const suggestions = await getSmartSuggestions(state.currentSvg, state.selectedLayerId);
             const suggestions = [] as any;
             setAiSuggestions(suggestions);
-            setState(p => ({...p, isGenerating: false}));
+            setState(p => ({ ...p, isGenerating: false }));
           }}
           position={toolPalettePosition}
-          onPositionChange={(pos) => {
+          onPositionChange={pos => {
             setToolPalettePosition(pos);
           }}
           zIndex={1000}
         />
       </ToolLockingSystem>
-      
+
       <div className="flex-1 flex overflow-hidden relative">
         {/* Main content area - adjusts margin for docked tool palette */}
-        <div 
-          className="flex-1 flex overflow-hidden"
-          style={{
-            marginLeft: toolPalettePosition.zone === 'left' ? `${toolPalettePosition.width || 200}px` : '0',
-            transition: 'margin-left 0.2s ease'
+        <div
+          ref={(node) => {
+            if (node) {
+              const width = toolPalettePosition.zone === 'left' ? (toolPalettePosition.width || 200) : 0;
+              node.style.setProperty('--palette-width', `${width}px`);
+            }
           }}
+          className="flex-1 flex overflow-hidden canvas-main-content palette-container"
+          data-palette-zone={toolPalettePosition.zone}
         >
-          <LeftSidebar 
-          state={state} setState={setState}
-          onGenerate={async () => {
-             setState(p => ({ ...p, isGenerating: true }));
-             // Temporarily disabled - const res = await generateVectorData(state.prompt, state.style);
-             const res = { svg: state.currentSvg, layers: [] } as any;
-             if (res) { setState(p => ({ ...p, currentSvg: res.svg, layers: syncLayersFromSvg(res.svg) })); showToast("Logic Synthesized", "success"); }
-             setState(p => ({ ...p, isGenerating: false }));
-          }}
-          onRefine={async () => {
-             setState(p => ({ ...p, isGenerating: true }));
-             // Temporarily disabled - const res = await generateVectorData(state.prompt, state.style, state.currentSvg);
-             const res = { svg: state.currentSvg, layers: [] } as any;
-             if (res) { setState(p => ({ ...p, currentSvg: res.svg, layers: syncLayersFromSvg(res.svg) })); showToast("Refined Geometry", "success"); }
-             setState(p => ({ ...p, isGenerating: false }));
-          }}
-          onTerminalCommand={(c) => setState(p => ({ ...p, terminalLogs: [...p.terminalLogs, {id:Date.now().toString(), type:'command', text:c, timestamp:Date.now()}]}))}
-          onVisionScan={() => {}}
-        />
-        
-        <main className="flex-1 flex flex-col bg-[var(--xibalba-grey-000)] relative overflow-hidden">
-          {/* View Switcher */}
-          <div className="flex items-center gap-2 p-2 border-b border-white/10 bg-[var(--xibalba-grey-050)]">
-            <button
-              onClick={() => setActiveView('vectorforge')}
-              className={`px-4 py-2 text-sm font-medium transition-colors ${
-                activeView === 'vectorforge'
-                  ? 'bg-[var(--xibalba-accent)] text-white'
-                  : 'bg-transparent text-[var(--xibalba-text-200)] hover:text-[var(--xibalba-text-000)]'
-              }`}
-            >
-              <span className="material-icons text-sm mr-2">edit</span>
-              VectorForge
-            </button>
-            <button
-              onClick={() => {
-                setActiveView('tasks');
-                // TODO: Import and use clickTrackingService and workTrackingService
-                // clickTrackingService.trackClick('App', 'switch-to-tasks', 'view-switcher', {});
-                // workTrackingService.recordCalculation();
-              }}
-              className={`px-4 py-2 text-sm font-medium transition-colors ${
-                activeView === 'tasks'
-                  ? 'bg-[var(--xibalba-accent)] text-white'
-                  : 'bg-transparent text-[var(--xibalba-text-200)] hover:text-[var(--xibalba-text-000)]'
-              }`}
-            >
-              <span className="material-icons text-sm mr-2">task</span>
-              Tasks
-            </button>
-          </div>
+          <LeftSidebar
+            state={state}
+            setState={setState}
+            onGenerate={async () => {
+              setState(p => ({ ...p, isGenerating: true }));
+              // Temporarily disabled - const res = await generateVectorData(state.prompt, state.style);
+              const res = { svg: state.currentSvg, layers: [] } as any;
+              if (res) {
+                setState(p => ({ ...p, currentSvg: res.svg, layers: syncLayersFromSvg(res.svg) }));
+                showToast('Logic Synthesized', 'success');
+              }
+              setState(p => ({ ...p, isGenerating: false }));
+            }}
+            onRefine={async () => {
+              setState(p => ({ ...p, isGenerating: true }));
+              // Temporarily disabled - const res = await generateVectorData(state.prompt, state.style, state.currentSvg);
+              const res = { svg: state.currentSvg, layers: [] } as any;
+              if (res) {
+                setState(p => ({ ...p, currentSvg: res.svg, layers: syncLayersFromSvg(res.svg) }));
+                showToast('Refined Geometry', 'success');
+              }
+              setState(p => ({ ...p, isGenerating: false }));
+            }}
+            onTerminalCommand={c =>
+              setState(p => ({
+                ...p,
+                terminalLogs: [
+                  ...p.terminalLogs,
+                  { id: Date.now().toString(), type: 'command', text: c, timestamp: Date.now() },
+                ],
+              }))
+            }
+            onVisionScan={() => {}}
+          />
 
-          {activeView === 'tasks' ? (
-            <div className="flex-1 flex overflow-hidden">
-              <div className="flex-1 overflow-hidden">
-                <SprintBoard
-                  sprintId={activeSprintId}
-                  onTaskSelect={(task) => {
-                    setSelectedTask(task);
-                    // TODO: Import and use clickTrackingService and workTrackingService
-                    // clickTrackingService.trackClick('App', 'select-task', task.id, { taskId: task.id });
-                    // workTrackingService.recordCalculation();
-                  }}
-                  onTaskMove={async (taskId, newStatus) => {
-                    // TODO: Import and use clickTrackingService and workTrackingService
-                    // clickTrackingService.trackClick('App', 'move-task', taskId, { taskId, newStatus });
-                    // workTrackingService.recordCalculation();
-                  }}
-                  onTaskCreate={(column) => {
-                    // TODO: Import and use clickTrackingService and workTrackingService
-                    // clickTrackingService.trackClick('App', 'create-task', column, { column });
-                    // workTrackingService.recordCalculation();
-                    // TODO: Open task creation dialog
-                  }}
-                />
-              </div>
-              {selectedTask && (
-                <div className="w-[360px] border-l border-white/10 bg-[var(--xibalba-grey-050)]">
-                  <InspectorPanel
-                    item={selectedTask}
-                    onUpdate={async (updates) => {
+          <main className="flex-1 flex flex-col bg-[var(--xibalba-grey-000)] relative overflow-hidden">
+            {/* View Switcher */}
+            <div className="flex items-center gap-2 p-2 border-b border-white/10 bg-[var(--xibalba-grey-050)]">
+              <button
+                onClick={() => setActiveView('vectorforge')}
+                className={`px-4 py-2 text-sm font-medium transition-colors ${
+                  activeView === 'vectorforge'
+                    ? 'bg-[var(--xibalba-accent)] text-white'
+                    : 'bg-transparent text-[var(--xibalba-text-200)] hover:text-[var(--xibalba-text-000)]'
+                }`}
+              >
+                <span className="material-icons text-sm mr-2">edit</span>
+                VectorForge
+              </button>
+              <button
+                onClick={() => {
+                  setActiveView('tasks');
+                  // TODO: Import and use clickTrackingService and workTrackingService
+                  // clickTrackingService.trackClick('App', 'switch-to-tasks', 'view-switcher', {});
+                  // workTrackingService.recordCalculation();
+                }}
+                className={`px-4 py-2 text-sm font-medium transition-colors ${
+                  activeView === 'tasks'
+                    ? 'bg-[var(--xibalba-accent)] text-white'
+                    : 'bg-transparent text-[var(--xibalba-text-200)] hover:text-[var(--xibalba-text-000)]'
+                }`}
+              >
+                <span className="material-icons text-sm mr-2">task</span>
+                Tasks
+              </button>
+            </div>
+
+            {activeView === 'tasks' ? (
+              <div className="flex-1 flex overflow-hidden">
+                <div className="flex-1 overflow-hidden">
+                  <SprintBoard
+                    sprintId={activeSprintId}
+                    onTaskSelect={task => {
+                      setSelectedTask(task);
                       // TODO: Import and use clickTrackingService and workTrackingService
-                      // clickTrackingService.trackClick('App', 'update-task', selectedTask.id, { updates });
+                      // clickTrackingService.trackClick('App', 'select-task', task.id, { taskId: task.id });
                       // workTrackingService.recordCalculation();
-                      // TODO: Update task via service
                     }}
-                    onLink={async (item, target) => {
+                    onTaskMove={async (taskId, newStatus) => {
                       // TODO: Import and use clickTrackingService and workTrackingService
-                      // clickTrackingService.trackClick('App', 'link-item', item.id, { targetId: target.id });
+                      // clickTrackingService.trackClick('App', 'move-task', taskId, { taskId, newStatus });
                       // workTrackingService.recordCalculation();
-                      // TODO: Implement linking
                     }}
-                    onClose={() => {
-                      setSelectedTask(null);
+                    onTaskCreate={column => {
                       // TODO: Import and use clickTrackingService and workTrackingService
-                      // clickTrackingService.trackClick('App', 'close-inspector', 'inspector', {});
+                      // clickTrackingService.trackClick('App', 'create-task', column, { column });
+                      // workTrackingService.recordCalculation();
+                      // TODO: Open task creation dialog
                     }}
                   />
                 </div>
-              )}
-            </div>
-          ) : (
-            <>
-              <PowerUserToolbar
-            snapToGrid={snapToGrid}
-            onSnapToGridChange={setSnapToGrid}
-            snapToGuides={snapToGuides}
-            onSnapToGuidesChange={setSnapToGuides}
-            showGuides={showGuides}
-            onShowGuidesChange={setShowGuides}
-            gridSize={gridSize}
-            onGridSizeChange={setGridSize}
-            showOnionSkin={showOnionSkin}
-            onShowOnionSkinChange={setShowOnionSkin}
-            onionSkinFrames={onionSkinFrames}
-            onOnionSkinFramesChange={setOnionSkinFrames}
-          />
-          
-          <DraftsmanCanvas 
-            svgContent={state.currentSvg}
-            layers={state.layers}
-            activeTool={isSpacePressed ? 'pan' : state.activeTool}
-            selectedLayerId={state.selectedLayerId}
-            zoom={state.zoom}
-            pan={state.pan}
-            onPan={(p) => setState(prev => ({ ...prev, pan: p }))}
-            onZoom={(z) => setState(prev => ({ ...prev, zoom: z }))}
-            onSelectLayer={(id) => { setState(p => ({ ...p, selectedLayerId: id })); setAiSuggestions([]); }}
-            onCreateLayer={(layer) => {
-              const newLayers = [...state.layers, layer];
-              updateSvgFromLayers(newLayers);
-              // Add to history for undo/redo
-              const newSvg = state.currentSvg; // updateSvgFromLayers updates this
-              setState(p => ({ 
-                ...p, 
-                layers: newLayers, 
-                selectedLayerId: layer.id,
-                history: [...p.history, newSvg],
-                redoHistory: [] // Clear redo when new action
-              }));
-            }}
-            onUpdateLayer={(id, updates) => {
-              const newLayers = state.layers.map(l => l.id === id ? { ...l, ...updates } : l);
-              updateSvgFromLayers(newLayers);
-              setState(p => ({ ...p, layers: newLayers }));
-            }}
-            frameState={frameState}
-            keyframes={keyframes}
-            onAddKeyframe={(kf) => setKeyframes(prev => [...prev, kf])}
-            onUpdateKeyframe={(id, props) => setKeyframes(prev => prev.map(k => k.id === id ? { ...k, ...props } : k))}
-            showGuides={showGuides}
-            snapToGrid={snapToGrid}
-            snapToGuides={snapToGuides}
-            gridSize={gridSize}
-            measurementUnit={measurementUnit}
-            onUnitChange={setMeasurementUnit}
-            toolProperties={toolProperties}
-            isSpacebarDown={isSpacePressed}
-          />
+                {selectedTask && (
+                  <div className="w-[360px] border-l border-white/10 bg-[var(--xibalba-grey-050)]">
+                    <InspectorPanel
+                      item={selectedTask}
+                      onUpdate={async updates => {
+                        // TODO: Import and use clickTrackingService and workTrackingService
+                        // clickTrackingService.trackClick('App', 'update-task', selectedTask.id, { updates });
+                        // workTrackingService.recordCalculation();
+                        // TODO: Update task via service
+                      }}
+                      onLink={async (item, target) => {
+                        // TODO: Import and use clickTrackingService and workTrackingService
+                        // clickTrackingService.trackClick('App', 'link-item', item.id, { targetId: target.id });
+                        // workTrackingService.recordCalculation();
+                        // TODO: Implement linking
+                      }}
+                      onClose={() => {
+                        setSelectedTask(null);
+                        // TODO: Import and use clickTrackingService and workTrackingService
+                        // clickTrackingService.trackClick('App', 'close-inspector', 'inspector', {});
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+            ) : (
+              <>
+                <PowerUserToolbar
+                  snapToGrid={snapToGrid}
+                  onSnapToGridChange={setSnapToGrid}
+                  snapToGuides={snapToGuides}
+                  onSnapToGuidesChange={setSnapToGuides}
+                  showGuides={showGuides}
+                  onShowGuidesChange={setShowGuides}
+                  gridSize={gridSize}
+                  onGridSizeChange={setGridSize}
+                  showOnionSkin={showOnionSkin}
+                  onShowOnionSkinChange={setShowOnionSkin}
+                  onionSkinFrames={onionSkinFrames}
+                  onOnionSkinFramesChange={setOnionSkinFrames}
+                />
 
-          {aiSuggestions.length > 0 && (
-            <div className="absolute bottom-16 left-1/2 -translate-x-1/2 w-[650px] p-5 xi-card shadow-3xl z-[150] flex flex-col gap-5 animate-in slide-in-from-bottom-10 backdrop-blur-3xl">
-              <div className="flex items-center justify-between">
-                 <span className="text-[11px] font-black text-[var(--xibalba-accent)] tracking-[0.3em] uppercase flex items-center gap-3">
-                   <span className="material-symbols-outlined text-sm">psychology</span> Logical Inferences
-                 </span>
-                 <button onClick={() => setAiSuggestions([])} className="material-symbols-outlined text-[var(--xibalba-text-300)] text-[20px] hover:text-[var(--xibalba-text-000)]">close</button>
-              </div>
-              <div className="grid grid-cols-3 gap-4">
-                {aiSuggestions.map((s, i) => (
-                  <button key={i} onClick={async () => {
-                    setState(p => ({ ...p, isGenerating: true }));
-                    // Temporarily disabled - const res = await generateVectorData(`Execution: ${s.action} - ${s.description}`, state.style, state.currentSvg);
-                    const res = { svg: state.currentSvg, layers: [] } as any;
-                    if (res) { setState(p => ({ ...p, currentSvg: res.svg, layers: syncLayersFromSvg(res.svg) })); setAiSuggestions([]); showToast(`Logic Applied`, "success"); }
-                    setState(p => ({ ...p, isGenerating: false }));
-                  }} className="text-left p-4 xi-inset border border-white/5 hover:border-[var(--xibalba-accent)] transition-all group">
-                    <span className="text-[10px] font-black text-[var(--xibalba-text-000)] uppercase block mb-2 group-hover:text-[var(--xibalba-accent)]">{s.action}</span>
-                    <p className="text-[9px] text-[var(--xibalba-text-300)] leading-normal opacity-80">{s.description}</p>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-            </>
-          )}
-        </main>
+                <DraftsmanCanvas
+                  svgContent={state.currentSvg}
+                  layers={state.layers}
+                  activeTool={isSpacePressed ? 'pan' : state.activeTool}
+                  selectedLayerId={state.selectedLayerId}
+                  zoom={state.zoom}
+                  pan={state.pan}
+                  onPan={p => setState(prev => ({ ...prev, pan: p }))}
+                  onZoom={z => setState(prev => ({ ...prev, zoom: z }))}
+                  onSelectLayer={id => {
+                    setState(p => ({ ...p, selectedLayerId: id }));
+                    setAiSuggestions([]);
+                  }}
+                  onCreateLayer={layer => {
+                    const newLayers = [...state.layers, layer];
+                    updateSvgFromLayers(newLayers);
+                    // Add to history for undo/redo
+                    const newSvg = state.currentSvg; // updateSvgFromLayers updates this
+                    setState(p => ({
+                      ...p,
+                      layers: newLayers,
+                      selectedLayerId: layer.id,
+                      history: [...p.history, newSvg],
+                      redoHistory: [], // Clear redo when new action
+                    }));
+                  }}
+                  onUpdateLayer={(id, updates) => {
+                    const newLayers = state.layers.map(l =>
+                      l.id === id ? { ...l, ...updates } : l
+                    );
+                    updateSvgFromLayers(newLayers);
+                    setState(p => ({ ...p, layers: newLayers }));
+                  }}
+                  frameState={frameState}
+                  keyframes={keyframes}
+                  onAddKeyframe={kf => setKeyframes(prev => [...prev, kf])}
+                  onUpdateKeyframe={(id, props) =>
+                    setKeyframes(prev => prev.map(k => (k.id === id ? { ...k, ...props } : k)))
+                  }
+                  showGuides={showGuides}
+                  snapToGrid={snapToGrid}
+                  snapToGuides={snapToGuides}
+                  gridSize={gridSize}
+                  measurementUnit={measurementUnit}
+                  onUnitChange={setMeasurementUnit}
+                  toolProperties={toolProperties}
+                  isSpacebarDown={isSpacePressed}
+                />
+
+                {aiSuggestions.length > 0 && (
+                  <div className="absolute bottom-16 left-1/2 -translate-x-1/2 w-[650px] p-5 xi-card shadow-3xl z-[150] flex flex-col gap-5 animate-in slide-in-from-bottom-10 backdrop-blur-3xl">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-black text-[var(--xibalba-accent)] tracking-[0.3em] uppercase flex items-center gap-3">
+                        <span className="material-symbols-outlined text-sm">psychology</span>{' '}
+                        Logical Inferences
+                      </span>
+                      <button
+                        onClick={() => setAiSuggestions([])}
+                        className="material-symbols-outlined text-[var(--xibalba-text-300)] text-[20px] hover:text-[var(--xibalba-text-000)]"
+                      >
+                        close
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-3 gap-4">
+                      {aiSuggestions.map((s, i) => (
+                        <button
+                          key={i}
+                          onClick={async () => {
+                            setState(p => ({ ...p, isGenerating: true }));
+                            // Temporarily disabled - const res = await generateVectorData(`Execution: ${s.action} - ${s.description}`, state.style, state.currentSvg);
+                            const res = { svg: state.currentSvg, layers: [] } as any;
+                            if (res) {
+                              setState(p => ({
+                                ...p,
+                                currentSvg: res.svg,
+                                layers: syncLayersFromSvg(res.svg),
+                              }));
+                              setAiSuggestions([]);
+                              showToast(`Logic Applied`, 'success');
+                            }
+                            setState(p => ({ ...p, isGenerating: false }));
+                          }}
+                          className="text-left p-4 xi-inset border border-white/5 hover:border-[var(--xibalba-accent)] transition-all group"
+                        >
+                          <span className="text-[10px] font-black text-[var(--xibalba-text-000)] uppercase block mb-2 group-hover:text-[var(--xibalba-accent)]">
+                            {s.action}
+                          </span>
+                          <p className="text-[9px] text-[var(--xibalba-text-300)] leading-normal opacity-80">
+                            {s.description}
+                          </p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </main>
         </div>
 
         <div className="xibalba-property-panel shrink-0 w-[360px] flex flex-col border-l border-white/10 bg-[var(--xibalba-grey-050)] relative z-20">
-          <RightSidebar 
+          <RightSidebar
             layers={state.layers}
             selectedLayerId={state.selectedLayerId}
             activeTool={state.activeTool}
             toolProperties={toolProperties}
-            onToolPropertiesChange={(props) => setToolProperties(prev => ({ ...prev, ...props }))}
-            onSelectLayer={(id) => setState(p => ({ ...p, selectedLayerId: id }))}
+            onToolPropertiesChange={props => setToolProperties(prev => ({ ...prev, ...props }))}
+            onSelectLayer={id => setState(p => ({ ...p, selectedLayerId: id }))}
             onUpdateProperty={(id, prop, val) => {
-              const newLayers = state.layers.map(l => l.id === id ? { ...l, [prop]: val } : l);
+              const newLayers = state.layers.map(l => (l.id === id ? { ...l, [prop]: val } : l));
               updateSvgFromLayers(newLayers);
               setState(p => ({ ...p, layers: newLayers }));
             }}
@@ -1253,30 +1455,46 @@ const App: React.FC = () => {
                 if (l.id !== id || l.shape.type !== 'rect') return l;
                 return {
                   ...l,
-                  shape: { ...l.shape, [prop]: val }
+                  shape: { ...l.shape, [prop]: val },
                 };
               });
               updateSvgFromLayers(newLayers);
               setState(p => ({ ...p, layers: newLayers }));
             }}
-            onToggleVisibility={(id) => {
+            onToggleVisibility={id => {
               const l = state.layers.find(x => x.id === id);
-              if(l) {
-                 const newLayers = state.layers.map(x => x.id === id ? { ...x, visible: !x.visible } : x);
-                 updateSvgFromLayers(newLayers);
+              if (l) {
+                const newLayers = state.layers.map(x =>
+                  x.id === id ? { ...x, visible: !x.visible } : x
+                );
+                updateSvgFromLayers(newLayers);
               }
             }}
-            onDeleteLayer={(id) => {
+            onDeleteLayer={id => {
               const newLayers = state.layers.filter(l => l.id !== id);
               updateSvgFromLayers(newLayers);
               setState(p => ({ ...p, selectedLayerId: null }));
             }}
-            onToggleLock={(id) => setState(p => ({ ...p, layers: p.layers.map(l => l.id === id ? { ...l, locked: !l.locked } : l) }))}
-            onRenameLayer={(id, name) => setState(p => ({ ...p, layers: p.layers.map(l => l.id === id ? { ...l, name } : l) }))}
-            onDuplicateLayer={(id) => {
+            onToggleLock={id =>
+              setState(p => ({
+                ...p,
+                layers: p.layers.map(l => (l.id === id ? { ...l, locked: !l.locked } : l)),
+              }))
+            }
+            onRenameLayer={(id, name) =>
+              setState(p => ({
+                ...p,
+                layers: p.layers.map(l => (l.id === id ? { ...l, name } : l)),
+              }))
+            }
+            onDuplicateLayer={id => {
               const layer = state.layers.find(l => l.id === id);
               if (layer) {
-                const newLayer = { ...layer, id: `${id}_copy_${Date.now()}`, name: `${layer.name} Copy` };
+                const newLayer = {
+                  ...layer,
+                  id: `${id}_copy_${Date.now()}`,
+                  name: `${layer.name} Copy`,
+                };
                 const newLayers = [...state.layers, newLayer];
                 updateSvgFromLayers(newLayers);
                 setState(p => ({ ...p, layers: newLayers }));
@@ -1284,12 +1502,15 @@ const App: React.FC = () => {
             }}
             onReorderLayer={(oldIndex, newIndex) => {
               const newLayers = [...state.layers];
-              [newLayers[oldIndex], newLayers[newIndex]] = [newLayers[newIndex], newLayers[oldIndex]];
+              [newLayers[oldIndex], newLayers[newIndex]] = [
+                newLayers[newIndex],
+                newLayers[oldIndex],
+              ];
               updateSvgFromLayers(newLayers);
               setState(p => ({ ...p, layers: newLayers }));
             }}
             onUpdateLayer={(id, updates) => {
-              const newLayers = state.layers.map(l => l.id === id ? { ...l, ...updates } : l);
+              const newLayers = state.layers.map(l => (l.id === id ? { ...l, ...updates } : l));
               updateSvgFromLayers(newLayers);
               setState(p => ({ ...p, layers: newLayers }));
             }}
@@ -1304,13 +1525,13 @@ const App: React.FC = () => {
                 strokeWidth: 1,
                 opacity: 1,
                 blendMode: 'normal',
-                shape: { type: 'path', nodes: [] }
+                shape: { type: 'path', nodes: [] },
               };
               const newLayers = [...state.layers, newLayer];
               updateSvgFromLayers(newLayers);
               setState(p => ({ ...p, layers: newLayers, selectedLayerId: newLayer.id }));
             }}
-            onCreateSublayer={(parentId) => {
+            onCreateSublayer={parentId => {
               const parentLayer = state.layers.find(l => l.id === parentId);
               if (parentLayer) {
                 const newLayer: VectorLayer = {
@@ -1323,21 +1544,19 @@ const App: React.FC = () => {
                   strokeWidth: 1,
                   opacity: 1,
                   blendMode: 'normal',
-                  shape: { type: 'path', nodes: [] }
+                  shape: { type: 'path', nodes: [] },
                 };
-                const newLayers = state.layers.map(l => 
-                  l.id === parentId 
-                    ? { ...l, children: [...(l.children || []), newLayer] }
-                    : l
+                const newLayers = state.layers.map(l =>
+                  l.id === parentId ? { ...l, children: [...(l.children || []), newLayer] } : l
                 );
                 updateSvgFromLayers(newLayers);
                 setState(p => ({ ...p, layers: newLayers, selectedLayerId: newLayer.id }));
               }
             }}
-            onGroupLayers={(ids) => {
+            onGroupLayers={ids => {
               const layersToGroup = state.layers.filter(l => ids.includes(l.id));
               if (layersToGroup.length < 2) return;
-              
+
               const groupLayer: VectorLayer = {
                 id: `group_${Date.now()}`,
                 name: `Group ${state.layers.length + 1}`,
@@ -1349,42 +1568,36 @@ const App: React.FC = () => {
                 opacity: 1,
                 blendMode: 'normal',
                 shape: { type: 'path', nodes: [] },
-                children: layersToGroup
+                children: layersToGroup,
               };
-              
-              const newLayers = [
-                ...state.layers.filter(l => !ids.includes(l.id)),
-                groupLayer
-              ];
+
+              const newLayers = [...state.layers.filter(l => !ids.includes(l.id)), groupLayer];
               updateSvgFromLayers(newLayers);
               setState(p => ({ ...p, layers: newLayers, selectedLayerId: groupLayer.id }));
             }}
-            onUngroupLayer={(id) => {
+            onUngroupLayer={id => {
               const groupLayer = state.layers.find(l => l.id === id);
               if (!groupLayer || !groupLayer.children || groupLayer.children.length === 0) return;
-              
-              const newLayers = [
-                ...state.layers.filter(l => l.id !== id),
-                ...groupLayer.children
-              ];
+
+              const newLayers = [...state.layers.filter(l => l.id !== id), ...groupLayer.children];
               updateSvgFromLayers(newLayers);
               setState(p => ({ ...p, layers: newLayers }));
             }}
             onCreateClippingMask={(layerId, maskId) => {
-              const newLayers = state.layers.map(l => 
+              const newLayers = state.layers.map(l =>
                 l.id === layerId ? { ...l, mask: maskId } : l
               );
               updateSvgFromLayers(newLayers);
               setState(p => ({ ...p, layers: newLayers }));
             }}
-            onReleaseClippingMask={(layerId) => {
-              const newLayers = state.layers.map(l => 
+            onReleaseClippingMask={layerId => {
+              const newLayers = state.layers.map(l =>
                 l.id === layerId ? { ...l, mask: undefined } : l
               );
               updateSvgFromLayers(newLayers);
               setState(p => ({ ...p, layers: newLayers }));
             }}
-            onBringToFront={(id) => {
+            onBringToFront={id => {
               const index = state.layers.findIndex(l => l.id === id);
               if (index === -1) return;
               const newLayers = [...state.layers];
@@ -1393,7 +1606,7 @@ const App: React.FC = () => {
               updateSvgFromLayers(newLayers);
               setState(p => ({ ...p, layers: newLayers }));
             }}
-            onSendToBack={(id) => {
+            onSendToBack={id => {
               const index = state.layers.findIndex(l => l.id === id);
               if (index === -1) return;
               const newLayers = [...state.layers];
@@ -1402,7 +1615,7 @@ const App: React.FC = () => {
               updateSvgFromLayers(newLayers);
               setState(p => ({ ...p, layers: newLayers }));
             }}
-            onBringForward={(id) => {
+            onBringForward={id => {
               const index = state.layers.findIndex(l => l.id === id);
               if (index === -1 || index === state.layers.length - 1) return;
               const newLayers = [...state.layers];
@@ -1410,7 +1623,7 @@ const App: React.FC = () => {
               updateSvgFromLayers(newLayers);
               setState(p => ({ ...p, layers: newLayers }));
             }}
-            onSendBackward={(id) => {
+            onSendBackward={id => {
               const index = state.layers.findIndex(l => l.id === id);
               if (index === -1 || index === 0) return;
               const newLayers = [...state.layers];
@@ -1418,22 +1631,24 @@ const App: React.FC = () => {
               updateSvgFromLayers(newLayers);
               setState(p => ({ ...p, layers: newLayers }));
             }}
-            onExpandAppearance={(id) => {
+            onExpandAppearance={id => {
               const layer = state.layers.find(l => l.id === id);
               if (layer && layer.effects) {
-                const newLayers = state.layers.map(l => 
+                const newLayers = state.layers.map(l =>
                   l.id === id ? { ...l, effects: undefined } : l
                 );
                 updateSvgFromLayers(newLayers);
                 setState(p => ({ ...p, layers: newLayers }));
-                showToast("Appearance expanded", "success");
+                showToast('Appearance expanded', 'success');
               }
             }}
-            onCreateOutlines={(id) => {
-              showToast("Create Outlines - Feature in development", "info");
+            onCreateOutlines={id => {
+              showToast('Create Outlines - Feature in development', 'info');
             }}
             snapshots={state.snapshots}
-            onRestoreSnapshot={(svg) => setState(p => ({ ...p, currentSvg: svg, layers: syncLayersFromSvg(svg) }))}
+            onRestoreSnapshot={svg =>
+              setState(p => ({ ...p, currentSvg: svg, layers: syncLayersFromSvg(svg) }))
+            }
             keyframes={keyframes}
             frameState={frameState}
             onScriptChange={(frame, layerId, script) => {
@@ -1441,13 +1656,11 @@ const App: React.FC = () => {
               const existingKeyframe = keyframes.find(
                 kf => kf.frame === frame && (layerId ? kf.layerId === layerId : true)
               );
-              
+
               if (existingKeyframe) {
-                setKeyframes(keyframes.map(kf => 
-                  kf.id === existingKeyframe.id 
-                    ? { ...kf, script }
-                    : kf
-                ));
+                setKeyframes(
+                  keyframes.map(kf => (kf.id === existingKeyframe.id ? { ...kf, script } : kf))
+                );
               } else if (layerId) {
                 // Create new keyframe with script
                 const newKeyframe: AnimationKeyframe = {
@@ -1455,24 +1668,24 @@ const App: React.FC = () => {
                   frame,
                   layerId,
                   properties: {},
-                  script
+                  script,
                 };
                 setKeyframes([...keyframes, newKeyframe]);
               }
             }}
-            onScriptExecute={async (script) => {
+            onScriptExecute={async script => {
               // Execute script and update layers
-              const { executeScript, ExecutionContext } = await import('./services/scriptExecutor');
+              const { executeScript } = await import('./services/scriptExecutor');
               const context: ExecutionContext = {
                 frame: frameState.currentFrame,
                 layers: state.layers,
                 variables: {},
                 eventHandlers: new Map(),
-                pendingEvents: []
+                pendingEvents: [],
               };
-              
+
               const result = await executeScript(script, context);
-              
+
               if (result.success && result.updatedLayers) {
                 updateSvgFromLayers(result.updatedLayers);
                 setState(p => ({ ...p, layers: result.updatedLayers! }));
@@ -1484,11 +1697,13 @@ const App: React.FC = () => {
 
       <AnimationTimeline
         frameState={frameState}
-        onFrameStateChange={(updates) => setFrameState(prev => ({ ...prev, ...updates }))}
+        onFrameStateChange={updates => setFrameState(prev => ({ ...prev, ...updates }))}
         keyframes={keyframes}
-        onAddKeyframe={(kf) => setKeyframes(prev => [...prev, kf])}
-        onUpdateKeyframe={(id, props) => setKeyframes(prev => prev.map(k => k.id === id ? { ...k, ...props } : k))}
-        onDeleteKeyframe={(id) => setKeyframes(prev => prev.filter(k => k.id !== id))}
+        onAddKeyframe={kf => setKeyframes(prev => [...prev, kf])}
+        onUpdateKeyframe={(id, props) =>
+          setKeyframes(prev => prev.map(k => (k.id === id ? { ...k, ...props } : k)))
+        }
+        onDeleteKeyframe={id => setKeyframes(prev => prev.filter(k => k.id !== id))}
         selectedLayerId={state.selectedLayerId}
         layers={state.layers}
         presets={[]}
@@ -1498,14 +1713,14 @@ const App: React.FC = () => {
             frame: frameState.currentFrame,
             layerId,
             properties: preset.properties,
-            easing: preset.easing
+            easing: preset.easing,
           };
           const endKeyframe: AnimationKeyframe = {
             id: `kf-${Date.now() + 1}`,
             frame: frameState.currentFrame + preset.duration,
             layerId,
             properties: {},
-            easing: preset.easing
+            easing: preset.easing,
           };
           setKeyframes(prev => [...prev, startKeyframe, endKeyframe]);
         }}
@@ -1519,7 +1734,7 @@ const App: React.FC = () => {
           const input = document.createElement('input');
           input.type = 'file';
           input.accept = '.xibalba-animation.json,application/json';
-          input.onchange = async (e) => {
+          input.onchange = async e => {
             const file = (e.target as HTMLInputElement).files?.[0];
             if (file) {
               try {
@@ -1536,10 +1751,10 @@ const App: React.FC = () => {
           input.click();
         }}
       />
-      
-      <Footer 
-        nodeCount={state.layers.length} 
-        fillInfo={state.selectedLayerId || 'WORKSPACE_ROOT'} 
+
+      <Footer
+        nodeCount={state.layers.length}
+        fillInfo={state.selectedLayerId || 'WORKSPACE_ROOT'}
         isRendering={state.isGenerating}
         renderProgress={state.isGenerating ? undefined : undefined} // TODO: Add actual progress tracking
       />
@@ -1550,7 +1765,7 @@ const App: React.FC = () => {
           <div className="w-[800px] h-[600px] bg-[var(--xibalba-grey-100)] border border-white/10 shadow-xl">
             <BugReporter
               onClose={() => setShowBugReporter(false)}
-              onReportSubmitted={(bugId) => {
+              onReportSubmitted={bugId => {
                 showToast(`Bug report submitted: ${bugId}`, 'success');
               }}
             />
@@ -1564,7 +1779,7 @@ const App: React.FC = () => {
           <div className="w-[800px] h-[600px] bg-[var(--xibalba-grey-100)] border border-white/10 shadow-xl">
             <FeatureRequest
               onClose={() => setShowFeatureRequest(false)}
-              onRequestSubmitted={(requestId) => {
+              onRequestSubmitted={requestId => {
                 showToast(`Feature request submitted: ${requestId}`, 'success');
               }}
             />
@@ -1601,7 +1816,7 @@ const App: React.FC = () => {
           featureId={upgradeFeature.id}
           featureName={upgradeFeature.name}
           requiredTier={upgradeFeature.tier as any}
-          onUpgrade={async (tier) => {
+          onUpgrade={async tier => {
             const { subscriptionService } = await import('./services/subscriptionService');
             await subscriptionService.upgradeToTier(tier);
             setShowUpgradePrompt(false);

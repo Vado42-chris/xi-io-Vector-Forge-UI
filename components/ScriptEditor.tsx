@@ -184,7 +184,8 @@ const ScriptEditor: React.FC<ScriptEditorProps> = ({
       frame,
       layers,
       variables: {},
-      eventHandlers: new Map()
+      eventHandlers: new Map(),
+      pendingEvents: []
     };
 
     const result = await executeScript(scriptText, context);
@@ -219,7 +220,7 @@ const ScriptEditor: React.FC<ScriptEditorProps> = ({
 
   const getLineClass = (lineNumber: number) => {
     const error = parsedScript.errors.find(e => e.line === lineNumber);
-    if (error) return 'text-red-400';
+    if (error) return 'text-[var(--vectorforge-accent)]';
     return '';
   };
 
@@ -235,7 +236,7 @@ const ScriptEditor: React.FC<ScriptEditorProps> = ({
           <span className="material-symbols-outlined text-[16px]">code</span>
           <span>Scripts</span>
           {parsedScript.errors.length > 0 && (
-            <span className="text-red-400 text-xs">
+            <span className="text-[var(--vectorforge-accent)] text-xs">
               {parsedScript.errors.length} error{parsedScript.errors.length > 1 ? 's' : ''}
             </span>
           )}
@@ -267,7 +268,7 @@ const ScriptEditor: React.FC<ScriptEditorProps> = ({
       </div>
 
       {/* Frame/Layer Info */}
-      <div className="px-4 py-2 text-xs text-[var(--xibalba-text-200)] border-b border-white/10 shrink-0">
+      <div className="px-4 py-2 text-xs text-[var(--xibalba-text-100)] border-b border-white/10 shrink-0">
         Frame: {frame} {layerId && `| Layer: ${layers.find(l => l.id === layerId)?.name || layerId}`}
       </div>
 
@@ -285,7 +286,7 @@ const ScriptEditor: React.FC<ScriptEditorProps> = ({
           
           {/* Error Display */}
           {parsedScript.errors.length > 0 && (
-            <div className="border-t border-red-500/20 bg-red-500/10 p-2 text-xs text-red-400 max-h-24 overflow-y-auto">
+            <div className="border-t border-[var(--vectorforge-accent)]/20 bg-[var(--vectorforge-accent)]/10 p-2 text-xs text-[var(--vectorforge-accent)] max-h-24 overflow-y-auto">
               {parsedScript.errors.map((error, idx) => (
                 <div key={idx}>
                   Line {error.line}: {error.message}
@@ -317,7 +318,7 @@ const ScriptEditor: React.FC<ScriptEditorProps> = ({
             <div className="flex-1 overflow-y-auto xibalba-scrollbar">
               {categories.map(category => (
                 <div key={category} className="mb-4">
-                  <div className="px-3 py-2 text-xs font-semibold text-[var(--xibalba-text-200)] bg-[var(--xibalba-grey-150)]">
+                  <div className="px-3 py-2 text-xs font-semibold text-[var(--xibalba-text-100)] bg-[var(--xibalba-grey-150)]">
                     {category}
                   </div>
                   {allCommands
@@ -330,7 +331,7 @@ const ScriptEditor: React.FC<ScriptEditorProps> = ({
                         onMouseEnter={() => setSelectedCommand(cmd.name)}
                       >
                         <div className="font-mono text-[var(--xibalba-accent)]">#{cmd.name}</div>
-                        <div className="text-[var(--xibalba-text-200)] text-[10px] mt-1">{cmd.syntax}</div>
+                        <div className="text-[var(--xibalba-text-100)] text-sm mt-1">{cmd.syntax}</div>
                       </button>
                     ))}
                 </div>
@@ -349,7 +350,7 @@ const ScriptEditor: React.FC<ScriptEditorProps> = ({
               <div className="font-mono text-xs text-[var(--xibalba-accent)] mb-2">
                 {getCommandSyntax(selectedCommand)}
               </div>
-              <div className="text-xs text-[var(--xibalba-text-200)]">
+              <div className="text-xs text-[var(--xibalba-text-100)]">
                 {/* TODO: Add command descriptions */}
                 Command description and examples will be added here.
               </div>
@@ -395,7 +396,7 @@ const ScriptEditor: React.FC<ScriptEditorProps> = ({
               <span className="material-symbols-outlined text-[12px] text-[var(--xibalba-accent)]">auto_awesome</span>
               <span className="font-mono text-[var(--xibalba-accent)]">{completion.displayText}</span>
               {completion.description && (
-                <span className="ml-auto text-[var(--xibalba-text-200)] text-[10px]">{completion.description}</span>
+                <span className="ml-auto text-[var(--xibalba-text-100)] text-sm">{completion.description}</span>
               )}
             </button>
           ))}
@@ -430,7 +431,7 @@ const ScriptEditor: React.FC<ScriptEditorProps> = ({
               }`}
             >
               <span className="font-mono text-[var(--xibalba-accent)]">#{cmd.name}</span>
-              <span className="ml-2 text-[var(--xibalba-text-200)]">{cmd.syntax}</span>
+              <span className="ml-2 text-[var(--xibalba-text-100)]">{cmd.syntax}</span>
             </button>
           )          )}
         </div>
@@ -443,14 +444,14 @@ const ScriptEditor: React.FC<ScriptEditorProps> = ({
             <div
               key={idx}
               className={`text-xs ${
-                validation.severity === 'error' ? 'text-red-400' :
-                validation.severity === 'warning' ? 'text-yellow-400' :
-                'text-[var(--xibalba-text-200)]'
+                validation.severity === 'error' ? 'text-[var(--vectorforge-accent)]' :
+                validation.severity === 'warning' ? 'text-[var(--vectorforge-accent)]' :
+                'text-[var(--xibalba-text-100)]'
               }`}
             >
               Line {validation.line}: {validation.message}
               {validation.suggestion && (
-                <div className="text-[var(--xibalba-text-200)] ml-4">
+                <div className="text-[var(--xibalba-text-100)] ml-4">
                   💡 {validation.suggestion}
                 </div>
               )}
@@ -462,13 +463,13 @@ const ScriptEditor: React.FC<ScriptEditorProps> = ({
       {/* MCP Code Suggestions */}
       {mcpSuggestions.length > 0 && (
         <div className="border-t border-white/10 p-2 bg-[var(--xibalba-grey-100)]">
-          <div className="text-xs font-semibold text-[var(--xibalba-text-200)] mb-2">
+          <div className="text-xs font-semibold text-[var(--xibalba-text-100)] mb-2">
             AI Suggestions
           </div>
           {mcpSuggestions.map((suggestion, idx) => (
-            <div key={idx} className="text-xs text-[var(--xibalba-text-200)] mb-1">
+            <div key={idx} className="text-xs text-[var(--xibalba-text-100)] mb-1">
               Line {suggestion.line}: {suggestion.suggestion}
-              <div className="text-[10px] text-[var(--xibalba-text-300)] ml-2">
+              <div className="text-sm text-[var(--xibalba-text-100)] ml-2">
                 {suggestion.reason}
               </div>
             </div>
@@ -478,7 +479,7 @@ const ScriptEditor: React.FC<ScriptEditorProps> = ({
 
       {/* MCP Loading Indicator */}
       {isLoadingMCP && (
-        <div className="absolute top-2 right-2 text-xs text-[var(--xibalba-text-200)] flex items-center gap-2">
+        <div className="absolute top-2 right-2 text-xs text-[var(--xibalba-text-100)] flex items-center gap-2">
           <span className="material-symbols-outlined text-[14px] animate-spin">sync</span>
           <span>AI analyzing...</span>
         </div>

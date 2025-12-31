@@ -55,7 +55,7 @@ export default function ContextualHelpPanel({
           >
             <div className="flex items-start gap-3">
               <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-[var(--xibalba-grey-100)] rounded group-hover:bg-[var(--xibalba-accent)] transition-colors">
-                <span className="material-symbols-outlined text-sm text-[var(--xibalba-text-200)] group-hover:text-white">
+                <span className="material-symbols-outlined text-sm text-[var(--xibalba-text-100)] group-hover:text-white">
                   {element.location === 'toolbar' ? 'construction' :
                    element.location === 'sidebar-left' ? 'view_sidebar' :
                    element.location === 'sidebar-right' ? 'view_sidebar' :
@@ -71,12 +71,12 @@ export default function ContextualHelpPanel({
                     {element.name}
                   </span>
                   {element.keyboardShortcut && (
-                    <span className="text-xs text-[var(--xibalba-text-300)] font-mono bg-[var(--xibalba-grey-100)] px-2 py-0.5 rounded">
+                    <span className="text-xs text-[var(--xibalba-text-100)] font-mono bg-[var(--xibalba-grey-100)] px-2 py-0.5 rounded">
                       {element.keyboardShortcut}
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-[var(--xibalba-text-200)] leading-relaxed">
+                <p className="text-xs text-[var(--xibalba-text-100)] leading-relaxed">
                   {helpText}
                 </p>
                 {element.helpLink && (
