@@ -32,6 +32,16 @@ class ErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
     
+    // Capture error globally so we can inspect it in the browser for debugging
+    try {
+      (window as any).__lastReactError = { message: error?.message, stack: error?.stack, info: errorInfo };
+    } catch (e) {}
+    // Also push to window captured array
+    try {
+      (window as any).__capturedReactErrors = (window as any).__capturedReactErrors || [];
+      (window as any).__capturedReactErrors.push({ when: new Date().toISOString(), message: error?.message, stack: error?.stack, info: errorInfo });
+    } catch (e) {}
+    
     // Log to error logger
     errorLogger.log({
       type: 'error',
@@ -55,15 +65,10 @@ class ErrorBoundary extends Component<Props, State> {
       if (props.fallback) {
         return props.fallback;
       }
+      // Render visible banner with error summary for immediate validation
       return (
-        <div className="xibalba-panel-professional p-4 bg-[var(--vectorforge-accent)]/10">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="material-symbols-outlined text-[var(--vectorforge-accent)]" aria-hidden="true" data-icon="error"></span>
-            <span className="xibalba-text-caption text-[var(--vectorforge-accent)]">Component Error</span>
-          </div>
-          <p className="xibalba-text-xs text-[var(--xibalba-text-100)]">
-            {this.state.error?.message || 'An error occurred'}
-          </p>
+        <div style={{ background: '#ffebee', color: '#b00020', padding: 12, position: 'fixed', top: 0, left: 0, right: 0, zIndex: 999999 }}>
+          <strong>App error detected:</strong> {String(this.state.error?.message || 'unknown')}. Check console or window.__lastReactError for full stack.
         </div>
       );
     }

@@ -83,7 +83,7 @@
 .dev-chat-textarea:focus {
   outline: none;
   border-color: var(--xibalba-accent);
-  box-shadow: 0 0 0 3px var(--xibalba-accent)/20;
+  box-shadow: 0 0 0 3px var(--xibalba-accent) / 20;
 }
 
 .dev-chat-textarea:disabled {
@@ -126,6 +126,40 @@
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;
+}
+
+.dev-chat-diagnostics-button {
+  min-width: 100px !important;
+  height: 60px !important;
+  padding: 12px 16px !important;
+  background: var(--xibalba-grey-200) !important;
+  color: var(--xibalba-text-000) !important;
+  border: 2px solid var(--xibalba-grey-200) !important;
+  border-radius: 4px !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  transition: all 0.2s ease !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.dev-chat-diagnostics-button:hover:not(:disabled) {
+  background: var(--xibalba-grey-300) !important;
+  border-color: var(--xibalba-accent) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.dev-chat-diagnostics-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  background: var(--xibalba-grey-300) !important;
 }
 
 .dev-chat-status {
@@ -255,9 +289,9 @@
 /* Ensure all inputs are visible */
 .xibalba-form-input,
 .xibalba-input-professional,
-input[type="text"],
-input[type="number"],
-input[type="color"],
+input[type='text'],
+input[type='number'],
+input[type='color'],
 textarea {
   display: block !important;
   visibility: visible !important;
@@ -273,7 +307,7 @@ textarea {
 /* Tool button visibility - CRITICAL */
 .tool-button,
 .xibalba-tools-panel button,
-button[class*="tool"] {
+button[class*='tool'] {
   display: flex !important;
   visibility: visible !important;
   opacity: 1 !important;
@@ -314,4 +348,3 @@ button[class*="tool"] {
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
-

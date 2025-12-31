@@ -709,6 +709,44 @@ Be concise, helpful, and focus on actionable responses. Format your responses wi
     }
   };
 
+  // Diagnostics: Analyze the last AI response
+  const handleDiagnostics = async () => {
+    // Find the last assistant message
+    const lastAssistantMessage = [...messages].reverse().find(m => m.role === 'assistant');
+    
+    if (!lastAssistantMessage) {
+      const errorMessage: ChatMessage = {
+        id: `error-${Date.now()}`,
+        role: 'assistant',
+        content: '❌ **No AI response to analyze**\n\nPlease submit a prompt first and wait for the AI to respond.',
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, errorMessage]);
+      return;
+    }
+
+    setIsProcessing(true);
+    
+    try {
+      // Ask the AI to analyze its own response
+      const diagnosticPrompt = `Analyze and critique this AI response. Identify any errors, inconsistencies, or areas for improvement. Be thorough and honest:\n\n---\n\n${lastAssistantMessage.content}\n\n---\n\nProvide a diagnostic report.`;
+      
+      const diagnosticResponse = await handleAIRequest(diagnosticPrompt);
+      setMessages(prev => [...prev, diagnosticResponse]);
+    } catch (error) {
+      const errorMessage: ChatMessage = {
+        id: `error-${Date.now()}`,
+        role: 'assistant',
+        content: `❌ **Diagnostics Error**\n\n${error instanceof Error ? error.message : 'Unknown error'}`,
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsProcessing(false);
+      inputRef.current?.focus();
+    }
+  };
+
   return (
     <ErrorBoundary>
       <div className="dev-chat-container" style={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%', minHeight: 0 }}>
@@ -820,6 +858,34 @@ Be concise, helpful, and focus on actionable responses. Format your responses wi
                 boxSizing: 'border-box'
               }}
             />
+            <button
+              onClick={handleDiagnostics}
+              disabled={isProcessing || !messages.some(m => m.role === 'assistant')}
+              className="dev-chat-diagnostics-button"
+              title="Analyze the last AI response for errors and improvements"
+              style={{
+                minWidth: '100px',
+                height: '60px',
+                padding: '12px 16px',
+                background: messages.some(m => m.role === 'assistant') && !isProcessing ? 'var(--xibalba-grey-200)' : 'var(--xibalba-grey-300)',
+                color: 'var(--xibalba-text-000)',
+                border: '2px solid var(--xibalba-grey-200)',
+                borderRadius: '4px',
+                fontWeight: 600,
+                fontSize: '13px',
+                cursor: messages.some(m => m.role === 'assistant') && !isProcessing ? 'pointer' : 'not-allowed',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                visibility: 'visible',
+                opacity: 1,
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>psychology</span>
+              Diagnostics
+            </button>
             <button
               onClick={handleSend}
               disabled={!input.trim() || isProcessing}

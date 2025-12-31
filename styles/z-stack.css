@@ -18,14 +18,14 @@
   --z-canvas: 10;
   --z-canvas-content: 11;
   --z-canvas-overlay: 12;
-  
+
   /* Surface Layers (UI Panels, Sidebars) */
   --z-surface: 100;
   --z-sidebar-left: 100;
   --z-sidebar-right: 100;
   --z-sidebar-resize-handle: 150; /* MUST be above sidebars to be clickable */
   --z-panel: 100;
-  
+
   /* Interactive Layers (Tools, Controls) */
   --z-tools: 200;
   --z-guides: 40;
@@ -33,34 +33,34 @@
   --z-canvas-controls: 45;
   --z-rulers: 50;
   --z-canvas: 10; /* Canvas must be below sidebars but above background */
-  
+
   /* Timeline (Dynamic - changes when expanded) */
   --z-timeline-collapsed: 40;
   --z-timeline-expanded: 100;
   --z-timeline-drag-handle: 110;
   --z-timeline-keyframes: 120;
-  
+
   /* Floating Elements */
   --z-floating: 300;
   --z-floating-toolbar: 150; /* Must be above sidebars */
   --z-power-toolbar: 150; /* Must be above sidebars to be accessible */
-  
+
   /* Menus & Dropdowns - CRITICAL: File menu must be above everything */
-  --z-menu: 10000; /* File menu must be highest priority */
+  --z-menu: 99999; /* File menu must be highest priority - increased to maximum */
   --z-dropdown: 10010; /* Dropdowns above menu */
   --z-submenu: 10020; /* Submenus above dropdowns */
   --z-context-menu: 10030;
-  
+
   /* Modal Layers */
   --z-modal: 1000;
   --z-modal-backdrop: 200;
   --z-dialog: 202;
-  
+
   /* Overlay Layers */
   --z-overlay: 2000;
   --z-scanning-overlay: 200;
   --z-lock-indicator: 300;
-  
+
   /* Top Layers (Notifications, Tooltips) */
   --z-top: 3000;
   --z-toast: 10000;
@@ -69,50 +69,122 @@
 }
 
 /* Z-Stack Helper Classes */
-.zstack-base { z-index: var(--z-base); }
-.zstack-background { z-index: var(--z-background); }
-.zstack-canvas { z-index: var(--z-canvas); }
-.zstack-canvas-content { z-index: var(--z-canvas-content); }
-.zstack-canvas-overlay { z-index: var(--z-canvas-overlay); }
+.zstack-base {
+  z-index: var(--z-base);
+}
+.zstack-background {
+  z-index: var(--z-background);
+}
+.zstack-canvas {
+  z-index: var(--z-canvas);
+}
+.zstack-canvas-content {
+  z-index: var(--z-canvas-content);
+}
+.zstack-canvas-overlay {
+  z-index: var(--z-canvas-overlay);
+}
 
-.zstack-surface { z-index: var(--z-surface); }
-.zstack-sidebar-left { z-index: var(--z-sidebar-left); }
-.zstack-sidebar-right { z-index: var(--z-sidebar-right); }
-.zstack-sidebar-resize-handle { z-index: var(--z-sidebar-resize-handle); }
-.zstack-panel { z-index: var(--z-panel); }
+.zstack-surface {
+  z-index: var(--z-surface);
+}
+.zstack-sidebar-left {
+  z-index: var(--z-sidebar-left);
+}
+.zstack-sidebar-right {
+  z-index: var(--z-sidebar-right);
+}
+.zstack-sidebar-resize-handle {
+  z-index: var(--z-sidebar-resize-handle);
+}
+.zstack-panel {
+  z-index: var(--z-panel);
+}
 
-.zstack-tools { z-index: var(--z-tools); }
-.zstack-guides { z-index: var(--z-guides); }
-.zstack-transform-handles { z-index: var(--z-transform-handles); }
-.zstack-canvas-controls { z-index: var(--z-canvas-controls); }
-.zstack-rulers { z-index: var(--z-rulers); }
+.zstack-tools {
+  z-index: var(--z-tools);
+}
+.zstack-guides {
+  z-index: var(--z-guides);
+}
+.zstack-transform-handles {
+  z-index: var(--z-transform-handles);
+}
+.zstack-canvas-controls {
+  z-index: var(--z-canvas-controls);
+}
+.zstack-rulers {
+  z-index: var(--z-rulers);
+}
 
-.zstack-timeline-collapsed { z-index: var(--z-timeline-collapsed); }
-.zstack-timeline-expanded { z-index: var(--z-timeline-expanded); }
-.zstack-timeline-drag-handle { z-index: var(--z-timeline-drag-handle); }
-.zstack-timeline-keyframes { z-index: var(--z-timeline-keyframes); }
+.zstack-timeline-collapsed {
+  z-index: var(--z-timeline-collapsed);
+}
+.zstack-timeline-expanded {
+  z-index: var(--z-timeline-expanded);
+}
+.zstack-timeline-drag-handle {
+  z-index: var(--z-timeline-drag-handle);
+}
+.zstack-timeline-keyframes {
+  z-index: var(--z-timeline-keyframes);
+}
 
-.zstack-floating { z-index: var(--z-floating); }
-.zstack-floating-toolbar { z-index: var(--z-floating-toolbar); }
-.zstack-power-toolbar { z-index: var(--z-power-toolbar); }
+.zstack-floating {
+  z-index: var(--z-floating);
+}
+.zstack-floating-toolbar {
+  z-index: var(--z-floating-toolbar);
+}
+.zstack-power-toolbar {
+  z-index: var(--z-power-toolbar);
+}
 
-.zstack-menu { z-index: var(--z-menu); }
-.zstack-dropdown { z-index: var(--z-dropdown); }
-.zstack-submenu { z-index: var(--z-submenu); }
-.zstack-context-menu { z-index: var(--z-context-menu); }
+.zstack-menu {
+  z-index: var(--z-menu);
+}
+.zstack-dropdown {
+  z-index: var(--z-dropdown);
+}
+.zstack-submenu {
+  z-index: var(--z-submenu);
+}
+.zstack-context-menu {
+  z-index: var(--z-context-menu);
+}
 
-.zstack-modal { z-index: var(--z-modal); }
-.zstack-modal-backdrop { z-index: var(--z-modal-backdrop); }
-.zstack-dialog { z-index: var(--z-dialog); }
+.zstack-modal {
+  z-index: var(--z-modal);
+}
+.zstack-modal-backdrop {
+  z-index: var(--z-modal-backdrop);
+}
+.zstack-dialog {
+  z-index: var(--z-dialog);
+}
 
-.zstack-overlay { z-index: var(--z-overlay); }
-.zstack-scanning-overlay { z-index: var(--z-scanning-overlay); }
-.zstack-lock-indicator { z-index: var(--z-lock-indicator); }
+.zstack-overlay {
+  z-index: var(--z-overlay);
+}
+.zstack-scanning-overlay {
+  z-index: var(--z-scanning-overlay);
+}
+.zstack-lock-indicator {
+  z-index: var(--z-lock-indicator);
+}
 
-.zstack-top { z-index: var(--z-top); }
-.zstack-toast { z-index: var(--z-toast); }
-.zstack-welcome { z-index: var(--z-welcome); }
-.zstack-tooltip { z-index: var(--z-tooltip); }
+.zstack-top {
+  z-index: var(--z-top);
+}
+.zstack-toast {
+  z-index: var(--z-toast);
+}
+.zstack-welcome {
+  z-index: var(--z-welcome);
+}
+.zstack-tooltip {
+  z-index: var(--z-tooltip);
+}
 
 /* Component Isolation - Z-Stack Groups */
 .zstack-group {
@@ -126,4 +198,3 @@
   position: relative;
   z-index: auto;
 }
-

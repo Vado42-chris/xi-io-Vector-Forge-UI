@@ -7,6 +7,11 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ onAction, credits }) => {
+  // DEBUG: Force log to prove component is called
+  console.log('🔵 Header component FUNCTION CALLED');
+  console.error('🔵 Header component FUNCTION CALLED (error)');
+  console.warn('🔵 Header component FUNCTION CALLED (warn)');
+  
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
 
   const menus = [

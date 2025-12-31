@@ -294,9 +294,18 @@ const getMenuTooltip = (action: string): string => {
 interface ProfessionalFileMenuProps {
   onAction: (action: string) => void;
   onLayoutChange?: (layout: any) => void;
+  fileOperationLoading?: {
+    type: 'save' | 'save-as' | 'open' | 'export-svg' | 'export-png' | null;
+    progress?: number;
+  };
 }
 
 const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({ onAction, onLayoutChange, fileOperationLoading }) => {
+  // FORCE LOG AT FUNCTION START
+  console.log('🔵 ProfessionalFileMenu FUNCTION CALLED');
+  console.error('🔵 ProfessionalFileMenu FUNCTION CALLED (error)');
+  console.warn('🔵 ProfessionalFileMenu FUNCTION CALLED (warn)');
+  
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null);
   const menuTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
@@ -529,8 +538,31 @@ const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({ onAction, o
     },
   ];
 
-  return (
-    <header className="xibalba-header shrink-0 flex items-center justify-between zstack-menu select-none" style={{ zIndex: 'var(--z-menu, 10000)', position: 'relative' }}>
+  // DEBUG: Log render - FORCE LOG TO CONSOLE
+  console.log('🔵 ProfessionalFileMenu rendering');
+  console.error('🔵 ProfessionalFileMenu rendering (error log)');
+  console.warn('🔵 ProfessionalFileMenu rendering (warn log)');
+  
+  try {
+    return (
+    <header 
+      className="xibalba-header shrink-0 flex items-center justify-between zstack-menu select-none" 
+      style={{ 
+        zIndex: '99999', 
+        position: 'fixed', 
+        top: 0, 
+        left: 0, 
+        right: 0, 
+        width: '100%', 
+        display: 'flex', 
+        visibility: 'visible', 
+        opacity: 1, 
+        minHeight: '48px', 
+        height: '48px',
+        backgroundColor: '#000000',
+        borderBottom: '1px solid #010101'
+      }}
+    >
       <div className="flex items-center gap-6 xibalba-header-right">
         {/* Xibalba Brand Identity Block */}
         <div className="flex items-center gap-4 pr-6">
@@ -738,7 +770,11 @@ const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({ onAction, o
          </div>
       </div>
     </header>
-  );
+    );
+  } catch (error) {
+    console.error('🔴 ProfessionalFileMenu render error:', error);
+    return <div style={{ background: 'red', color: 'white', padding: '10px' }}>ProfessionalFileMenu Error: {String(error)}</div>;
+  }
 };
 
 export default ProfessionalFileMenu;

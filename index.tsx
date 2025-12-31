@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import App from './App';
+// TEMP: Using App.simple for salvage - working minimal version
+import App from './App.simple';
 import DevChatbot from './components/DevChatbot';
 import ErrorBoundary from './components/ErrorBoundary';
 
@@ -17,56 +18,17 @@ const Router: React.FC = () => {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  // Handle /devchat route - standalone Dev Chat
+  // Handle /devchat route - redirect to main app (Dev Chat is in Right Sidebar)
   if (path === '/devchat') {
+    // Redirect to main app - Dev Chat is accessible via Right Sidebar (Ctrl+K)
+    useEffect(() => {
+      window.history.replaceState({}, '', '/');
+      setPath('/');
+    }, []);
+    // Show full app while redirecting
     return (
       <ErrorBoundary>
-        <div style={{
-          width: '100vw',
-          height: '100vh',
-          background: 'var(--xibalba-grey-000, #000000)',
-          display: 'flex',
-          flexDirection: 'column'
-        }}>
-          <div style={{
-            padding: '16px',
-            borderBottom: '1px solid rgba(255, 152, 0, 0.2)',
-            background: 'var(--xibalba-grey-050, #010101)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between'
-          }}>
-            <h1 style={{ 
-              color: 'var(--vectorforge-accent, #ff9800)', 
-              margin: 0,
-              fontSize: '20px',
-              fontWeight: 600
-            }}>
-              💬 Dev Chat - Self-Modifying AI
-            </h1>
-            <button
-              onClick={() => {
-                window.history.pushState({}, '', '/');
-                setPath('/');
-              }}
-              style={{
-                background: 'var(--vectorforge-accent, #ff9800)',
-                color: 'white',
-                border: 'none',
-                padding: '8px 16px',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontWeight: 500,
-                fontSize: '14px'
-              }}
-            >
-              ← Back to App
-            </button>
-          </div>
-          <div style={{ flex: 1, overflow: 'hidden' }}>
-            <DevChatbot />
-          </div>
-        </div>
+        <App />
       </ErrorBoundary>
     );
   }

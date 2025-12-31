@@ -21,12 +21,13 @@
 }
 
 .canvas-transform {
-  transform: translate(calc(-50% + var(--canvas-pan-x, 0px)), calc(-50% + var(--canvas-pan-y, 0px))) scale(var(--canvas-zoom-scale, 1));
+  transform: translate(calc(-50% + var(--canvas-pan-x, 0px)), calc(-50% + var(--canvas-pan-y, 0px)))
+    scale(var(--canvas-zoom-scale, 1));
 }
 
 .grid-background {
   background-color: var(--xibalba-grey-050);
-  background-image: 
+  background-image:
     linear-gradient(to right, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
   background-size: var(--grid-size, 40px) var(--grid-size, 40px);
@@ -151,7 +152,7 @@
 .canvas-area {
   position: absolute;
   background-color: var(--xibalba-grey-050, #010101) !important;
-  background-image: 
+  background-image:
     linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
   background-size: 20px 20px;
@@ -173,7 +174,9 @@
   height: 100% !important;
   overflow: auto;
   pointer-events: auto;
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.05), inset 0 0 40px rgba(255, 255, 255, 0.02);
+  box-shadow:
+    0 0 20px rgba(255, 255, 255, 0.05),
+    inset 0 0 40px rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.1);
   display: block !important;
   min-width: 100% !important;
@@ -257,11 +260,15 @@
   -webkit-font-smoothing: antialiased;
   speak: none;
   text-rendering: optimizeLegibility;
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
 }
 
 /* CRITICAL FIX: For icons with data-icon attribute, hide text and show via pseudo-element */
-.material-symbols-outlined[aria-hidden="true"][data-icon] {
+.material-symbols-outlined[aria-hidden='true'][data-icon] {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -278,7 +285,7 @@
 }
 
 /* Show icon using pseudo-element with data-icon attribute */
-.material-symbols-outlined[aria-hidden="true"][data-icon]::before {
+.material-symbols-outlined[aria-hidden='true'][data-icon]::before {
   content: attr(data-icon);
   position: absolute;
   left: 50%;
@@ -289,7 +296,11 @@
   text-indent: 0;
   color: inherit;
   font-family: 'Material Symbols Outlined', sans-serif;
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
   white-space: nowrap;
   display: flex;
   align-items: center;
@@ -299,13 +310,17 @@
 }
 
 /* For icons without data-icon (legacy), try to hide text but allow font to render */
-.material-symbols-outlined[aria-hidden="true"]:not([data-icon]) {
+.material-symbols-outlined[aria-hidden='true']:not([data-icon]) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   /* Less aggressive - allow font to render if it loads */
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
 }
 
 /* Menu items container - hide scrollbar unless needed, responsive */
@@ -339,7 +354,7 @@
   position: absolute;
   background: var(--xibalba-grey-100, #1a1c22) !important;
   /* NO BORDER - Xibalba design system */
-  box-shadow: 
+  box-shadow:
     0 8px 24px rgba(0, 0, 0, 0.4),
     0 2px 4px rgba(0, 0, 0, 0.3);
   -webkit-backdrop-filter: blur(12px);
@@ -461,18 +476,32 @@
   border-left: 3px solid var(--xibalba-accent);
 }
 
-.panel-group-border[data-level="0"] { border-left-opacity: 0.3; }
-.panel-group-border[data-level="1"] { border-left-opacity: 0.25; }
-.panel-group-border[data-level="2"] { border-left-opacity: 0.2; }
-.panel-group-border[data-level="3"] { border-left-opacity: 0.15; }
+.panel-group-border[data-level='0'] {
+  border-left-opacity: 0.3;
+}
+.panel-group-border[data-level='1'] {
+  border-left-opacity: 0.25;
+}
+.panel-group-border[data-level='2'] {
+  border-left-opacity: 0.2;
+}
+.panel-group-border[data-level='3'] {
+  border-left-opacity: 0.15;
+}
 
 .panel-group-bg {
   background-color: color-mix(in srgb, var(--xibalba-accent) 30%, transparent);
 }
 
-.panel-group-bg[data-level="1"] { background-color: color-mix(in srgb, var(--xibalba-accent) 25%, transparent); }
-.panel-group-bg[data-level="2"] { background-color: color-mix(in srgb, var(--xibalba-accent) 20%, transparent); }
-.panel-group-bg[data-level="3"] { background-color: color-mix(in srgb, var(--xibalba-accent) 15%, transparent); }
+.panel-group-bg[data-level='1'] {
+  background-color: color-mix(in srgb, var(--xibalba-accent) 25%, transparent);
+}
+.panel-group-bg[data-level='2'] {
+  background-color: color-mix(in srgb, var(--xibalba-accent) 20%, transparent);
+}
+.panel-group-bg[data-level='3'] {
+  background-color: color-mix(in srgb, var(--xibalba-accent) 15%, transparent);
+}
 
 .panel-group-shadow {
   box-shadow: inset 0 0 0 1px var(--xibalba-accent);
@@ -482,37 +511,37 @@
   /* Visual hardening when grouped */
 }
 
-.xibalba-panel-grouping-indicator[data-type="panel"].is-grouped {
+.xibalba-panel-grouping-indicator[data-type='panel'].is-grouped {
   border-left: 3px solid var(--xibalba-accent);
   background: color-mix(in srgb, var(--xibalba-accent) 10%, transparent);
 }
 
-.xibalba-panel-grouping-indicator[data-type="palette"].is-grouped {
+.xibalba-panel-grouping-indicator[data-type='palette'].is-grouped {
   border-left: 2px solid var(--xibalba-accent);
   background: color-mix(in srgb, var(--xibalba-accent) 8%, transparent);
 }
 
-.xibalba-panel-grouping-indicator[data-type="tool"].is-grouped {
+.xibalba-panel-grouping-indicator[data-type='tool'].is-grouped {
   border-left: 1px solid var(--xibalba-accent);
   background: color-mix(in srgb, var(--xibalba-accent) 5%, transparent);
 }
 
 /* Nesting level visual indicators */
-.xibalba-panel-grouping-indicator[data-level="0"] {
+.xibalba-panel-grouping-indicator[data-level='0'] {
   /* Root level - strongest indicator */
 }
 
-.xibalba-panel-grouping-indicator[data-level="1"] {
+.xibalba-panel-grouping-indicator[data-level='1'] {
   border-left-width: 2px;
   opacity: 0.9;
 }
 
-.xibalba-panel-grouping-indicator[data-level="2"] {
+.xibalba-panel-grouping-indicator[data-level='2'] {
   border-left-width: 1px;
   opacity: 0.8;
 }
 
-.xibalba-panel-grouping-indicator[data-level="3"] {
+.xibalba-panel-grouping-indicator[data-level='3'] {
   border-left-width: 1px;
   opacity: 0.7;
 }
@@ -553,23 +582,23 @@
 }
 
 /* Panel Group Zone Indicators */
-.xibalba-panel-group[data-zone="left"] {
+.xibalba-panel-group[data-zone='left'] {
   border-left: 3px solid var(--xibalba-accent);
 }
 
-.xibalba-panel-group[data-zone="right"] {
+.xibalba-panel-group[data-zone='right'] {
   border-right: 3px solid var(--xibalba-accent);
 }
 
-.xibalba-panel-group[data-zone="top"] {
+.xibalba-panel-group[data-zone='top'] {
   border-top: 3px solid var(--xibalba-accent);
 }
 
-.xibalba-panel-group[data-zone="bottom"] {
+.xibalba-panel-group[data-zone='bottom'] {
   border-bottom: 3px solid var(--xibalba-accent);
 }
 
-.xibalba-panel-group[data-zone="floating"] {
+.xibalba-panel-group[data-zone='floating'] {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
@@ -634,11 +663,11 @@
 }
 
 /* Tool Lock Visual Indicator */
-.xibalba-toolbar-button-professional[data-locked="true"] {
+.xibalba-toolbar-button-professional[data-locked='true'] {
   position: relative;
 }
 
-.xibalba-toolbar-button-professional[data-locked="true"]::before {
+.xibalba-toolbar-button-professional[data-locked='true']::before {
   content: '';
   position: absolute;
   top: 2px;
@@ -880,7 +909,7 @@ div.xibalba-dockable-palette.sidebar-fixed-right,
   height: 48px !important;
   max-height: 48px !important;
   min-height: 48px !important;
-  z-index: var(--z-menu, 400) !important;
+  z-index: 99999 !important; /* Maximum priority - hardcoded to ensure visibility */
   background-color: var(--xibalba-grey-000, #000000) !important;
   border-bottom: 1px solid var(--xibalba-grey-200, #0a0a0a) !important;
   overflow: hidden !important;
@@ -901,7 +930,8 @@ div.xibalba-dockable-palette.sidebar-fixed-right,
 }
 
 /* Prevent any absolute/fixed children from escaping header */
-.xibalba-header *[style*="position: absolute"],
+/* REMOVED: This was hiding dropdown menus and other positioned elements in the header */
+/* .xibalba-header *[style*="position: absolute"],
 .xibalba-header *[style*="position: fixed"] {
   display: none !important;
-}
+} */

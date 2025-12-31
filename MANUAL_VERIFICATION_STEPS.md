@@ -1,128 +1,126 @@
-# Manual Verification Steps - Get It Working in Browser
-**Date:** January 27, 2025
+# Manual Verification Steps - File Bar Visibility
+
+**From External Observer Analysis**
+
+**Date:** January 27, 2025  
+**Priority:** 🔴 P0 - File bar visibility FIRST, nothing else matters
 
 ---
 
-## Step 1: Run Setup Script (if needed)
-```bash
-./setup-local-ai.sh
-```
+## External Observer Verdict
 
-This sets up Ollama for free local AI.
+**"File bar visibility FIRST. Nothing else matters."**
 
----
+**Waste Pattern Identified:**
 
-## Step 2: Start Dev Server
+- Already spent ~50 tool calls on this issue
+- Fix is likely 1-2 lines once root cause identified manually
 
-**Open a terminal and run:**
-```bash
-cd /home/chrishallberg/xi-io-Vector-Forge-UI
-npm run dev
-```
+**Strategy:**
 
-**Wait for:**
-```
-VITE v5.x.x  ready in xxx ms
-
-➜  Local:   http://localhost:3000/
-```
-
-**Keep this terminal open** (server runs in foreground)
+- Manual verification FIRST (0 tokens)
+- Then surgical fix (1-2 tool calls)
 
 ---
 
-## Step 3: Open Browser
+## IMMEDIATE ACTION: Manual Verification (0 Tokens)
 
-**Navigate to:**
-```
-http://localhost:3000
+**Do this NOW before any more tool calls:**
+
+### Console Tab - Run These Exact Commands:
+
+```javascript
+// 1. Does the header container exist?
+document.querySelector('.xibalba-header');
+
+// 2. If null, try broader search:
+document.querySelector('[class*="header"]');
+document.querySelector('[class*="file"]');
+document.querySelector('[class*="menu"]');
+
+// 3. Check if React root has children:
+document.getElementById('root')?.innerHTML.length;
+
+// 4. Check for any hidden elements:
+document.querySelectorAll('[style*="display: none"]');
 ```
 
-**You should see:**
-- VectorForge UI loads
-- No errors in browser console
-- Interface is functional
+### If Element EXISTS - Check Computed Styles:
+
+```javascript
+const el = document.querySelector('.xibalba-header');
+
+if (el) {
+  const styles = getComputedStyle(el);
+  console.log({
+    display: styles.display,
+    visibility: styles.visibility,
+    opacity: styles.opacity,
+    zIndex: styles.zIndex,
+    height: styles.height,
+    position: styles.position,
+  });
+}
+```
+
+### React DevTools:
+
+1. Open Components tab
+2. Search: `ProfessionalFileMenu`
+3. Is it in the tree? Does it show props?
+4. Check parent for conditional rendering
 
 ---
 
-## Step 4: Configure Local AI (in Browser)
+## Diagnosis Decision Tree
 
-1. **Click Left Sidebar** → **Engine** tab (bottom of sidebar)
-2. **Scroll to "Local AI Configuration"**
-3. **Check ✅ "Use Local GGUF Models"**
-4. **Select:** Ollama
-5. **Server URL:** `http://localhost:11434` (should auto-fill)
-6. **Click "Refresh Models"**
-7. **Select:** `codellama:latest` (or available model)
-8. **Click "Test Connection"**
-9. **Click "Save Configuration"**
+**If element exists with `display:none`:**
 
-**If Ollama not running:**
-- Run: `ollama serve` in another terminal
-- Then retry steps above
+- → CSS override, find conflicting rule
+- **Fix:** 1-2 token calls
 
----
+**If element exists with `height:0`:**
 
-## Step 5: Verify It's Working
+- → CSS collapse, add min-height
+- **Fix:** 1 call
 
-**Test in Script Editor:**
-1. **Right Sidebar** → **Scripts** tab
-2. **Type:** `#`
-3. **Should see:** AI suggestions appear
-4. **If working:** ✅ **You're coding for FREE!**
+**If element NOT in DOM:**
+
+- → Component not mounting, check import/conditional
+- **Fix:** 2-3 calls
+
+**If React shows component but DOM empty:**
+
+- → Render returns null, check logic
+- **Fix:** 2-3 calls
 
 ---
 
-## Troubleshooting
+## Next Steps
 
-### Server won't start:
-```bash
-# Check if port 3000 is in use
-lsof -i :3000
-
-# Kill process if needed
-lsof -ti:3000 | xargs kill -9
-
-# Try again
-npm run dev
-```
-
-### Ollama not found:
-```bash
-# Install Ollama
-curl -fsSL https://ollama.com/install.sh | sh
-
-# Start Ollama
-ollama serve
-
-# Pull model
-ollama pull codellama:latest
-```
-
-### Browser shows errors:
-- Check browser console (F12)
-- Check terminal for build errors
-- Verify all dependencies: `npm install`
+1. **Run manual DevTools checks** (0 tokens) - User must do this
+2. **Report back exactly what you find** - Share results
+3. **I'll give you the surgical 1-2 line fix** - Based on findings
+4. **Apply fix** - Minimal tool calls
 
 ---
 
-## Quick Start Script
+## For User (Chris)
 
-**Or use the automated script:**
-```bash
-chmod +x START_DEV_AND_VERIFY.sh
-./START_DEV_AND_VERIFY.sh
-```
+**Please run these commands in your browser console and report back:**
 
-This starts the server and opens browser automatically.
+1. Open browser at `http://localhost:3000`
+2. Open DevTools (F12)
+3. Run the console commands above
+4. Check React DevTools
+5. Report findings:
+   - Does `.xibalba-header` exist?
+   - What are computed styles?
+   - Is `ProfessionalFileMenu` in React tree?
+   - What's the root cause?
+
+**Then I can apply the surgical fix (1-2 tool calls).**
 
 ---
 
-## Status
-
-✅ **Code is ready**
-✅ **Configuration is correct**
-✅ **Scripts are created**
-
-**Next:** Run the steps above to see it in your browser!
-
+**The experiment is live. We're proving distributed AI collaboration works under resource constraints.**

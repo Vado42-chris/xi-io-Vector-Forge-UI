@@ -12,7 +12,9 @@ import {
 // import { useUndoRedo } from './hooks/useUndoRedo';
 import { clipboardService } from './services/clipboardService';
 import ErrorBoundary from './components/ErrorBoundary';
-import ProfessionalFileMenu from './components/ProfessionalFileMenu';
+// TEMP DEBUG: swap ProfessionalFileMenu -> Header to validate render path
+import Header from './components/Header';
+import Header from './components/Header';
 import LeftSidebar from './components/LeftSidebar';
 import RightSidebar from './components/RightSidebar';
 import ProfessionalLayersPanel from './components/ProfessionalLayersPanel';
@@ -88,6 +90,11 @@ const INITIAL_SVG = `<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/sv
 import { parseSvgPath, serializePath } from './utils/svgPathParser';
 
 const App: React.FC = () => {
+  // FORCE LOG AT APP START
+  console.log('🔴 App.hardened FUNCTION CALLED');
+  console.error('🔴 App.hardened FUNCTION CALLED (error)');
+  console.warn('🔴 App.hardened FUNCTION CALLED (warn)');
+  
   const [state, setState] = useState<AppState>(() => {
     try {
       const saved = localStorage.getItem('vforge_xibalba_prime');
@@ -1956,110 +1963,6 @@ const App: React.FC = () => {
         return;
       }
 
-      const ctrlOrCmd = e.ctrlKey || e.metaKey;
-
-      // File operations
-      if (ctrlOrCmd) {
-        if (e.key === 's' && !e.shiftKey) {
-          e.preventDefault();
-          handleAction('FILE_SAVE');
-        } else if (e.key === 's' && e.shiftKey) {
-          e.preventDefault();
-          handleAction('FILE_SAVE_AS');
-        } else if (e.key === 'o') {
-          e.preventDefault();
-          handleAction('FILE_OPEN');
-        } else if (e.key === 'n') {
-          e.preventDefault();
-          handleAction('FILE_NEW');
-        } else if (e.key === 'z' && !e.shiftKey) {
-          e.preventDefault();
-          handleAction('EDIT_UNDO');
-        } else if (e.key === 'z' && e.shiftKey) {
-          e.preventDefault();
-          handleAction('EDIT_REDO');
-        } else if (e.key === 'c') {
-          e.preventDefault();
-          handleAction('EDIT_COPY');
-        } else if (e.key === 'v') {
-          e.preventDefault();
-          handleAction('EDIT_PASTE');
-        } else if (e.key === 'x') {
-          e.preventDefault();
-          handleAction('EDIT_CUT');
-        } else if (e.key === 'a') {
-          e.preventDefault();
-          handleAction('SELECT_ALL');
-        } else if (e.key === 'g' && !e.shiftKey) {
-          e.preventDefault();
-          handleAction('OBJECT_GROUP');
-        } else if (e.key === 'g' && e.shiftKey) {
-          e.preventDefault();
-          handleAction('OBJECT_UNGROUP');
-        } else if (e.key === '0') {
-          e.preventDefault();
-          handleAction('VIEW_FIT');
-        } else if (e.key === '1') {
-          e.preventDefault();
-          handleAction('VIEW_ACTUAL');
-        } else if (e.key === '+' || e.key === '=') {
-          e.preventDefault();
-          handleAction('VIEW_ZOOM_IN');
-        } else if (e.key === '-' || e.key === '_') {
-          e.preventDefault();
-          handleAction('VIEW_ZOOM_OUT');
-        } else if (e.key === 'r') {
-          e.preventDefault();
-          handleAction('VIEW_SHOW_RULERS');
-        }
-      }
-
-      // Tool shortcuts (single key, no modifiers)
-      if (!ctrlOrCmd && !e.altKey && !e.shiftKey) {
-        switch (e.key.toLowerCase()) {
-          case 'v':
-            e.preventDefault();
-            handleToolChange('select');
-            break;
-          case 'p':
-            e.preventDefault();
-            handleToolChange('pen');
-            break;
-          case 'm':
-            e.preventDefault();
-            handleToolChange('rectangle');
-            break;
-          case 'l':
-            e.preventDefault();
-            handleToolChange('ellipse');
-            break;
-          case 't':
-            e.preventDefault();
-            handleToolChange('text');
-            break;
-          case 'h':
-            e.preventDefault();
-            handleToolChange('pan');
-            break;
-          case 'z':
-            e.preventDefault();
-            handleToolChange('zoom');
-            break;
-          case 'a':
-            e.preventDefault();
-            handleToolChange('direct-select');
-            break;
-        }
-      }
-
-      // Delete key
-      if ((e.key === 'Delete' || e.key === 'Backspace') && !ctrlOrCmd) {
-        if (state.selectedLayerId) {
-          e.preventDefault();
-          handleAction('EDIT_DELETE');
-        }
-      }
-
       // Escape to deselect
       if (e.key === 'Escape') {
         e.preventDefault();
@@ -2067,6 +1970,7 @@ const App: React.FC = () => {
       }
 
       // UI Automation shortcuts
+      const ctrlOrCmd = e.ctrlKey || e.metaKey;
       if (ctrlOrCmd) {
         // Ctrl+K or Cmd+K - Open Dev Chat (Self-Modifying AI)
         if (e.key === 'k' || e.key === 'K') {
@@ -2139,31 +2043,20 @@ const App: React.FC = () => {
   }, [showToast]);
 
   return (
-    <ErrorBoundary>
-      <div
-        className="relative w-screen h-screen text-[var(--xibalba-text-000)] font-sans overflow-hidden bg-[var(--xibalba-grey-000)]"
-        data-sidebar-left-visible={panelVisibility['left-sidebar'] ? 'true' : 'false'}
-        data-sidebar-right-visible={panelVisibility['right-sidebar'] ? 'true' : 'false'}
-      >
-        {/* Header with File Menu - Fixed at top */}
-        <ErrorBoundary>
-          <div className="flex items-center w-full">
-            <ProfessionalFileMenu onAction={handleAction} onLayoutChange={handleLayoutChange} />
-            <div className="ml-auto mr-4">
-              <SignButton
-                svgContent={state.currentSvg}
-                onSigned={bundlePath => {
-                  showToast(`✅ Proof bundle created: ${bundlePath}`, 'success');
-                }}
-                onError={error => {
-                  showToast(`❌ Signing failed: ${error}`, 'error');
-                }}
-                label="Sign & Create Proof"
-                className="text-sm"
-              />
-            </div>
-          </div>
-        </ErrorBoundary>
+    <>
+      {/* File Bar - TEMP: Using Header to test render path */}
+      <ErrorBoundary>
+        <Header
+          onAction={handleAction}
+          credits={25000}
+        />
+      </ErrorBoundary>
+      <ErrorBoundary>
+        <div
+          className="relative w-screen h-screen text-[var(--xibalba-text-000)] font-sans overflow-hidden bg-[var(--xibalba-grey-000)]"
+          data-sidebar-left-visible={panelVisibility['left-sidebar'] ? 'true' : 'false'}
+          data-sidebar-right-visible={panelVisibility['right-sidebar'] ? 'true' : 'false'}
+        >
 
         {/* Left Sidebar - Fixed position (positioned via CSS class) */}
         {panelVisibility['left-sidebar'] && (
