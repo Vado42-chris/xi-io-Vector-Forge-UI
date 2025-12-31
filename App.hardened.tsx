@@ -789,11 +789,72 @@ const App: React.FC = () => {
           case 'FILE_SAVE':
             setState(prev => ({ ...prev, fileOperationLoading: { type: 'save' } }));
             try {
-              // Simulate async operation for visual feedback
-              await new Promise<void>(resolve => setTimeout(resolve, 100));
-              localStorage.setItem('vforge_xibalba_prime', JSON.stringify(state));
-              setState(prev => ({ ...prev, fileOperationLoading: { type: null } }));
-              showToast('File saved', 'success');
+              // Check if we have a current file path
+              const currentFilePath = (state as any).currentFilePath;
+              
+              if (currentFilePath) {
+                // Save to existing file
+                const fileData = {
+                  svg: state.currentSvg,
+                  layers: state.layers,
+                  zoom: state.zoom,
+                  pan: state.pan,
+                  timestamp: Date.now(),
+                };
+                
+                // Use File System Access API if available, otherwise download
+                if ('showSaveFilePicker' in window) {
+                  try {
+                    const fileHandle = await (window as any).showSaveFilePicker({
+                      suggestedName: currentFilePath,
+                      types: [{
+                        description: 'VectorForge Project',
+                        accept: { 'application/xibalba': ['.xibalba'] }
+                      }]
+                    });
+                    const writable = await fileHandle.createWritable();
+                    await writable.write(JSON.stringify(fileData, null, 2));
+                    await writable.close();
+                    
+                    // Also save to localStorage as backup
+                    localStorage.setItem('vforge_xibalba_prime', JSON.stringify(state));
+                    localStorage.setItem('vforge_current_file_path', currentFilePath);
+                    
+                    setState(prev => ({ ...prev, fileOperationLoading: { type: null }, currentFilePath: currentFilePath }));
+                    showToast('File saved', 'success');
+                    announceToScreenReader('File saved successfully');
+                  } catch (err: any) {
+                    if (err.name !== 'AbortError') {
+                      throw err;
+                    }
+                    // User cancelled, don't show error
+                    setState(prev => ({ ...prev, fileOperationLoading: { type: null } }));
+                    return;
+                  }
+                } else {
+                  // Fallback: Download file
+                  const blob = new Blob([JSON.stringify(fileData, null, 2)], { type: 'application/json' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = currentFilePath.endsWith('.xibalba') ? currentFilePath : `${currentFilePath}.xibalba`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                  
+                  // Also save to localStorage as backup
+                  localStorage.setItem('vforge_xibalba_prime', JSON.stringify(state));
+                  localStorage.setItem('vforge_current_file_path', currentFilePath);
+                  
+                  setState(prev => ({ ...prev, fileOperationLoading: { type: null } }));
+                  showToast('File saved', 'success');
+                  announceToScreenReader('File saved successfully');
+                }
+              } else {
+                // No current file, use Save As
+                void handleAction('FILE_SAVE_AS');
+                return;
+              }
+              
               // Award XP for saving
               awardXPAndCheckLevelUp(
                 'file-save',
@@ -804,29 +865,111 @@ const App: React.FC = () => {
               userProfileService.updateStat('filesSaved', 1);
             } catch (error) {
               setState(prev => ({ ...prev, fileOperationLoading: { type: null } }));
-              showToast('Failed to save file', 'error');
+              showToast(`Failed to save file: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error');
+              console.error('Save error:', error);
             }
             break;
           case 'FILE_SAVE_AS': {
             setState(prev => ({ ...prev, fileOperationLoading: { type: 'save-as' } }));
-            // eslint-disable-next-line no-case-declarations
             try {
-              await new Promise<void>(resolve => setTimeout(resolve, 150));
-              const blob = new Blob(
-                [JSON.stringify({ svg: state.currentSvg, layers: state.layers, state })],
-                { type: 'application/json' }
+              const fileData = {
+                svg: state.currentSvg,
+                layers: state.layers,
+                zoom: state.zoom,
+                pan: state.pan,
+                timestamp: Date.now(),
+              };
+              
+              // Use File System Access API if available
+              if ('showSaveFilePicker' in window) {
+                try {
+                  const fileHandle = await (window as any).showSaveFilePicker({
+                    suggestedName: `vectorforge_project_${Date.now()}.xibalba`,
+                    types: [{
+                      description: 'VectorForge Project',
+                      accept: { 'application/xibalba': ['.xibalba'] }
+                    }]
+                  });
+                  const writable = await fileHandle.createWritable();
+                  await writable.write(JSON.stringify(fileData, null, 2));
+                  await writable.close();
+                  
+                  // Get file name from handle
+                  const fileName = fileHandle.name;
+                  
+                  // Save to localStorage as backup
+                  localStorage.setItem('vforge_xibalba_prime', JSON.stringify(state));
+                  localStorage.setItem('vforge_current_file_path', fileName);
+                  
+                  // Update recent files
+                  try {
+                    const recentFilesStr = localStorage.getItem('vforge_recent_files') || '[]';
+                    const recentFiles = JSON.parse(recentFilesStr);
+                    if (Array.isArray(recentFiles)) {
+                      recentFiles.unshift({ name: fileName, path: fileName, timestamp: Date.now() });
+                      const updatedRecent = recentFiles.slice(0, 10);
+                      localStorage.setItem('vforge_recent_files', JSON.stringify(updatedRecent));
+                    }
+                  } catch (error) {
+                    console.error('Failed to update recent files:', error);
+                  }
+                  
+                  setState(prev => ({ ...prev, fileOperationLoading: { type: null }, currentFilePath: fileName }));
+                  showToast(`File saved as ${fileName}`, 'success');
+                  announceToScreenReader(`File saved as ${fileName}`);
+                } catch (err: any) {
+                  if (err.name !== 'AbortError') {
+                    throw err;
+                  }
+                  // User cancelled, don't show error
+                  setState(prev => ({ ...prev, fileOperationLoading: { type: null } }));
+                  return;
+                }
+              } else {
+                // Fallback: Download file
+                const blob = new Blob([JSON.stringify(fileData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                const fileName = `vectorforge_project_${Date.now()}.xibalba`;
+                a.download = fileName;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                // Save to localStorage as backup
+                localStorage.setItem('vforge_xibalba_prime', JSON.stringify(state));
+                localStorage.setItem('vforge_current_file_path', fileName);
+                
+                // Update recent files
+                try {
+                  const recentFilesStr = localStorage.getItem('vforge_recent_files') || '[]';
+                  const recentFiles = JSON.parse(recentFilesStr);
+                  if (Array.isArray(recentFiles)) {
+                    recentFiles.unshift({ name: fileName, path: fileName, timestamp: Date.now() });
+                    const updatedRecent = recentFiles.slice(0, 10);
+                    localStorage.setItem('vforge_recent_files', JSON.stringify(updatedRecent));
+                  }
+                } catch (error) {
+                  console.error('Failed to update recent files:', error);
+                }
+                
+                setState(prev => ({ ...prev, fileOperationLoading: { type: null }, currentFilePath: fileName }));
+                showToast(`File saved as ${fileName}`, 'success');
+                announceToScreenReader(`File saved as ${fileName}`);
+              }
+              
+              // Award XP for saving
+              awardXPAndCheckLevelUp(
+                'file-save',
+                'action',
+                XP_ACTIONS.SAVE_FILE.points,
+                XP_ACTIONS.SAVE_FILE.description
               );
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = `vectorforge_${Date.now()}.xibalba`;
-              a.click();
-              URL.revokeObjectURL(url);
-              setState(prev => ({ ...prev, fileOperationLoading: { type: null } }));
-              showToast('File saved as', 'success');
+              userProfileService.updateStat('filesSaved', 1);
             } catch (error) {
               setState(prev => ({ ...prev, fileOperationLoading: { type: null } }));
-              showToast('Failed to save file', 'error');
+              showToast(`Failed to save file: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error');
+              console.error('Save As error:', error);
             }
             break;
           }
