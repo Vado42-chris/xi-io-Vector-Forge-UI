@@ -2349,21 +2349,10 @@ const App: React.FC = () => {
           </ErrorBoundary>
         )}
 
-        {/* Center Canvas Area - Positioned to account for fixed header and sidebars */}
-        <div
-          className={`absolute flex flex-col overflow-hidden bg-[var(--xibalba-grey-000)] zstack-canvas xibalba-canvas-area isolation-isolate ${
-            panelVisibility['left-sidebar'] && panelVisibility['right-sidebar']
-              ? ''
-              : panelVisibility['left-sidebar']
-                ? 'xibalba-canvas-area-left-only'
-                : panelVisibility['right-sidebar']
-                  ? 'xibalba-canvas-area-right-only'
-                  : 'xibalba-canvas-area-no-sidebars'
-          }`}
-          style={{ isolation: 'isolate', contain: 'layout paint', zIndex: 'var(--z-canvas, 10)' }}
-        >
-          {/* Canvas - Takes remaining space */}
-          <div className="flex-1 relative overflow-hidden bg-[var(--xibalba-grey-000)] xibalba-canvas-container">
+        {/* Main Content - Grid Row 2 */}
+        <div className="app-main-content">
+          {/* Center Canvas Area - 100% height/width in container */}
+          <div className="app-canvas-area">
             <ErrorBoundary>
               <DraftsmanCanvas
                 svgContent={state.currentSvg}
