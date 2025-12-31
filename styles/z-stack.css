@@ -23,7 +23,7 @@
   --z-surface: 100;
   --z-sidebar-left: 100;
   --z-sidebar-right: 100;
-  --z-sidebar-resize-handle: 30;
+  --z-sidebar-resize-handle: 150; /* MUST be above sidebars to be clickable */
   --z-panel: 100;
   
   /* Interactive Layers (Tools, Controls) */
@@ -32,6 +32,7 @@
   --z-transform-handles: 50;
   --z-canvas-controls: 45;
   --z-rulers: 50;
+  --z-canvas: 10; /* Canvas must be below sidebars but above background */
   
   /* Timeline (Dynamic - changes when expanded) */
   --z-timeline-collapsed: 40;
@@ -41,8 +42,8 @@
   
   /* Floating Elements */
   --z-floating: 300;
-  --z-floating-toolbar: 50;
-  --z-power-toolbar: 50;
+  --z-floating-toolbar: 150; /* Must be above sidebars */
+  --z-power-toolbar: 150; /* Must be above sidebars to be accessible */
   
   /* Menus & Dropdowns */
   --z-menu: 400;

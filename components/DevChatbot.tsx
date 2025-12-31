@@ -20,6 +20,7 @@ import { AICodeEditor } from '../services/aiCodeEditor';
 // Note: xibalbaService doesn't export callXibalbaAI directly
 // We'll use a simple approach for now - can enhance later
 import ErrorBoundary from './ErrorBoundary';
+import ErrorPreventionDialog from './ErrorPreventionDialog';
 
 interface DevChatbotProps {
   onFileSelect?: (path: string) => void;
@@ -41,6 +42,8 @@ interface ChatMessage {
 
 const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) => {
   const [conversationId] = useState<string>(() => `devchat-${Date.now()}`);
+  const [showSelfModifyConfirm, setShowSelfModifyConfirm] = useState(false);
+  const [pendingSelfModifyRequest, setPendingSelfModifyRequest] = useState<string | null>(null);
 
   // Debug: Log when component mounts
   useEffect(() => {
@@ -193,7 +196,10 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
       } else if (intent.type === 'search') {
         response = await handleSearch(intent.pattern!);
       } else if (intent.type === 'self-modify') {
-        response = await handleSelfModification(intent.request!);
+        // Self-modification (molting) - Show confirmation first
+        setPendingSelfModifyRequest(intent.request!);
+        setShowSelfModifyConfirm(true);
+        return; // Wait for user confirmation
       } else {
         // Use AI to understand complex requests
         response = await handleAIRequest(userInput);
@@ -210,7 +216,10 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
       setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsProcessing(false);
-      inputRef.current?.focus();
+      // Refocus input after a brief delay to ensure state updates complete
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 50);
     }
   };
 
@@ -582,42 +591,115 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
       }
     }
     
-    // For now, provide helpful suggestions
-    // Can integrate with xibalbaService later for AI responses
-    const suggestions = `I can help you with:
+    // ACTUALLY CALL OLLAMA FOR AI RESPONSES
+    try {
+      const { loadMCPConfig } = await import('../config/mcpConfig');
+      const mcpConfig = loadMCPConfig();
+      
+      if (!mcpConfig.useLocalAI || mcpConfig.localAIProvider !== 'ollama') {
+        throw new Error('Ollama not configured. Please enable local AI in settings.');
+      }
+      
+      const serverUrl = mcpConfig.localAIServerUrl || 'http://localhost:11434';
+      const model = mcpConfig.localAIModelName || 'codellama:latest';
 
-📄 **Read Files:**
-  - "read package.json"
-  - "read server.js"
-  - "show components/FileBrowser.tsx"
+      // Build conversation context from recent messages
+      const recentMessages = messages.slice(-6); // Last 6 messages for context
+      const conversationContext = recentMessages
+        .map(msg => `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`)
+        .join('\n\n');
+      
+      // Get user profile and lexicon for personalization
+      const userProfile = userProfileService.getProfile();
+      const personalizedContext = userLexiconService.getPersonalizedContext(userProfile.userId);
+      
+      // Learn from current conversation (update lexicon)
+      userLexiconService.learnFromMessages(
+        userProfile.userId,
+        messages.map(m => ({ role: m.role, content: m.content }))
+      );
+      
+      // RAG: Retrieve relevant past conversations for context
+      const relevantHistory = conversationHistoryService.searchConversations(
+        userInput,
+        userProfile.userId,
+        3 // Top 3 relevant conversations
+      );
+      
+      const ragContext = relevantHistory.length > 0
+        ? `\n\nRelevant past conversations:\n${relevantHistory.map(h => `- ${h.summary || h.messages[0]?.content?.substring(0, 100)}`).join('\n')}`
+        : '';
 
-✏️ **Write Files:**
-  - "write tmp/test.txt with content: hello world"
-  - "create data/config.json with content: {}"
+      // Build full prompt with context
+      const systemPrompt = `You are a helpful development assistant for VectorForge, a vector graphics editor. You can:
+- Read and edit files
+- Execute terminal commands
+- Search files
+- Edit your own code (self-modification via molting system)
 
-⚡ **Execute Commands:**
-  - "run npm run dev"
-  - "run git status"
-  - "execute ls -la"
+Be concise, helpful, and focus on actionable responses. Format your responses with proper line breaks and paragraphs for readability.`;
 
-📁 **List Directories:**
-  - "list components"
-  - "list services"
-  - "show files in docs"
+      const fullPrompt = `${systemPrompt}\n\n${personalizedContext}\n\nConversation history:\n${conversationContext}${ragContext}\n\nUser: ${userInput}\n\nAssistant:`;
 
-🔍 **Search Files:**
-  - "search mcp"
-  - "find terminal"
-  - "look for fileSystem"
+      console.log('[DEBUG] Calling Ollama for conversational response', { serverUrl, model, promptLength: fullPrompt.length });
 
-Try one of these commands!`;
+      // Call Ollama
+      const response = await fetch(`${serverUrl}/api/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model,
+          prompt: fullPrompt,
+          stream: false,
+          options: {
+            temperature: 0.7, // Higher for conversational responses
+            top_p: 0.9,
+            num_predict: 2000, // Reasonable length for chat
+          },
+        }),
+      });
 
-    return {
-      id: `ai-${Date.now()}`,
-      role: 'assistant',
-      content: suggestions,
-      timestamp: new Date()
-    };
+      if (!response.ok) {
+        throw new Error(`Ollama API error: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      
+      if (!data.response) {
+        throw new Error('Ollama returned empty response');
+      }
+
+      const trimmedResponse = data.response.trim();
+      
+      console.log('[DEBUG] Ollama response received', { responseLength: trimmedResponse.length });
+
+      return {
+        id: `ai-${Date.now()}`,
+        role: 'assistant',
+        content: trimmedResponse,
+        timestamp: new Date()
+      };
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      
+      // If Ollama connection fails, provide helpful fallback
+      if (errorMsg.includes('Ollama') || errorMsg.includes('connect') || errorMsg.includes('fetch')) {
+        return {
+          id: `ai-error-${Date.now()}`,
+          role: 'assistant',
+          content: `❌ **AI Not Available**\n\n${errorMsg}\n\n**To fix:**\n1. Start Ollama: \`ollama serve\`\n2. Install model: \`ollama pull codellama:latest\`\n3. Try again\n\n**Or try file operations:**\n- "read package.json" - Read a file\n- "list components" - List directory\n- "run npm run dev" - Execute command`,
+          timestamp: new Date()
+        };
+      }
+      
+      // Other errors
+      return {
+        id: `ai-error-${Date.now()}`,
+        role: 'assistant',
+        content: `❌ **Error**\n\n${errorMsg}\n\n**Try:**\n- "read package.json" - Read a file\n- "list components" - List directory\n- "run npm run dev" - Execute command`,
+        timestamp: new Date()
+      };
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -629,7 +711,7 @@ Try one of these commands!`;
 
   return (
     <ErrorBoundary>
-      <div className="dev-chat-container">
+      <div className="dev-chat-container" style={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%', minHeight: 0 }}>
         {/* Header */}
         <div className="dev-chat-header">
           <div className="dev-chat-header-content">
@@ -667,8 +749,13 @@ Try one of these commands!`;
               key={message.id}
               className={`dev-chat-message ${message.role}`}
             >
-              <div className="dev-chat-message-content">
-                {message.content}
+              <div className="dev-chat-message-content" style={{ whiteSpace: 'pre-wrap' }}>
+                {message.content.split('\n').map((line, i) => (
+                  <React.Fragment key={i}>
+                    {line}
+                    {i < message.content.split('\n').length - 1 && <br />}
+                  </React.Fragment>
+                ))}
               </div>
               {message.actions && message.actions.length > 0 && (
                 <div className="dev-chat-message-actions">
@@ -687,9 +774,25 @@ Try one of these commands!`;
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input */}
-        <div className="dev-chat-input-area">
-          <div className="dev-chat-input-wrapper">
+        {/* Input - CRITICAL: Must be visible and functional */}
+        <div 
+          className="dev-chat-input-area"
+          style={{
+            position: 'relative',
+            width: '100%',
+            padding: '12px',
+            background: 'var(--xibalba-grey-050)',
+            borderTop: '2px solid var(--xibalba-grey-200)',
+            zIndex: 1000,
+            flexShrink: 0,
+            marginTop: 'auto',
+            display: 'block',
+            visibility: 'visible',
+            opacity: 1,
+            boxSizing: 'border-box'
+          }}
+        >
+          <div className="dev-chat-input-wrapper" style={{ display: 'flex', gap: '8px', alignItems: 'flex-end', width: '100%' }}>
             <textarea
               ref={inputRef}
               value={input}
@@ -697,25 +800,89 @@ Try one of these commands!`;
               onKeyPress={handleKeyPress}
               disabled={isProcessing}
               className="dev-chat-textarea"
-              placeholder="Ask me to read files, run commands, or help with your project..."
-              rows={2}
+              placeholder="Type your message here... (e.g., 'read package.json' or 'help')"
+              rows={3}
+              style={{
+                flex: 1,
+                minHeight: '60px',
+                maxHeight: '120px',
+                padding: '12px',
+                background: 'var(--xibalba-grey-100)',
+                border: '2px solid var(--xibalba-grey-200)',
+                borderRadius: '4px',
+                color: 'var(--xibalba-text-000)',
+                fontSize: '14px',
+                fontFamily: 'inherit',
+                resize: 'vertical',
+                display: 'block',
+                visibility: 'visible',
+                opacity: 1,
+                boxSizing: 'border-box'
+              }}
             />
             <button
               onClick={handleSend}
               disabled={!input.trim() || isProcessing}
               className="dev-chat-send-button"
+              style={{
+                minWidth: '80px',
+                height: '60px',
+                padding: '12px 24px',
+                background: input.trim() && !isProcessing ? 'var(--xibalba-accent)' : 'var(--xibalba-grey-200)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                fontWeight: 600,
+                fontSize: '14px',
+                cursor: input.trim() && !isProcessing ? 'pointer' : 'not-allowed',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                visibility: 'visible',
+                opacity: 1,
+                boxSizing: 'border-box'
+              }}
             >
               Send
             </button>
           </div>
-          <div className="dev-chat-status">
-            Examples: "read package.json" • "run npm run dev" • "list components"
-            {saveStatus === 'saving' && <span className="saving"> • 💾 Saving...</span>}
-            {saveStatus === 'saved' && <span className="saved"> • 💾 Saved</span>}
-            {saveStatus === 'error' && <span className="error"> • ⚠️ Save failed</span>}
+          <div className="dev-chat-status" style={{ marginTop: '8px', padding: '8px 12px', fontSize: '12px', color: 'var(--xibalba-text-100)' }}>
+            💡 Try: "read package.json" • "run npm run dev" • "list components" • "help"
+            {saveStatus === 'saving' && <span className="saving" style={{ color: 'var(--xibalba-accent)' }}> • 💾 Saving...</span>}
+            {saveStatus === 'saved' && <span className="saved" style={{ color: '#4caf50' }}> • 💾 Saved</span>}
+            {saveStatus === 'error' && <span className="error" style={{ color: '#f44336' }}> • ⚠️ Save failed</span>}
           </div>
         </div>
       </div>
+
+      {/* Self-Modification Confirmation Dialog */}
+      <ErrorPreventionDialog
+        isOpen={showSelfModifyConfirm}
+        type="confirmation"
+        title="Confirm Self-Modification"
+        message="You are about to modify the DevChatbot component. This will change how I work."
+        details="The system will create a backup before making changes. You can rollback if needed."
+        confirmLabel="Proceed with Modification"
+        cancelLabel="Cancel"
+        onConfirm={async () => {
+          setShowSelfModifyConfirm(false);
+          if (pendingSelfModifyRequest) {
+            const response = await handleSelfModification(pendingSelfModifyRequest);
+            setMessages(prev => [...prev, response]);
+            setPendingSelfModifyRequest(null);
+          }
+        }}
+        onCancel={() => {
+          setShowSelfModifyConfirm(false);
+          setPendingSelfModifyRequest(null);
+          setMessages(prev => [...prev, {
+            id: `self-modify-cancelled-${Date.now()}`,
+            role: 'assistant',
+            content: '❌ **Self-modification cancelled**\n\nNo changes were made.',
+            timestamp: new Date()
+          }]);
+        }}
+      />
     </ErrorBoundary>
   );
 };

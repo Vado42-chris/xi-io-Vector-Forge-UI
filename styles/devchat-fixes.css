@@ -1,0 +1,317 @@
+/* DevChatbot Input Fixes - Make Input Visible and Functional */
+/* CRITICAL: These styles MUST override everything to make input visible */
+
+.dev-chat-wrapper {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  width: 100% !important;
+  min-height: 0 !important;
+  max-height: 100% !important;
+  overflow: hidden !important;
+  position: relative !important;
+  box-sizing: border-box !important;
+}
+
+.dev-chat-container {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  width: 100% !important;
+  min-height: 0 !important;
+  max-height: 100% !important;
+  overflow: hidden !important;
+  position: relative !important;
+  box-sizing: border-box !important;
+  flex: 1 1 auto !important;
+}
+
+.dev-chat-messages {
+  flex: 1 1 auto !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  min-height: 0 !important;
+  max-height: calc(100% - 200px) !important;
+  padding: 16px !important;
+  box-sizing: border-box !important;
+}
+
+.dev-chat-input-area {
+  position: relative !important;
+  width: 100% !important;
+  padding: 12px !important;
+  background: var(--xibalba-grey-050) !important;
+  border-top: 2px solid var(--xibalba-grey-200) !important;
+  z-index: 1000 !important;
+  flex-shrink: 0 !important;
+  flex-grow: 0 !important;
+  margin-top: auto !important;
+  box-sizing: border-box !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.dev-chat-input-wrapper {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  width: 100%;
+}
+
+.dev-chat-textarea {
+  flex: 1 !important;
+  min-height: 60px !important;
+  max-height: 120px !important;
+  padding: 12px !important;
+  background: var(--xibalba-grey-100) !important;
+  border: 2px solid var(--xibalba-grey-200) !important;
+  border-radius: 4px !important;
+  color: var(--xibalba-text-000) !important;
+  font-size: 14px !important;
+  font-family: inherit !important;
+  resize: vertical !important;
+  overflow-y: auto !important;
+  transition: border-color 0.2s ease !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative !important;
+  z-index: 10 !important;
+}
+
+.dev-chat-textarea:focus {
+  outline: none;
+  border-color: var(--xibalba-accent);
+  box-shadow: 0 0 0 3px var(--xibalba-accent)/20;
+}
+
+.dev-chat-textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.dev-chat-textarea::placeholder {
+  color: var(--xibalba-text-200);
+}
+
+.dev-chat-send-button {
+  min-width: 80px !important;
+  height: 60px !important;
+  padding: 12px 24px !important;
+  background: var(--xibalba-accent) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 4px !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative !important;
+  z-index: 10 !important;
+}
+
+.dev-chat-send-button:hover:not(:disabled) {
+  background: var(--xibalba-accent-hover, var(--xibalba-accent));
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.dev-chat-send-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.dev-chat-status {
+  margin-top: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: var(--xibalba-text-100);
+  background: var(--xibalba-grey-050);
+  border-radius: 4px;
+}
+
+.dev-chat-status .saving {
+  color: var(--xibalba-accent);
+}
+
+.dev-chat-status .saved {
+  color: #4caf50;
+}
+
+.dev-chat-status .error {
+  color: #f44336;
+}
+
+/* Ensure chat container is visible */
+.dev-chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.dev-chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  min-height: 200px;
+}
+
+/* Template Library Grid Fix - Prevent Stacking */
+.template-library-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  padding: 16px;
+}
+
+@media (min-width: 768px) {
+  .template-library-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .template-library-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Tool Button Accessibility */
+.xibalba-tools-panel button,
+.tool-button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px;
+  cursor: pointer;
+  pointer-events: auto !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.tool-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tool-button:not(:disabled):hover {
+  background: var(--xibalba-grey-100);
+  transform: scale(1.05);
+}
+
+.tool-button.active {
+  background: var(--xibalba-accent);
+  color: white;
+}
+
+/* Information Flow Improvements - Enhanced */
+.xibalba-panel-section {
+  margin-bottom: 16px;
+}
+
+.xibalba-ia-group-header {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  color: var(--xibalba-text-000) !important;
+  margin-bottom: 12px !important;
+  padding: 8px 12px !important;
+  background: var(--xibalba-grey-100) !important;
+  border-bottom: 2px solid var(--xibalba-accent) !important;
+  display: block !important;
+  visibility: visible !important;
+}
+
+/* Clear visual hierarchy */
+.xibalba-form-group {
+  margin-bottom: 20px !important;
+  padding: 12px !important;
+  background: var(--xibalba-grey-050) !important;
+  border-radius: 4px !important;
+  border: 1px solid var(--xibalba-grey-200) !important;
+}
+
+.xibalba-form-label {
+  display: block !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: var(--xibalba-text-000) !important;
+  margin-bottom: 8px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Ensure all inputs are visible */
+.xibalba-form-input,
+.xibalba-input-professional,
+input[type="text"],
+input[type="number"],
+input[type="color"],
+textarea {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  background: var(--xibalba-grey-100) !important;
+  border: 1px solid var(--xibalba-grey-200) !important;
+  color: var(--xibalba-text-000) !important;
+  padding: 8px 12px !important;
+  min-height: 36px !important;
+}
+
+/* Tool button visibility - CRITICAL */
+.tool-button,
+.xibalba-tools-panel button,
+button[class*="tool"] {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  position: relative !important;
+  z-index: 10 !important;
+}
+
+/* Information Flow Improvements */
+.xibalba-panel-section {
+  margin-bottom: 16px;
+}
+
+.xibalba-ia-group-header {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--xibalba-text-100);
+  margin-bottom: 8px;
+  padding: 0 12px;
+}
+
+/* Clear visual hierarchy */
+.xibalba-form-group {
+  margin-bottom: 16px;
+}
+
+.xibalba-form-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--xibalba-text-000);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+

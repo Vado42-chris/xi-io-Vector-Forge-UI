@@ -87,44 +87,55 @@ const PowerUserToolbar: React.FC<PowerUserToolbarProps> = ({
   return (
     <div 
       ref={toolbarRef}
-      className="absolute zstack-power-toolbar bg-[var(--xibalba-grey-100)] border-2 border-[var(--xibalba-accent)]/20 shadow-lg rounded-lg"
+      className="absolute zstack-power-toolbar xibalba-panel-elevated-professional"
       style={{
         position: 'absolute',
-        top: position.y === 0 ? '8px' : `${position.y}px`,
-        right: position.x === 0 ? '8px' : `${position.x}px`,
-        zIndex: 'var(--z-power-toolbar, 50)',
+        top: position.y === 0 ? '12px' : `${position.y}px`,
+        right: position.x === 0 ? '12px' : `${position.x}px`,
+        zIndex: 'var(--z-power-toolbar, 150)', // Must be above sidebars
         pointerEvents: 'auto',
         contain: 'layout style paint',
+        minWidth: '200px',
+        boxShadow: 'var(--shadow-floating)',
       } as React.CSSProperties}
       onPointerMove={handleDragMove}
       onPointerUp={handleDragEnd}
       onPointerCancel={handleDragEnd}
     >
-      <div className="xibalba-panel-elevated-professional power-toolbar-panel">
-        {/* Drag Handle */}
+      <div className="power-toolbar-panel">
+        {/* Drag Handle - More Visible */}
         <Tooltip content="Drag to move toolbar" position="bottom">
           <div
             ref={dragHandleRef}
             onPointerDown={handleDragStart}
-            className="power-toolbar-drag-handle w-full h-6 cursor-grab active:cursor-grabbing flex items-center justify-center transition-all mb-1 border-b border-white/10"
+            className="power-toolbar-drag-handle w-full h-8 cursor-grab active:cursor-grabbing flex items-center justify-center transition-all border-b border-white/10 bg-[var(--xibalba-grey-100)] hover:bg-[var(--xibalba-grey-150)]"
+            style={{ opacity: 0.8 }}
           >
-            <div className="flex gap-1">
-              <div className="w-1.5 h-1.5 bg-[var(--xibalba-text-200)]"></div>
-              <div className="w-1.5 h-1.5 bg-[var(--xibalba-text-200)]"></div>
-              <div className="w-1.5 h-1.5 bg-[var(--xibalba-text-200)]"></div>
+            <div className="flex gap-1.5">
+              <div className="w-2 h-2 bg-[var(--xibalba-text-200)] rounded-sm"></div>
+              <div className="w-2 h-2 bg-[var(--xibalba-text-200)] rounded-sm"></div>
+              <div className="w-2 h-2 bg-[var(--xibalba-text-200)] rounded-sm"></div>
             </div>
           </div>
         </Tooltip>
         <Tooltip content="Canvas Settings - Configure grid, guides, and onion skinning" position="left">
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="xibalba-button-professional w-full"
+            className="xibalba-button-professional w-full text-left justify-between"
+            style={{ 
+              height: '32px',
+              padding: '0 12px',
+              background: 'var(--xibalba-grey-150)',
+              border: 'none',
+            }}
           >
-          <span className="material-symbols-outlined text-[16px] mr-2">grid_on</span>
-          Canvas Settings
-          <span className="material-symbols-outlined text-[14px] ml-auto">
-            {isExpanded ? 'expand_less' : 'expand_more'}
-          </span>
+            <span className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-[16px]">grid_on</span>
+              <span className="text-[11px] font-medium">Canvas Settings</span>
+            </span>
+            <span className="material-symbols-outlined text-[14px]">
+              {isExpanded ? 'expand_less' : 'expand_more'}
+            </span>
           </button>
         </Tooltip>
 

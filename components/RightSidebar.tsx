@@ -23,6 +23,7 @@ import { usePanelResize } from '../hooks/usePanelResize';
 import { useClickTracking } from '../hooks/useClickTracking';
 import { TabSystem } from './shared/TabSystem';
 import { IconButton } from './shared/IconButton';
+import { Input } from './shared/templates/Input';
 
 interface RightSidebarProps {
   layers: VectorLayer[];
@@ -142,46 +143,40 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
         <h3 className="xibalba-label-professional">Rectangle Properties</h3>
         <div className="grid grid-cols-2 gap-4">
           <Tooltip content="Width - Set the width of the rectangle in pixels" position="left">
-            <div>
-              <label className="xibalba-label-professional">Width</label>
-              <input
-                type="number"
-                value={shape.width}
-                onChange={(e) => onUpdateShapeProperty(selectedLayer.id, 'width', parseFloat(e.target.value) || 0)}
-                className="xibalba-input-professional w-full"
-                min="0"
-                step="1"
-                placeholder="100"
-              />
-            </div>
+            <Input
+              type="number"
+              label="Width"
+              value={shape.width}
+              onChange={(e) => onUpdateShapeProperty(selectedLayer.id, 'width', parseFloat(e.target.value) || 0)}
+              min={0}
+              step={1}
+              placeholder="100"
+              size="md"
+            />
           </Tooltip>
           <Tooltip content="Height - Set the height of the rectangle in pixels" position="left">
-            <div>
-              <label className="xibalba-label-professional">Height</label>
-              <input
-                type="number"
-                value={shape.height}
-                onChange={(e) => onUpdateShapeProperty(selectedLayer.id, 'height', parseFloat(e.target.value) || 0)}
-                className="xibalba-input-professional w-full"
-                min="0"
-                step="1"
-                placeholder="100"
-              />
-            </div>
+            <Input
+              type="number"
+              label="Height"
+              value={shape.height}
+              onChange={(e) => onUpdateShapeProperty(selectedLayer.id, 'height', parseFloat(e.target.value) || 0)}
+              min={0}
+              step={1}
+              placeholder="100"
+              size="md"
+            />
           </Tooltip>
           <Tooltip content="Border Radius - Set the corner radius for rounded corners (0 = sharp corners)" position="left">
-            <div>
-              <label className="xibalba-label-professional">Border Radius</label>
-              <input
-                type="number"
-                value={shape.borderRadius}
-                onChange={(e) => onUpdateShapeProperty(selectedLayer.id, 'borderRadius', parseFloat(e.target.value) || 0)}
-                className="xibalba-input-professional w-full"
-                min="0"
-                step="1"
-                placeholder="0"
-              />
-            </div>
+            <Input
+              type="number"
+              label="Border Radius"
+              value={shape.borderRadius}
+              onChange={(e) => onUpdateShapeProperty(selectedLayer.id, 'borderRadius', parseFloat(e.target.value) || 0)}
+              min={0}
+              step={1}
+              placeholder="0"
+              size="md"
+            />
           </Tooltip>
         </div>
       </div>
@@ -207,7 +202,15 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
             trackClick('resize-handle', 'drag');
             handleResizeStart(e);
           }}
-          className="absolute left-0 top-0 bottom-0 w-2 cursor-col-resize bg-[var(--xibalba-grey-200)] hover:bg-[var(--xibalba-accent)] opacity-40 hover:opacity-100 transition-all z-sidebar-resize-handle z-[1000]"
+          className="absolute left-0 top-0 bottom-0 w-3 cursor-col-resize bg-[var(--xibalba-grey-200)] hover:bg-[var(--xibalba-accent)] opacity-60 hover:opacity-100 transition-all zstack-sidebar-resize-handle"
+          style={{ 
+            zIndex: 'var(--z-sidebar-resize-handle, 150)',
+            pointerEvents: 'auto',
+          }}
+          style={{ 
+            background: 'var(--xibalba-grey-200)',
+            opacity: 0.6,
+          }}
         />
       </Tooltip>
 
@@ -238,7 +241,16 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
       </div>
 
               <div 
-                className="xibalba-right-sidebar-content xibalba-tab-content xibalba-scrollable bg-[var(--xibalba-grey-050)] text-[var(--xibalba-text-000)]"
+                className="xibalba-right-sidebar-content xibalba-tab-content bg-[var(--xibalba-grey-050)] text-[var(--xibalba-text-000)]"
+                style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  height: '100%', 
+                  minHeight: 0, 
+                  maxHeight: '100%',
+                  overflow: 'hidden',
+                  position: 'relative'
+                }}
               >
         {activeRightTab === 'tool' ? (
           <ToolPropertiesPanel
@@ -254,13 +266,14 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
                   <div className="xibalba-ia-group-header">Object Properties</div>
                   <div className="xibalba-form-group">
                     <div className="xibalba-form-row">
-                      <label className="xibalba-form-label" htmlFor="layer-name-input">Node Address</label>
-                      <input 
+                      <Input
                         id="layer-name-input"
-                        className="xibalba-form-input xibalba-input-professional"
+                        name="layer-name"
+                        label="Node Address"
+                        type="text"
                         value={selectedLayer.name}
                         onChange={(e) => onRenameLayer(selectedLayer.id, e.target.value)}
-                        aria-label="Layer name"
+                        size="md"
                       />
                     </div>
                     <div className="xibalba-form-row xibalba-form-row-actions">
@@ -301,12 +314,13 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
                               aria-label="Fill color picker"
                             />
                           </div>
-                          <input
+                          <Input
                             type="text"
                             value={selectedLayer.color || 'var(--xibalba-text-000)'}
                             onChange={(e) => onUpdateProperty(selectedLayer.id, 'color', e.target.value)}
-                            className="xibalba-input-professional flex-1"
                             placeholder="var(--xibalba-text-000)"
+                            size="md"
+                            className="flex-1"
                           />
                         </div>
                       </div>
@@ -332,12 +346,13 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
                               aria-label="Stroke color picker"
                             />
                           </div>
-                          <input
+                          <Input
                             type="text"
                             value={selectedLayer.stroke || '#000000'}
                             onChange={(e) => onUpdateProperty(selectedLayer.id, 'stroke', e.target.value)}
-                            className="xibalba-input-professional flex-1"
                             placeholder="#000000"
+                            size="md"
+                            className="flex-1"
                           />
                         </div>
                       </div>
@@ -345,38 +360,34 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
 
                     <div className="xibalba-form-input-group">
                       <Tooltip content="Stroke Width - Set the thickness of the stroke (outline) in pixels" position="left">
-                        <div className="xibalba-form-group">
-                          <label className="xibalba-form-label">Stroke Width</label>
-                          <input
-                            type="number"
-                            min="0"
-                            step="0.1"
-                            value={selectedLayer.strokeWidth || 0}
-                            onChange={(e) => onUpdateProperty(selectedLayer.id, 'strokeWidth', parseFloat(e.target.value) || 0)}
-                            className="xibalba-form-input xibalba-input-professional"
-                            placeholder="0"
-                          />
-                        </div>
+                        <Input
+                          type="number"
+                          label="Stroke Width"
+                          value={selectedLayer.strokeWidth || 0}
+                          onChange={(e) => onUpdateProperty(selectedLayer.id, 'strokeWidth', parseFloat(e.target.value) || 0)}
+                          min={0}
+                          step={0.1}
+                          placeholder="0"
+                          size="md"
+                        />
                       </Tooltip>
                       <Tooltip content="Opacity - Set the transparency of the object (0 = transparent, 1 = opaque)" position="left">
-                        <div className="xibalba-form-group">
-                          <label className="xibalba-form-label">Opacity</label>
-                          <input
-                            type="number"
-                            min="0"
-                            max="1"
-                            step="0.01"
-                            value={selectedLayer.opacity || 1}
-                            onChange={(e) => {
-                              const val = parseFloat(e.target.value);
-                              if (!isNaN(val) && val >= 0 && val <= 1) {
-                                onUpdateProperty(selectedLayer.id, 'opacity', val);
-                              }
-                            }}
-                            className="xibalba-form-input xibalba-input-professional"
-                            placeholder="1"
-                          />
-                        </div>
+                        <Input
+                          type="number"
+                          label="Opacity"
+                          value={selectedLayer.opacity || 1}
+                          onChange={(e) => {
+                            const val = parseFloat(e.target.value);
+                            if (!isNaN(val) && val >= 0 && val <= 1) {
+                              onUpdateProperty(selectedLayer.id, 'opacity', val);
+                            }
+                          }}
+                          min={0}
+                          max={1}
+                          step={0.01}
+                          placeholder="1"
+                          size="md"
+                        />
                       </Tooltip>
                     </div>
 
@@ -454,12 +465,26 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
           </ErrorBoundary>
         ) : activeRightTab === 'devchat' ? (
           <ErrorBoundary>
-            <DevChatbot
-              onFileSelect={(path) => {
-                setActiveRightTab('files');
+            <div 
+              className="dev-chat-wrapper"
+              style={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                height: '100%', 
+                minHeight: 0, 
+                maxHeight: '100%',
+                overflow: 'hidden',
+                position: 'relative',
+                width: '100%'
               }}
-              onShowHistory={onShowConversationHistory}
-            />
+            >
+              <DevChatbot
+                onFileSelect={(path) => {
+                  setActiveRightTab('files');
+                }}
+                onShowHistory={onShowConversationHistory}
+              />
+            </div>
           </ErrorBoundary>
         ) : activeRightTab === 'chat' && state && setState && onScriptGenerated ? (
           <ErrorBoundary>
@@ -527,18 +552,19 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
                    </div>
                  )) || <div className="text-[var(--xibalba-text-100)]">No terminal logs yet</div>}
               </div>
-              <input 
-                type="text" 
-                value={terminalInput} 
+              <Input
+                type="text"
+                value={terminalInput}
                 onChange={(e) => setTerminalInput(e.target.value)}
-                onKeyDown={(e) => { 
-                  if(e.key === 'Enter') { 
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
                     onTerminalCommand?.(terminalInput);
-                    setTerminalInput(''); 
+                    setTerminalInput('');
                   }
                 }}
-                className="xibalba-input-professional w-full"
                 placeholder="root@xibalba:~$ "
+                size="md"
+                className="w-full"
               />
             </div>
           </div>

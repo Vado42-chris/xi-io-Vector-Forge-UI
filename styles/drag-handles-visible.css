@@ -13,39 +13,42 @@
   z-index: 1000 !important;
   cursor: col-resize !important;
   background: var(--xibalba-grey-200) !important;
-  opacity: 0.4 !important;
+  opacity: 0.6 !important;
   transition: all 0.2s ease !important;
   pointer-events: auto !important;
+  width: 3px !important;
 }
 
 .zstack-sidebar-resize-handle:hover,
 .z-sidebar-resize-handle:hover {
   background: var(--xibalba-accent) !important;
   opacity: 1 !important;
-  width: 4px !important;
+  width: 5px !important;
 }
 
 .zstack-sidebar-resize-handle:active,
 .z-sidebar-resize-handle:active {
   background: var(--xibalba-accent) !important;
   opacity: 1 !important;
-  width: 4px !important;
+  width: 5px !important;
 }
 
-/* Left sidebar resize handle */
+/* Left sidebar resize handle - More Visible */
 .sidebar-fixed-left .zstack-sidebar-resize-handle {
   right: 0;
   top: 0;
   bottom: 0;
-  width: 2px;
+  width: 3px !important;
+  min-width: 3px !important;
 }
 
-/* Right sidebar resize handle */
+/* Right sidebar resize handle - More Visible */
 .z-sidebar-resize-handle {
   left: 0;
   top: 0;
   bottom: 0;
-  width: 2px;
+  width: 3px !important;
+  min-width: 3px !important;
 }
 
 /* ============================================

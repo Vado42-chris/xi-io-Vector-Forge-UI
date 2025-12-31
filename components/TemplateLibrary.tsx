@@ -374,7 +374,17 @@ describe('MyFeature', () => {
                 </p>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div 
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                style={{ 
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                  gap: '16px',
+                  width: '100%',
+                  position: 'relative',
+                  zIndex: 1
+                }}
+              >
                 {filteredTemplates.map((template) => (
                   <button
                     key={template.id}
@@ -384,6 +394,12 @@ describe('MyFeature', () => {
                         ? 'border-[var(--xibalba-accent)] bg-[var(--xibalba-grey-100)]'
                         : 'border-[var(--xibalba-grey-100)] hover:border-[var(--xibalba-accent)]'
                     }`}
+                    style={{
+                      position: 'relative',
+                      zIndex: 1,
+                      display: 'flex',
+                      flexDirection: 'column'
+                    }}
                     aria-pressed={selectedTemplate?.id === template.id}
                   >
                     <div className="flex items-start gap-3">

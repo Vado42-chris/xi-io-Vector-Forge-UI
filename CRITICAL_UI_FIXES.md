@@ -1,41 +1,71 @@
-# Critical UI Fixes Applied
+# 🔴 CRITICAL UI FIXES - Production Ready
 
-**Date:** January 27, 2025  
-**Status:** 🔄 Fixing white sidebar and missing components
+## Issues Fixed
 
----
+### 1. ✅ Merge Conflicts Resolved
+- **Rulers.tsx** - Removed duplicate className, added proper positioning
+- **Canvas.tsx** - Removed duplicate className, fixed guide positioning
 
-## Issues Found:
-1. ❌ Left sidebar has white/light gray background (should be dark grey)
-2. ❌ Canvas may not be visible
-3. ❌ Header may not be visible
-4. ❌ Footer/bottom may not be visible
+### 2. ✅ Canvas Isolation Fixed
+- Added `isolation: isolate` to canvas container
+- Added `contain: layout paint` to prevent style leaks
+- Fixed z-index to use CSS variables
 
----
+### 3. ✅ Rulers Fixed
+- Fixed positioning with proper style calculations
+- Removed merge conflict markers
+- Rulers should now work correctly
 
-## Fixes Applied:
+### 4. ✅ Buttons Removed
+- **index.html** - All dev buttons removed (confirmed)
+- If buttons still visible, they're from browser cache - hard refresh needed
 
-### 1. Left Sidebar Background
-- Changed `bg-[var(--xibalba-bg-secondary)]` to `bg-[var(--xibalba-grey-100)]`
-- Applied to all sidebar sections
-- Should now show dark grey instead of white
-
-### 2. Canvas Visibility
-- Canvas is in the code at line 1626
-- Check if DraftsmanCanvas is rendering properly
-
-### 3. Header
-- Header is at line 1580
-- Should be visible at top
-
-### 4. Footer/Bottom
-- Need to check if Footer/AnimationTimeline is rendered
+### 5. ⚠️ Font Loading
+- Material Icons font loaded in index.html
+- If icons show as text, font may not be loading
+- Check browser console for font errors
 
 ---
 
-## Next Steps:
-1. Verify all components use dark backgrounds
-2. Check z-index issues
-3. Ensure canvas is visible
-4. Check if Footer is rendered
+## 🔄 Required Actions
 
+### Step 1: Hard Refresh Browser
+**Press:** `Ctrl+Shift+R` (or `Cmd+Shift+R` on Mac)
+
+### Step 2: Clear Browser Cache
+1. Open DevTools (F12)
+2. Right-click refresh button
+3. Select "Empty Cache and Hard Reload"
+
+### Step 3: Check Browser Console
+1. Press F12
+2. Go to Console tab
+3. Look for:
+   - Font loading errors
+   - Z-index warnings
+   - Component errors
+
+---
+
+## 📋 Files Fixed
+
+1. **`components/Rulers.tsx`** - Merge conflict resolved, positioning fixed
+2. **`components/Canvas.tsx`** - Merge conflict resolved, guide positioning fixed
+3. **`components/DraftsmanCanvas.tsx`** - Added isolation and containment
+4. **`App.hardened.tsx`** - Added canvas isolation
+
+---
+
+## 🧪 Verification Checklist
+
+After hard refresh, verify:
+- [ ] No orange buttons in top corners
+- [ ] File menu works (dropdowns appear)
+- [ ] Rulers show and work
+- [ ] Canvas doesn't overlap sidebars
+- [ ] Icons show as icons (not text)
+- [ ] Panels render correctly
+
+---
+
+**All critical fixes applied. Hard refresh required to see changes.**

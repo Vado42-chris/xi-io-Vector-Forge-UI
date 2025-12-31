@@ -55,14 +55,25 @@ export const usePanelResize = ({
   useEffect(() => {
     const handlePointerMove = (e: PointerEvent) => {
       if (isResizing) {
+        e.preventDefault();
         const newWidth = side === 'left' 
           ? e.clientX 
           : window.innerWidth - e.clientX;
-        if (newWidth >= minWidth && newWidth <= maxWidth) {
-          setWidth(newWidth);
-          if (onWidthChange) {
-            onWidthChange(newWidth);
+        const clampedWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
+        setWidth(clampedWidth);
+        if (onWidthChange) {
+          onWidthChange(clampedWidth);
+        }
+        // Update CSS variable immediately
+        if (sidebarRef.current) {
+          if (side === 'left') {
+            sidebarRef.current.style.width = `${clampedWidth}px`;
+            sidebarRef.current.setAttribute('data-sidebar-left-width', `${clampedWidth}`);
+          } else {
+            sidebarRef.current.style.width = `${clampedWidth}px`;
+            sidebarRef.current.setAttribute('data-sidebar-right-width', `${clampedWidth}`);
           }
+          sidebarRef.current.setAttribute('data-sidebar-width', `${clampedWidth}`);
         }
       } else if (isDragging) {
         // Dragging logic can be added here if needed
@@ -78,11 +89,13 @@ export const usePanelResize = ({
     };
 
     if (isResizing || isDragging) {
-      window.addEventListener('pointermove', handlePointerMove);
+      window.addEventListener('pointermove', handlePointerMove, { passive: false });
       window.addEventListener('pointerup', handlePointerUp);
+      window.addEventListener('pointercancel', handlePointerUp);
       return () => {
         window.removeEventListener('pointermove', handlePointerMove);
         window.removeEventListener('pointerup', handlePointerUp);
+        window.removeEventListener('pointercancel', handlePointerUp);
       };
     }
   }, [isResizing, isDragging, side, minWidth, maxWidth, onWidthChange]);
@@ -96,14 +109,20 @@ export const usePanelResize = ({
     e.preventDefault();
   };
 
-  // Update CSS variables for positioning via data attributes (NO INLINE STYLES)
+  // Update CSS variables and inline styles for positioning
   useEffect(() => {
     if (sidebarRef.current) {
-      sidebarRef.current.setAttribute('data-sidebar-width', `${isCollapsed ? 48 : width}`);
+      const actualWidth = isCollapsed ? 48 : width;
+      sidebarRef.current.setAttribute('data-sidebar-width', `${actualWidth}`);
+      sidebarRef.current.style.width = `${actualWidth}px`;
       if (side === 'left') {
-        sidebarRef.current.setAttribute('data-sidebar-left-width', `${isCollapsed ? 48 : width}`);
+        sidebarRef.current.setAttribute('data-sidebar-left-width', `${actualWidth}`);
+        // Update CSS variable
+        document.documentElement.style.setProperty('--sidebar-left-width', `${actualWidth}px`);
       } else {
-        sidebarRef.current.setAttribute('data-sidebar-right-width', `${isCollapsed ? 48 : width}`);
+        sidebarRef.current.setAttribute('data-sidebar-right-width', `${actualWidth}`);
+        // Update CSS variable
+        document.documentElement.style.setProperty('--sidebar-right-width', `${actualWidth}px`);
       }
     }
   }, [width, isCollapsed, side]);

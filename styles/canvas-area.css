@@ -12,6 +12,7 @@
   height: calc(100vh - 48px);
   width: calc(100vw - var(--sidebar-left-width, 320px) - var(--sidebar-right-width, 360px));
   z-index: var(--z-canvas, 10);
+  transition: left 0.1s ease, right 0.1s ease, width 0.1s ease;
 }
 
 .xibalba-canvas-area-left-only {

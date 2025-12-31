@@ -1,0 +1,45 @@
+/**
+ * Professional Toolbar Styles
+ * Adobe Illustrator-level polish
+ */
+
+/* Power User Toolbar - Professional Appearance */
+.power-toolbar-panel {
+  background: var(--xibalba-grey-150);
+  box-shadow: var(--shadow-elevated);
+  border-radius: 0;
+  min-width: 200px;
+  overflow: hidden;
+}
+
+.power-toolbar-drag-handle {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.power-toolbar-drag-handle:hover {
+  opacity: 1 !important;
+  background: var(--xibalba-grey-200) !important;
+}
+
+.power-toolbar-drag-handle:active {
+  opacity: 1 !important;
+  background: var(--xibalba-grey-250) !important;
+  cursor: grabbing !important;
+}
+
+/* Professional Panel Styling */
+.xibalba-panel-elevated-professional {
+  background: var(--xibalba-grey-150) !important;
+  box-shadow: var(--shadow-elevated) !important;
+  border: none !important;
+}
+
+/* Ensure toolbar is always visible */
+.zstack-power-toolbar {
+  z-index: var(--z-power-toolbar, 50) !important;
+  pointer-events: auto !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+

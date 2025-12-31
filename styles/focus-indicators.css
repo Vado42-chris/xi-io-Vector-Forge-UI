@@ -1,0 +1,69 @@
+/* Focus Indicators - CRITICAL for Keyboard Navigation & Accessibility */
+/* Users with motor disabilities rely on keyboard navigation */
+
+/* All interactive elements must have visible focus */
+button:focus,
+[role="button"]:focus,
+a:focus,
+input:focus,
+textarea:focus,
+select:focus,
+[tabindex]:focus {
+  outline: 2px solid var(--xibalba-accent) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 4px rgba(var(--xibalba-accent-rgb, 255, 152, 0), 0.2) !important;
+}
+
+/* Remove default browser outline only if we have custom outline */
+button:focus-visible,
+[role="button"]:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--xibalba-accent) !important;
+  outline-offset: 2px !important;
+}
+
+/* Tool buttons - extra visible focus */
+.tool-button:focus,
+.xibalba-tools-panel button:focus {
+  outline: 3px solid var(--xibalba-accent) !important;
+  outline-offset: 3px !important;
+  background: var(--xibalba-grey-100) !important;
+}
+
+/* Tab buttons - clear focus */
+[role="tab"]:focus,
+.tab-button:focus {
+  outline: 2px solid var(--xibalba-accent) !important;
+  outline-offset: 2px !important;
+  background: var(--xibalba-grey-100) !important;
+}
+
+/* Input fields - visible focus */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 2px solid var(--xibalba-accent) !important;
+  outline-offset: 2px !important;
+  border-color: var(--xibalba-accent) !important;
+  box-shadow: 0 0 0 3px rgba(var(--xibalba-accent-rgb, 255, 152, 0), 0.2) !important;
+}
+
+/* Skip links for keyboard navigation */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--xibalba-accent);
+  color: var(--xibalba-text-000);
+  padding: 8px;
+  text-decoration: none;
+  z-index: 10000;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+

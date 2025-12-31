@@ -30,7 +30,7 @@ import KeyboardShortcutsPanel from './components/KeyboardShortcutsPanel';
 import GuidedWorkflowPanel from './components/GuidedWorkflowPanel';
 import ActionCenter from './components/ActionCenter';
 import TemplateFrameContainer from './components/TemplateFrameContainer';
-import FloatingDevChatButton from './components/FloatingDevChatButton';
+// FloatingDevChatButton removed - Dev Chat accessible via Right Sidebar (Ctrl+K)
 import { accessibilityService } from './services/accessibilityService';
 import { settingsService } from './services/settingsService';
 import { templateFrameService } from './services/templateFrameService';
@@ -2276,7 +2276,7 @@ const App: React.FC = () => {
 
         {/* Center Canvas Area - Positioned to account for fixed header and sidebars */}
         <div
-          className={`absolute flex flex-col overflow-hidden bg-[var(--xibalba-grey-000)] zstack-canvas xibalba-canvas-area ${
+          className={`absolute flex flex-col overflow-hidden bg-[var(--xibalba-grey-000)] zstack-canvas xibalba-canvas-area isolation-isolate ${
             panelVisibility['left-sidebar'] && panelVisibility['right-sidebar']
               ? ''
               : panelVisibility['left-sidebar']
@@ -2285,6 +2285,7 @@ const App: React.FC = () => {
                   ? 'xibalba-canvas-area-right-only'
                   : 'xibalba-canvas-area-no-sidebars'
           }`}
+          style={{ isolation: 'isolate', contain: 'layout paint', zIndex: 'var(--z-canvas, 10)' }}
         >
             {/* Canvas - Takes remaining space */}
             <div className="flex-1 relative overflow-hidden bg-[var(--xibalba-grey-000)] xibalba-canvas-container">
@@ -2421,35 +2422,8 @@ const App: React.FC = () => {
           <TemplateFrameContainer />
         </ErrorBoundary>
 
-        {/* Floating Dev Chat Button - Always Visible */}
-        <ErrorBoundary>
-          <FloatingDevChatButton
-            onOpen={() => {
-              // Ensure right sidebar is visible
-              setPanelVisibility(prev => ({ ...prev, 'right-sidebar': true }));
-              // Switch to Dev Chat tab
-              if (typeof window !== 'undefined' && (window as any).__switchToDevChatTab) {
-                setTimeout(() => {
-                  (window as any).__switchToDevChatTab();
-                }, 100);
-              }
-              showToast('Opening Dev Chat', 'info');
-            }}
-          />
-        </ErrorBoundary>
+        {/* Floating Dev Chat Button removed - Dev Chat accessible via Right Sidebar (Ctrl+K) */}
       </div>
-
-      {/* Toast Notifications */}
-      <ToastContainer toasts={(state.toasts || []).map(t => ({ ...t, timestamp: Date.now() }))} />
-
-      {/* Welcome Screen */}
-      {showWelcome && (
-        <WelcomeScreen
-          onDismiss={() => {
-            setShowWelcome(false);
-            localStorage.setItem('vforge_welcome_dismissed', 'true');
-          }}
-          onStartTutorial={() => {
             setShowWelcome(false);
             localStorage.setItem('vforge_welcome_dismissed', 'true');
             showToast('Tutorial coming soon!', 'info');
@@ -2495,18 +2469,26 @@ const App: React.FC = () => {
       <TemplateLibrary
         isOpen={showTemplateLibrary}
         onClose={() => setShowTemplateLibrary(false)}
-        onSelectTemplate={template => {
-          showToast(`Template selected: ${template.name}`, 'success');
-          // Award XP for using template
-          awardXPAndCheckLevelUp(
-            'use-template',
-            'action',
-            XP_ACTIONS.USE_TEMPLATE.points,
-            XP_ACTIONS.USE_TEMPLATE.description
-          );
-          userProfileService.updateStat('templatesUsed', 1);
-          // Check for template explorer achievement
-          achievementService.recordProgress('template-user', 1);
+        onSelectTemplate={async (template) => {
+          try {
+            // Copy template code to clipboard
+            await navigator.clipboard.writeText(template.code);
+            showToast(`Template "${template.name}" copied to clipboard`, 'success');
+            
+            // Award XP for using template
+            awardXPAndCheckLevelUp(
+              'use-template',
+              'action',
+              XP_ACTIONS.USE_TEMPLATE.points,
+              XP_ACTIONS.USE_TEMPLATE.description
+            );
+            userProfileService.updateStat('templatesUsed', 1);
+            // Check for template explorer achievement
+            achievementService.recordProgress('template-user', 1);
+          } catch (error) {
+            console.error('Failed to copy template to clipboard:', error);
+            showToast(`Template "${template.name}" ready - code shown in preview`, 'info');
+          }
         }}
       />
 

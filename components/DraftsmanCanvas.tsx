@@ -390,7 +390,8 @@ const DraftsmanCanvas: React.FC<DraftsmanCanvasProps> = ({
   return (
     <div
       ref={containerRef}
-      className="w-full h-full relative overflow-hidden canvas-container bg-[var(--xibalba-grey-000)] min-h-[500px] flex flex-col"
+      className="w-full h-full relative overflow-hidden canvas-container bg-[var(--xibalba-grey-000)] min-h-[500px] flex flex-col isolation-isolate"
+      style={{ isolation: 'isolate', contain: 'layout paint', zIndex: 'var(--z-canvas, 10)' }}
       data-cursor-type={activeTool === 'select' ? 'default' : activeTool === 'pen' ? 'crosshair' : 'default'}
       onPointerDown={handlePointerDown}
       onWheel={handleWheel}
@@ -758,6 +759,18 @@ const DraftsmanCanvas: React.FC<DraftsmanCanvasProps> = ({
           </svg>
           
           {/* Empty State - Show when no layers */}
+          {layers.length === 0 && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+              <div className="text-center text-[var(--xibalba-text-100)] p-8 bg-[var(--xibalba-grey-050)]/80 rounded-lg border border-white/10">
+                <span className="material-symbols-outlined text-4xl mb-4 block opacity-50">gesture</span>
+                <h3 className="text-lg font-semibold mb-2 text-[var(--xibalba-text-000)]">Start Drawing</h3>
+                <p className="text-sm opacity-75 mb-4">Select a tool from the left sidebar and draw on the canvas</p>
+                <div className="text-xs opacity-60">
+                  <p>Press <kbd className="px-2 py-1 bg-[var(--xibalba-grey-100)] rounded">V</kbd> for Select, <kbd className="px-2 py-1 bg-[var(--xibalba-grey-100)] rounded">M</kbd> for Rectangle, <kbd className="px-2 py-1 bg-[var(--xibalba-grey-100)] rounded">P</kbd> for Pen</p>
+                </div>
+              </div>
+            </div>
+          )}
           {layers.length === 0 && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
               <div className="text-center opacity-80">

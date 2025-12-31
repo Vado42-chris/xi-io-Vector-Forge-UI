@@ -1,0 +1,97 @@
+/* Pointer Events Fix - Ensure All Interactive Elements Are Clickable */
+/* CRITICAL: This fixes the "can't click on things" frustration */
+
+/* All buttons must be clickable */
+button,
+[role="button"],
+[type="button"],
+[type="submit"],
+a[href],
+input[type="checkbox"],
+input[type="radio"],
+select,
+textarea {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+/* Tool buttons specifically */
+.tool-button,
+.xibalba-tools-panel button,
+[class*="tool"] button {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* Sidebar resize handles - CRITICAL */
+.zstack-sidebar-resize-handle,
+.z-sidebar-resize-handle,
+[class*="resize-handle"] {
+  pointer-events: auto !important;
+  cursor: col-resize !important;
+  z-index: var(--z-sidebar-resize-handle, 150) !important;
+  position: relative !important;
+}
+
+/* Tab buttons */
+[role="tab"],
+.tab-button,
+[class*="tab"] button {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* Input fields */
+input,
+textarea,
+select {
+  pointer-events: auto !important;
+  cursor: text !important;
+}
+
+/* Canvas must be interactive */
+.xibalba-canvas-area,
+.draftsman-canvas,
+[class*="canvas"] {
+  pointer-events: auto !important;
+}
+
+/* But rulers and guides should NOT block interactions */
+.rulers,
+.guides,
+[class*="ruler"],
+[class*="guide"] {
+  pointer-events: none !important;
+}
+
+/* Overlay elements that should NOT block */
+.grid-background,
+.canvas-grid-pattern,
+.onion-skin-overlay {
+  pointer-events: none !important;
+}
+
+/* Ensure parent containers don't block children */
+.xibalba-sidebar,
+.xibalba-panel,
+[class*="sidebar"],
+[class*="panel"] {
+  pointer-events: auto !important;
+}
+
+.xibalba-sidebar *,
+.xibalba-panel * {
+  pointer-events: auto !important;
+}
+
+/* Exception: Non-interactive decorative elements */
+.xibalba-sidebar .decorative,
+.xibalba-panel .decorative,
+[class*="decorative"] {
+  pointer-events: none !important;
+}
+
