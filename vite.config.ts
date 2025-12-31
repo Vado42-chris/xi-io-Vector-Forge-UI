@@ -36,18 +36,21 @@ export default defineConfig(({ mode }) => {
             }
           }
         },
-        // Security headers
+        // Security headers - Allow external resources for fonts, CDNs, etc.
         headers: {
           'Content-Security-Policy': [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // Required for Vite HMR in dev
-            "style-src 'self' 'unsafe-inline'",
-            "img-src 'self' data: blob:",
-            "font-src 'self' data:",
-            "connect-src 'self' ws://localhost:* http://localhost:*",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://esm.sh https://fonts.googleapis.com https://fonts.gstatic.com", // Required for Vite HMR in dev
+            "script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com",
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net",
+            "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net",
+            "img-src 'self' data: https: blob: https://api.dicebear.com",
+            "font-src 'self' data: https://fonts.gstatic.com",
+            "connect-src 'self' https: ws: wss: http://localhost:*",
             "frame-ancestors 'none'",
             "base-uri 'self'",
             "form-action 'self'",
+            "worker-src 'self' blob:",
           ].join('; '),
           'X-Content-Type-Options': 'nosniff',
           'X-Frame-Options': 'DENY',

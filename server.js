@@ -23,19 +23,22 @@ export { app };
 
 // Security Headers Middleware
 app.use((req, res, next) => {
-    // Content Security Policy
+    // Content Security Policy - Allow external resources for fonts, CDNs, etc.
     const csp = [
         "default-src 'self'",
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // 'unsafe-eval' needed for Vite in dev
-        "style-src 'self' 'unsafe-inline'",
-        "img-src 'self' data: https: blob:",
-        "font-src 'self' data:",
-        "connect-src 'self' https: ws: wss:", // WebSocket for Vite HMR
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://esm.sh https://fonts.googleapis.com https://fonts.gstatic.com", // 'unsafe-eval' needed for Vite in dev
+        "script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com",
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net",
+        "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net",
+        "img-src 'self' data: https: blob: https://api.dicebear.com",
+        "font-src 'self' data: https://fonts.gstatic.com",
+        "connect-src 'self' https: ws: wss: http://localhost:*", // WebSocket for Vite HMR
         "frame-src 'none'",
         "object-src 'none'",
         "base-uri 'self'",
         "form-action 'self'",
         "frame-ancestors 'none'",
+        "worker-src 'self' blob:",
         "upgrade-insecure-requests"
     ].join('; ');
 
