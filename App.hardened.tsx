@@ -280,41 +280,7 @@ const App: React.FC = () => {
     }
   }, []);
 
-  // Keyboard shortcuts for UI automation components
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Ctrl+K or Cmd+K - Open Keyboard Shortcuts Panel
-      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-        e.preventDefault();
-        setShowKeyboardShortcuts(true);
-        return;
-      }
-
-      // Ctrl+Shift+P or Cmd+Shift+P - Open Project Wizard
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'P') {
-        e.preventDefault();
-        setShowProjectWizard(true);
-        return;
-      }
-
-      // Ctrl+Shift+T or Cmd+Shift+T - Open Template Library
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'T') {
-        e.preventDefault();
-        setShowTemplateLibrary(true);
-        return;
-      }
-
-      // Ctrl+Shift+A or Cmd+Shift+A - Open Achievement Panel
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'A') {
-        e.preventDefault();
-        setShowAchievementPanel(true);
-        return;
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  // ✅ FIXED: Removed duplicate keyboard shortcuts handler - all shortcuts handled in comprehensive handler below
 
   // Initialize workflow layout service
   useEffect(() => {
@@ -1969,7 +1935,18 @@ const App: React.FC = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [state.selectedLayerId, handleAction, handleToolChange, handleLayerSelect]);
+  }, [
+    state.selectedLayerId,
+    handleAction,
+    handleToolChange,
+    handleLayerSelect,
+    showToast,
+    setPanelVisibility,
+    setShowKeyboardShortcuts,
+    setShowProjectWizard,
+    setShowTemplateLibrary,
+    setShowAchievementPanel,
+  ]);
 
   // Handle pan
   const handlePan = useCallback((pan: { x: number; y: number }) => {
