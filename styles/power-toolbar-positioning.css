@@ -1,15 +1,16 @@
 /* Power User Toolbar Positioning - NO INLINE STYLES */
 .power-user-toolbar-container {
   position: absolute;
-  top: var(--toolbar-top, 8px);
-  right: var(--toolbar-right, 8px);
-  z-index: var(--z-power-toolbar, 50);
+  top: var(--toolbar-top, 12px);
+  right: var(--toolbar-right, 12px);
+  z-index: var(--z-power-toolbar, 150);
   pointer-events: auto;
   contain: layout style paint;
   isolation: isolate;
   background-color: var(--xibalba-grey-100);
   border: 2px solid rgba(var(--xibalba-accent-rgb, 255, 152, 0), 0.2);
-  box-shadow: var(--shadow-elevated, 0 4px 6px rgba(0, 0, 0, 0.1));
+  box-shadow: var(--shadow-floating, var(--shadow-elevated, 0 4px 6px rgba(0, 0, 0, 0.1)));
   border-radius: 0;
+  min-width: 200px;
 }
 
