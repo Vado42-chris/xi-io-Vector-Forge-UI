@@ -390,7 +390,7 @@ const DraftsmanCanvas: React.FC<DraftsmanCanvasProps> = ({
   return (
     <div
       ref={containerRef}
-      className="w-full h-full relative overflow-hidden canvas-container bg-[var(--xibalba-grey-000)] min-h-[500px] flex flex-col isolation-isolate zstack-canvas"
+      className="w-full h-full relative overflow-hidden canvas-container bg-[var(--xibalba-grey-000)] flex flex-col isolation-isolate zstack-canvas"
       data-cursor-type={activeTool === 'select' ? 'default' : activeTool === 'pen' ? 'crosshair' : 'default'}
       onPointerDown={handlePointerDown}
       onWheel={handleWheel}
