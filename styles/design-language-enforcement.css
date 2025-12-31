@@ -142,32 +142,27 @@ body {
 }
 
 /* ============================================
-   TIMELINE VISIBILITY - FIXED AT BOTTOM
+   TIMELINE VISIBILITY - IN GRID (NOT FIXED)
    ============================================ */
-.xibalba-timeline {
+/* Timeline is in grid, NOT fixed - app-timeline-container handles positioning */
+.app-timeline-container .xibalba-timeline,
+.app-timeline-container .animation-timeline-container {
+  position: relative !important; /* NOT fixed - in grid */
+  bottom: auto !important;
+  left: auto !important;
+  right: auto !important;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: var(--z-timeline-expanded, 100) !important;
+}
+
+/* Only use fixed positioning when NOT in grid container */
+.xibalba-timeline:not(.app-timeline-container .xibalba-timeline),
+.animation-timeline-container:not(.app-timeline-container .animation-timeline-container) {
   position: fixed !important;
   bottom: 48px !important;
   left: 0 !important;
   right: 0 !important;
-  z-index: 200 !important;
-  background: var(--xibalba-grey-100) !important;
-  border-top: 2px solid rgba(255, 152, 0, 0.3) !important;
-  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3) !important;
-}
-
-.animation-timeline-container {
-  position: fixed !important;
-  bottom: 48px !important;
-  left: 0 !important;
-  right: 0 !important;
-  height: 200px !important;
-  z-index: var(--z-timeline, 200) !important;
-  background: var(--xibalba-grey-050) !important;
-  border-top: 1px solid var(--xibalba-grey-200) !important;
-}
-
-/* Support for dynamic timeline position via data attribute */
-.animation-timeline-container[data-timeline-bottom] {
-  bottom: calc(48px + attr(data-timeline-bottom px));
+  z-index: var(--z-timeline-expanded, 100) !important;
 }
 
