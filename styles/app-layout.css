@@ -49,27 +49,20 @@
 }
 
 .app-canvas-area {
-  flex: 1 1 0% !important; /* CRITICAL: Use 0% flex-basis, not auto */
-  position: relative;
+  position: absolute !important; /* CRITICAL: Absolute positioning to fill parent */
+  top: 0 !important;
+  bottom: 0 !important;
+  left: var(--sidebar-left-width, 320px) !important;
+  right: var(--sidebar-right-width, 360px) !important;
+  width: calc(100% - var(--sidebar-left-width, 320px) - var(--sidebar-right-width, 360px)) !important;
+  height: 100% !important; /* Fill parent completely */
   overflow: hidden;
   background: var(--xibalba-grey-000);
   isolation: isolate; /* Isolate canvas from sidebars and header */
   contain: layout paint; /* Contain canvas layout and painting */
   z-index: var(--z-canvas, 10); /* Canvas below sidebars but above background */
-  /* Account for fixed left sidebar - canvas starts after sidebar */
-  margin-left: var(--sidebar-left-width, 320px);
-  /* Account for fixed right sidebar - canvas ends before sidebar */
-  margin-right: var(--sidebar-right-width, 360px);
-  /* Width accounts for both sidebars */
-  width: calc(100% - var(--sidebar-left-width, 320px) - var(--sidebar-right-width, 360px));
-  min-width: 0 !important; /* Allow flex shrinking */
-  min-height: 0 !important; /* CRITICAL: Allow flex shrinking - prevents gap */
-  max-height: 100% !important; /* Don't exceed parent */
-  height: 100% !important; /* CRITICAL: Fill parent height completely */
-  margin-top: 0 !important;
-  margin-bottom: 0 !important;
+  margin: 0 !important;
   padding: 0 !important;
-  align-self: stretch !important; /* Force to fill parent height */
 }
 
 /* Timeline Container - In grid, NO FIXED POSITIONING, NO GAPS, EXACT HEIGHT */
