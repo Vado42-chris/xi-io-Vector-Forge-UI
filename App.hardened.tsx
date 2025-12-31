@@ -2745,8 +2745,6 @@ const App: React.FC = () => {
           setShowConversationHistory(false);
         }}
       />
-
-      {/* Error Display - REMOVED - No error panel at bottom */}
     </ErrorBoundary>
   );
 };
