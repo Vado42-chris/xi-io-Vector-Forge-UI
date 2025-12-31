@@ -136,6 +136,8 @@ const PowerUserToolbar: React.FC<PowerUserToolbarProps> = ({
                 <div className="flex items-center gap-2">
                   <input
                     type="checkbox"
+                    id="snap-to-grid"
+                    name="snap-to-grid"
                     checked={snapToGrid}
                     onChange={(e) => onSnapToGridChange(e.target.checked)}
                     className="xibalba-focus-professional"
@@ -147,6 +149,8 @@ const PowerUserToolbar: React.FC<PowerUserToolbarProps> = ({
                 <div className="flex items-center gap-2">
                   <input
                     type="checkbox"
+                    id="snap-to-guides"
+                    name="snap-to-guides"
                     checked={snapToGuides}
                     onChange={(e) => onSnapToGuidesChange(e.target.checked)}
                     className="xibalba-focus-professional"
@@ -160,6 +164,8 @@ const PowerUserToolbar: React.FC<PowerUserToolbarProps> = ({
                     <label className="xibalba-text-caption">Grid Size:</label>
                     <input
                       type="number"
+                      id="grid-size"
+                      name="grid-size"
                       value={gridSize}
                       onChange={(e) => onGridSizeChange(parseInt(e.target.value) || 10)}
                       className="xibalba-input-professional w-20"
@@ -180,6 +186,8 @@ const PowerUserToolbar: React.FC<PowerUserToolbarProps> = ({
                 <div className="flex items-center gap-2">
                   <input
                     type="checkbox"
+                    id="show-guides"
+                    name="show-guides"
                     checked={showGuides}
                     onChange={(e) => onShowGuidesChange(e.target.checked)}
                     className="xibalba-focus-professional"
@@ -196,6 +204,8 @@ const PowerUserToolbar: React.FC<PowerUserToolbarProps> = ({
                 <div className="flex items-center gap-2">
                   <input
                     type="checkbox"
+                    id="show-onion-skin"
+                    name="show-onion-skin"
                     checked={showOnionSkin}
                     onChange={(e) => onShowOnionSkinChange(e.target.checked)}
                     className="xibalba-focus-professional"
@@ -209,6 +219,8 @@ const PowerUserToolbar: React.FC<PowerUserToolbarProps> = ({
                     <label className="xibalba-text-caption">Frames:</label>
                     <input
                       type="number"
+                      id="onion-skin-frames"
+                      name="onion-skin-frames"
                       value={onionSkinFrames}
                       onChange={(e) => onOnionSkinFramesChange(parseInt(e.target.value) || 2)}
                       className="xibalba-input-professional w-20"
