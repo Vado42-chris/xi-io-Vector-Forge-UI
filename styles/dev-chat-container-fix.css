@@ -114,11 +114,23 @@ footer .dev-chat-input-area,
 .animation-timeline-container .dev-chat-input-area,
 .xibalba-timeline .dev-chat-input-area,
 footer textarea[id*="dev-chat"],
+footer textarea[name*="dev-chat"],
 .app-footer textarea[id*="dev-chat"],
+.app-footer textarea[name*="dev-chat"],
 .bottom-drawer textarea[id*="dev-chat"],
+.bottom-drawer textarea[name*="dev-chat"],
 .app-bottom-drawer textarea[id*="dev-chat"],
+.app-bottom-drawer textarea[name*="dev-chat"],
 .animation-timeline-container textarea[id*="dev-chat"],
-.xibalba-timeline textarea[id*="dev-chat"] {
+.animation-timeline-container textarea[name*="dev-chat"],
+.xibalba-timeline textarea[id*="dev-chat"],
+.xibalba-timeline textarea[name*="dev-chat"],
+footer .dev-chat-textarea,
+.app-footer .dev-chat-textarea,
+.bottom-drawer .dev-chat-textarea,
+.app-bottom-drawer .dev-chat-textarea,
+.animation-timeline-container .dev-chat-textarea,
+.xibalba-timeline .dev-chat-textarea {
   display: none !important;
   visibility: hidden !important;
   height: 0 !important;
@@ -128,6 +140,7 @@ footer textarea[id*="dev-chat"],
   position: absolute !important;
   left: -9999px !important;
   opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 /* CRITICAL: Ensure timeline doesn't contain chat input */

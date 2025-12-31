@@ -749,7 +749,27 @@ Be concise, helpful, and focus on actionable responses. Format your responses wi
 
   return (
     <ErrorBoundary>
-      <div className="dev-chat-container">
+      <div 
+        className="dev-chat-container"
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100%',
+          width: '100%',
+          minHeight: 0,
+          position: 'relative',
+          overflow: 'hidden',
+          isolation: 'isolate',
+          contain: 'layout style paint',
+          boxSizing: 'border-box',
+          top: 'auto',
+          bottom: 'auto',
+          left: 'auto',
+          right: 'auto',
+          transform: 'none',
+          zIndex: 1
+        }}
+      >
         {/* Header */}
         <div className="dev-chat-header">
           <div className="dev-chat-header-content">

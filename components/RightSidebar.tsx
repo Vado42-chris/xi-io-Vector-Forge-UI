@@ -450,6 +450,18 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
           <ErrorBoundary>
             <div 
               className="dev-chat-wrapper"
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                height: '100%',
+                width: '100%',
+                minHeight: 0,
+                position: 'relative',
+                overflow: 'hidden',
+                isolation: 'isolate',
+                contain: 'layout style paint',
+                boxSizing: 'border-box'
+              }}
             >
               <DevChatbot
                 onFileSelect={(path) => {
