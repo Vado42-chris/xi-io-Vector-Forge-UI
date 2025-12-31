@@ -236,6 +236,7 @@ const App: React.FC = () => {
   const [gridSize, setGridSize] = useState(10);
   const [showOnionSkin, setShowOnionSkin] = useState(false);
   const [onionSkinFrames, setOnionSkinFrames] = useState(2);
+  const [bottomDrawerOpen, setBottomDrawerOpen] = useState(true);
 
   // Workflow layout state
   const [currentLayout, setCurrentLayout] = useState<WorkflowLayout | null>(null);
