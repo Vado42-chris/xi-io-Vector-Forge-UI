@@ -2488,10 +2488,9 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        {/* Bottom Drawer - Grid Row 3 (Timeline + Non-Linear View) */}
-        <div className="app-timeline-container">
-          <ErrorBoundary>
-            <BottomDrawer
+        {/* Bottom Drawer - FIXED OVERLAY (not in grid flow) */}
+        <ErrorBoundary>
+          <BottomDrawer
               isOpen={bottomDrawerOpen}
               onToggle={() => setBottomDrawerOpen(!bottomDrawerOpen)}
               frameState={frameState}

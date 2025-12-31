@@ -9,7 +9,7 @@
   overflow: hidden;
   background: var(--xibalba-grey-000);
   display: grid !important;
-  grid-template-rows: auto 1fr auto auto !important; /* Header | Main Content | Timeline | Footer - NO GAPS */
+  grid-template-rows: auto 1fr auto !important; /* Header | Main Content | Footer - NO GAPS, NO TIMELINE ROW */
   grid-template-columns: auto 1fr auto;
   grid-gap: 0 !important; /* NO GAPS BETWEEN ROWS */
   gap: 0 !important; /* NO GAPS */
@@ -66,26 +66,8 @@
   padding: 0 !important;
 }
 
-/* Timeline Container - In grid, NO FIXED POSITIONING, NO GAPS, EXACT HEIGHT */
-.app-timeline-container {
-  grid-row: 3 / 4;
-  grid-column: 1 / 4;
-  position: relative;
-  z-index: var(--z-timeline-expanded, 100);
-  isolation: isolate;
-  contain: layout style paint;
-  height: 200px !important; /* EXACT - NO VARIATION */
-  min-height: 200px !important;
-  max-height: 200px !important; /* NO EXPANSION */
-  overflow: hidden !important;
-  width: 100% !important;
-  display: flex !important;
-  flex-direction: column !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  gap: 0 !important;
-  border: none !important;
-}
+/* Timeline Container - REMOVED - BottomDrawer is now fixed overlay, not in grid */
+/* .app-timeline-container removed - BottomDrawer uses position: fixed */
 
 /* Timeline inside grid container - FILLS CONTAINER EXACTLY, NO WRAPPER SPACE */
 .app-timeline-container > *,

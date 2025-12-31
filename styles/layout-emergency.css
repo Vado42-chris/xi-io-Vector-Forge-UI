@@ -1,0 +1,23 @@
+/* Emergency layout override - reversible */
+#app-simple-root, [data-app-root], .app-layout-grid, body > #root {
+  display: grid !important;
+  grid-template-rows: 56px 1fr 48px !important; /* header, main (canvas), bottom toolbar */
+  grid-template-columns: 240px 1fr 320px !important; /* left, center, right */
+  height: 100vh !important;
+  min-height: 100vh !important;
+}
+
+.app-canvas-area, main, [data-canvas], .canvas {
+  grid-row: 2 / 3 !important;
+  grid-column: 2 / 3 !important;
+  min-height: 0 !important; /* critical for flex/grid shrink behavior */
+  height: 100% !important;
+  overflow: hidden !important;
+}
+
+.bottom-toolbar, footer, .timeline {
+  grid-row: 3 / 4 !important;
+  position: relative !important;
+  z-index: 2000 !important;
+}
+
