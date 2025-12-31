@@ -203,14 +203,6 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
             handleResizeStart(e);
           }}
           className="absolute left-0 top-0 bottom-0 w-3 cursor-col-resize bg-[var(--xibalba-grey-200)] hover:bg-[var(--xibalba-accent)] opacity-60 hover:opacity-100 transition-all zstack-sidebar-resize-handle"
-          style={{ 
-            zIndex: 'var(--z-sidebar-resize-handle, 150)',
-            pointerEvents: 'auto',
-          }}
-          style={{ 
-            background: 'var(--xibalba-grey-200)',
-            opacity: 0.6,
-          }}
         />
       </Tooltip>
 
@@ -242,15 +234,6 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
 
               <div 
                 className="xibalba-right-sidebar-content xibalba-tab-content bg-[var(--xibalba-grey-050)] text-[var(--xibalba-text-000)]"
-                style={{ 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  height: '100%', 
-                  minHeight: 0, 
-                  maxHeight: '100%',
-                  overflow: 'hidden',
-                  position: 'relative'
-                }}
               >
         {activeRightTab === 'tool' ? (
           <ToolPropertiesPanel
@@ -467,16 +450,6 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
           <ErrorBoundary>
             <div 
               className="dev-chat-wrapper"
-              style={{ 
-                display: 'flex', 
-                flexDirection: 'column', 
-                height: '100%', 
-                minHeight: 0, 
-                maxHeight: '100%',
-                overflow: 'hidden',
-                position: 'relative',
-                width: '100%'
-              }}
             >
               <DevChatbot
                 onFileSelect={(path) => {

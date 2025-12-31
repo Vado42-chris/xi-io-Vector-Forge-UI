@@ -97,6 +97,13 @@
 
 .dev-chat-diagnostics-icon {
   font-size: 18px;
+  flex-shrink: 0;
+}
+
+.dev-chat-diagnostics-button span {
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: clip;
 }
 
 .dev-chat-send-button {

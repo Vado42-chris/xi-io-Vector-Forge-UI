@@ -92,14 +92,6 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
             handleResizeStart(e);
           }}
           className="absolute right-0 top-0 bottom-0 w-3 cursor-col-resize bg-[var(--xibalba-grey-200)] hover:bg-[var(--xibalba-accent)] opacity-60 hover:opacity-100 transition-all zstack-sidebar-resize-handle"
-          style={{ 
-            zIndex: 'var(--z-sidebar-resize-handle, 150)',
-            pointerEvents: 'auto',
-          }}
-          style={{ 
-            background: 'var(--xibalba-grey-200)',
-            opacity: 0.6,
-          }}
         />
       </Tooltip>
 

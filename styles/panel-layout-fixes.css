@@ -58,7 +58,7 @@
   box-sizing: border-box;
 }
 
-/* Tool Label - Readable */
+/* Tool Label - Readable - NO TRUNCATION */
 .xibalba-tool-label {
   font-size: 11px;
   font-weight: 500;
@@ -66,9 +66,10 @@
   line-height: 1.2;
   color: var(--xibalba-text-100);
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
+  overflow: visible;
+  text-overflow: clip;
+  max-width: none;
+  width: auto;
 }
 
 /* Tool Shortcut - Subtle */
