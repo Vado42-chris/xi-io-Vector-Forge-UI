@@ -20,6 +20,7 @@ import DraftsmanCanvas from './components/DraftsmanCanvas';
 import PowerUserToolbar from './components/PowerUserToolbar';
 import SignButton from './components/SignButton';
 import AnimationTimeline from './components/AnimationTimeline';
+import BottomDrawer from './components/BottomDrawer';
 import Footer from './components/Footer';
 import ToastContainer from './components/ToastContainer';
 import WelcomeScreen from './components/WelcomeScreen';
@@ -2061,31 +2062,89 @@ const App: React.FC = () => {
             />
           </ErrorBoundary>
         </div>
-      <ErrorBoundary>
-        <div
-          className="relative w-screen h-screen text-[var(--xibalba-text-000)] font-sans overflow-hidden bg-[var(--xibalba-grey-000)]"
-          data-sidebar-left-visible={panelVisibility['left-sidebar'] ? 'true' : 'false'}
-          data-sidebar-right-visible={panelVisibility['right-sidebar'] ? 'true' : 'false'}
-        >
 
-        {/* Left Sidebar - Fixed position (positioned via CSS class) */}
-        {panelVisibility['left-sidebar'] && (
-          <ErrorBoundary>
-            <LeftSidebar
-              state={state}
-              setState={setState}
-              onGenerate={handleGenerate}
-              activeTool={state.activeTool}
-              onToolChange={handleToolChange}
-            />
-          </ErrorBoundary>
-        )}
+        {/* Main Content - Grid Row 2: Left Sidebar + Canvas + Right Sidebar */}
+        <div className="app-main-content">
+          {/* Left Sidebar */}
+          {panelVisibility['left-sidebar'] && (
+            <ErrorBoundary>
+              <LeftSidebar
+                state={state}
+                setState={setState}
+                onGenerate={handleGenerate}
+                activeTool={state.activeTool}
+                onToolChange={handleToolChange}
+              />
+            </ErrorBoundary>
+          )}
 
-        {/* Right Sidebar - Fixed position (positioned via CSS class) */}
-        {panelVisibility['right-sidebar'] && (
-          <ErrorBoundary>
-            {/* CRITICAL: Right Sidebar MUST be visible and expanded for Dev Chat access */}
-            <RightSidebar
+          {/* Center Canvas Area - 100% height/width in container */}
+          <div className="app-canvas-area">
+            <ErrorBoundary>
+              <DraftsmanCanvas
+                svgContent={state.currentSvg}
+                layers={state.layers}
+                activeTool={state.activeTool}
+                selectedLayerId={state.selectedLayerId}
+                zoom={state.zoom}
+                pan={state.pan}
+                onPan={handlePan}
+                onZoom={handleZoom}
+                onSelectLayer={handleLayerSelect}
+                onCreateLayer={(layer: VectorLayer) => {
+                  setState(prev => {
+                    const newLayers = [...prev.layers, layer];
+                    setTimeout(() => updateSvgFromLayers(newLayers), 0);
+                    return { ...prev, layers: newLayers, selectedLayerId: layer.id };
+                  });
+                  showToast(`Created ${layer.name}`, 'success');
+                }}
+                onUpdateLayer={(id: string, updates: Partial<VectorLayer>) => {
+                  const newLayers = state.layers.map(l => (l.id === id ? { ...l, ...updates } : l));
+                  updateSvgFromLayers(newLayers);
+                  setState(prev => ({ ...prev, layers: newLayers }));
+                }}
+                keyframes={keyframes}
+                frameState={frameState}
+                onAddKeyframe={kf => setKeyframes(prev => [...prev, kf])}
+                onUpdateKeyframe={(id, props) =>
+                  setKeyframes(prev => prev.map(k => (k.id === id ? { ...k, ...props } : k)))
+                }
+                onInterpolateFrame={undefined}
+                showGuides={showGuides}
+                snapToGrid={snapToGrid}
+                snapToGuides={snapToGuides}
+                gridSize={gridSize}
+                measurementUnit="px"
+                onUnitChange={unit => showToast(`Unit changed to ${unit}`, 'info')}
+                toolProperties={toolProperties}
+                isSpacebarDown={false}
+              />
+            </ErrorBoundary>
+
+            {/* Power User Toolbar - Positioned absolutely within canvas */}
+            <ErrorBoundary>
+              <PowerUserToolbar
+                snapToGrid={snapToGrid}
+                onSnapToGridChange={setSnapToGrid}
+                snapToGuides={snapToGuides}
+                onSnapToGuidesChange={setSnapToGuides}
+                showGuides={showGuides}
+                onShowGuidesChange={setShowGuides}
+                gridSize={gridSize}
+                onGridSizeChange={setGridSize}
+                showOnionSkin={showOnionSkin}
+                onShowOnionSkinChange={setShowOnionSkin}
+                onionSkinFrames={onionSkinFrames}
+                onOnionSkinFramesChange={setOnionSkinFrames}
+              />
+            </ErrorBoundary>
+          </div>
+
+          {/* Right Sidebar */}
+          {panelVisibility['right-sidebar'] && (
+            <ErrorBoundary>
+              <RightSidebar
               layers={state.layers || []}
               selectedLayerId={state.selectedLayerId}
               activeTool={state.activeTool}
@@ -2429,48 +2488,50 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        {/* Animation Timeline - Grid Row 3 (Bottom Drawer) */}
+        {/* Bottom Drawer - Grid Row 3 (Timeline + Non-Linear View) */}
         <div className="app-timeline-container">
           <ErrorBoundary>
-            <AnimationTimeline
-            frameState={frameState}
-            onFrameStateChange={updates => setFrameState(prev => ({ ...prev, ...updates }))}
-            keyframes={keyframes}
-            onAddKeyframe={kf => setKeyframes(prev => [...prev, kf])}
-            onUpdateKeyframe={(id, props) =>
-              setKeyframes(prev => prev.map(k => (k.id === id ? { ...k, ...props } : k)))
-            }
-            onDeleteKeyframe={id => setKeyframes(prev => prev.filter(k => k.id !== id))}
-            selectedLayerId={state.selectedLayerId}
-            layers={state.layers}
-            presets={[]}
-            onApplyPreset={(preset, layerId) => {
-              if (!layerId) return; // Skip if no layer selected
-              const startKeyframe: AnimationKeyframe = {
-                id: `kf-${Date.now()}`,
-                frame: frameState.currentFrame,
-                layerId,
-                properties: preset.properties,
-                easing: preset.easing,
-              };
-              const endKeyframe: AnimationKeyframe = {
-                id: `kf-${Date.now() + 1}`,
-                frame: frameState.currentFrame + preset.duration,
-                layerId,
-                properties: {},
-                easing: preset.easing,
-              };
-              setKeyframes(prev => [...prev, startKeyframe, endKeyframe]);
-            }}
-            onScriptClick={() => {
-              // Switch to Scripts tab in RightSidebar
-              showToast('Switch to Scripts tab to edit animation scripts', 'info');
-            }}
-            onImportFromStudio={() => {
-              // Placeholder for import functionality
-              showToast('Import from Animation Studio - Coming soon', 'info');
-            }}
-          />
+            <BottomDrawer
+              isOpen={bottomDrawerOpen}
+              onToggle={() => setBottomDrawerOpen(!bottomDrawerOpen)}
+              frameState={frameState}
+              onFrameStateChange={updates => setFrameState(prev => ({ ...prev, ...updates }))}
+              keyframes={keyframes}
+              onAddKeyframe={kf => setKeyframes(prev => [...prev, kf])}
+              onUpdateKeyframe={(id, props) =>
+                setKeyframes(prev => prev.map(k => (k.id === id ? { ...k, ...props } : k)))
+              }
+              onDeleteKeyframe={id => setKeyframes(prev => prev.filter(k => k.id !== id))}
+              selectedLayerId={state.selectedLayerId}
+              layers={state.layers}
+              presets={[]}
+              onApplyPreset={(preset, layerId) => {
+                if (!layerId) return;
+                const startKeyframe: AnimationKeyframe = {
+                  id: `kf-${Date.now()}`,
+                  frame: frameState.currentFrame,
+                  layerId,
+                  properties: preset.properties,
+                  easing: preset.easing,
+                };
+                const endKeyframe: AnimationKeyframe = {
+                  id: `kf-${Date.now() + 1}`,
+                  frame: frameState.currentFrame + preset.duration,
+                  layerId,
+                  properties: {},
+                  easing: preset.easing,
+                };
+                setKeyframes(prev => [...prev, startKeyframe, endKeyframe]);
+              }}
+              onScriptClick={() => {
+                showToast('Switch to Scripts tab to edit animation scripts', 'info');
+              }}
+              onImportFromStudio={() => {
+                showToast('Import from Animation Studio - Coming soon', 'info');
+              }}
+              selectedNodeId={null}
+              onNodeSelect={() => {}}
+            />
           </ErrorBoundary>
         </div>
 
