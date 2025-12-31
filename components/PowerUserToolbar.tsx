@@ -97,7 +97,7 @@ const PowerUserToolbar: React.FC<PowerUserToolbarProps> = ({
             ref={dragHandleRef}
             onPointerDown={handleDragStart}
             className="power-toolbar-drag-handle w-full h-8 cursor-grab active:cursor-grabbing flex items-center justify-center transition-all border-b border-white/10 bg-[var(--xibalba-grey-100)] hover:bg-[var(--xibalba-grey-150)]"
-            style={{ opacity: 0.8 }}
+            className="power-toolbar-drag-handle-opacity"
           >
             <div className="flex gap-1.5">
               <div className="w-2 h-2 bg-[var(--xibalba-text-200)] rounded-sm"></div>

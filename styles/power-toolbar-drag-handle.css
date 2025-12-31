@@ -1,0 +1,9 @@
+/* Power Toolbar Drag Handle - NO INLINE STYLES */
+.power-toolbar-drag-handle-opacity {
+  opacity: 0.8;
+}
+
+.power-toolbar-drag-handle-opacity:hover {
+  opacity: 1;
+}
+
