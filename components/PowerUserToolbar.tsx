@@ -71,18 +71,6 @@ const PowerUserToolbar: React.FC<PowerUserToolbarProps> = ({
     setIsDragging(false);
   };
 
-  useEffect(() => {
-    if (toolbarRef.current) {
-      if (position.x === 0 && position.y === 0) {
-        // Initial position - top right of canvas area
-        toolbarRef.current.style.right = '8px';
-        toolbarRef.current.style.top = '8px';
-      } else {
-        toolbarRef.current.style.right = `${position.x}px`;
-        toolbarRef.current.style.top = `${position.y}px`;
-      }
-    }
-  }, [position]);
 
   return (
     <div 
