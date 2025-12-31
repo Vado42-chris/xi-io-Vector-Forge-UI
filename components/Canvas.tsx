@@ -123,7 +123,6 @@ const Canvas: React.FC<CanvasProps> = ({
           className={`absolute z-[55] cursor-${g.type === 'v' ? 'col-resize' : 'row-resize'} group guide-line ${g.type === 'v' ? 'guide-vertical' : 'guide-horizontal'}`}
           data-guide-type={g.type}
           data-guide-position={g.type === 'v' ? pan.x + g.pos * zoomScale : pan.y + g.pos * zoomScale}
-          className={g.type === 'v' ? 'guide-vertical' : 'guide-horizontal'}
         >
           <div className={`absolute ${g.type === 'v' ? 'left-1/2 h-full w-px border-l' : 'top-1/2 w-full h-px border-t'} border-[var(--xibalba-text-200)] transition-opacity opacity-20 group-hover:opacity-100`}></div>
         </div>

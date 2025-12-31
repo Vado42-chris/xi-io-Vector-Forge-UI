@@ -13,6 +13,7 @@
  */
 
 import { FileSystemClient } from './fileSystemClient';
+import { codeSecurityService } from './codeSecurityService';
 
 export interface MoltingResult {
   success: boolean;
@@ -85,6 +86,12 @@ export class MoltingService {
       if (singleQuotes % 2 !== 0) errors.push('Unclosed single quotes');
       if (doubleQuotes % 2 !== 0) errors.push('Unclosed double quotes');
 
+      // Security validation - check for dangerous patterns
+      const securityCheck = codeSecurityService.validateCode(code);
+      if (!securityCheck.valid) {
+        errors.push(...securityCheck.errors);
+      }
+
       // Check for basic React component structure
       if (workingCopyPath.endsWith('.tsx') || workingCopyPath.endsWith('.jsx')) {
         if (!code.includes('React') && !code.includes('react')) {
@@ -137,7 +144,10 @@ export class MoltingService {
         console.warn('Failed to cleanup working copy:', error);
       }
 
-      // Step 4: Trigger reload (new body becomes active)
+      // Step 4: Clean up old backups (keep last 5, delete older)
+      await this.cleanupOldBackups(filePath);
+
+      // Step 5: Trigger reload (new body becomes active)
       this.triggerReload();
 
       return {
@@ -184,6 +194,15 @@ export class MoltingService {
       const latestBackup = backups[0];
       const backupCode = await this.fileSystem.readFile(latestBackup.name);
       
+      // Validate backup before restoring (prevent corruption)
+      const backupValidation = await this.validateBackup(backupCode);
+      if (!backupValidation.valid) {
+        return {
+          success: false,
+          message: `Backup validation failed: ${backupValidation.errors.join(', ')}. Backup may be corrupted.`
+        };
+      }
+      
       // Restore backup
       await this.fileSystem.writeFile(filePath, backupCode);
       
@@ -200,6 +219,78 @@ export class MoltingService {
         success: false,
         message: `Rollback failed: ${error instanceof Error ? error.message : 'Unknown error'}`
       };
+    }
+  }
+
+  /**
+   * Validate backup file before restore
+   * Prevents restoring corrupted backups
+   */
+  private async validateBackup(backupCode: string): Promise<{
+    valid: boolean;
+    errors: string[];
+  }> {
+    const errors: string[] = [];
+
+    // Basic syntax validation (same as validateWorkingCopy)
+    const braceBalance = (backupCode.match(/{/g) || []).length === (backupCode.match(/}/g) || []).length;
+    const parenBalance = (backupCode.match(/\(/g) || []).length === (backupCode.match(/\)/g) || []).length;
+    const bracketBalance = (backupCode.match(/\[/g) || []).length === (backupCode.match(/\]/g) || []).length;
+
+    if (!braceBalance) errors.push('Unbalanced braces { }');
+    if (!parenBalance) errors.push('Unbalanced parentheses ( )');
+    if (!bracketBalance) errors.push('Unbalanced brackets [ ]');
+
+    // Check for empty or suspiciously small backup
+    if (backupCode.trim().length < 10) {
+      errors.push('Backup file is suspiciously small or empty');
+    }
+
+    // Security validation
+    const securityCheck = codeSecurityService.validateCode(backupCode);
+    if (!securityCheck.valid) {
+      errors.push(...securityCheck.errors);
+    }
+
+    return {
+      valid: errors.length === 0,
+      errors,
+    };
+  }
+
+  /**
+   * Clean up old backups (keep last 5, delete older)
+   * Prevents backup accumulation
+   */
+  private async cleanupOldBackups(filePath: string): Promise<void> {
+    try {
+      const dirPath = filePath.substring(0, filePath.lastIndexOf('/') || 0) || '.';
+      const entries = await this.fileSystem.listDirectory(dirPath);
+      const fileName = filePath.split('/').pop() || '';
+      
+      const backups = entries
+        .filter(e => e.name.startsWith(`${fileName}.backup.`))
+        .sort((a, b) => {
+          const aTime = parseInt(a.name.split('.').pop() || '0');
+          const bTime = parseInt(b.name.split('.').pop() || '0');
+          return bTime - aTime; // Latest first
+        });
+
+      // Keep last 5 backups, delete older ones
+      if (backups.length > 5) {
+        const backupsToDelete = backups.slice(5);
+        for (const backup of backupsToDelete) {
+          try {
+            await this.fileSystem.deleteFile(backup.name);
+            console.log(`Cleaned up old backup: ${backup.name}`);
+          } catch (error) {
+            console.warn(`Failed to delete old backup ${backup.name}:`, error);
+          }
+        }
+      }
+    } catch (error) {
+      // Non-critical - backup cleanup failed, but swap succeeded
+      console.warn('Failed to cleanup old backups:', error);
     }
   }
 

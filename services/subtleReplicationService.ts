@@ -44,8 +44,12 @@ export class SubtleReplicationService {
     executor: (choice: T) => Promise<any>
   ): Promise<any> {
     // Only replicate if we have multiple choices (the "railroad track scenario")
-    if (choices.length < this.config.minChoicesForReplication) {
+    const minChoices = this.config?.minChoicesForReplication ?? 2;
+    if (choices.length < minChoices) {
       // Single choice - no replication needed
+      if (choices.length === 0 || choices[0] === undefined) {
+        throw new Error('No choices provided to subtle replication service');
+      }
       return executor(choices[0]);
     }
 

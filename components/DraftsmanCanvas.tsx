@@ -873,7 +873,7 @@ const DraftsmanCanvas: React.FC<DraftsmanCanvasProps> = ({
         {/* Brush Tool Integration */}
         {activeTool === 'brush' && containerRef.current && (
           <BrushToolComponent
-            canvasRef={containerRef}
+            canvasRef={containerRef as React.RefObject<HTMLDivElement>}
             config={{
               minWidth: toolProperties?.brush?.minWidth || 2,
               maxWidth: toolProperties?.brush?.maxWidth || 20,
@@ -910,9 +910,9 @@ const DraftsmanCanvas: React.FC<DraftsmanCanvasProps> = ({
             shortcut="B"
           />
         )}
-        {activeTool === 'brush' && (
+        {activeTool === 'brush' && canvasRef.current && (
           <BrushToolComponent
-            canvasRef={canvasRef}
+            canvasRef={canvasRef as React.RefObject<HTMLDivElement>}
             config={{
               minWidth: toolProperties?.brush?.minWidth || 2,
               maxWidth: toolProperties?.brush?.maxWidth || 20,

@@ -148,6 +148,7 @@ const App: React.FC = () => {
       measurementUnit: 'px',
       workspaceLayout: 'default',
       dockedPanels: [],
+      fileOperationLoading: { type: null },
     };
     return saved
       ? { ...baseState, ...JSON.parse(saved), isGenerating: false, toasts: [] }

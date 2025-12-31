@@ -34,6 +34,7 @@ const App: React.FC = () => {
     measurementUnit: 'px',
     workspaceLayout: 'default',
     dockedPanels: [],
+    fileOperationLoading: { type: null },
   }));
 
   return (

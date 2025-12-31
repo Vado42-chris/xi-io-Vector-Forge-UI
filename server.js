@@ -81,10 +81,16 @@ import { sprintsRoutes } from './api/sprints.js';
 import { projectsRoutes } from './api/projects.js';
 import { fileSystemRoutes } from './api/filesystem.js';
 
+// #region agent log
+console.log('[DEBUG] Registering API routes', { timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'B' });
+// #endregion
 await tasksRoutes(app);
 await sprintsRoutes(app);
 await projectsRoutes(app);
 await fileSystemRoutes(app);
+// #region agent log
+console.log('[DEBUG] API routes registered', { timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'B' });
+// #endregion
 
 // Proof/Signing API Routes
 import { proofRoutes } from './api/proof.js';
@@ -194,12 +200,21 @@ app.post('/api/terminal/execute', async (req, res) => {
 
 // Initialize Vite and start server
 async function start() {
+    // #region agent log
+    console.log('[DEBUG] start() called', { timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A,B,C' });
+    // #endregion
     if (process.env.NODE_ENV !== 'production') {
+        // #region agent log
+        console.log('[DEBUG] Development mode - creating Vite server', { timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' });
+        // #endregion
         // Development: Use Vite middleware
         const vite = await createViteServer({
             server: { middlewareMode: true },
             appType: 'spa',
         });
+        // #region agent log
+        console.log('[DEBUG] Vite server created, adding middleware', { timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' });
+        // #endregion
         app.use(vite.middlewares);
         
         // CRITICAL: Block auth redirects - they're breaking the app
@@ -237,8 +252,14 @@ async function start() {
         });
     }
     
+    // #region agent log
+    console.log('[DEBUG] About to start server', { port: PORT, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A,B,C' });
+    // #endregion
     // Start server
     app.listen(PORT, '0.0.0.0', () => {
+        // #region agent log
+        console.log('[DEBUG] Server started successfully', { port: PORT, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' });
+        // #endregion
         console.log(`╔═══════════════════════════════════════════════════════════╗`);
         console.log(`║     VectorForge Backend Server                          ║`);
         console.log(`╚═══════════════════════════════════════════════════════════╝`);
@@ -250,6 +271,9 @@ async function start() {
 }
 
 start().catch(err => {
+    // #region agent log
+    console.error('[DEBUG] Server startup failed', { error: err.message, stack: err.stack, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A,B,C' });
+    // #endregion
     console.error('Failed to start server:', err);
     process.exit(1);
 });

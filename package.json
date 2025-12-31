@@ -4,11 +4,20 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+>>>>>>> Stashed changes
     "dev": "node server.js",
     "dev:server": "node server.js",
+=======
+    "dev": "npx tsx server.js",
+    "dev:vite": "vite",
+    "dev:server": "npx tsx server.js",
+>>>>>>> Stashed changes
     "build": "vite build",
     "preview": "vite preview",
-    "start": "NODE_ENV=production node server.js",
+    "start": "NODE_ENV=production npx tsx server.js",
     "build:installer": "./scripts/build-installer.sh",
     "package": "npm run build && npm run build:installer",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",

@@ -72,7 +72,7 @@ export class AICodeEditor {
     const isReact = filePath.endsWith('.tsx') || filePath.endsWith('.jsx');
     const isTypeScript = filePath.endsWith('.ts') || filePath.endsWith('.tsx');
 
-    return `You are an expert TypeScript/React code editor. You understand code like nature understands growth patterns.
+    return `You are an expert TypeScript/React code editor. Generate ONLY code, no explanations.
 
 TASK: Modify this file based on the user's request.
 
@@ -89,20 +89,19 @@ ${context ? `CONTEXT:\n${context}\n` : ''}
 USER REQUEST:
 ${userRequest}
 
-REQUIREMENTS:
-1. Generate the COMPLETE updated file with all changes applied
-2. Maintain valid ${isTypeScript ? 'TypeScript' : 'JavaScript'} syntax
-3. ${isReact ? 'Maintain valid React/JSX syntax' : ''}
-4. Keep all existing imports unless explicitly asked to change them
-5. Preserve existing functionality unless explicitly asked to change it
-6. Follow the existing code style and patterns
-7. Ensure all braces, parentheses, and brackets are balanced
-8. Ensure all strings are properly closed
-9. Export the component/function if it was exported before
+CRITICAL REQUIREMENTS:
+1. Return ONLY the complete file code - NO explanations, NO markdown, NO code fences
+2. Start immediately with the first line of code (imports or comments)
+3. Maintain valid ${isTypeScript ? 'TypeScript' : 'JavaScript'} syntax
+4. ${isReact ? 'Maintain valid React/JSX syntax' : ''}
+5. Keep all existing imports unless explicitly asked to change them
+6. Preserve existing functionality unless explicitly asked to change it
+7. Follow the existing code style and patterns exactly
+8. Ensure all braces, parentheses, and brackets are balanced
+9. Ensure all strings are properly closed
+10. Export the component/function if it was exported before
 
-OUTPUT FORMAT:
-Return ONLY the complete file code. Do not include explanations, markdown, or code fences.
-Start directly with the first line of code (usually imports or comments).
+OUTPUT: Start with code immediately. No preamble. No "Here's the code:" or similar text.
 
 BEGIN CODE:`;
   }

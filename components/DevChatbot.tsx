@@ -20,6 +20,8 @@ import {
 } from '../services/conversationHistoryService';
 import { MoltingService } from '../services/moltingService';
 import { AICodeEditor } from '../services/aiCodeEditor';
+import { userLexiconService } from '../services/userLexiconService';
+import { userProfileService } from '../services/userProfileService';
 // Note: xibalbaService doesn't export callXibalbaAI directly
 // We'll use a simple approach for now - can enhance later
 import ErrorBoundary from './ErrorBoundary';
@@ -259,6 +261,7 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
       );
       return { type: 'write', path: match?.[1], content: match?.[2] };
     }
+<<<<<<< Updated upstream
 
     // Execute command
     if (lower.match(/^(run|execute|do|run command|run:)\s+(.+)$/)) {
@@ -266,6 +269,46 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
       return { type: 'execute', command: match?.[1] };
     }
 
+=======
+    
+    // Question detection - check for questions BEFORE command detection
+    // Questions typically start with: what, how, why, when, where, who, do you, do I, can you, etc.
+    // More precise: "do this/that" is only a question if followed by a verb/question word, not a noun
+    const questionPatterns = [
+      /^(what|how|why|when|where|who|which|whose)\s+/i,
+      /^(do|does|did|can|could|will|would|should|may|might)\s+(you|i|we|they|it)\s+/i, // "do you", "do I", "can you" - always questions
+      /^(do|does|did|can|could|will|would|should|may|might)\s+(this|that|these|those)\s+(need|have|work|do|is|are|was|were|should|can|could|will|would)/i, // "do this need", "can that work" - questions
+      /^(is|are|was|were|am)\s+(you|i|we|they|this|that|these|those|it|there)\s+/i,
+      /^(have|has|had)\s+(you|i|we|they|this|that|these|those|it)\s+/i,
+      /\?$/ // Ends with question mark
+    ];
+    
+    const isQuestion = questionPatterns.some(pattern => pattern.test(input));
+    
+    // Execute command - only match explicit command keywords, not questions
+    // Match: "run ls", "execute npm install", "run: git status"
+    // Don't match: "do you have...", "do I need...", "what is...", etc.
+    if (!isQuestion && lower.match(/^(run|execute|run command|run:)\s+(.+)$/)) {
+      const match = input.match(/^(?:run|execute|run command|run:)\s+(.+)$/i);
+      return { type: 'execute', command: match?.[1] };
+    }
+    // Only match "do" if it's clearly a command (not a question)
+    // Match: "do ls -la", "do npm install", "do this file", "do that script"
+    // Don't match: "do you", "do I", "do we", "do they", or any question
+    if (!isQuestion && lower.match(/^do\s+(?!you|i|we|they|this|that|these|those)(.+)$/)) {
+      const match = input.match(/^do\s+(?!you|i|we|they|this|that|these|those)(.+)$/i);
+      return { type: 'execute', command: match?.[1] };
+    }
+    
+    // Handle "do this/that/these/those" as commands if not a question
+    // Match: "do this file", "do that script"
+    // Don't match: "do this need fixing?" (already caught by question pattern)
+    if (!isQuestion && lower.match(/^do\s+(this|that|these|those)\s+(.+)$/)) {
+      const match = input.match(/^do\s+(this|that|these|those)\s+(.+)$/i);
+      return { type: 'execute', command: `${match?.[1]} ${match?.[2]}` };
+    }
+    
+>>>>>>> Stashed changes
     // List directory
     if (lower.match(/^(list|show files|ls|dir)\s*(.*)$/)) {
       const match = input.match(/^(?:list|show files|ls|dir)\s*(.*)$/i);
@@ -549,13 +592,23 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
   /**
    * Handle AI request with subtle replication
    * If the request involves choices, automatically replicate to explore all paths
+   * NOW ACTUALLY USES OLLAMA FOR REAL AI RESPONSES
    */
   const handleAIRequest = async (input: string): Promise<ChatMessage> => {
+<<<<<<< Updated upstream
     // Check if this request involves multiple approaches/choices
     // If so, use subtle replication to explore all paths (save both)
 
     // For now, use standard handling
     // Future: Detect choices and auto-replicate
+=======
+    // #region agent log
+    console.log('[DEBUG] handleAIRequest called', { input, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'F,G,H' });
+    // #endregion
+    // #region agent log
+    console.log('[DEBUG] handleAIRequest called', { input, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'F,G,H' });
+    // #endregion
+>>>>>>> Stashed changes
     // Check if user wants to test the system
     const lowerInput = input.toLowerCase();
     if (
@@ -600,6 +653,7 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
         };
       }
     }
+<<<<<<< Updated upstream
 
     // ACTUALLY CALL OLLAMA FOR AI RESPONSES
     try {
@@ -610,10 +664,22 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
         runId: 'run1',
         hypothesisId: 'F',
       });
+=======
+    
+    // ACTUALLY CALL OLLAMA FOR AI RESPONSES
+    try {
+      // #region agent log
+      console.log('[DEBUG] About to load MCP config', { timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'F' });
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
       // #endregion
       const { loadMCPConfig } = await import('../config/mcpConfig');
       const mcpConfig = loadMCPConfig();
       // #region agent log
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
       console.log('[DEBUG] MCP config loaded', {
         useLocalAI: mcpConfig.useLocalAI,
         provider: mcpConfig.localAIProvider,
@@ -643,14 +709,87 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
       const serverUrl = mcpConfig.localAIServerUrl || 'http://localhost:11434';
       const model = mcpConfig.localAIModelName || 'codellama:latest';
 
+=======
+=======
+>>>>>>> Stashed changes
+      console.log('[DEBUG] MCP config loaded', { useLocalAI: mcpConfig.useLocalAI, provider: mcpConfig.localAIProvider, serverUrl: mcpConfig.localAIServerUrl, model: mcpConfig.localAIModelName, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'F' });
+      // #endregion
+      
+      if (!mcpConfig.useLocalAI || mcpConfig.localAIProvider !== 'ollama') {
+        // #region agent log
+        console.log('[DEBUG] Ollama not configured', { useLocalAI: mcpConfig.useLocalAI, provider: mcpConfig.localAIProvider, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'F' });
+        // #endregion
+        throw new Error('Ollama not configured. Please enable local AI in settings.');
+      }
+      
+      const serverUrl = mcpConfig.localAIServerUrl || 'http://localhost:11434';
+      const model = mcpConfig.localAIModelName || 'codellama:latest';
+      
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
       // Build conversation context from recent messages
       const recentMessages = messages.slice(-6); // Last 6 messages for context
       const conversationContext = recentMessages
         .map(msg => `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`)
         .join('\n\n');
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 
       // Build system prompt
       const systemPrompt = `You are a helpful development assistant for VectorForge, a vector graphics editor with self-modifying AI capabilities.
+=======
+      
+      // Get user profile and lexicon for personalization
+      const userProfile = userProfileService.getProfile();
+      const personalizedContext = userLexiconService.getPersonalizedContext(userProfile.userId);
+      
+      // Learn from current conversation (update lexicon)
+      userLexiconService.learnFromMessages(
+        userProfile.userId,
+        messages.map(m => ({ role: m.role, content: m.content }))
+      );
+      
+      // RAG: Retrieve relevant past conversations for context
+      const allConversations = conversationHistoryService.getAllConversations();
+      const relevantHistory: string[] = [];
+      
+      // Find conversations with similar topics (simple keyword matching)
+      const inputKeywords = input.toLowerCase().split(/\s+/).filter(w => w.length > 3);
+      const relevantConvs = allConversations
+        .filter(conv => {
+          if (conv.id === conversationId) return false; // Skip current conversation
+          const searchText = `${conv.title} ${conv.summary || ''} ${conv.tags.join(' ')}`.toLowerCase();
+          return inputKeywords.some(keyword => searchText.includes(keyword));
+        })
+        .slice(0, 3); // Top 3 most relevant
+      
+      // Extract relevant messages from past conversations
+      for (const conv of relevantConvs) {
+        const pastConv = conversationHistoryService.loadConversation(conv.id);
+        if (pastConv && pastConv.messages.length > 0) {
+          const relevantMsgs = pastConv.messages
+            .filter(msg => inputKeywords.some(kw => msg.content.toLowerCase().includes(kw)))
+            .slice(-3); // Last 3 relevant messages
+          
+          if (relevantMsgs.length > 0) {
+            relevantHistory.push(`\n[From past conversation: ${conv.title}]`);
+            relevantMsgs.forEach(msg => {
+              relevantHistory.push(`${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content.substring(0, 200)}`);
+            });
+          }
+        }
+      }
+      
+      // Build personalized system prompt
+      let systemPrompt = `You are a helpful development assistant for VectorForge, a vector graphics editor with self-modifying AI capabilities.
+>>>>>>> Stashed changes
+=======
+      
+      // Build system prompt
+      const systemPrompt = `You are a helpful development assistant for VectorForge, a vector graphics editor with self-modifying AI capabilities.
+>>>>>>> Stashed changes
 
 You can help with:
 - Code questions and explanations
@@ -658,11 +797,16 @@ You can help with:
 - File operations (read, write, search)
 - Terminal commands
 - Understanding the codebase
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+>>>>>>> Stashed changes
 - General programming help
 
 Be concise, helpful, and technical. If the user asks about file operations or commands, guide them on the proper syntax.`;
 
       // Build user prompt with context
+<<<<<<< Updated upstream
       const userPrompt = conversationContext
         ? `${conversationContext}\n\nUser: ${input}\n\nAssistant:`
         : input;
@@ -681,6 +825,40 @@ Be concise, helpful, and technical. If the user asks about file operations or co
       });
       // #endregion
 
+=======
+- General programming help`;
+
+      // Add personalized context if available
+      if (personalizedContext) {
+        systemPrompt += `\n\n${personalizedContext}\n\nIMPORTANT: Adapt your communication style to match the user's preferences above. Use their preferred terminology and match their formality level.`;
+      } else {
+        systemPrompt += `\n\nBe concise, helpful, and technical. If the user asks about file operations or commands, guide them on the proper syntax.`;
+      }
+
+      // Build user prompt with context (including RAG history)
+      let userPrompt = '';
+      if (relevantHistory.length > 0) {
+        userPrompt += `RELEVANT PAST CONTEXT:\n${relevantHistory.join('\n')}\n\n`;
+      }
+      if (conversationContext) {
+        userPrompt += `CURRENT CONVERSATION:\n${conversationContext}\n\n`;
+      }
+      userPrompt += `User: ${input}\n\nAssistant:`;
+=======
+      const userPrompt = conversationContext 
+        ? `${conversationContext}\n\nUser: ${input}\n\nAssistant:`
+        : input;
+>>>>>>> Stashed changes
+      
+      const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
+      // #region agent log
+      console.log('[DEBUG] About to call Ollama', { serverUrl, model, promptLength: fullPrompt.length, promptPreview: fullPrompt.substring(0, 200), timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'G,H' });
+      // #endregion
+      
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
       // Call Ollama
       const response = await fetch(`${serverUrl}/api/generate`, {
         method: 'POST',
@@ -698,6 +876,8 @@ Be concise, helpful, and technical. If the user asks about file operations or co
       });
 
       // #region agent log
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
       console.log('[DEBUG] Ollama fetch completed', {
         status: response.status,
         ok: response.ok,
@@ -707,11 +887,19 @@ Be concise, helpful, and technical. If the user asks about file operations or co
         runId: 'run1',
         hypothesisId: 'G,H',
       });
+=======
+      console.log('[DEBUG] Ollama fetch completed', { status: response.status, ok: response.ok, contentType: response.headers.get('content-type'), timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'G,H' });
+>>>>>>> Stashed changes
+=======
+      console.log('[DEBUG] Ollama fetch completed', { status: response.status, ok: response.ok, contentType: response.headers.get('content-type'), timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'G,H' });
+>>>>>>> Stashed changes
       // #endregion
 
       if (!response.ok) {
         const errorText = await response.text();
         // #region agent log
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
         console.log('[DEBUG] Ollama API error', {
           status: response.status,
           statusText: response.statusText,
@@ -721,12 +909,20 @@ Be concise, helpful, and technical. If the user asks about file operations or co
           runId: 'run1',
           hypothesisId: 'G',
         });
+=======
+        console.log('[DEBUG] Ollama API error', { status: response.status, statusText: response.statusText, errorText: errorText.substring(0, 200), timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'G' });
+>>>>>>> Stashed changes
+=======
+        console.log('[DEBUG] Ollama API error', { status: response.status, statusText: response.statusText, errorText: errorText.substring(0, 200), timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'G' });
+>>>>>>> Stashed changes
         // #endregion
         throw new Error(`Ollama API error: ${response.status} ${response.statusText}`);
       }
 
       const data = await response.json();
       // #region agent log
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
       console.log('[DEBUG] Ollama response received', {
         hasResponse: !!data.response,
         responseLength: data.response?.length || 0,
@@ -736,10 +932,18 @@ Be concise, helpful, and technical. If the user asks about file operations or co
         runId: 'run1',
         hypothesisId: 'G,H',
       });
+=======
+      console.log('[DEBUG] Ollama response received', { hasResponse: !!data.response, responseLength: data.response?.length || 0, responsePreview: data.response?.substring(0, 200) || 'NO RESPONSE', timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'G,H' });
+>>>>>>> Stashed changes
+=======
+      console.log('[DEBUG] Ollama response received', { hasResponse: !!data.response, responseLength: data.response?.length || 0, responsePreview: data.response?.substring(0, 200) || 'NO RESPONSE', timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'G,H' });
+>>>>>>> Stashed changes
       // #endregion
 
       if (!data.response) {
         // #region agent log
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
         console.log('[DEBUG] Ollama returned empty response', {
           data: JSON.stringify(data).substring(0, 200),
           timestamp: Date.now(),
@@ -747,12 +951,20 @@ Be concise, helpful, and technical. If the user asks about file operations or co
           runId: 'run1',
           hypothesisId: 'G',
         });
+=======
+        console.log('[DEBUG] Ollama returned empty response', { data: JSON.stringify(data).substring(0, 200), timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'G' });
+>>>>>>> Stashed changes
+=======
+        console.log('[DEBUG] Ollama returned empty response', { data: JSON.stringify(data).substring(0, 200), timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'G' });
+>>>>>>> Stashed changes
         // #endregion
         throw new Error('Ollama returned empty response');
       }
 
       const trimmedResponse = data.response.trim();
       // #region agent log
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
       console.log('[DEBUG] Returning Ollama response', {
         responseLength: trimmedResponse.length,
         responsePreview: trimmedResponse.substring(0, 200),
@@ -761,17 +973,33 @@ Be concise, helpful, and technical. If the user asks about file operations or co
         runId: 'run1',
         hypothesisId: 'H',
       });
+=======
+      console.log('[DEBUG] Returning Ollama response', { responseLength: trimmedResponse.length, responsePreview: trimmedResponse.substring(0, 200), timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H' });
+>>>>>>> Stashed changes
+=======
+      console.log('[DEBUG] Returning Ollama response', { responseLength: trimmedResponse.length, responsePreview: trimmedResponse.substring(0, 200), timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H' });
+>>>>>>> Stashed changes
       // #endregion
 
       return {
         id: `ai-${Date.now()}`,
         role: 'assistant',
         content: trimmedResponse,
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
         timestamp: new Date(),
+=======
+        timestamp: new Date()
+>>>>>>> Stashed changes
+=======
+        timestamp: new Date()
+>>>>>>> Stashed changes
       };
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Unknown error';
       // #region agent log
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
       console.log('[DEBUG] handleAIRequest error caught', {
         error: errorMsg,
         stack: error instanceof Error ? error.stack?.substring(0, 300) : 'no stack',
@@ -795,11 +1023,27 @@ Be concise, helpful, and technical. If the user asks about file operations or co
           runId: 'run1',
           hypothesisId: 'G',
         });
+=======
+=======
+>>>>>>> Stashed changes
+      console.log('[DEBUG] handleAIRequest error caught', { error: errorMsg, stack: error instanceof Error ? error.stack?.substring(0, 300) : 'no stack', timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'F,G' });
+      // #endregion
+      
+      // If Ollama connection fails, provide helpful error
+      if (errorMsg.includes('fetch') || errorMsg.includes('connect') || errorMsg.includes('Failed to fetch')) {
+        // #region agent log
+        console.log('[DEBUG] Ollama connection error - returning error message', { timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'G' });
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
         // #endregion
         return {
           id: `ai-error-${Date.now()}`,
           role: 'assistant',
           content: `❌ **Cannot connect to Ollama**\n\n${errorMsg}\n\n**To fix:**\n1. Start Ollama: \`ollama serve\`\n2. Install model: \`ollama pull codellama:latest\`\n3. Check it's running: \`curl http://localhost:11434/api/tags\`\n\n**Fallback commands available:**\n- "read <file>" - Read files\n- "write <file> with content: ..." - Write files\n- "run <command>" - Execute commands`,
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
           timestamp: new Date(),
         };
       }
@@ -813,14 +1057,39 @@ Be concise, helpful, and technical. If the user asks about file operations or co
         runId: 'run1',
         hypothesisId: 'F,G',
       });
+=======
+=======
+>>>>>>> Stashed changes
+          timestamp: new Date()
+        };
+      }
+      
+      // Other errors
+      // #region agent log
+      console.log('[DEBUG] Other AI error - returning error message', { error: errorMsg, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'F,G' });
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
       // #endregion
       return {
         id: `ai-error-${Date.now()}`,
         role: 'assistant',
         content: `❌ **AI Error**\n\n${errorMsg}\n\n**Troubleshooting:**\n1. Check Ollama is running: \`ollama serve\`\n2. Check model is installed: \`ollama list\`\n3. Try file operations instead: "read package.json"`,
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
         timestamp: new Date(),
+=======
+        timestamp: new Date()
+>>>>>>> Stashed changes
       };
     }
+=======
+        timestamp: new Date()
+      };
+    }
+
+>>>>>>> Stashed changes
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {

@@ -5,8 +5,15 @@ import App from './App';
 import DevChatbot from './components/DevChatbot';
 import ErrorBoundary from './components/ErrorBoundary';
 
+// #region agent log
+console.log('[DEBUG] index.tsx loaded', { react: typeof React, useState: typeof useState, ReactDOM: typeof ReactDOM, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'D,E' });
+// #endregion
+
 // Router component - handles routing between App and DevChat standalone
 const Router: React.FC = () => {
+  // #region agent log
+  console.log('[DEBUG] Router component rendering', { path: window.location.pathname, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'D,E' });
+  // #endregion
   const [path, setPath] = useState(window.location.pathname);
 
   useEffect(() => {
@@ -156,6 +163,9 @@ window.addEventListener('unhandledrejection', (event) => {
 
 // Mount React immediately
 const rootElement = document.getElementById('root');
+// #region agent log
+console.log('[DEBUG] Root element check', { exists: !!rootElement, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'D,E' });
+// #endregion
 if (!rootElement) {
   throw new Error("Could not find root element to mount to");
 }
@@ -163,7 +173,13 @@ if (!rootElement) {
 // eslint-disable-next-line no-console
 console.log('🚀 Starting React mount...');
 console.log('📍 Current path:', window.location.pathname);
+// #region agent log
+console.log('[DEBUG] About to create root', { ReactDOM: typeof ReactDOM, React: typeof React, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'D,E' });
+// #endregion
 const root = ReactDOM.createRoot(rootElement);
+// #region agent log
+console.log('[DEBUG] Root created, about to render', { timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'D,E' });
+// #endregion
 root.render(
   <React.StrictMode>
     <Router />
@@ -171,3 +187,6 @@ root.render(
 );
 // eslint-disable-next-line no-console
 console.log('✅ Router mounted successfully');
+// #region agent log
+console.log('[DEBUG] root.render() completed', { timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'D,E' });
+// #endregion

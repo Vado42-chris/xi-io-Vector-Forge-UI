@@ -4,20 +4,32 @@
  * Reuses patterns from api/tasks.js
  */
 
-import { FileSystemService } from '../services/fileSystemService.js';
+import { FileSystemService } from '../services/fileSystemService.ts';
 
 const fileSystemService = new FileSystemService();
 
 export async function fileSystemRoutes(app) {
+  // #region agent log
+  console.log('[DEBUG] fileSystemRoutes() called', { timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'B' });
+  // #endregion
   // POST /api/filesystem/read - Read file
   app.post('/api/filesystem/read', async (req, res) => {
+    // #region agent log
+    console.log('[DEBUG] /api/filesystem/read endpoint hit', { body: req.body, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'B,C' });
+    // #endregion
     try {
       const { path } = req.body;
       if (!path) {
+        // #region agent log
+        console.log('[DEBUG] /api/filesystem/read - path missing', { timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'B' });
+        // #endregion
         return res.status(400).json({ success: false, error: 'Path is required' });
       }
 
       const content = await fileSystemService.readFile(path);
+      // #region agent log
+      console.log('[DEBUG] /api/filesystem/read - success', { path, contentLength: content.length, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'B' });
+      // #endregion
       res.json({ success: true, content });
     } catch (error) {
       console.error('Error reading file:', error);
