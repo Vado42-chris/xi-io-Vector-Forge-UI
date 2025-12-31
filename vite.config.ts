@@ -15,6 +15,27 @@ export default defineConfig(({ mode }) => {
           interval: 2000, // Increased interval for better performance
           ignored: ['**/node_modules/**', '**/.git/**', '**/dist/**', '**/.progress-tracker'],
         },
+        // CRITICAL: Block auth redirects in Vite dev server
+        // Use middleware to intercept BEFORE proxy
+        middlewareMode: false,
+        proxy: {
+          '/api/auth': {
+            target: 'http://localhost:3000',
+            changeOrigin: true,
+            bypass: (req, res, options) => {
+              // Block ALL auth requests - return 404 immediately
+              console.log('🚫 Vite: Blocked auth request:', req.url);
+              res.statusCode = 404;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ 
+                error: 'Auth endpoint not found',
+                message: 'This app does not use authentication. If you see this, a browser extension may be redirecting you.',
+                redirect: false
+              }));
+              return false; // Don't proxy
+            }
+          }
+        },
         // Security headers
         headers: {
           'Content-Security-Policy': [

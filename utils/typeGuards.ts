@@ -175,9 +175,16 @@ export function sanitizeShape(shape: any): Shape | null {
     case 'text':
       return {
         type: 'text',
+        content: typeof shape.content === 'string' ? shape.content : '',
         x: Number.isFinite(shape.x) ? shape.x : 0,
         y: Number.isFinite(shape.y) ? shape.y : 0,
-        content: typeof shape.content === 'string' ? shape.content : ''
+        fontFamily: typeof shape.fontFamily === 'string' ? shape.fontFamily : 'Arial',
+        fontSize: Number.isFinite(shape.fontSize) ? shape.fontSize : 12,
+        fontWeight: Number.isFinite(shape.fontWeight) ? shape.fontWeight : 400,
+        fontStyle: shape.fontStyle === 'italic' ? 'italic' : 'normal',
+        fill: typeof shape.fill === 'string' ? shape.fill : '#000000',
+        stroke: typeof shape.stroke === 'string' ? shape.stroke : '#000000',
+        strokeWidth: Number.isFinite(shape.strokeWidth) ? shape.strokeWidth : 0
       };
     
     default:
@@ -212,7 +219,7 @@ export function sanitizeVectorLayer(layer: any): VectorLayer | null {
     children: layer.children && Array.isArray(layer.children)
       ? layer.children.map(sanitizeVectorLayer).filter((l): l is VectorLayer => l !== null)
       : undefined,
-    clippingMask: layer.clippingMask ? String(layer.clippingMask) : undefined,
+    clippingMask: typeof layer.clippingMask === 'boolean' ? layer.clippingMask : undefined,
     mask: layer.mask ? String(layer.mask) : undefined
   };
 }

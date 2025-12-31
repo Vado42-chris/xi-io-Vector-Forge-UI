@@ -94,7 +94,7 @@ export const ToolLockIndicator: React.FC<{
   if (!lockState.isLocked || !lockState.lockedTool) return null;
 
   return (
-    <div className="xibalba-tool-lock-indicator fixed top-20 right-4 z-[300] xibalba-card p-3 flex items-center gap-3 animate-in slide-in-from-right">
+    <div className="xibalba-tool-lock-indicator fixed top-20 right-4 zstack-lock-indicator xibalba-card p-3 flex items-center gap-3 animate-in slide-in-from-right">
       <div className="flex items-center gap-2">
         <span className="material-symbols-outlined text-[var(--xibalba-accent)] text-[20px]">
           lock
@@ -103,7 +103,7 @@ export const ToolLockIndicator: React.FC<{
           <span className="xibalba-text-xs font-black uppercase tracking-widest">
             Tool Locked
           </span>
-          <span className="xibalba-text-caption text-[8px] text-[var(--xibalba-text-200)]">
+          <span className="xibalba-text-caption text-xs text-[var(--xibalba-text-100)]">
             {lockState.lockedTool} {lockState.lockReason ? `• ${lockState.lockReason}` : ''}
           </span>
         </div>
@@ -167,7 +167,7 @@ export const ToolLockingSystem: React.FC<ToolLockingSystemProps> = ({
         <ToolLockIndicator lockState={lockState} onUnlock={() => unlockTool(config.requireConfirmation)} />
       )}
       {React.Children.map(children, child => {
-        if (React.isValidElement(child)) {
+        if (React.isValidElement(child) && child.props && typeof child.props === 'object') {
           return React.cloneElement(child, {
             ...child.props,
             activeTool,

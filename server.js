@@ -18,6 +18,9 @@ const __dirname = dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Export app for testing
+export { app };
+
 // Security Headers Middleware
 app.use((req, res, next) => {
     // Content Security Policy
@@ -51,6 +54,9 @@ app.use((req, res, next) => {
     next();
 });
 
+// Serve static files from public directory FIRST (before other middleware)
+app.use(express.static(join(__dirname, 'public')));
+
 // Middleware
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
@@ -73,10 +79,16 @@ app.get('/api/health', (req, res) => {
 import { tasksRoutes } from './api/tasks.js';
 import { sprintsRoutes } from './api/sprints.js';
 import { projectsRoutes } from './api/projects.js';
+import { fileSystemRoutes } from './api/filesystem.js';
 
 await tasksRoutes(app);
 await sprintsRoutes(app);
 await projectsRoutes(app);
+await fileSystemRoutes(app);
+
+// Proof/Signing API Routes
+import { proofRoutes } from './api/proof.js';
+await proofRoutes(app);
 
 // AI Generation Endpoint
 app.post('/api/ai/generate', async (req, res) => {
@@ -189,6 +201,28 @@ async function start() {
             appType: 'spa',
         });
         app.use(vite.middlewares);
+        
+        // CRITICAL: Block auth redirects - they're breaking the app
+        // This handles browser extensions or service workers trying to redirect to auth
+        app.get('/api/auth/*', (req, res) => {
+            console.log('🚫 Blocked auth redirect attempt:', req.path);
+            // Return 404 with helpful message instead of redirecting
+            res.status(404).json({ 
+                error: 'Auth endpoint not found',
+                message: 'This application does not use authentication. If you see this, a browser extension or service worker may be redirecting you.',
+                redirect: false
+            });
+        });
+        
+        // Also block POST requests to auth endpoints
+        app.post('/api/auth/*', (req, res) => {
+            console.log('🚫 Blocked auth POST attempt:', req.path);
+            res.status(404).json({ 
+                error: 'Auth endpoint not found',
+                message: 'This application does not use authentication.',
+                redirect: false
+            });
+        });
         
         // Fallback for SPA routing
         app.get('*', (req, res, next) => {

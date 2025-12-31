@@ -38,6 +38,14 @@ export const useUndoRedo = <T,>(
   const historyIndexRef = useRef(0);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
+
+  const updateCanUndoRedo = useCallback(() => {
+    setCanUndo(historyIndexRef.current > 0);
+    setCanRedo(historyIndexRef.current < historyRef.current.length - 1);
+  }, []);
+
   const recordState = useCallback((state: T) => {
     // Clear redo history if we're not at the end
     if (historyIndexRef.current < historyRef.current.length - 1) {
@@ -53,7 +61,9 @@ export const useUndoRedo = <T,>(
       historyRef.current.shift();
       historyIndexRef.current--;
     }
-  }, [maxHistorySize]);
+    
+    updateCanUndoRedo();
+  }, [maxHistorySize, updateCanUndoRedo]);
 
   const recordStateDebounced = useCallback((state: T) => {
     if (debounceTimerRef.current) {
@@ -74,16 +84,18 @@ export const useUndoRedo = <T,>(
       historyIndexRef.current--;
       const previousState = historyRef.current[historyIndexRef.current];
       setCurrentState(previousState);
+      updateCanUndoRedo();
     }
-  }, []);
+  }, [updateCanUndoRedo]);
 
   const redo = useCallback(() => {
     if (historyIndexRef.current < historyRef.current.length - 1) {
       historyIndexRef.current++;
       const nextState = historyRef.current[historyIndexRef.current];
       setCurrentState(nextState);
+      updateCanUndoRedo();
     }
-  }, []);
+  }, [updateCanUndoRedo]);
 
   const clearHistory = useCallback(() => {
     historyRef.current = [currentState];
@@ -99,9 +111,14 @@ export const useUndoRedo = <T,>(
     };
   }, []);
 
+  // Update canUndo/canRedo when state changes
+  useEffect(() => {
+    updateCanUndoRedo();
+  }, [currentState, updateCanUndoRedo]);
+
   const undoRedoState: UndoRedoState<T> = {
-    canUndo: historyIndexRef.current > 0,
-    canRedo: historyIndexRef.current < historyRef.current.length - 1,
+    canUndo,
+    canRedo,
     undo,
     redo,
     recordState: recordStateDebounced,

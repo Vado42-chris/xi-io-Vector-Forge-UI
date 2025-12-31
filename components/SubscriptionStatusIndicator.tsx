@@ -24,8 +24,8 @@ interface SubscriptionStatusIndicatorProps {
 const TIER_COLORS: Record<SubscriptionTier, string> = {
   free: 'var(--xibalba-text-300)',
   pro: 'var(--xibalba-accent)',
-  enterprise: 'var(--xibalba-accent-hover, #9d4edd)', // Use CSS variable with fallback
-  custom: 'var(--xibalba-accent, #ffd60a)', // Use CSS variable with fallback
+  enterprise: 'var(--vectorforge-accent-hover, #ff6f00)', // VectorFORGE Orange hover
+  custom: 'var(--vectorforge-accent, #ff9800)', // VectorFORGE Orange
 };
 
 const TIER_LABELS: Record<SubscriptionTier, string> = {
@@ -61,7 +61,7 @@ export default function SubscriptionStatusIndicator({
     return (
       <div className="flex items-center gap-2 px-3 py-1.5">
         <div className="w-2 h-2 rounded-full subscription-tier-free" />
-        <span className="text-xs font-semibold text-[var(--xibalba-text-200)]">Free</span>
+        <span className="text-xs font-semibold text-[var(--xibalba-text-100)]">Free</span>
       </div>
     );
   }
@@ -83,11 +83,11 @@ export default function SubscriptionStatusIndicator({
             className={`w-2 h-2 rounded-full subscription-tier-${displaySubscription.tier}`}
             title={`${tierLabel} Tier`}
           />
-          <span className="text-xs font-semibold text-[var(--xibalba-text-200)] group-hover:text-[var(--xibalba-text-000)]">
+          <span className="text-xs font-semibold text-[var(--xibalba-text-100)] group-hover:text-[var(--xibalba-text-000)]">
             {tierLabel}
           </span>
           {!isActive && (
-            <span className="text-xs text-red-400" title="Subscription inactive">
+            <span className="text-xs text-[var(--vectorforge-accent)]" title="Subscription inactive">
               ⚠
             </span>
           )}
@@ -103,10 +103,10 @@ export default function SubscriptionStatusIndicator({
               <div className="space-y-3">
                 {/* Status */}
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-[var(--xibalba-text-200)]">Status</span>
+                  <span className="text-xs text-[var(--xibalba-text-100)]">Status</span>
                   <span
                     className={`text-xs font-semibold ${
-                      isActive ? 'text-green-400' : 'text-red-400'
+                      isActive ? 'text-[var(--vectorforge-accent)]' : 'text-[var(--vectorforge-accent)]'
                     }`}
                   >
                     {displaySubscription.status === 'active' ? 'Active' :
@@ -120,7 +120,7 @@ export default function SubscriptionStatusIndicator({
                 {/* Renewal */}
                 {isActive && daysUntilRenewal > 0 && (
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-[var(--xibalba-text-200)]">Renews in</span>
+                    <span className="text-xs text-[var(--xibalba-text-100)]">Renews in</span>
                     <span className="text-xs text-[var(--xibalba-text-000)]">
                       {daysUntilRenewal} {daysUntilRenewal === 1 ? 'day' : 'days'}
                     </span>
@@ -130,7 +130,7 @@ export default function SubscriptionStatusIndicator({
                 {/* Usage */}
                 <div className="space-y-2 pt-2 border-t border-white/10">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-[var(--xibalba-text-200)]">Storage</span>
+                    <span className="text-xs text-[var(--xibalba-text-100)]">Storage</span>
                     <span className="text-xs text-[var(--xibalba-text-000)]">
                       {Math.round(displaySubscription.usage.storage)} / {displaySubscription.usage.storageLimit} MB
                     </span>

@@ -5,7 +5,7 @@
 
 .tooltip {
   position: fixed;
-  z-index: 10001;
+  z-index: var(--z-tooltip);
   padding: 8px 12px;
   background: var(--xibalba-grey-200, #25252a);
   color: var(--xibalba-text-000, #ffffff);

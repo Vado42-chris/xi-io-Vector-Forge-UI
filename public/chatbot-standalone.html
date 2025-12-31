@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VectorForge Dev Chat - Self-Modifying AI</title>
+    <link rel="stylesheet" href="/styles/dev-chatbot.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', monospace;
+            background: #000000;
+            color: #ffffff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .header {
+            background: #000000;
+            border-bottom: 2px solid #ff9800;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+        .header h1 {
+            color: #ff9800;
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0;
+        }
+        .header button {
+            background: #ff9800;
+            color: #000000;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        .header button:hover {
+            background: #ff6f00;
+        }
+        #root {
+            flex: 1;
+            overflow: hidden;
+        }
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            flex-direction: column;
+            gap: 20px;
+            color: #ff9800;
+        }
+        .progress-container {
+            width: 400px;
+            height: 8px;
+            background: #010101;
+            border: 1px solid #ff9800;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: #ff9800;
+            animation: progress 2s forwards;
+        }
+        @keyframes progress {
+            to { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>💬 Dev Chat - Self-Modifying AI</h1>
+        <button onclick="window.location.href='/'">← Back to App</button>
+    </div>
+    <div id="root">
+        <div class="loading">
+            <div>Loading Dev Chat...</div>
+            <div class="progress-container">
+                <div class="progress-fill"></div>
+            </div>
+        </div>
+    </div>
+    <script type="module">
+        // Load React and mount DevChatbot
+        import { createRoot } from 'https://esm.sh/react-dom@18/client';
+        import React from 'https://esm.sh/react@18';
+        
+        // Try to import DevChatbot from our app
+        // If that fails, create a simple fallback
+        try {
+            const { default: DevChatbot } = await import('/components/DevChatbot.tsx?import');
+            const root = createRoot(document.getElementById('root'));
+            root.render(React.createElement(DevChatbot));
+        } catch (error) {
+            console.error('Failed to load DevChatbot:', error);
+            document.getElementById('root').innerHTML = `
+                <div class="loading">
+                    <div style="color: #f44336;">❌ Failed to load Dev Chat</div>
+                    <div style="color: #999; margin-top: 20px; text-align: center;">
+                        <p>Error: ${error.message}</p>
+                        <p style="margin-top: 10px;">
+                            <a href="/" style="color: #ff9800;">Try Main App</a> | 
+                            <a href="/verify.html" style="color: #ff9800;">Verification Page</a>
+                        </p>
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
+

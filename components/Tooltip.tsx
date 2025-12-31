@@ -77,36 +77,37 @@ const Tooltip: React.FC<TooltipProps> = ({
     setTooltipPosition(newPosition);
   };
 
-  const clonedChild = React.cloneElement(children, {
+  const clonedChild = React.cloneElement(children as React.ReactElement<any>, {
     ref: (node: HTMLElement) => {
       triggerRef.current = node;
-      if (typeof children.ref === 'function') {
-        children.ref(node);
-      } else if (children.ref) {
-        (children.ref as React.MutableRefObject<HTMLElement | null>).current = node;
+      const childRef = (children as any).ref;
+      if (typeof childRef === 'function') {
+        childRef(node);
+      } else if (childRef) {
+        (childRef as React.MutableRefObject<HTMLElement | null>).current = node;
       }
     },
     onMouseEnter: (e: React.MouseEvent) => {
       showTooltip();
-      if (children.props.onMouseEnter) {
+      if (React.isValidElement(children) && children.props && typeof children.props === 'object' && children.props !== null && 'onMouseEnter' in children.props && typeof children.props.onMouseEnter === 'function') {
         children.props.onMouseEnter(e);
       }
     },
     onMouseLeave: (e: React.MouseEvent) => {
       hideTooltip();
-      if (children.props.onMouseLeave) {
+      if (React.isValidElement(children) && children.props && typeof children.props === 'object' && children.props !== null && 'onMouseLeave' in children.props && typeof children.props.onMouseLeave === 'function') {
         children.props.onMouseLeave(e);
       }
     },
     onFocus: (e: React.FocusEvent) => {
       showTooltip();
-      if (children.props.onFocus) {
+      if (React.isValidElement(children) && children.props && typeof children.props === 'object' && children.props !== null && 'onFocus' in children.props && typeof children.props.onFocus === 'function') {
         children.props.onFocus(e);
       }
     },
     onBlur: (e: React.FocusEvent) => {
       hideTooltip();
-      if (children.props.onBlur) {
+      if (React.isValidElement(children) && children.props && typeof children.props === 'object' && children.props !== null && 'onBlur' in children.props && typeof children.props.onBlur === 'function') {
         children.props.onBlur(e);
       }
     },

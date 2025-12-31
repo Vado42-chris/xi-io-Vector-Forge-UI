@@ -255,7 +255,7 @@ async function translateWithFallback(
  */
 function extractHashtagScript(response: string): string {
   // Remove markdown code blocks if present
-  let script = response.replace(/```[\w]*\n?/g, '').trim();
+  const script = response.replace(/```[\w]*\n?/g, '').trim();
   
   // Extract lines that start with #
   const lines = script.split('\n').filter(line => line.trim().startsWith('#') || line.trim().startsWith('//'));

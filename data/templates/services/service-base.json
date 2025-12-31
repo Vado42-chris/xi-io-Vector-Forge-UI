@@ -1,0 +1,10 @@
+{
+  "id": "service-base",
+  "name": "Service Base",
+  "description": "Base service class with error handling and logging",
+  "category": "services",
+  "tags": ["typescript", "service", "base"],
+  "icon": "⚙️",
+  "code": "export class {{ServiceName}} {\n  private static instance: {{ServiceName}};\n  \n  private constructor() {}\n  \n  static getInstance(): {{ServiceName}} {\n    if (!{{ServiceName}}.instance) {\n      {{ServiceName}}.instance = new {{ServiceName}}();\n    }\n    return {{ServiceName}}.instance;\n  }\n  \n  async performAction(): Promise<void> {\n    try {\n      // Implementation\n    } catch (error) {\n      console.error('Error:', error);\n      throw error;\n    }\n  }\n}"
+}
+

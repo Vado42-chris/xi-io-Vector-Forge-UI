@@ -105,9 +105,9 @@ export async function tasksRoutes(app) {
       }
       if (req.query.search) {
         const search = req.query.search.toLowerCase();
-        filtered = filtered.filter(t => 
-          t.title.toLowerCase().includes(search) ||
-          t.description.toLowerCase().includes(search)
+        filtered = filtered.filter(
+          t =>
+            t.title.toLowerCase().includes(search) || t.description.toLowerCase().includes(search)
         );
       }
 
@@ -188,4 +188,3 @@ export async function tasksRoutes(app) {
     }
   });
 }
-

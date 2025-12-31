@@ -87,7 +87,7 @@ const XibalbaLogomark: React.FC<XibalbaLogomarkProps> = ({
 
       {/* Product Name (optional) */}
       {showProductName && productName && (
-        <span className="xibalba-text-caption text-[8px] font-black uppercase tracking-widest text-[var(--xibalba-text-200)]">
+        <span className="xibalba-text-caption text-xs font-black uppercase tracking-widest text-[var(--xibalba-text-100)]">
           {productName}
         </span>
       )}

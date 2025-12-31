@@ -1,165 +1,285 @@
 /**
- * Workspace Customizer
- * Power user tool for customizing workspace layout
- * Define columns, grids, toolbars, and create custom palettes
+ * Workspace Customizer Component
+ * Allows users to customize workspace layout, save/load layouts, and manage panels
+ * 
+ * #hashtag: workspace-customizer component
  */
 
-import React, { useState } from 'react';
-import { LayoutColumn, ToolbarDefinition } from '../hooks/useWorkspaceLayout';
-import { CustomPaletteBuilder, CustomPalette } from './CustomPaletteBuilder';
+import React, { useState, useEffect } from 'react';
+import ErrorBoundary from './ErrorBoundary';
+import { layoutPersistenceService, SavedLayout } from '../services/layoutPersistenceService';
+import { quadrantService, Quadrant } from '../services/quadrantService';
 
 interface WorkspaceCustomizerProps {
-  columns: LayoutColumn[];
-  toolbars: ToolbarDefinition[];
-  customPalettes: CustomPalette[];
-  onColumnUpdate: (id: string, updates: Partial<LayoutColumn>) => void;
-  onToolbarUpdate: (id: string, updates: Partial<ToolbarDefinition>) => void;
-  onCustomPaletteCreate: (palette: CustomPalette) => void;
-  onCustomPaletteUpdate: (id: string, palette: Partial<CustomPalette>) => void;
-  onCustomPaletteDelete: (id: string) => void;
-  onResetLayout: () => void;
+  isOpen: boolean;
+  onClose: () => void;
+  onLayoutChange?: (layoutId: string) => void;
 }
 
-export const WorkspaceCustomizer: React.FC<WorkspaceCustomizerProps> = ({
-  columns,
-  toolbars,
-  customPalettes,
-  onColumnUpdate,
-  onToolbarUpdate,
-  onCustomPaletteCreate,
-  onCustomPaletteUpdate,
-  onCustomPaletteDelete,
-  onResetLayout
-}) => {
-  const [activeTab, setActiveTab] = useState<'columns' | 'toolbars' | 'palettes' | 'grids'>('columns');
+const WorkspaceCustomizer: React.FC<WorkspaceCustomizerProps> = ({ isOpen, onClose, onLayoutChange }) => {
+  const [savedLayouts, setSavedLayouts] = useState<SavedLayout[]>([]);
+  const [selectedLayout, setSelectedLayout] = useState<SavedLayout | null>(null);
+  const [newLayoutName, setNewLayoutName] = useState('');
+  const [newLayoutDescription, setNewLayoutDescription] = useState('');
+  const [quadrants, setQuadrants] = useState(quadrantService.getAllQuadrants());
+
+  useEffect(() => {
+    if (isOpen) {
+      loadLayouts();
+    }
+  }, [isOpen]);
+
+  const loadLayouts = () => {
+    setSavedLayouts(layoutPersistenceService.getAllLayouts());
+  };
+
+  const handleSaveLayout = () => {
+    if (!newLayoutName.trim()) {
+      alert('Please enter a layout name');
+      return;
+    }
+
+    const layoutId = layoutPersistenceService.saveLayout(
+      newLayoutName,
+      newLayoutDescription,
+      false
+    );
+
+    if (layoutId) {
+      loadLayouts();
+      setNewLayoutName('');
+      setNewLayoutDescription('');
+      alert('Layout saved successfully!');
+    } else {
+      alert('Failed to save layout');
+    }
+  };
+
+  const handleLoadLayout = (layoutId: string) => {
+    const layout = layoutPersistenceService.loadLayout(layoutId);
+    if (layout && onLayoutChange) {
+      onLayoutChange(layoutId);
+      setSelectedLayout(layout);
+      alert(`Loaded layout: ${layout.name}`);
+    }
+  };
+
+  const handleDeleteLayout = (layoutId: string) => {
+    if (confirm('Are you sure you want to delete this layout?')) {
+      if (layoutPersistenceService.deleteLayout(layoutId)) {
+        loadLayouts();
+        if (selectedLayout?.id === layoutId) {
+          setSelectedLayout(null);
+        }
+      }
+    }
+  };
+
+  const handleExportLayout = (layoutId: string) => {
+    const exported = layoutPersistenceService.exportLayout(layoutId);
+    if (exported) {
+      const blob = new Blob([exported], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `vectorforge-layout-${layoutId}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  };
+
+  const handleImportLayout = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        try {
+          const text = await file.text();
+          const layoutId = layoutPersistenceService.importLayout(text);
+          if (layoutId) {
+            loadLayouts();
+            alert('Layout imported successfully!');
+          } else {
+            alert('Failed to import layout');
+          }
+        } catch (error) {
+          alert('Failed to import layout: Invalid file format');
+        }
+      }
+    };
+    input.click();
+  };
+
+  if (!isOpen) return null;
 
   return (
-    <div className="xibalba-panel-professional space-y-6">
-      <div className="flex items-center justify-between border-b border-white/10 pb-4">
-        <h2 className="xibalba-text-heading">Workspace Customizer</h2>
-        <button
-          onClick={onResetLayout}
-          className="xibalba-button-professional text-sm"
-          title="Reset to default layout"
-        >
-          <span className="material-symbols-outlined text-[16px] mr-2">refresh</span>
-          Reset Layout
-        </button>
-      </div>
-
-      {/* Tabs */}
-      <div className="xibalba-tabs-professional">
-        {[
-          { id: 'columns', label: 'Columns', icon: 'view_column' },
-          { id: 'toolbars', label: 'Toolbars', icon: 'toolbar' },
-          { id: 'palettes', label: 'Palettes', icon: 'apps' },
-          { id: 'grids', label: 'Grids', icon: 'grid_on' }
-        ].map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
-            className={`xibalba-tab-professional ${activeTab === tab.id ? 'active' : ''}`}
-          >
-            <span className="material-symbols-outlined text-[16px] mr-2">{tab.icon}</span>
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Content */}
-      <div className="space-y-4">
-        {activeTab === 'columns' && (
-          <div className="space-y-3">
-            <h3 className="xibalba-text-subheading">Layout Columns</h3>
-            {columns.map(column => (
-              <div key={column.id} className="xibalba-panel-professional p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="xibalba-text-subheading">{column.name}</div>
-                    <div className="xibalba-text-caption">
-                      {column.type} • {column.position} • {column.width}px
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={column.visible}
-                        onChange={() => onColumnUpdate(column.id, { visible: !column.visible })}
-                        className="xibalba-checkbox-professional"
-                      />
-                      <span className="xibalba-text-xs">Visible</span>
-                    </label>
-                  </div>
-                </div>
-                
-                {column.resizable && (
-                  <div>
-                    <label className="xibalba-label-professional">Width</label>
-                    <input
-                      type="range"
-                      min={column.minWidth || 200}
-                      max={column.maxWidth || 600}
-                      value={column.width || 320}
-                      onChange={(e) => onColumnUpdate(column.id, { width: parseInt(e.target.value) })}
-                      className="xibalba-input-professional w-full"
-                    />
-                    <div className="xibalba-text-caption text-right mt-1">{column.width}px</div>
-                  </div>
-                )}
-              </div>
-            ))}
+    <ErrorBoundary>
+      <div
+        className="fixed inset-0 zstack-modal-backdrop flex items-center justify-center bg-black/50 backdrop-blur-sm"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="workspace-customizer-title"
+      >
+        <div className="xibalba-panel bg-[var(--xibalba-grey-050)] rounded-lg w-[90vw] max-w-4xl h-[85vh] max-h-[700px] flex flex-col shadow-2xl">
+          {/* Header */}
+          <div className="flex items-center justify-between p-6">
+            <div className="flex items-center gap-3">
+              <span className="material-symbols-outlined text-2xl text-[var(--xibalba-accent)]" aria-hidden="true">
+                dashboard
+              </span>
+              <h2 id="workspace-customizer-title" className="text-xl font-bold text-[var(--xibalba-text-000)]">
+                Workspace Customizer
+              </h2>
+            </div>
+            <button
+              onClick={onClose}
+              className="xibalba-interactive p-2 hover:bg-[var(--xibalba-grey-100)] rounded transition-colors min-w-[44px] min-h-[44px]"
+              aria-label="Close workspace customizer"
+            >
+              <span className="material-symbols-outlined text-[var(--xibalba-text-100)]">close</span>
+            </button>
           </div>
-        )}
 
-        {activeTab === 'toolbars' && (
-          <div className="space-y-3">
-            <h3 className="xibalba-text-subheading">Toolbars</h3>
-            {toolbars.map(toolbar => (
-              <div key={toolbar.id} className="xibalba-panel-professional p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="xibalba-text-subheading">{toolbar.name}</div>
-                    <div className="xibalba-text-caption">
-                      {toolbar.position} • {toolbar.items.length} items
-                    </div>
-                  </div>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={toolbar.visible}
-                      onChange={() => onToolbarUpdate(toolbar.id, { visible: !toolbar.visible })}
-                      className="xibalba-checkbox-professional"
-                    />
-                    <span className="xibalba-text-xs">Visible</span>
+          {/* Content */}
+          <div className="flex-1 overflow-y-auto p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Left: Save New Layout */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-bold text-[var(--xibalba-text-000)]">Save Current Layout</h3>
+                <div>
+                  <label className="block text-sm font-semibold text-[var(--xibalba-text-000)] mb-2">
+                    Layout Name *
                   </label>
+                  <input
+                    type="text"
+                    value={newLayoutName}
+                    onChange={(e) => setNewLayoutName(e.target.value)}
+                    className="xibalba-input w-full min-h-[44px]"
+                    placeholder="My Custom Layout"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-[var(--xibalba-text-000)] mb-2">
+                    Description
+                  </label>
+                  <textarea
+                    value={newLayoutDescription}
+                    onChange={(e) => setNewLayoutDescription(e.target.value)}
+                    className="xibalba-input w-full min-h-[100px]"
+                    placeholder="Describe this layout..."
+                  />
+                </div>
+                <button
+                  onClick={handleSaveLayout}
+                  disabled={!newLayoutName.trim()}
+                  className="xibalba-button-primary w-full min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <span className="material-symbols-outlined mr-2" aria-hidden="true">save</span>
+                  Save Layout
+                </button>
+              </div>
+
+              {/* Right: Saved Layouts */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-bold text-[var(--xibalba-text-000)]">Saved Layouts</h3>
+                  <button
+                    onClick={handleImportLayout}
+                    className="xibalba-button-secondary min-h-[36px] text-sm"
+                  >
+                    <span className="material-symbols-outlined mr-1 text-sm" aria-hidden="true">upload</span>
+                    Import
+                  </button>
+                </div>
+                <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                  {savedLayouts.length > 0 ? (
+                    savedLayouts.map((layout) => (
+                      <div
+                        key={layout.id}
+                        className={`p-3 border-2 rounded-lg transition-all ${
+                          selectedLayout?.id === layout.id
+                            ? 'border-[var(--xibalba-accent)] bg-[var(--xibalba-grey-100)]'
+                            : 'border-[var(--xibalba-grey-100)] hover:border-[var(--xibalba-accent)]'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <h4 className="font-semibold text-[var(--xibalba-text-000)]">{layout.name}</h4>
+                              {layout.isDefault && (
+                                <span className="text-xs px-2 py-0.5 bg-[var(--xibalba-accent)] text-black rounded">
+                                  Default
+                                </span>
+                              )}
+                            </div>
+                            {layout.description && (
+                              <p className="text-sm text-[var(--xibalba-text-100)] mt-1">{layout.description}</p>
+                            )}
+                            <p className="text-xs text-[var(--xibalba-text-100)] mt-1">
+                              Updated: {new Date(layout.updatedAt).toLocaleDateString()}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 mt-3">
+                          <button
+                            onClick={() => handleLoadLayout(layout.id)}
+                            className="xibalba-button-secondary flex-1 min-h-[32px] text-sm"
+                          >
+                            <span className="material-symbols-outlined mr-1 text-sm" aria-hidden="true">open_in_new</span>
+                            Load
+                          </button>
+                          <button
+                            onClick={() => handleExportLayout(layout.id)}
+                            className="xibalba-button-secondary min-h-[32px] text-sm"
+                            title="Export layout"
+                          >
+                            <span className="material-symbols-outlined text-sm" aria-label="Export">download</span>
+                          </button>
+                          <button
+                            onClick={() => handleDeleteLayout(layout.id)}
+                            className="xibalba-button-secondary min-h-[32px] text-sm text-[var(--vectorforge-accent)]"
+                            title="Delete layout"
+                          >
+                            <span className="material-symbols-outlined text-sm" aria-label="Delete">delete</span>
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8 text-[var(--xibalba-text-100)]">
+                      <p>No saved layouts yet</p>
+                      <p className="text-xs mt-2">Save your current layout to get started</p>
+                    </div>
+                  )}
                 </div>
               </div>
-            ))}
-          </div>
-        )}
+            </div>
 
-        {activeTab === 'palettes' && (
-          <CustomPaletteBuilder
-            customPalettes={customPalettes}
-            onPaletteCreate={onCustomPaletteCreate}
-            onPaletteUpdate={onCustomPaletteUpdate}
-            onPaletteDelete={onCustomPaletteDelete}
-            availableItems={[]} // Will be populated from context
-          />
-        )}
-
-        {activeTab === 'grids' && (
-          <div className="space-y-3">
-            <h3 className="xibalba-text-subheading">Grid Layouts</h3>
-            <div className="xibalba-panel-professional p-4 text-center opacity-50">
-              <span className="material-symbols-outlined text-4xl mb-2">grid_on</span>
-              <p className="xibalba-text-caption">Grid layouts coming soon</p>
+            {/* Quadrant System Info */}
+            <div className="mt-8 pt-6">
+              <h3 className="text-lg font-bold text-[var(--xibalba-text-000)] mb-4">Screen Quadrants</h3>
+              <div className="grid grid-cols-2 gap-4">
+                {quadrants.map((quadrant) => (
+                  <div
+                    key={quadrant.id}
+                    className="bg-[var(--xibalba-grey-100)] p-4 rounded-lg"
+                  >
+                    <h4 className="font-semibold text-[var(--xibalba-text-000)] mb-1">{quadrant.name}</h4>
+                    <p className="text-sm text-[var(--xibalba-text-100)] mb-2">{quadrant.description}</p>
+                    <div className="text-xs text-[var(--xibalba-text-100)]">
+                      Default panels: {quadrant.defaultPanels.join(', ')}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        )}
+        </div>
       </div>
-    </div>
+    </ErrorBoundary>
   );
 };
 
+export default WorkspaceCustomizer;

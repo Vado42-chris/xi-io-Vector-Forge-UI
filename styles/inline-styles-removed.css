@@ -1,0 +1,141 @@
+/**
+ * Inline Styles Removed - CSS Classes
+ * Sprint 2.1: Remove all inline styles
+ * 
+ * All dynamic values use CSS variables
+ * All positioning via CSS classes
+ * Design system compliant
+ */
+
+/* ============================================
+   RESIZE HANDLE Z-INDEX
+   ============================================ */
+
+.zstack-sidebar-resize-handle,
+.z-sidebar-resize-handle {
+  z-index: 1000 !important;
+}
+
+/* ============================================
+   FORM ROW ACTIONS
+   ============================================ */
+
+.xibalba-form-row-actions {
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* ============================================
+   CANVAS POSITIONING
+   ============================================ */
+
+.canvas-container {
+  contain: layout style paint;
+  width: 100%;
+  height: 100%;
+  min-height: 500px;
+  display: flex;
+  flex-direction: column;
+}
+
+.canvas-container[data-cursor-type="default"] {
+  cursor: default;
+}
+
+.canvas-container[data-cursor-type="crosshair"] {
+  cursor: crosshair;
+}
+
+.canvas-area {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* ============================================
+   RULER POSITIONING
+   ============================================ */
+
+.ruler-horizontal,
+.ruler-vertical {
+  position: absolute;
+  background: var(--xibalba-grey-100);
+  border: 1px solid var(--xibalba-grey-200);
+}
+
+.ruler-horizontal {
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 20px;
+}
+
+.ruler-vertical {
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 20px;
+}
+
+/* ============================================
+   PERFORMANCE DASHBOARD
+   ============================================ */
+
+.performance-dashboard-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+}
+
+.performance-progress-bar {
+  width: var(--progress-value, 0%);
+}
+
+/* ============================================
+   GUIDE POSITIONING
+   ============================================ */
+
+.guide-vertical {
+  left: calc(50% + var(--guide-position, 0px));
+}
+
+.guide-horizontal {
+  top: calc(50% + var(--guide-position, 0px));
+}
+
+/* ============================================
+   RULER MARKS
+   ============================================ */
+
+.ruler-mark-horizontal {
+  left: var(--ruler-mark-left, 0px);
+  transform: translateX(var(--ruler-pan-x, 0px));
+}
+
+.ruler-mark-vertical {
+  top: var(--ruler-mark-top, 0px);
+  transform: translateY(var(--ruler-pan-y, 0px));
+}
+
+/* ============================================
+   PALETTE WIDTH
+   ============================================ */
+
+.palette-container {
+  --palette-width: 0px;
+}
+
+.palette-container[data-palette-zone="left"] {
+  --palette-width: calc(var(--palette-width, 200) * 1px);
+}
+
+.palette-container[data-palette-zone="right"],
+.palette-container[data-palette-zone="floating"] {
+  --palette-width: 0px;
+}
+

@@ -128,8 +128,10 @@ class VectorForgeTaskLinkService implements IVectorForgeTaskLinkService {
     const task = await taskManagementService.getTask(taskId);
     if (task) {
       const existingItems = task.metadata.relatedVectorForgeItems || [];
-      if (!existingItems.includes(item.id)) {
-        await this.updateTaskMetadata(taskId, [...existingItems, item.id]);
+      const existingItemIds = Array.isArray(existingItems) ? existingItems : [];
+      if (!existingItemIds.includes(item.id)) {
+        const taskItems = await this.getTaskItems(taskId);
+        await this.updateTaskMetadata(taskId, [...taskItems, item]);
       }
     }
 
@@ -163,14 +165,8 @@ class VectorForgeTaskLinkService implements IVectorForgeTaskLinkService {
     // Update task metadata
     const task = await taskManagementService.getTask(taskId);
     if (task) {
-      const existingItems = task.metadata.relatedVectorForgeItems || [];
-      const filtered = existingItems.filter(itemId => 
-        !linksToRemove.some(linkId => {
-          const link = this.links.get(linkId);
-          return link?.vectorForgeItem.id === itemId;
-        })
-      );
-      await this.updateTaskMetadata(taskId, filtered);
+      const remainingItems = await this.getTaskItems(taskId);
+      await this.updateTaskMetadata(taskId, remainingItems);
     }
 
     // Persist links
@@ -221,16 +217,19 @@ class VectorForgeTaskLinkService implements IVectorForgeTaskLinkService {
   /**
    * Update task metadata with VectorForge items
    */
-  async updateTaskMetadata(taskId: string, items: string[]): Promise<Task> {
+  async updateTaskMetadata(taskId: string, items: VectorForgeItemRef[]): Promise<Task> {
     const task = await taskManagementService.getTask(taskId);
     if (!task) {
       throw new Error(`Task not found: ${taskId}`);
     }
+    
+    // Convert VectorForgeItemRef[] to string[] for task metadata
+    const itemIds = items.map(item => item.id);
 
     const updatedTask = await taskManagementService.updateTask(taskId, {
       metadata: {
         ...task.metadata,
-        relatedVectorForgeItems: items,
+        relatedVectorForgeItems: itemIds, // Store as string[] in metadata
       },
     });
 

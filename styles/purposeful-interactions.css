@@ -1,0 +1,540 @@
+/**
+ * Purposeful Interactions & Animations
+ * High-End Media Experience - Kipsche/Dennon Level
+ * 
+ * Every interaction has purpose
+ * Non-destructive animation sequencing
+ * Workflow-optimized interactions
+ * Gamification feedback
+ */
+
+/* ============================================
+   NON-DESTRUCTIVE ANIMATION SEQUENCING
+   ============================================ */
+
+/* Timeline Playback - Smooth, Purposeful */
+.animation-timeline-playhead {
+  transition: left 0.1s linear;
+  will-change: left;
+}
+
+.animation-timeline-playhead.playing {
+  transition: left 0.033s linear; /* 30fps smooth playback */
+}
+
+/* Keyframe Animations - Non-Destructive */
+.keyframe-marker {
+  transition: 
+    transform 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.keyframe-marker:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 8px rgba(255, 152, 0, 0.4);
+}
+
+.keyframe-marker.selected {
+  transform: scale(1.3);
+  box-shadow: 0 0 12px rgba(255, 152, 0, 0.6);
+}
+
+.keyframe-marker.creating {
+  animation: keyframe-pulse 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes keyframe-pulse {
+  0% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Layer Animations - Purposeful Transitions */
+.layer-item {
+  transition: 
+    transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    background 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.layer-item.creating {
+  animation: layer-slide-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.layer-item.deleting {
+  animation: layer-slide-out 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  animation-fill-mode: forwards;
+}
+
+@keyframes layer-slide-in {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes layer-slide-out {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(20px);
+    opacity: 0;
+  }
+}
+
+/* ============================================
+   WORKFLOW-OPTIMIZED INTERACTIONS
+   ============================================ */
+
+/* Daily Workflow: File Operations */
+.file-operation-success {
+  animation: success-pulse 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes success-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* Daily Workflow: Tool Selection */
+.tool-button-selecting {
+  animation: tool-select 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes tool-select {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+
+/* Daily Workflow: Canvas Operations */
+.canvas-operation-feedback {
+  position: absolute;
+  pointer-events: none;
+  animation: canvas-feedback 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes canvas-feedback {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+
+/* Daily Workflow: Undo/Redo */
+.undo-redo-feedback {
+  animation: undo-redo-slide 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes undo-redo-slide {
+  0% {
+    transform: translateX(-10px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* ============================================
+   GAMIFICATION LAYERS
+   ============================================ */
+
+/* Achievement Unlock */
+.achievement-unlock {
+  animation: achievement-reveal 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center;
+}
+
+@keyframes achievement-reveal {
+  0% {
+    transform: scale(0) rotate(-180deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+/* Progress Bar - Purposeful Animation */
+.progress-bar-fill {
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: width;
+}
+
+.progress-bar-fill.completing {
+  animation: progress-complete 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes progress-complete {
+  0% { transform: scaleX(1); }
+  50% { transform: scaleX(1.02); }
+  100% { transform: scaleX(1); }
+}
+
+/* Credit Gain - Subtle Feedback */
+.credit-gain {
+  animation: credit-float 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  position: absolute;
+  pointer-events: none;
+  color: var(--xibalba-accent, #ff9800);
+  font-weight: 600;
+}
+
+@keyframes credit-float {
+  0% {
+    transform: translateY(0) scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: translateY(-20px) scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-40px) scale(1);
+    opacity: 0;
+  }
+}
+
+/* Level Up - Celebratory */
+.level-up {
+  animation: level-up-celebration 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes level-up-celebration {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    transform: scale(1.1) rotate(-5deg);
+  }
+  75% {
+    transform: scale(1.1) rotate(5deg);
+  }
+}
+
+/* ============================================
+   CHATBOT INTERACTIONS - PURPOSEful
+   ============================================ */
+
+/* Message Appear - Non-Destructive */
+.chat-message {
+  animation: message-slide-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, opacity;
+}
+
+@keyframes message-slide-in {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Typing Indicator - Purposeful */
+.typing-indicator {
+  animation: typing-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes typing-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+.typing-indicator-dot {
+  animation: typing-dot 1.4s ease-in-out infinite;
+}
+
+.typing-indicator-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-indicator-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typing-dot {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-8px);
+    opacity: 1;
+  }
+}
+
+/* Command Execution - Feedback */
+.chat-command-executing {
+  animation: command-pulse 0.6s ease-in-out infinite;
+}
+
+@keyframes command-pulse {
+  0%, 100% {
+    background: color-mix(in srgb, var(--xibalba-accent) 10%, var(--xibalba-grey-100));
+  }
+  50% {
+    background: color-mix(in srgb, var(--xibalba-accent) 20%, var(--xibalba-grey-100));
+  }
+}
+
+/* ============================================
+   TIMELINE INTERACTIONS - PURPOSEful
+   ============================================ */
+
+/* Timeline Scrub - Smooth */
+.timeline-scrub-area {
+  cursor: ew-resize;
+  transition: background 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.timeline-scrub-area:hover {
+  background: rgba(255, 152, 0, 0.05);
+}
+
+.timeline-scrub-area.scrubbing {
+  background: rgba(255, 152, 0, 0.1);
+  cursor: grabbing;
+}
+
+/* Frame Marker - Purposeful Hover */
+.frame-marker {
+  transition: 
+    transform 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.frame-marker:hover {
+  transform: scale(1.1);
+  opacity: 1;
+}
+
+.frame-marker.current {
+  transform: scale(1.2);
+  box-shadow: 0 0 8px rgba(255, 152, 0, 0.4);
+}
+
+/* Playback Controls - Purposeful States */
+.playback-control {
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.playback-control:hover {
+  transform: scale(1.1);
+  background: color-mix(in srgb, var(--xibalba-accent) 20%, var(--xibalba-grey-150));
+}
+
+.playback-control.playing {
+  animation: playback-pulse 1s ease-in-out infinite;
+}
+
+@keyframes playback-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(255, 152, 0, 0);
+  }
+}
+
+/* ============================================
+   WORKFLOW-SPECIFIC ANIMATIONS
+   ============================================ */
+
+/* Daily: Create New Project */
+.workflow-new-project {
+  animation: workflow-fade-in 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes workflow-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Daily: Export Workflow */
+.workflow-export-progress {
+  animation: export-progress 2s ease-in-out;
+}
+
+@keyframes export-progress {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+
+/* Daily: Layer Management */
+.workflow-layer-reorder {
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.workflow-layer-reorder.dragging {
+  opacity: 0.7;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.workflow-layer-reorder.drag-over {
+  border-top: 2px solid var(--xibalba-accent, #ff9800);
+}
+
+/* Daily: Animation Preview */
+.workflow-preview-frame {
+  transition: opacity 0.1s linear;
+}
+
+.workflow-preview-frame.active {
+  opacity: 1;
+}
+
+.workflow-preview-frame.inactive {
+  opacity: 0.3;
+}
+
+/* ============================================
+   NON-DESTRUCTIVE TRANSITIONS
+   ============================================ */
+
+/* Panel Transitions - Don't Destroy Content */
+.panel-transition-enter {
+  animation: panel-enter 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.panel-transition-exit {
+  animation: panel-exit 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  animation-fill-mode: forwards;
+}
+
+@keyframes panel-enter {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes panel-exit {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+}
+
+/* Tab Transitions - Smooth */
+.tab-transition-enter {
+  animation: tab-enter 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tab-transition-exit {
+  animation: tab-exit 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  animation-fill-mode: forwards;
+}
+
+@keyframes tab-enter {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes tab-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+}
+
+/* ============================================
+   PURPOSEful MICRO-INTERACTIONS
+   ============================================ */
+
+/* Button Press - Purposeful Feedback */
+.button-press-feedback {
+  animation: button-press 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes button-press {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+
+/* Input Focus - Purposeful */
+.input-focus-ring {
+  transition: box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.input-focus-ring:focus {
+  box-shadow: 
+    0 0 0 1px var(--xibalba-accent, #ff9800),
+    0 0 0 3px rgba(255, 152, 0, 0.1);
+}
+
+/* Drag Feedback - Purposeful */
+.drag-feedback {
+  opacity: 0.8;
+  transform: scale(1.02);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Selection Feedback - Purposeful */
+.selection-feedback {
+  animation: selection-pulse 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes selection-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(255, 152, 0, 0.2);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 152, 0, 0);
+  }
+}
+

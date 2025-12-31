@@ -7,19 +7,22 @@
  */
 
 :root {
-  /* Xibalba Color Palette - Dark Greys + Blue Accents */
-  --xibalba-bg-primary: #1e1e1e;
-  --xibalba-bg-secondary: #252526;
-  --xibalba-bg-tertiary: #2d2d2d;
-  --xibalba-bg-hover: #3e3e42;
+  /* Xibalba Design System - ULTRA DARKNESS for ultra contrast */
+  /* VectorForge uses Orange (#ff9800) - defined in index.html and xibalba-design-language.css */
+  --xibalba-bg-primary: #020202;
+  --xibalba-bg-secondary: #030303;
+  --xibalba-bg-tertiary: #050505;
+  --xibalba-bg-hover: #0a0a0a;
   
+  /* ULTRA CONTRAST TEXT for maximum readability */
   --xibalba-text-primary: #ffffff;
-  --xibalba-text-secondary: #cccccc;
-  --xibalba-text-muted: #999999;
+  --xibalba-text-secondary: #fafafa;
+  --xibalba-text-muted: #f0f0f0;
   
-  --xibalba-accent: #007acc; /* Cursor blue */
-  --xibalba-accent-hover: #005a9e;
-  --xibalba-accent-active: #004578;
+  /* VectorForge accent: Orange (#ff9800) - defined in index.html */
+  /* Legacy: --xibalba-accent maps to --vectorforge-accent */
+  --xibalba-accent-hover: #ff6f00;
+  --xibalba-accent-active: #e65100;
   
   /* Visual Weight System - Pattern #211 */
   --weight-primary: 64px;    /* Header height - SUBSTANTIAL */
@@ -41,7 +44,7 @@
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 12px rgba(0, 122, 204, 0.4);
+  --shadow-glow: 0 0 12px rgba(255, 152, 0, 0.4);
 }
 
 /* Base Reset - Pattern #209: Clear Hierarchy */
@@ -60,15 +63,17 @@ body {
 }
 
 /* Header - Pattern #211: Substantial Primary Navigation */
+/* VectorFORGE: Header is now fixed in xibalba-design-language.css */
+/* This definition is overridden by the fixed positioning in design-language.css */
 .xibalba-header {
   height: var(--weight-primary);
   background: var(--xibalba-bg-secondary);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: none !important;
   display: flex;
   align-items: center;
   padding: 0 var(--weight-padding-primary);
   box-shadow: var(--shadow-md);
-  z-index: 100;
+  z-index: var(--z-menu);
 }
 
 /* Utility Elements - Pattern #211: Compact */
@@ -77,7 +82,7 @@ body {
   height: var(--weight-utility);
   padding: 0 var(--weight-padding-utility);
   background: var(--xibalba-bg-tertiary);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: none !important;
   border-radius: 4px;
   color: var(--xibalba-text-primary);
   font-size: 13px;
@@ -88,14 +93,14 @@ body {
 .xibalba-search:focus {
   outline: none;
   border-color: var(--xibalba-accent);
-  box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.2);
+  box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.2);
 }
 
 /* Buttons - Micro-interactions */
 .xibalba-button {
   padding: 8px 16px;
   background: var(--xibalba-bg-tertiary);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: none !important;
   border-radius: 4px;
   color: var(--xibalba-text-primary);
   font-size: 13px;
@@ -107,7 +112,7 @@ body {
 
 .xibalba-button:hover {
   background: var(--xibalba-bg-hover);
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: transparent !important;
   transform: translateY(-1px);
 }
 
@@ -130,7 +135,7 @@ body {
 /* Cards/Panels - Pattern #210: Fewer Boxes */
 .xibalba-card {
   background: var(--xibalba-bg-secondary);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: none !important;
   border-radius: 4px;
   padding: 0;
   transition: all var(--transition-normal);
@@ -141,15 +146,16 @@ body {
 }
 
 .xibalba-card:hover {
-  border-color: rgba(255, 255, 255, 0.15);
+  border-color: transparent !important;
   box-shadow: var(--shadow-md);
 }
 
 /* Sidebar - Combined Elements */
 .xibalba-sidebar {
+  background: var(--xibalba-grey-100, #1a1c22) !important;
   background: var(--xibalba-bg-secondary);
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
-  width: 320px;
+  border-right: none !important;
+  /* width: 320px; - Removed, handled by sidebar-fixed-left/right */
   display: flex;
   flex-direction: column;
 }
@@ -178,7 +184,7 @@ body {
 
 /* Selection States */
 .xibalba-selected {
-  background: rgba(0, 122, 204, 0.15);
+  background: color-mix(in srgb, var(--xibalba-accent) 15%, transparent);
   border-color: var(--xibalba-accent);
   box-shadow: 0 0 0 1px var(--xibalba-accent);
 }
@@ -217,7 +223,7 @@ body {
   align-items: center;
   padding: 8px 16px;
   background: var(--xibalba-bg-tertiary);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: none !important;
   border-radius: 6px;
   color: var(--xibalba-text-primary);
   font-size: 13px;
@@ -232,7 +238,7 @@ body {
 
 .xibalba-action-center:hover {
   background: var(--xibalba-bg-hover);
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: transparent !important;
   box-shadow: var(--shadow-md);
   transform: translateY(-1px);
 }
@@ -251,12 +257,12 @@ body {
 
 .xibalba-action-center-urgency-high {
   background: rgba(255, 152, 0, 0.2);
-  border-color: rgba(255, 152, 0, 0.4);
+  border-color: transparent !important;
 }
 
 .xibalba-action-center-urgency-medium {
   background: var(--xibalba-bg-tertiary);
-  border-color: rgba(255, 255, 255, 0.1);
+  border-color: transparent !important;
 }
 
 .xibalba-action-center-urgency-low {
@@ -341,7 +347,7 @@ body {
   width: 32px;
   height: 32px;
   background: var(--xibalba-bg-tertiary);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: none !important;
   border-radius: 4px;
   color: var(--xibalba-text-secondary);
   cursor: pointer;
@@ -350,7 +356,7 @@ body {
 
 .xibalba-action-center-expand:hover {
   background: var(--xibalba-bg-hover);
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: transparent !important;
   color: var(--xibalba-text-primary);
 }
 
@@ -365,10 +371,10 @@ body {
   min-width: 280px;
   max-width: 400px;
   background: var(--xibalba-bg-secondary);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: none !important;
   border-radius: 6px;
   box-shadow: var(--shadow-lg);
-  z-index: 1000;
+  z-index: var(--z-modal);
   padding: 8px;
   animation: xibalba-fade-in var(--transition-fast) ease-out;
 }
@@ -423,7 +429,7 @@ body {
 .xibalba-action-center-spinner {
   width: 16px;
   height: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  border: none !important;
   border-top-color: var(--xibalba-accent);
   border-radius: 50%;
   animation: xibalba-spin 0.8s linear infinite;
@@ -436,8 +442,8 @@ body {
 /* TaskCard Styles */
 .xibalba-task-card {
   background: var(--xibalba-bg-secondary);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-left: 4px solid;
+  border: none !important;
+  border-left: none !important;
   border-radius: 6px;
   padding: 12px;
   margin-bottom: 8px;
@@ -447,7 +453,7 @@ body {
 }
 
 .xibalba-task-card:hover {
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: transparent !important;
   box-shadow: var(--shadow-md);
   transform: translateY(-1px);
 }
@@ -499,7 +505,7 @@ body {
   align-items: center;
   padding: 2px 6px;
   background: var(--xibalba-bg-tertiary);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: none !important;
   border-radius: 3px;
   font-size: 10px;
   color: var(--xibalba-text-secondary);
@@ -531,7 +537,7 @@ body {
   align-items: center;
   justify-content: space-between;
   padding-top: 8px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: none !important;
 }
 
 .xibalba-task-card-avatar {
@@ -565,7 +571,7 @@ body {
   gap: 4px;
   padding: 4px 8px;
   background: var(--xibalba-bg-tertiary);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: none !important;
   border-radius: 4px;
   font-size: 11px;
   color: var(--xibalba-text-secondary);
@@ -575,7 +581,7 @@ body {
 
 .xibalba-task-card-assign-button:hover {
   background: var(--xibalba-bg-hover);
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: transparent !important;
   color: var(--xibalba-text-primary);
 }
 
@@ -631,7 +637,7 @@ body {
   width: 24px;
   height: 24px;
   background: var(--xibalba-bg-tertiary);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: none !important;
   border-radius: 4px;
   color: var(--xibalba-text-secondary);
   cursor: pointer;
@@ -640,7 +646,7 @@ body {
 
 .xibalba-task-card-quick-action:hover {
   background: var(--xibalba-bg-hover);
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: transparent !important;
   color: var(--xibalba-text-primary);
 }
 
@@ -687,7 +693,7 @@ body {
   min-width: 280px;
   max-width: 320px;
   background: var(--xibalba-bg-secondary);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: none !important;
   border-radius: 8px;
   display: flex;
   flex-direction: column;
@@ -695,13 +701,13 @@ body {
 }
 
 .xibalba-sprintboard-column:hover {
-  border-color: rgba(255, 255, 255, 0.15);
+  border-color: transparent !important;
   box-shadow: var(--shadow-md);
 }
 
 .xibalba-sprintboard-column-selected {
   border-color: var(--xibalba-accent);
-  box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.2);
+  box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.2);
 }
 
 .xibalba-sprintboard-column-header {
@@ -709,7 +715,7 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: none !important;
   background: var(--xibalba-bg-tertiary);
   border-radius: 8px 8px 0 0;
 }
@@ -731,7 +737,7 @@ body {
   height: 24px;
   padding: 0 8px;
   background: var(--xibalba-bg-primary);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: none !important;
   border-radius: 12px;
   font-size: 11px;
   font-weight: 600;
@@ -755,13 +761,13 @@ body {
   color: var(--xibalba-text-muted);
   text-align: center;
   gap: 8px;
-  border: 2px dashed rgba(255, 255, 255, 0.1);
+  border: none !important;
   border-radius: 6px;
   transition: all var(--transition-fast);
 }
 
 .xibalba-sprintboard-column-empty:hover {
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: transparent !important;
   background: var(--xibalba-bg-tertiary);
 }
 
@@ -777,7 +783,7 @@ body {
   display: flex;
   flex-direction: column;
   background: var(--xibalba-bg-secondary);
-  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  border-left: none !important;
 }
 
 .xibalba-inspector-panel-empty {
@@ -797,7 +803,7 @@ body {
 
 .xibalba-inspector-panel-header {
   padding: 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: none !important;
   background: var(--xibalba-bg-tertiary);
 }
 
@@ -834,7 +840,7 @@ body {
   display: flex;
   gap: 4px;
   padding: 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: none !important;
   background: var(--xibalba-bg-secondary);
   overflow-x: auto;
 }
@@ -933,7 +939,7 @@ body {
 .xibalba-inspector-panel-comment {
   padding: 12px;
   background: var(--xibalba-bg-tertiary);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: none !important;
   border-radius: 6px;
 }
 
@@ -955,7 +961,7 @@ body {
 .xibalba-inspector-panel-attachment {
   padding: 8px 12px;
   background: var(--xibalba-bg-tertiary);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: none !important;
   border-radius: 4px;
 }
 

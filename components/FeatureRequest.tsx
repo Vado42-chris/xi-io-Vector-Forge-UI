@@ -92,11 +92,11 @@ const FeatureRequest: React.FC<FeatureRequestProps> = ({ onClose, onRequestSubmi
         <h3 className="text-lg font-black text-[var(--xibalba-text-000)] mb-2">
           Feature Request Submitted
         </h3>
-        <p className="text-sm text-[var(--xibalba-text-200)] mb-4">
+        <p className="text-sm text-[var(--xibalba-text-100)] mb-4">
           Thank you for your suggestion!
         </p>
         {requestId && (
-          <p className="text-xs text-[var(--xibalba-text-300)] font-mono">
+          <p className="text-xs text-[var(--xibalba-text-100)] font-mono">
             Request ID: {requestId}
           </p>
         )}
@@ -127,7 +127,7 @@ const FeatureRequest: React.FC<FeatureRequestProps> = ({ onClose, onRequestSubmi
         {/* Title */}
         <div>
           <label className="xibalba-label-professional mb-1 block">
-            Feature Title <span className="text-red-400">*</span>
+            Feature Title <span className="text-[var(--vectorforge-accent)]">*</span>
           </label>
           <input
             type="text"
@@ -142,7 +142,7 @@ const FeatureRequest: React.FC<FeatureRequestProps> = ({ onClose, onRequestSubmi
         {/* Description */}
         <div>
           <label className="xibalba-label-professional mb-1 block">
-            Description <span className="text-red-400">*</span>
+            Description <span className="text-[var(--vectorforge-accent)]">*</span>
           </label>
           <textarea
             value={description}

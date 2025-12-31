@@ -3,6 +3,7 @@
 ## Overview
 
 VectorForge is built on a modular, service-oriented architecture that enables:
+
 - **Progressive patching** - Small, incremental updates
 - **Error intelligence** - Automatic error detection and repair
 - **USB deployment** - Standalone installation from USB keys
@@ -11,7 +12,9 @@ VectorForge is built on a modular, service-oriented architecture that enables:
 ## Core Principles
 
 ### 1. Modular Services
+
 Each service is self-contained and can be updated independently:
+
 - `apiService.ts` - API communication
 - `checkpointService.ts` - State checkpointing (prevents information loss)
 - `focusManager.ts` - AI agent focus tracking
@@ -22,6 +25,7 @@ Each service is self-contained and can be updated independently:
 - `errorIntelligence.ts` - Error analysis and repair suggestions
 
 ### 2. Progressive Patching
+
 - Small patches (2-5 files per patch)
 - MVP checkpoints for validation
 - Browser testing at each checkpoint
@@ -29,6 +33,7 @@ Each service is self-contained and can be updated independently:
 - GitHub sync after each patch
 
 ### 3. Error Intelligence
+
 - Automatic error detection
 - Pattern recognition
 - Suggested fixes
@@ -36,6 +41,7 @@ Each service is self-contained and can be updated independently:
 - Error reporting and analytics
 
 ### 4. USB Deployment
+
 - Standalone installation
 - Error tracking on USB
 - Repair tools included
@@ -45,20 +51,25 @@ Each service is self-contained and can be updated independently:
 ## Architecture Layers
 
 ### Layer 1: Services
+
 Self-contained business logic modules
 
 ### Layer 2: Components
+
 React UI components that consume services
 
 ### Layer 3: Data
+
 Configuration and registry data (JSON)
 
 ### Layer 4: Infrastructure
+
 Build tools, installers, error tracking
 
 ## Service Communication
 
 Services communicate via:
+
 - Direct imports (synchronous)
 - Event system (asynchronous)
 - State management (shared state)
@@ -66,6 +77,7 @@ Services communicate via:
 ## Error Handling
 
 All services implement:
+
 - Try/catch error boundaries
 - Error logging
 - Error reporting

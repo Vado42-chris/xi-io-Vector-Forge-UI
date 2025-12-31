@@ -1,0 +1,80 @@
+/**
+ * Progress Bar Styles
+ * Uses CSS custom properties for dynamic width values
+ * 
+ * #hashtag: progress-bar component-isolation
+ */
+
+/* Progress bar container */
+.progress-bar-container {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  background: var(--xibalba-grey-200);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+/* Progress bar fill - uses CSS custom property for width */
+.progress-bar-fill {
+  height: 100%;
+  width: var(--progress-width, var(--progress-value, 0%));
+  background: var(--xibalba-accent, #ff9800);
+  border-radius: 4px;
+  transition: width var(--transition-smooth);
+}
+
+/* Workflow progress bar */
+.workflow-progress-bar {
+  position: relative;
+  width: 100%;
+  height: 6px;
+  background: var(--xibalba-grey-200);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.workflow-progress-fill {
+  height: 100%;
+  width: var(--workflow-progress, 0%);
+  background: var(--xibalba-accent, #ff9800);
+  border-radius: 3px;
+  transition: width var(--transition-smooth);
+}
+
+/* Test generation progress */
+.test-progress-bar {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  background: var(--xibalba-grey-200);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.test-progress-fill {
+  height: 100%;
+  width: var(--test-progress, 0%);
+  background: var(--xibalba-accent, #ff9800);
+  border-radius: 4px;
+  transition: width var(--transition-smooth);
+}
+
+/* Schema export progress */
+.schema-export-progress-bar {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  background: var(--xibalba-grey-200);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.schema-export-progress-fill {
+  height: 100%;
+  width: var(--schema-export-progress, 0%);
+  background: var(--xibalba-accent, #ff9800);
+  border-radius: 4px;
+  transition: width var(--transition-smooth);
+}
+

@@ -1,0 +1,10 @@
+{
+  "id": "api-route",
+  "name": "API Route",
+  "description": "Express.js API route with validation",
+  "category": "api-routes",
+  "tags": ["express", "api", "node"],
+  "icon": "🌐",
+  "code": "import express from 'express';\n\nconst router = express.Router();\n\nrouter.post('/{{endpoint}}', async (req, res) => {\n  try {\n    // Validation\n    // Business logic\n    res.json({ success: true });\n  } catch (error) {\n    res.status(500).json({ error: error.message });\n  }\n});\n\nexport default router;"
+}
+

@@ -4,8 +4,9 @@
  * Power users can build their own workspace layouts
  */
 
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { DraggablePalette, PalettePosition } from './PaletteDockingSystem';
+import { templateFrameService } from '../services/templateFrameService';
 
 export interface PaletteItem {
   id: string;
@@ -123,7 +124,7 @@ export const CustomPaletteBuilder: React.FC<CustomPaletteBuilderProps> = ({
               <div className="xibalba-text-subheading">{palette.name}</div>
               <div className="xibalba-text-caption">
                 {palette.items.length} items
-                {palette.attachedToFrame && ` • Attached to frame`}
+                {palette.attachedToFrame && templateFrameService.frameExists(palette.attachedToFrame) && ` • Attached to frame: ${templateFrameService.getFrame(palette.attachedToFrame)?.name || palette.attachedToFrame}`}
               </div>
             </div>
             <div className="flex gap-2">
@@ -173,6 +174,33 @@ export const CustomPaletteRenderer: React.FC<{
   const [isEditing, setIsEditing] = useState(false);
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
 
+  // Template frame attachment handling
+  useEffect(() => {
+    if (palette.attachedToFrame) {
+      const frameId = palette.attachedToFrame;
+      
+      if (templateFrameService.frameExists(frameId)) {
+        const success = templateFrameService.attachComponent(frameId, palette.id);
+        if (!success) {
+          console.warn(
+            `Failed to attach palette ${palette.id} to frame ${frameId}`
+          );
+        }
+        
+        return () => {
+          // Cleanup: detach on unmount
+          if (templateFrameService.frameExists(frameId)) {
+            templateFrameService.detachComponent(frameId, palette.id);
+          }
+        };
+      } else {
+        console.warn(
+          `Template frame ${frameId} does not exist for palette ${palette.id}`
+        );
+      }
+    }
+  }, [palette.id, palette.attachedToFrame]);
+
   const handleItemDragStart = (itemId: string) => {
     setDraggedItem(itemId);
   };
@@ -187,6 +215,11 @@ export const CustomPaletteRenderer: React.FC<{
     }
   };
 
+  // Template frame context class
+  const templateFrameClass = palette.attachedToFrame && templateFrameService.frameExists(palette.attachedToFrame)
+    ? 'template-frame-attached'
+    : '';
+
   return (
     <DraggablePalette
       id={palette.id}
@@ -197,11 +230,12 @@ export const CustomPaletteRenderer: React.FC<{
       defaultWidth={palette.position.width || 250}
       defaultHeight={palette.position.height || 400}
       resizable={true}
+      className={templateFrameClass}
     >
       <div className="p-3 space-y-2">
         {/* Edit Mode Toggle */}
         <div className="flex items-center justify-between pb-2 border-b border-white/10">
-          <span className="xibalba-text-caption text-[8px] uppercase">
+          <span className="xibalba-text-caption text-xs uppercase">
             {palette.items.length} items
           </span>
           <button
@@ -233,14 +267,14 @@ export const CustomPaletteRenderer: React.FC<{
                 ${isEditing ? 'cursor-move hover:bg-[var(--xibalba-grey-150)]' : ''}
               `}
             >
-              <span className="material-symbols-outlined text-[16px]">{item.icon}</span>
+              <span className="material-symbols-outlined text-[16px]" aria-hidden="true" data-icon={item.icon}></span>
               <span className="xibalba-text-xs flex-1">{item.label}</span>
               {isEditing && (
                 <button
                   onClick={() => onItemRemove(item.id)}
                   className="xibalba-toolbar-button-professional size-5 opacity-0 group-hover:opacity-100"
                 >
-                  <span className="material-symbols-outlined text-[12px]">close</span>
+                  <span className="material-symbols-outlined text-[12px]" aria-hidden="true" data-icon="close"></span>
                 </button>
               )}
               {!isEditing && item.action && (
@@ -248,7 +282,7 @@ export const CustomPaletteRenderer: React.FC<{
                   onClick={item.action}
                   className="xibalba-toolbar-button-professional size-6"
                 >
-                  <span className="material-symbols-outlined text-[14px]">play_arrow</span>
+                  <span className="material-symbols-outlined text-[14px]" aria-hidden="true" data-icon="play_arrow"></span>
                 </button>
               )}
             </div>
@@ -258,7 +292,7 @@ export const CustomPaletteRenderer: React.FC<{
         {/* Add Items (Edit Mode) */}
         {isEditing && (
           <div className="pt-3 border-t border-white/10 space-y-2">
-            <div className="xibalba-text-caption text-[8px] uppercase mb-2">
+            <div className="xibalba-text-caption text-xs uppercase mb-2">
               Add Items
             </div>
             <div className="max-h-48 overflow-y-auto xibalba-scrollbar space-y-1">
@@ -270,7 +304,7 @@ export const CustomPaletteRenderer: React.FC<{
                     onClick={() => onItemAdd(item)}
                     className="w-full flex items-center gap-2 p-2 hover:bg-[var(--xibalba-grey-150)] text-left"
                   >
-                    <span className="material-symbols-outlined text-[16px]">{item.icon}</span>
+                    <span className="material-symbols-outlined text-[16px]" aria-hidden="true" data-icon={item.icon}></span>
                     <span className="xibalba-text-xs flex-1">{item.label}</span>
                     <span className="material-symbols-outlined text-[14px] opacity-50">add</span>
                   </button>

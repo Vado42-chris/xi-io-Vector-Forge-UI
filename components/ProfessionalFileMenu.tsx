@@ -8,6 +8,7 @@ import React, { useState } from 'react';
 import XibalbaLogomark from './XibalbaLogomark';
 import LayoutSwitcher from './LayoutSwitcher';
 import Tooltip from './Tooltip';
+import { Button } from './shared/templates/Button';
 
 // Submenu definitions
 type MenuItem = 
@@ -464,6 +465,8 @@ const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({ onAction, o
         { divider: true },
         { label: 'Show Rulers', action: 'VIEW_SHOW_RULERS', shortcut: 'Ctrl+R', icon: 'straighten' },
         { label: 'Show Grid', action: 'VIEW_SHOW_GRID', shortcut: 'Ctrl+\'', icon: 'grid_on' },
+        { divider: true },
+        { label: '💬 Dev Chat', action: 'VIEW_DEV_CHAT', shortcut: 'Ctrl+K', icon: 'chat', description: 'Open Dev Chat - Self-Modifying AI' },
         { label: 'Show Guides', action: 'VIEW_SHOW_GUIDES', shortcut: 'Ctrl+;', icon: 'drag_indicator' },
         { label: 'Smart Guides', action: 'VIEW_SMART_GUIDES', shortcut: 'Ctrl+U', icon: 'auto_awesome' },
         { divider: true },
@@ -496,6 +499,8 @@ const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({ onAction, o
         { label: 'Transform', action: 'WINDOW_TRANSFORM', shortcut: 'Shift+F8', icon: 'transform' },
         { label: 'Transparency', action: 'WINDOW_TRANSPARENCY', shortcut: 'Shift+Ctrl+F10', icon: 'layers' },
         { label: 'Type', action: 'WINDOW_TYPE', shortcut: '', icon: 'text_fields', submenu: true },
+        { divider: true },
+        { label: '💬 Dev Chat', action: 'VIEW_DEV_CHAT', shortcut: 'Ctrl+K', icon: 'chat', description: 'Self-Modifying AI Assistant' },
         { divider: true },
         { label: 'Bug Reporter', action: 'WINDOW_BUG_REPORTER', shortcut: '', icon: 'bug_report' },
         { label: 'Feature Request', action: 'WINDOW_FEATURE_REQUEST', shortcut: '', icon: 'lightbulb' },
@@ -556,8 +561,7 @@ const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({ onAction, o
               className="menu-container relative xibalba-header-menu-button"
             >
               <button 
-                className={`px-5 text-sm font-black uppercase tracking-widest bg-transparent border-none hover:bg-[var(--xibalba-bg-hover)] transition-colors ${activeMenu === menu.label ? 'bg-[var(--xibalba-bg-tertiary)]' : ''}`}
-                className="xibalba-header-menu-label"
+                className={`xibalba-header-menu-label px-5 text-sm font-black uppercase tracking-widest bg-transparent border-none hover:bg-[var(--xibalba-bg-hover)] transition-colors ${activeMenu === menu.label ? 'bg-[var(--xibalba-bg-tertiary)]' : ''}`}
                 onMouseEnter={() => {
                   if (menuTimeoutRef.current) {
                     clearTimeout(menuTimeoutRef.current);
@@ -571,13 +575,27 @@ const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({ onAction, o
                     setActiveMenu(null);
                   }, 150);
                 }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setActiveMenu(activeMenu === menu.label ? null : menu.label);
+                  } else if (e.key === 'Escape') {
+                    setActiveMenu(null);
+                  } else if (e.key === 'ArrowDown' && !activeMenu) {
+                    e.preventDefault();
+                    setActiveMenu(menu.label);
+                  }
+                }}
+                aria-haspopup="true"
+                aria-expanded={activeMenu === menu.label}
+                tabIndex={0}
               >
                 {menu.label}
               </button>
               
               {activeMenu === menu.label && (
                 <div 
-                  className="xibalba-card menu-dropdown absolute top-full left-0 mt-1 w-64 py-0 zstack-dropdown xibalba-animate-in max-h-[80vh] overflow-hidden"
+                  className="xibalba-card menu-dropdown absolute top-full left-0 mt-1 w-64 py-0 zstack-dropdown xibalba-animate-in max-h-[80vh] overflow-hidden relative"
                   onMouseEnter={() => {
                     if (menuTimeoutRef.current) {
                       clearTimeout(menuTimeoutRef.current);
@@ -591,6 +609,9 @@ const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({ onAction, o
                     }, 150);
                   }}
                 >
+                  {/* Construction Paper Intermediary Layer for Text Readability */}
+                  <div className="construction-paper-layer-menu" />
+                  
                   {/* Scrollable content area - only shows scrollbar when needed */}
                   <div className="menu-items-container max-h-[80vh] overflow-y-auto relative z-10">
                   {menu.items.map((item, idx) => {
@@ -654,7 +675,7 @@ const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({ onAction, o
                         </Button>
                         {hasSubmenu && activeSubmenu === submenuId && submenuItems.length > 0 && (
                           <div 
-                            className="xibalba-card menu-dropdown absolute left-full top-0 ml-1 w-56 py-0 zstack-submenu xibalba-animate-in"
+                            className="xibalba-card menu-dropdown absolute left-full top-0 ml-1 w-56 py-0 zstack-submenu xibalba-animate-in relative"
                             onMouseEnter={() => {
                               if (submenuTimeoutRef.current) {
                                 clearTimeout(submenuTimeoutRef.current);
@@ -669,6 +690,8 @@ const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({ onAction, o
                             }}
                           >
                             {/* Construction Paper Intermediary Layer for Text Readability */}
+                            <div className="construction-paper-layer-menu" />
+                            
                             {submenuItems.map((subItem, subIdx) => (
                               <Button
                                 key={subIdx}

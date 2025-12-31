@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dev Chat Test - Standalone</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #fff;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #252525;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background: #2d5016; color: #4caf50; }
+        .error { background: #5d1f1f; color: #f44336; }
+        .info { background: #1e3a5f; color: #2196f3; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Dev Chat Standalone Test</h1>
+        <div id="status"></div>
+        <div id="root"></div>
+    </div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // Minimal Dev Chat Test Component
+        function DevChatTest() {
+            const [messages, setMessages] = useState([
+                { id: '1', role: 'system', content: '✅ Dev Chat Test - If you see this, React is working!' }
+            ]);
+            const [input, setInput] = useState('');
+            const inputRef = useRef(null);
+
+            const handleSend = () => {
+                if (!input.trim()) return;
+                
+                const userMsg = { id: Date.now().toString(), role: 'user', content: input };
+                setMessages(prev => [...prev, userMsg]);
+                
+                // Simulate response
+                setTimeout(() => {
+                    const response = { 
+                        id: (Date.now() + 1).toString(), 
+                        role: 'assistant', 
+                        content: `You said: "${input}". This is a test response.` 
+                    };
+                    setMessages(prev => [...prev, response]);
+                }, 500);
+                
+                setInput('');
+            };
+
+            useEffect(() => {
+                inputRef.current?.focus();
+            }, []);
+
+            return (
+                <div style={{ 
+                    background: '#1a1a1a', 
+                    padding: '20px', 
+                    borderRadius: '8px',
+                    minHeight: '400px',
+                    display: 'flex',
+                    flexDirection: 'column'
+                }}>
+                    <h2 style={{ marginTop: 0 }}>💬 Dev Chat Test</h2>
+                    
+                    <div style={{ 
+                        flex: 1, 
+                        overflowY: 'auto', 
+                        marginBottom: '20px',
+                        padding: '10px',
+                        background: '#0a0a0a',
+                        borderRadius: '4px'
+                    }}>
+                        {messages.map(msg => (
+                            <div key={msg.id} style={{ 
+                                marginBottom: '10px',
+                                padding: '8px',
+                                background: msg.role === 'user' ? '#2d2d2d' : '#1a1a1a',
+                                borderRadius: '4px'
+                            }}>
+                                <strong>{msg.role === 'user' ? 'You' : 'Bot'}:</strong> {msg.content}
+                            </div>
+                        ))}
+                    </div>
+                    
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                        <input
+                            ref={inputRef}
+                            type="text"
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                            placeholder="Type a message..."
+                            style={{
+                                flex: 1,
+                                padding: '10px',
+                                background: '#2d2d2d',
+                                border: '1px solid #444',
+                                borderRadius: '4px',
+                                color: '#fff'
+                            }}
+                        />
+                        <button
+                            onClick={handleSend}
+                            style={{
+                                padding: '10px 20px',
+                                background: '#ff9800',
+                                border: 'none',
+                                borderRadius: '4px',
+                                color: '#fff',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            Send
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        // Status display
+        function StatusDisplay() {
+            const [status, setStatus] = useState('info');
+            const [message, setMessage] = useState('Loading...');
+
+            useEffect(() => {
+                // Test if React is working
+                if (typeof React !== 'undefined' && typeof ReactDOM !== 'undefined') {
+                    setStatus('success');
+                    setMessage('✅ React loaded successfully!');
+                } else {
+                    setStatus('error');
+                    setMessage('❌ React failed to load');
+                }
+            }, []);
+
+            return (
+                <div className={`status ${status}`}>
+                    {message}
+                </div>
+            );
+        }
+
+        // Render
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(
+            <React.StrictMode>
+                <StatusDisplay />
+                <DevChatTest />
+            </React.StrictMode>
+        );
+
+        // Update status
+        const statusRoot = ReactDOM.createRoot(document.getElementById('status'));
+        statusRoot.render(<StatusDisplay />);
+    </script>
+</body>
+</html>
+

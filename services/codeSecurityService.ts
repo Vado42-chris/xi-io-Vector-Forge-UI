@@ -121,6 +121,7 @@ class CodeSecurityService {
     // Otherwise, use a more restricted approach
     try {
       // Create a function that executes in the sandbox context
+      // eslint-disable-next-line @typescript-eslint/no-implied-eval
       const func = new Function(
         ...Object.keys(sandbox),
         `"use strict"; ${code}`

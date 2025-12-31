@@ -32,9 +32,9 @@ const ProgressFill: React.FC<{
   const progressBarClasses = {
     default: 'bg-[var(--xibalba-accent)]',
     accent: 'bg-[var(--xibalba-accent)]',
-    success: 'bg-green-500',
-    warning: 'bg-yellow-500',
-    error: 'bg-red-500'
+    success: 'bg-[var(--vectorforge-accent)]',
+    warning: 'bg-[var(--vectorforge-accent)]',
+    error: 'bg-[var(--vectorforge-accent)]'
   };
 
   useEffect(() => {
@@ -71,9 +71,9 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
   const variantClasses = {
     default: 'bg-[var(--xibalba-grey-200)]',
     accent: 'bg-[var(--xibalba-accent)]',
-    success: 'bg-green-500',
-    warning: 'bg-yellow-500',
-    error: 'bg-red-500'
+    success: 'bg-[var(--vectorforge-accent)]',
+    warning: 'bg-[var(--vectorforge-accent)]',
+    error: 'bg-[var(--vectorforge-accent)]'
   };
 
   const isIndeterminate = progress === undefined;
@@ -85,12 +85,12 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
       {(label || showPercentage) && (
         <div className="flex items-center justify-between">
           {label && (
-            <span className="xibalba-text-caption text-[var(--xibalba-text-200)]">
+            <span className="xibalba-text-caption text-[var(--xibalba-text-100)]">
               {label}
             </span>
           )}
           {showPercentage && !isIndeterminate && (
-            <span className="xibalba-text-caption font-mono text-[var(--xibalba-text-200)]">
+            <span className="xibalba-text-caption font-mono text-[var(--xibalba-text-100)]">
               {Math.round(displayProgress)}%
             </span>
           )}

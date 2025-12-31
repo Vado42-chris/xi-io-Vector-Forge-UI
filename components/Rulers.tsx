@@ -1,5 +1,5 @@
 
-import React, { useRef, useEffect } from 'react';
+import React from 'react';
 
 interface RulersProps {
   zoom: number;
@@ -22,18 +22,17 @@ const Rulers: React.FC<RulersProps> = ({ zoom, pan, onAddGuide }) => {
       >
         <div className="relative h-full flex items-end px-2 ruler-horizontal-container">
           {Array.from({ length: 100 }).map((_, i) => {
-            const ref = useRef<HTMLDivElement>(null);
-            useEffect(() => {
-              if (ref.current) {
-                ref.current.style.setProperty('--ruler-pan-x', `${pan.x}px`);
-                ref.current.style.setProperty('--ruler-mark-left', `${i * step}px`);
-              }
-            }, [pan.x, i, step]);
             return (
-            <div key={i} ref={ref} className="absolute bottom-0 flex flex-col items-center ruler-mark-horizontal">
+            <div 
+              key={i} 
+              className="absolute bottom-0 flex flex-col items-center ruler-mark-horizontal"
+              data-ruler-pan-x={pan.x}
+              data-ruler-mark-left={i * step}
+              className="ruler-mark-horizontal"
+            >
               <div className={`w-px ${i % 2 === 0 ? 'h-3 bg-[var(--xibalba-text-200)]/40' : 'h-1.5 bg-[var(--xibalba-grey-300)]'}`}></div>
               {i % 2 === 0 && (
-                <span className="text-[7px] font-mono text-[var(--xibalba-text-300)] absolute -top-4">{i * 50}</span>
+                <span className="text-[7px] font-mono text-[var(--xibalba-text-100)] absolute -top-4">{i * 50}</span>
               )}
             </div>
             );
@@ -51,18 +50,20 @@ const Rulers: React.FC<RulersProps> = ({ zoom, pan, onAddGuide }) => {
       >
         <div className="relative w-full flex flex-col items-end py-2 ruler-vertical-container">
           {Array.from({ length: 100 }).map((_, i) => {
-            const ref = useRef<HTMLDivElement>(null);
-            useEffect(() => {
-              if (ref.current) {
-                ref.current.style.setProperty('--ruler-pan-y', `${pan.y}px`);
-                ref.current.style.setProperty('--ruler-mark-top', `${i * step}px`);
-              }
-            }, [pan.y, i, step]);
             return (
-            <div key={i} ref={ref} className="absolute right-0 flex items-center ruler-mark-vertical">
+            <div 
+              key={i} 
+              ref={(node) => {
+                if (node) {
+                  node.style.setProperty('--ruler-pan-y', `${pan.y}px`);
+                  node.style.setProperty('--ruler-mark-top', `${i * step}px`);
+                }
+              }}
+              className="absolute right-0 flex items-center ruler-mark-vertical"
+            >
               <div className={`h-px ${i % 2 === 0 ? 'w-3 bg-[var(--xibalba-text-200)]/40' : 'w-1.5 bg-[var(--xibalba-grey-300)]'}`}></div>
               {i % 2 === 0 && (
-                <span className="text-[7px] font-mono text-[var(--xibalba-text-300)] absolute -left-6 transform -rotate-90">{i * 50}</span>
+                <span className="text-[7px] font-mono text-[var(--xibalba-text-100)] absolute -left-6 transform -rotate-90">{i * 50}</span>
               )}
             </div>
             );

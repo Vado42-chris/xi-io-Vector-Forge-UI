@@ -1,10 +1,10 @@
 /**
  * Action Center Component
  * Surfaces the single most actionable item for the user at any given moment.
- * 
+ *
  * Date: December 27, 2025
  * Approved By: Chris Hallberg, CEO, Xibalba Mixed Media Studio
- * 
+ *
  * Patent Tracking: This component implements the "Single Most Actionable Item" pattern
  * which may be patentable as a UI/UX innovation for reducing cognitive load.
  */
@@ -44,11 +44,11 @@ const ActionCenter: React.FC<ActionCenterProps> = ({ userId, onAction }) => {
     setLoading(true);
     const sessionId = workTrackingService.startSession('ActionCenter', 'determine-action');
     workTrackingService.recordCalculation();
-    
+
     try {
       // Get user's tasks
       const userTasks = userId
-        ? await taskManagementService.getTasks({ assignedTo: userId })
+        ? await taskManagementService.getTasks({ assignee: userId })
         : await taskManagementService.getTasks();
 
       // Priority order:
@@ -60,7 +60,7 @@ const ActionCenter: React.FC<ActionCenterProps> = ({ userId, onAction }) => {
       // 6. AI suggestions
 
       const blockedTasks = userTasks.filter(
-        task => task.status === 'blocked' && task.assignedTo === userId
+        task => task.status === 'blocked' && (task.assignee?.id === userId || task.assignee === userId)
       );
       const dueToday = userTasks.filter(task => {
         if (!task.dueDate) return false;
@@ -84,7 +84,7 @@ const ActionCenter: React.FC<ActionCenterProps> = ({ userId, onAction }) => {
           label: 'Resolve Blocker',
           description: `Task "${task.title}" is blocked`,
           action: () => {
-            clickTrackingService.trackClick('ActionCenter', 'resolve-blocker', task.id, {
+            clickTrackingService.trackClick('ActionCenter', 'resolve-blocker', 'Resolve Blocker', 'click', {
               taskId: task.id,
               taskTitle: task.title,
             });
@@ -108,7 +108,7 @@ const ActionCenter: React.FC<ActionCenterProps> = ({ userId, onAction }) => {
           label: 'Complete Task',
           description: `Task "${task.title}" is due today`,
           action: () => {
-            clickTrackingService.trackClick('ActionCenter', 'complete-due-task', task.id, {
+            clickTrackingService.trackClick('ActionCenter', 'complete-due-task', 'Complete Task', 'click', {
               taskId: task.id,
               taskTitle: task.title,
             });
@@ -131,7 +131,7 @@ const ActionCenter: React.FC<ActionCenterProps> = ({ userId, onAction }) => {
           label: 'Review & Approve',
           description: `Task "${task.title}" is pending review`,
           action: () => {
-            clickTrackingService.trackClick('ActionCenter', 'review-task', task.id, {
+            clickTrackingService.trackClick('ActionCenter', 'review-task', 'Review Task', 'click', {
               taskId: task.id,
               taskTitle: task.title,
             });
@@ -154,7 +154,7 @@ const ActionCenter: React.FC<ActionCenterProps> = ({ userId, onAction }) => {
           label: 'Continue Work',
           description: `Continue working on "${task.title}"`,
           action: () => {
-            clickTrackingService.trackClick('ActionCenter', 'continue-task', task.id, {
+            clickTrackingService.trackClick('ActionCenter', 'continue-task', 'Continue Task', 'click', {
               taskId: task.id,
               taskTitle: task.title,
             });
@@ -176,12 +176,233 @@ const ActionCenter: React.FC<ActionCenterProps> = ({ userId, onAction }) => {
           label: 'All Caught Up',
           description: 'No urgent actions at this time',
           action: () => {
-            clickTrackingService.trackClick('ActionCenter', 'view-all-tasks', 'no-urgent', {});
+            clickTrackingService.trackClick('ActionCenter', 'view-all-tasks', 'View All Tasks', 'click', {});
             setIsExpanded(true);
           },
           urgency: 'low',
-          context: 'You\'re all caught up!',
+          context: "You're all caught up!",
           icon: 'check_circle',
+        });
+      }
+
+      // Add UI automation actions if no urgent tasks
+      if (actions.length === 0 || actions[0].id === 'no-urgent-actions') {
+        actions.push({
+          id: 'setup-project',
+          label: 'Set Up Project',
+          description: 'Open Project Wizard to create a new project',
+          action: () => {
+            clickTrackingService.trackClick(
+              'ActionCenter',
+              'open-project-wizard',
+              'Set Up Project',
+              'click',
+              {}
+            );
+            // Trigger ProjectWizard - this would be handled by parent component
+            if (onAction) {
+              onAction({
+                id: 'setup-project',
+                label: 'Set Up Project',
+                description: '',
+                action: () => {},
+                urgency: 'low',
+                context: '',
+              });
+            }
+          },
+          urgency: 'low',
+          context: 'Create a new project',
+          icon: 'folder',
+        });
+        actions.push({
+          id: 'browse-templates',
+          label: 'Browse Templates',
+          description: 'Open Template Library to browse code templates',
+          action: () => {
+            clickTrackingService.trackClick(
+              'ActionCenter',
+              'open-template-library',
+              'Browse Templates',
+              'click',
+              {}
+            );
+            if (onAction) {
+              onAction({
+                id: 'browse-templates',
+                label: 'Browse Templates',
+                description: '',
+                action: () => {},
+                urgency: 'low',
+                context: '',
+              });
+            }
+          },
+          urgency: 'low',
+          context: 'Browse code templates',
+          icon: 'library_books',
+        });
+        actions.push({
+          id: 'generate-tests',
+          label: 'Generate Tests',
+          description: 'Open Test Generator to create test files',
+          action: () => {
+            clickTrackingService.trackClick(
+              'ActionCenter',
+              'open-test-generator',
+              'Generate Tests',
+              'click',
+              {}
+            );
+            if (onAction) {
+              onAction({
+                id: 'generate-tests',
+                label: 'Generate Tests',
+                description: '',
+                action: () => {},
+                urgency: 'low',
+                context: '',
+              });
+            }
+          },
+          urgency: 'low',
+          context: 'Generate test files',
+          icon: 'science',
+        });
+        actions.push({
+          id: 'fix-menu-actions',
+          label: 'Fix Menu Actions',
+          description: 'Open Action Center Audit to fix missing menu handlers',
+          action: () => {
+            clickTrackingService.trackClick(
+              'ActionCenter',
+              'open-action-audit',
+              'Fix Menu Actions',
+              'click',
+              {}
+            );
+            if (onAction) {
+              onAction({
+                id: 'fix-menu-actions',
+                label: 'Fix Menu Actions',
+                description: '',
+                action: () => {},
+                urgency: 'low',
+                context: '',
+              });
+            }
+          },
+          urgency: 'low',
+          context: 'Audit and fix menu actions',
+          icon: 'checklist',
+        });
+        actions.push({
+          id: 'create-schema',
+          label: 'Create Schema',
+          description: 'Open Schema Builder to create JSON schemas',
+          action: () => {
+            clickTrackingService.trackClick(
+              'ActionCenter',
+              'open-schema-builder',
+              'Create Schema',
+              'click',
+              {}
+            );
+            if (onAction) {
+              onAction({
+                id: 'create-schema',
+                label: 'Create Schema',
+                description: '',
+                action: () => {},
+                urgency: 'low',
+                context: '',
+              });
+            }
+          },
+          urgency: 'low',
+          context: 'Create JSON schema',
+          icon: 'schema',
+        });
+        actions.push({
+          id: 'batch-operations',
+          label: 'Batch Create Files',
+          description: 'Open Batch Operations Panel for file operations',
+          action: () => {
+            clickTrackingService.trackClick(
+              'ActionCenter',
+              'open-batch-operations',
+              'Batch Create Files',
+              'click',
+              {}
+            );
+            if (onAction) {
+              onAction({
+                id: 'batch-operations',
+                label: 'Batch Create Files',
+                description: '',
+                action: () => {},
+                urgency: 'low',
+                context: '',
+              });
+            }
+          },
+          urgency: 'low',
+          context: 'Batch file operations',
+          icon: 'folder_managed',
+        });
+        actions.push({
+          id: 'marketplace-publisher',
+          label: 'Publish to Marketplace',
+          description: 'Open Publisher Dashboard to create and publish items',
+          action: () => {
+            clickTrackingService.trackClick(
+              'ActionCenter',
+              'open-marketplace-publisher',
+              'Publish to Marketplace',
+              'click',
+              {}
+            );
+            if (onAction) {
+              onAction({
+                id: 'marketplace-publisher',
+                label: 'Publish to Marketplace',
+                description: '',
+                action: () => {},
+                urgency: 'low',
+                context: '',
+              });
+            }
+          },
+          urgency: 'low',
+          context: 'Publish templates, plugins, or assets',
+          icon: 'store',
+        });
+        actions.push({
+          id: 'marketplace-analytics',
+          label: 'View Analytics',
+          description: 'Open Analytics Dashboard to view sales and performance',
+          action: () => {
+            clickTrackingService.trackClick(
+              'ActionCenter',
+              'open-marketplace-analytics',
+              'View Analytics',
+              'click',
+              {}
+            );
+            if (onAction) {
+              onAction({
+                id: 'marketplace-analytics',
+                label: 'View Analytics',
+                description: '',
+                action: () => {},
+                urgency: 'low',
+                context: '',
+              });
+            }
+          },
+          urgency: 'low',
+          context: 'View marketplace performance',
+          icon: 'analytics',
         });
       }
 
@@ -196,18 +417,12 @@ const ActionCenter: React.FC<ActionCenterProps> = ({ userId, onAction }) => {
       setNotificationCount(count);
 
       // Track component view
-      clickTrackingService.trackEvent({
-        type: 'hover',
-        component: 'ActionCenter',
-        action: 'view',
-        target: 'action-center',
-        context: {
-          primaryAction: actions[0].id,
-          actionCount: actions.length,
-          notificationCount: count,
-        },
+      clickTrackingService.trackClick('panel', 'action-center', 'Action Center', 'view', {
+        primaryAction: actions[0].id,
+        actionCount: actions.length,
+        notificationCount: count,
       });
-      
+
       workTrackingService.recordCalculation();
       workTrackingService.endSession();
     } catch (error) {
@@ -236,22 +451,17 @@ const ActionCenter: React.FC<ActionCenterProps> = ({ userId, onAction }) => {
 
   const handlePrimaryAction = () => {
     if (primaryAction) {
-      clickTrackingService.trackClick(
-        'ActionCenter',
-        'execute-primary-action',
-        primaryAction.id,
-        {
-          actionId: primaryAction.id,
-          actionLabel: primaryAction.label,
-          urgency: primaryAction.urgency,
-        }
-      );
+      clickTrackingService.trackClick('ActionCenter', 'execute-primary-action', primaryAction.label, 'click', {
+        actionId: primaryAction.id,
+        actionLabel: primaryAction.label,
+        urgency: primaryAction.urgency,
+      });
       primaryAction.action();
     }
   };
 
   const handleExpand = () => {
-    clickTrackingService.trackClick('ActionCenter', 'expand', 'action-center', {});
+    clickTrackingService.trackClick('ActionCenter', 'expand', 'Action Center', 'click', {});
     setIsExpanded(!isExpanded);
   };
 
@@ -276,18 +486,18 @@ const ActionCenter: React.FC<ActionCenterProps> = ({ userId, onAction }) => {
         className={`xibalba-action-center ${urgencyClass} ${hasNotifications ? 'xibalba-action-center-has-notifications' : ''}`}
         onClick={handlePrimaryAction}
         onMouseEnter={() => {
-          clickTrackingService.trackEvent({
-            type: 'hover',
-            component: 'ActionCenter',
-            action: 'hover-primary',
-            target: 'primary-action',
-            context: { actionId: primaryAction.id },
-          });
+          clickTrackingService.trackClick(
+            'panel',
+            'action-center-primary',
+            'Action Center Primary',
+            'hover',
+            { actionId: primaryAction.id }
+          );
         }}
         aria-label={`Action Center: ${primaryAction.label}. ${primaryAction.context}`}
         role="button"
         tabIndex={0}
-        onKeyDown={(e) => {
+        onKeyDown={e => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
             handlePrimaryAction();
@@ -296,9 +506,7 @@ const ActionCenter: React.FC<ActionCenterProps> = ({ userId, onAction }) => {
       >
         <div className="xibalba-action-center-content">
           <span className="xibalba-action-center-icon">
-            {primaryAction.icon && (
-              <span className="material-icons">{primaryAction.icon}</span>
-            )}
+            {primaryAction.icon && <span className="material-icons">{primaryAction.icon}</span>}
           </span>
           <div className="xibalba-action-center-text">
             <span className="xibalba-action-center-label">{primaryAction.label}</span>
@@ -317,15 +525,13 @@ const ActionCenter: React.FC<ActionCenterProps> = ({ userId, onAction }) => {
           aria-label="Show more actions"
           aria-expanded={isExpanded}
         >
-          <span className="material-icons">
-            {isExpanded ? 'expand_less' : 'expand_more'}
-          </span>
+          <span className="material-icons">{isExpanded ? 'expand_less' : 'expand_more'}</span>
         </button>
       )}
 
       {isExpanded && secondaryActions.length > 0 && (
         <div className="xibalba-action-center-dropdown">
-          {secondaryActions.map((action) => (
+          {secondaryActions.map(action => (
             <button
               key={action.id}
               className="xibalba-action-center-secondary"
@@ -333,7 +539,8 @@ const ActionCenter: React.FC<ActionCenterProps> = ({ userId, onAction }) => {
                 clickTrackingService.trackClick(
                   'ActionCenter',
                   'execute-secondary-action',
-                  action.id,
+                  action.label,
+                  'click',
                   { actionId: action.id }
                 );
                 action.action();
@@ -356,4 +563,3 @@ const ActionCenter: React.FC<ActionCenterProps> = ({ userId, onAction }) => {
 };
 
 export default ActionCenter;
-

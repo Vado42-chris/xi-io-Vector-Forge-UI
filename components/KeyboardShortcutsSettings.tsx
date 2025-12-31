@@ -191,7 +191,7 @@ const KeyboardShortcutsSettings: React.FC<KeyboardShortcutsSettingsProps> = ({ o
       {/* Info */}
       <div className="mt-6 p-4 bg-[var(--xibalba-grey-100)] border border-white/10 rounded">
         <p className="xibalba-text-caption text-xs">
-          <strong>Tip:</strong> Click "Edit" and press the keys you want to use. Press Spacebar while dragging to temporarily use the Hand tool (panning).
+          <strong>Tip:</strong> Click &quot;Edit&quot; and press the keys you want to use. Press Spacebar while dragging to temporarily use the Hand tool (panning).
         </p>
       </div>
     </div>

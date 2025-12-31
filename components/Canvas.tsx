@@ -26,6 +26,7 @@ const Canvas: React.FC<CanvasProps> = ({
   onSelectLayer, onSelectNode, onUpdateNode, zoom, pan, onPan, guides, onAddGuide, onUpdateGuide
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const canvasViewportRef = useRef<HTMLDivElement>(null);
   const [dragState, setDragState] = useState<{ type: 'pan' | 'node' | 'guide', id: string, startX: number, startY: number } | null>(null);
   const zoomScale = zoom / 100;
 
@@ -50,7 +51,7 @@ const Canvas: React.FC<CanvasProps> = ({
 
     // Handle Node selection/drag (Sub-selection mode)
     const nodeEl = target.closest('[data-node-id]');
-    if (activeTool === 'subselect' && nodeEl) {
+    if (activeTool === 'direct-select' && nodeEl) {
       const nodeId = nodeEl.getAttribute('data-node-id')!;
       onSelectNode(nodeId);
       setDragState({ type: 'node', id: nodeId, startX: e.clientX, startY: e.clientY });
@@ -59,12 +60,12 @@ const Canvas: React.FC<CanvasProps> = ({
     }
 
     // Handle Object selection
-    if ((activeTool === 'select' || activeTool === 'subselect') && !isGenerating) {
+    if ((activeTool === 'select' || activeTool === 'direct-select') && !isGenerating) {
       let current: SVGElement | null = e.target as SVGElement;
       while (current && current.tagName !== 'DIV') {
         if (current.id && current.id !== 'bg' && current.id !== 'workspace_root' && current.tagName !== 'svg') {
           onSelectLayer(current.id);
-          if (activeTool !== 'subselect') onSelectNode(null);
+          if (activeTool !== 'direct-select') onSelectNode(null);
           return;
         }
         current = current.parentElement as unknown as SVGElement;
@@ -106,35 +107,23 @@ const Canvas: React.FC<CanvasProps> = ({
   return (
     <div 
       ref={containerRef}
-      className={`flex-1 relative bg-[var(--xibalba-grey-100)] overflow-hidden flex items-center justify-center canvas-grid select-none cursor-${activeTool === 'pan' ? 'grab' : 'default'}`}
+      className={`flex-1 relative bg-[var(--xibalba-grey-100)] overflow-hidden flex items-center justify-center canvas-grid select-none cursor-${activeTool === 'pan' ? 'grab' : 'default'} canvas-container-touch`}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
-      className="canvas-container-touch"
     >
       <Rulers zoom={zoom} pan={pan} onAddGuide={(type, pos) => onAddGuide(type, pos)} />
 
       {/* Interactive Guides */}
       {guides.map((g) => {
-        const guideRef = useRef<HTMLDivElement>(null);
-        useEffect(() => {
-          if (guideRef.current) {
-            if (g.type === 'v') {
-              const left = `calc(50% + ${pan.x + g.pos * zoomScale}px)`;
-              guideRef.current.style.setProperty('--guide-left', left);
-            } else {
-              const top = `calc(50% + ${pan.y + g.pos * zoomScale}px)`;
-              guideRef.current.style.setProperty('--guide-top', top);
-            }
-          }
-        }, [pan, g.pos, zoomScale, g.type]);
-        
         return (
         <div 
           key={g.id}
-          ref={guideRef}
           data-guide-id={g.id}
           className={`absolute z-[55] cursor-${g.type === 'v' ? 'col-resize' : 'row-resize'} group guide-line ${g.type === 'v' ? 'guide-vertical' : 'guide-horizontal'}`}
+          data-guide-type={g.type}
+          data-guide-position={g.type === 'v' ? pan.x + g.pos * zoomScale : pan.y + g.pos * zoomScale}
+          className={g.type === 'v' ? 'guide-vertical' : 'guide-horizontal'}
         >
           <div className={`absolute ${g.type === 'v' ? 'left-1/2 h-full w-px border-l' : 'top-1/2 w-full h-px border-t'} border-[var(--xibalba-text-200)] transition-opacity opacity-20 group-hover:opacity-100`}></div>
         </div>
@@ -143,7 +132,7 @@ const Canvas: React.FC<CanvasProps> = ({
 
       <div 
         ref={canvasViewportRef}
-        className="bg-[var(--xibalba-grey-050)] relative flex items-center justify-center shadow-[0_80px_200px_-40px_rgba(0,0,0,0.8)] rounded-none overflow-hidden border border-white/5 canvas-viewport"
+        className="bg-[var(--xibalba-grey-050)] relative flex items-center justify-center shadow-[0_80px_200px_-40px_rgba(0,0,0,0.8)] rounded-none overflow-hidden canvas-viewport"
       >
         {/* Gestalt Base */}
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none canvas-grid-pattern"></div>
@@ -164,7 +153,7 @@ const Canvas: React.FC<CanvasProps> = ({
         )}
 
         {/* Atomic Sub-Selection Handles */}
-        {selectedLayerId && activeTool === 'subselect' && selectedLayerData && selectedLayerData.shape.type === 'path' && (
+        {selectedLayerId && activeTool === 'direct-select' && selectedLayerData && selectedLayerData.shape.type === 'path' && (
            <div className="absolute w-[512px] h-[512px] pointer-events-none">
               <svg className="absolute inset-0 w-full h-full pointer-events-none overflow-visible">
                  {/* Draw the "Spline Backbone" for clarity */}
@@ -199,9 +188,9 @@ const Canvas: React.FC<CanvasProps> = ({
         )}
 
         {isGenerating && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center z-[200] bg-[var(--xibalba-grey-100)]/95 backdrop-blur-3xl ai-scanning">
+          <div className="absolute inset-0 flex flex-col items-center justify-center zstack-scanning-overlay bg-[var(--xibalba-grey-100)]/95 backdrop-blur-3xl ai-scanning">
              <div className="size-16 border-[4px] border-[var(--xibalba-text-200)]/20 border-t-[var(--xibalba-text-200)] rounded-none animate-spin"></div>
-             <span className="mt-6 text-[10px] font-black text-[var(--xibalba-text-100)] tracking-[0.5em] uppercase">Kernel Link Active</span>
+             <span className="mt-6 text-sm font-black text-[var(--xibalba-text-100)] tracking-[0.5em] uppercase">Kernel Link Active</span>
           </div>
         )}
       </div>

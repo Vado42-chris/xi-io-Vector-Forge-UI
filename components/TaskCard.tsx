@@ -46,9 +46,9 @@ const TaskCard: React.FC<TaskCardProps> = ({
   }, [task.id]);
 
   const priorityColors: Record<TaskPriority, string> = {
-    critical: 'border-l-red-500 bg-red-500/10',
-    high: 'border-l-orange-500 bg-orange-500/10',
-    medium: 'border-l-yellow-500 bg-yellow-500/10',
+    critical: 'border-l-[var(--vectorforge-accent)] bg-[var(--vectorforge-accent)]/10',
+    high: 'border-l-[var(--vectorforge-accent)] bg-[var(--vectorforge-accent)]/10',
+    medium: 'border-l-[var(--vectorforge-accent)] bg-[var(--vectorforge-accent)]/10',
     low: 'border-l-gray-500 bg-gray-500/10',
   };
 
@@ -63,7 +63,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
   const isDueSoon = task.dueDate && new Date(task.dueDate) <= new Date(Date.now() + 24 * 60 * 60 * 1000);
 
   const handleClick = () => {
-    clickTrackingService.trackClick('TaskCard', 'select', task.id, {
+    clickTrackingService.trackClick('TaskCard', 'select', 'Select Task', 'click', {
       taskId: task.id,
       taskTitle: task.title,
       status: task.status,
@@ -74,7 +74,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
 
   const handleQuickAssign = (e: React.MouseEvent) => {
     e.stopPropagation();
-    clickTrackingService.trackClick('TaskCard', 'quick-assign', task.id, {
+    clickTrackingService.trackClick('TaskCard', 'quick-assign', 'Quick Assign', 'click', {
       taskId: task.id,
     });
     workTrackingService.recordCalculation();
@@ -84,7 +84,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
 
   const handleSolveBlocker = (e: React.MouseEvent) => {
     e.stopPropagation();
-    clickTrackingService.trackClick('TaskCard', 'solve-blocker', task.id, {
+    clickTrackingService.trackClick('TaskCard', 'solve-blocker', 'Solve Blocker', 'click', {
       taskId: task.id,
     });
     workTrackingService.recordCalculation();
@@ -93,7 +93,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
 
   const handleStatusChange = (e: React.MouseEvent, newStatus: Task['status']) => {
     e.stopPropagation();
-    clickTrackingService.trackClick('TaskCard', 'change-status', task.id, {
+    clickTrackingService.trackClick('TaskCard', 'change-status', 'Change Status', 'click', {
       taskId: task.id,
       oldStatus: task.status,
       newStatus,
@@ -110,12 +110,8 @@ const TaskCard: React.FC<TaskCardProps> = ({
       onClick={handleClick}
       onMouseEnter={() => {
         setIsHovered(true);
-        clickTrackingService.trackEvent({
-          type: 'hover',
-          component: 'TaskCard',
-          action: 'hover',
-          target: task.id,
-          context: { taskId: task.id },
+        clickTrackingService.trackClick('TaskCard', 'hover', 'Hover Task', 'hover', {
+          taskId: task.id,
         });
       }}
       onMouseLeave={() => setIsHovered(false)}

@@ -1,0 +1,192 @@
+/**
+ * Drag Handles - Always Visible
+ * Make drag handles visible and interactive
+ */
+
+/* ============================================
+   SIDEBAR RESIZE HANDLES
+   ============================================ */
+
+.zstack-sidebar-resize-handle,
+.z-sidebar-resize-handle {
+  position: absolute;
+  z-index: 1000 !important;
+  cursor: col-resize !important;
+  background: var(--xibalba-grey-200) !important;
+  opacity: 0.4 !important;
+  transition: all 0.2s ease !important;
+  pointer-events: auto !important;
+}
+
+.zstack-sidebar-resize-handle:hover,
+.z-sidebar-resize-handle:hover {
+  background: var(--xibalba-accent) !important;
+  opacity: 1 !important;
+  width: 4px !important;
+}
+
+.zstack-sidebar-resize-handle:active,
+.z-sidebar-resize-handle:active {
+  background: var(--xibalba-accent) !important;
+  opacity: 1 !important;
+  width: 4px !important;
+}
+
+/* Left sidebar resize handle */
+.sidebar-fixed-left .zstack-sidebar-resize-handle {
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+}
+
+/* Right sidebar resize handle */
+.z-sidebar-resize-handle {
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+}
+
+/* ============================================
+   TIMELINE DRAG HANDLE
+   ============================================ */
+
+.xibalba-drag-handle,
+.timeline-drag-handle {
+  cursor: grab !important;
+  opacity: 0.6 !important;
+  transition: all 0.2s ease !important;
+  pointer-events: auto !important;
+}
+
+.xibalba-drag-handle:hover,
+.timeline-drag-handle:hover {
+  opacity: 1 !important;
+  background: rgba(255, 152, 0, 0.2) !important;
+}
+
+.xibalba-drag-handle:active,
+.timeline-drag-handle:active {
+  cursor: grabbing !important;
+  opacity: 1 !important;
+  background: rgba(255, 152, 0, 0.3) !important;
+}
+
+/* ============================================
+   TOOLBAR DRAG HANDLES
+   ============================================ */
+
+.power-toolbar-drag-handle,
+.toolbar-drag-handle {
+  cursor: grab !important;
+  opacity: 0.6 !important;
+  transition: all 0.2s ease !important;
+  pointer-events: auto !important;
+}
+
+.power-toolbar-drag-handle:hover,
+.toolbar-drag-handle:hover {
+  opacity: 1 !important;
+  background: rgba(255, 152, 0, 0.2) !important;
+}
+
+.power-toolbar-drag-handle:active,
+.toolbar-drag-handle:active {
+  cursor: grabbing !important;
+  opacity: 1 !important;
+  background: rgba(255, 152, 0, 0.3) !important;
+}
+
+/* ============================================
+   DOCKABLE PANEL RESIZE HANDLES
+   ============================================ */
+
+.dockable-panel-resize-handle {
+  position: absolute;
+  z-index: 1000 !important;
+  background: transparent !important;
+  opacity: 0.3 !important;
+  transition: all 0.2s ease !important;
+  pointer-events: auto !important;
+}
+
+.dockable-panel-resize-handle:hover {
+  background: var(--xibalba-accent) !important;
+  opacity: 0.6 !important;
+}
+
+.dockable-panel-resize-handle:active {
+  background: var(--xibalba-accent) !important;
+  opacity: 1 !important;
+}
+
+/* Resize handle sizes */
+.resize-n,
+.resize-s {
+  width: 100%;
+  height: 4px;
+  cursor: ns-resize !important;
+}
+
+.resize-e,
+.resize-w {
+  width: 4px;
+  height: 100%;
+  cursor: ew-resize !important;
+}
+
+.resize-ne,
+.resize-sw {
+  width: 8px;
+  height: 8px;
+  cursor: nesw-resize !important;
+}
+
+.resize-nw,
+.resize-se {
+  width: 8px;
+  height: 8px;
+  cursor: nwse-resize !important;
+}
+
+/* ============================================
+   VISUAL INDICATORS
+   ============================================ */
+
+/* Add visual indicator dots for drag handles */
+.xibalba-drag-handle::before,
+.timeline-drag-handle::before {
+  content: '⋯';
+  color: var(--xibalba-text-200);
+  font-size: 12px;
+  letter-spacing: 2px;
+}
+
+.xibalba-drag-handle:hover::before,
+.timeline-drag-handle:hover::before {
+  color: var(--xibalba-accent);
+}
+
+/* Resize handle visual indicator */
+.zstack-sidebar-resize-handle::after,
+.z-sidebar-resize-handle::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 2px;
+  height: 20px;
+  background: var(--xibalba-text-200);
+  border-radius: 1px;
+  opacity: 0.5;
+}
+
+.zstack-sidebar-resize-handle:hover::after,
+.z-sidebar-resize-handle:hover::after {
+  background: var(--xibalba-accent);
+  opacity: 1;
+  height: 30px;
+}
+

@@ -69,10 +69,10 @@ const ProfessionalLayersPanel: React.FC<ProfessionalLayersPanelProps> = ({
     const hasChildren = (layer.children && layer.children.length > 0) || false;
 
     return (
-      <div key={layer.id} className="select-none">
+      <div key={layer.id} className="select-none layer-item xibalba-layer-item">
         <div
-          className={`flex items-center gap-2 px-2 py-1.5 hover:bg-[var(--xibalba-grey-150)] cursor-pointer layer-depth-${Math.min(depth, 5)} ${
-            isSelected ? 'bg-[var(--xibalba-grey-200)]' : ''
+          className={`xibalba-layer-item-content hover:bg-[var(--xibalba-grey-150)] cursor-pointer layer-depth-${Math.min(depth, 5)} ${
+            isSelected ? 'bg-[var(--xibalba-grey-200)] selection-feedback' : ''
           }`}
           onClick={() => onSelectLayer(layer.id)}
           onContextMenu={(e) => {
@@ -256,7 +256,7 @@ const ProfessionalLayersPanel: React.FC<ProfessionalLayersPanelProps> = ({
             <div className="h-px bg-white/10 my-1" />
             <button 
               onClick={() => { onDeleteLayer(layer.id); setShowOptions(null); }}
-              className="w-full text-left px-3 py-2 text-xs hover:bg-[var(--xibalba-grey-250)] flex items-center gap-2 text-red-400"
+              className="w-full text-left px-3 py-2 text-xs hover:bg-[var(--xibalba-grey-250)] flex items-center gap-2 text-[var(--vectorforge-accent)]"
             >
               <span className="material-symbols-outlined text-[14px]">delete</span>
               Delete

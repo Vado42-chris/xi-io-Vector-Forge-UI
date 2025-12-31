@@ -65,7 +65,7 @@ const RegistryBrowser: React.FC<RegistryBrowserProps> = ({ onSelectEntry }) => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full p-8">
-        <div className="text-[var(--xibalba-text-200)] text-sm">Loading registry...</div>
+        <div className="text-[var(--xibalba-text-100)] text-sm">Loading registry...</div>
       </div>
     );
   }
@@ -77,7 +77,7 @@ const RegistryBrowser: React.FC<RegistryBrowserProps> = ({ onSelectEntry }) => {
         <div className="flex items-center gap-2">
           <span className="material-symbols-outlined text-[16px]">apps</span>
           <span className="text-xs font-black uppercase tracking-widest">Product Registry</span>
-          <span className="text-[10px] text-[var(--xibalba-text-200)]">({entries.length})</span>
+          <span className="text-sm text-[var(--xibalba-text-100)]">({entries.length})</span>
         </div>
       </div>
 
@@ -92,7 +92,7 @@ const RegistryBrowser: React.FC<RegistryBrowserProps> = ({ onSelectEntry }) => {
             placeholder="Search components, services, tools..."
             className="w-full px-4 py-2 bg-[var(--xibalba-bg-tertiary)] border border-white/10 text-[var(--xibalba-text-primary)] text-xs focus:outline-none focus:border-[var(--xibalba-accent)]"
           />
-          <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[var(--xibalba-text-200)] text-[16px] pointer-events-none">
+          <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[var(--xibalba-text-100)] text-[16px] pointer-events-none">
             search
           </span>
         </div>
@@ -103,7 +103,7 @@ const RegistryBrowser: React.FC<RegistryBrowserProps> = ({ onSelectEntry }) => {
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="px-3 py-1.5 bg-[var(--xibalba-bg-tertiary)] border border-white/10 text-[var(--xibalba-text-primary)] text-[10px] focus:outline-none focus:border-[var(--xibalba-accent)]"
+            className="px-3 py-1.5 bg-[var(--xibalba-bg-tertiary)] border border-white/10 text-[var(--xibalba-text-primary)] text-sm focus:outline-none focus:border-[var(--xibalba-accent)]"
           >
             <option value="all">All Categories</option>
             {categories.map(cat => (
@@ -115,7 +115,7 @@ const RegistryBrowser: React.FC<RegistryBrowserProps> = ({ onSelectEntry }) => {
           <select
             value={selectedType}
             onChange={(e) => setSelectedType(e.target.value)}
-            className="px-3 py-1.5 bg-[var(--xibalba-bg-tertiary)] border border-white/10 text-[var(--xibalba-text-primary)] text-[10px] focus:outline-none focus:border-[var(--xibalba-accent)]"
+            className="px-3 py-1.5 bg-[var(--xibalba-bg-tertiary)] border border-white/10 text-[var(--xibalba-text-primary)] text-sm focus:outline-none focus:border-[var(--xibalba-accent)]"
           >
             <option value="all">All Types</option>
             {types.map(type => (
@@ -131,7 +131,7 @@ const RegistryBrowser: React.FC<RegistryBrowserProps> = ({ onSelectEntry }) => {
         <div className="flex-1 overflow-y-auto xibalba-scrollbar border-r border-white/10">
           <div className="p-2 space-y-1">
             {filteredEntries.length === 0 ? (
-              <div className="p-4 text-center text-[var(--xibalba-text-200)] text-xs">
+              <div className="p-4 text-center text-[var(--xibalba-text-100)] text-xs">
                 No entries found
               </div>
             ) : (
@@ -151,24 +151,24 @@ const RegistryBrowser: React.FC<RegistryBrowserProps> = ({ onSelectEntry }) => {
                         <span className="text-xs font-black text-[var(--xibalba-text-primary)] truncate">
                           {entry.name}
                         </span>
-                        <span className={`text-[8px] px-1.5 py-0.5 rounded ${
-                          entry.type === 'service' ? 'bg-blue-500/20 text-blue-400' :
-                          entry.type === 'component' ? 'bg-green-500/20 text-green-400' :
-                          'bg-yellow-500/20 text-yellow-400'
+                        <span className={`text-xs px-1.5 py-0.5 rounded ${
+                          entry.type === 'service' ? 'bg-[var(--xibalba-accent)]/20 text-[var(--xibalba-accent)]' :
+                          entry.type === 'component' ? 'bg-[var(--vectorforge-accent)]/20 text-[var(--vectorforge-accent)]' :
+                          'bg-[var(--vectorforge-accent)]/20 text-[var(--vectorforge-accent)]'
                         }`}>
                           {entry.type}
                         </span>
                       </div>
-                      <div className="text-[9px] text-[var(--xibalba-text-200)] mb-1">
+                      <div className="text-xs text-[var(--xibalba-text-100)] mb-1">
                         {entry.category}
                       </div>
-                      <div className="text-[9px] text-[var(--xibalba-text-300)] line-clamp-2">
+                      <div className="text-xs text-[var(--xibalba-text-100)] line-clamp-2">
                         {entry.description}
                       </div>
                       {entry.tags && entry.tags.length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-1">
                           {entry.tags.slice(0, 3).map(tag => (
-                            <span key={tag} className="text-[8px] px-1.5 py-0.5 bg-[var(--xibalba-bg-secondary)] text-[var(--xibalba-text-secondary)] rounded">
+                            <span key={tag} className="text-xs px-1.5 py-0.5 bg-[var(--xibalba-bg-secondary)] text-[var(--xibalba-text-100)] rounded">
                               {tag}
                             </span>
                           ))}
@@ -192,34 +192,34 @@ const RegistryBrowser: React.FC<RegistryBrowserProps> = ({ onSelectEntry }) => {
                   {selectedEntry.name}
                 </h3>
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-[10px] text-[var(--xibalba-text-200)]">
+                  <span className="text-sm text-[var(--xibalba-text-100)]">
                     {selectedEntry.category}
                   </span>
-                  <span className="text-[10px] text-[var(--xibalba-text-300)]">
+                  <span className="text-sm text-[var(--xibalba-text-100)]">
                     v{selectedEntry.version}
                   </span>
                 </div>
-                <p className="text-[10px] text-[var(--xibalba-text-100)] leading-relaxed">
+                <p className="text-sm text-[var(--xibalba-text-100)] leading-relaxed">
                   {selectedEntry.description}
                 </p>
               </div>
 
               {/* Type */}
               <div>
-                <div className="text-[9px] font-black text-[var(--xibalba-text-200)] uppercase tracking-widest mb-1">
+                <div className="text-xs font-black text-[var(--xibalba-text-100)] uppercase tracking-widest mb-1">
                   Type
                 </div>
-                <div className="text-[10px] px-2 py-1 rounded inline-block bg-blue-500/20 text-blue-400">
+                <div className="text-sm px-2 py-1 rounded inline-block bg-[var(--xibalba-accent)]/20 text-[var(--xibalba-accent)]">
                   {selectedEntry.type}
                 </div>
               </div>
 
               {/* File Path */}
               <div>
-                <div className="text-[9px] font-black text-[var(--xibalba-text-200)] uppercase tracking-widest mb-1">
+                <div className="text-xs font-black text-[var(--xibalba-text-100)] uppercase tracking-widest mb-1">
                   File Path
                 </div>
-                <div className="text-[10px] text-[var(--xibalba-text-primary)] font-mono">
+                <div className="text-sm text-[var(--xibalba-text-primary)] font-mono">
                   {selectedEntry.filePath}
                 </div>
               </div>
@@ -227,12 +227,12 @@ const RegistryBrowser: React.FC<RegistryBrowserProps> = ({ onSelectEntry }) => {
               {/* Tags */}
               {selectedEntry.tags.length > 0 && (
                 <div>
-                  <div className="text-[9px] font-black text-[var(--xibalba-text-secondary)] uppercase tracking-widest mb-1">
+                  <div className="text-xs font-black text-[var(--xibalba-text-100)] uppercase tracking-widest mb-1">
                     Tags
                   </div>
                   <div className="flex flex-wrap gap-1">
                     {selectedEntry.tags.map(tag => (
-                      <span key={tag} className="text-[9px] px-2 py-1 bg-[var(--xibalba-bg-secondary)] text-[var(--xibalba-text-primary)] rounded">
+                      <span key={tag} className="text-xs px-2 py-1 bg-[var(--xibalba-bg-secondary)] text-[var(--xibalba-text-primary)] rounded">
                         {tag}
                       </span>
                     ))}
@@ -243,14 +243,14 @@ const RegistryBrowser: React.FC<RegistryBrowserProps> = ({ onSelectEntry }) => {
               {/* Dependencies */}
               {selectedEntry.dependencies.length > 0 && (
                 <div>
-                  <div className="text-[9px] font-black text-[var(--xibalba-text-secondary)] uppercase tracking-widest mb-1">
+                  <div className="text-xs font-black text-[var(--xibalba-text-100)] uppercase tracking-widest mb-1">
                     Dependencies
                   </div>
                   <div className="space-y-1">
                     {selectedEntry.dependencies.map(depId => {
                       const dep = productRegistry.get(depId);
                       return (
-                        <div key={depId} className="text-[10px] text-[var(--xibalba-text-primary)]">
+                        <div key={depId} className="text-sm text-[var(--xibalba-text-primary)]">
                           {dep ? dep.name : depId}
                         </div>
                       );
@@ -262,12 +262,12 @@ const RegistryBrowser: React.FC<RegistryBrowserProps> = ({ onSelectEntry }) => {
               {/* Exports */}
               {selectedEntry.exports.length > 0 && (
                 <div>
-                  <div className="text-[9px] font-black text-[var(--xibalba-text-secondary)] uppercase tracking-widest mb-1">
+                  <div className="text-xs font-black text-[var(--xibalba-text-100)] uppercase tracking-widest mb-1">
                     Exports
                   </div>
                   <div className="space-y-1">
                     {selectedEntry.exports.map(exp => (
-                      <div key={exp} className="text-[10px] text-[var(--xibalba-text-primary)] font-mono">
+                      <div key={exp} className="text-sm text-[var(--xibalba-text-primary)] font-mono">
                         {exp}
                       </div>
                     ))}

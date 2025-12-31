@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VectorForge - Bypass Redirect</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: monospace;
+            background: #000000;
+            color: #ffffff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 30px;
+            padding: 40px;
+        }
+        h1 {
+            color: #ff9800;
+            font-size: 32px;
+            text-align: center;
+        }
+        .links {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+        .link {
+            display: block;
+            background: #ff9800;
+            color: #000000;
+            padding: 20px 40px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            min-width: 300px;
+            transition: all 0.2s;
+        }
+        .link:hover {
+            background: #ff6f00;
+            transform: scale(1.05);
+        }
+        .status {
+            color: #999;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .progress-container {
+            width: 400px;
+            height: 8px;
+            background: #010101;
+            border: 1px solid #ff9800;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: #ff9800;
+            animation: progress 2s forwards;
+        }
+        @keyframes progress {
+            to { width: 100%; }
+        }
+    </style>
+    <script>
+        // Block auth redirects IMMEDIATELY
+        if (window.location.pathname.indexOf('/api/auth') === 0 || 
+            window.location.search.indexOf('error=CredentialsSignin') !== -1) {
+            window.location.replace('/index-bypass.html');
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>✅ VectorForge</h1>
+        <div class="progress-container">
+            <div class="progress-fill"></div>
+        </div>
+        <div class="links">
+            <a href="/chatbot-minimal.html" class="link">
+                💬 Dev Chat (Minimal - Works Now)
+            </a>
+            <a href="/verify.html" class="link">
+                🔧 Verification & Tests
+            </a>
+            <a href="/devchat" class="link">
+                🚀 Dev Chat (Full React)
+            </a>
+            <a href="/" class="link">
+                🏠 Main App
+            </a>
+        </div>
+        <div class="status">
+            <p>If you see this page, the server is working!</p>
+            <p>Click "Dev Chat (Minimal)" to test the chatbot.</p>
+        </div>
+    </div>
+</body>
+</html>
+

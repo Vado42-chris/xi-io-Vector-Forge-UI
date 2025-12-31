@@ -40,6 +40,10 @@ class WorkflowLayoutService {
       this.createDefaultLayout();
     }
 
+    // Load from localStorage after fetching from file
+    this.loadLayouts();
+    this.loadCurrentLayout();
+
     this.initialized = true;
   }
 
@@ -271,8 +275,6 @@ export const workflowLayoutService = new WorkflowLayoutService();
 // Auto-initialize
 if (typeof window !== 'undefined') {
   workflowLayoutService.initialize().catch(console.error);
-  workflowLayoutService.loadLayouts();
-  workflowLayoutService.loadCurrentLayout();
 }
 
 export default workflowLayoutService;

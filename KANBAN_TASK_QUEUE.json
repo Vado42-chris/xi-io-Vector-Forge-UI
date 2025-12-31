@@ -1,0 +1,212 @@
+{
+  "version": "1.0",
+  "created": "2025-12-30",
+  "description": "VectorForge MVP Task Queue - Executable by AI Coder",
+  "columns": {
+    "immediate": {
+      "name": "Immediate (0-2h)",
+      "tasks": [
+        {
+          "id": "demo-001",
+          "title": "Run proof demo flow",
+          "description": "Execute ./scripts/demo_flow.sh, verify proof_bundle.zip created and verification passes",
+          "estimate": "0.5h",
+          "priority": "P0",
+          "deliverable": "proof_bundle.zip + verification output",
+          "test": "bash scripts/verify_quick_low_resource.sh proof_bundle.zip",
+          "risk": "Low - read-only demo script"
+        },
+        {
+          "id": "backup-001",
+          "title": "Backup ledger and config",
+          "description": "Create timestamped backup of LEDGER.ndjson and Cherry profile",
+          "estimate": "5min",
+          "priority": "P0",
+          "deliverable": "Backup directory with timestamp",
+          "test": "Verify backup directory exists with files",
+          "risk": "None - backup only"
+        }
+      ]
+    },
+    "critical": {
+      "name": "Critical (2-4h)",
+      "tasks": [
+        {
+          "id": "sign-001",
+          "title": "Wire SignButton to canvas export",
+          "description": "Connect SignButton component to export current canvas SVG, call signAndAppend API, create proof bundle",
+          "estimate": "1-2h",
+          "priority": "P0",
+          "files": ["components/SignButton.tsx", "App.hardened.tsx"],
+          "deliverable": "Git patch + test steps",
+          "test": "1. Draw on canvas 2. Click Sign button 3. Verify proof_bundle.zip created",
+          "risk": "Medium - UI integration, may need API endpoint fixes"
+        },
+        {
+          "id": "brush-001",
+          "title": "Integrate Brush tool into palette",
+          "description": "Ensure Brush tool appears in tool palette, is selectable, and renders strokes correctly on canvas",
+          "estimate": "2-3h",
+          "priority": "P0",
+          "files": ["components/DockableToolPalette.tsx", "components/DraftsmanCanvas.tsx"],
+          "deliverable": "Git patch + test steps",
+          "test": "1. Select Brush tool 2. Draw on canvas 3. Verify variable-width stroke appears",
+          "risk": "Low - code already exists, just needs wiring"
+        },
+        {
+          "id": "export-001",
+          "title": "Export QA and dialog fixes",
+          "description": "Test PNG/PDF/SVG exports, fix any dialog issues, ensure exports work end-to-end",
+          "estimate": "1-2h",
+          "priority": "P1",
+          "files": ["App.hardened.tsx", "components/ProfessionalFileMenu.tsx"],
+          "deliverable": "Git patch + test results",
+          "test": "1. Create drawing 2. Export as PNG/SVG/PDF 3. Verify files created correctly",
+          "risk": "Medium - export code exists but may have edge cases"
+        }
+      ]
+    },
+    "high": {
+      "name": "High Priority (4-8h)",
+      "tasks": [
+        {
+          "id": "pen-001",
+          "title": "Create Pen tool using factory",
+          "description": "Run factory scaffold, implement Bezier curve fitting for smooth paths",
+          "estimate": "3-6h",
+          "priority": "P1",
+          "files": ["lib/tools/pen.ts", "components/tools/PenTool.tsx"],
+          "deliverable": "Git patch + test steps",
+          "test": "1. Select Pen tool 2. Draw path 3. Verify smooth Bezier curves",
+          "risk": "Medium - new algorithm implementation"
+        },
+        {
+          "id": "smoke-001",
+          "title": "Parity smoke tests",
+          "description": "Run 10 canonical prompts through Cursor and Zed paths, compare outputs, fix mismatches",
+          "estimate": "2-3h",
+          "priority": "P1",
+          "files": ["tests/parity/"],
+          "deliverable": "Test results + fix patches",
+          "test": "npm test -- parity",
+          "risk": "Low - testing only"
+        },
+        {
+          "id": "tabs-001",
+          "title": "Multi-file tabs integration",
+          "description": "Add tab system to show multiple open files, allow switching between them",
+          "estimate": "1-3h",
+          "priority": "P2",
+          "files": ["components/MultiFileTabs.tsx", "App.hardened.tsx"],
+          "deliverable": "Git patch + test steps",
+          "test": "1. Open multiple files 2. Switch between tabs 3. Verify content loads",
+          "risk": "Medium - new UI component"
+        }
+      ]
+    },
+    "polish": {
+      "name": "Polish (1-2h each)",
+      "tasks": [
+        {
+          "id": "ui-001",
+          "title": "Fix top-left corner layout",
+          "description": "Fix Dev Chat + Diagnostics button spacing and alignment",
+          "estimate": "1h",
+          "priority": "P2",
+          "files": ["App.hardened.tsx", "index.html"],
+          "deliverable": "Git patch",
+          "test": "Visual inspection - buttons properly spaced",
+          "risk": "Low - layout fix only"
+        },
+        {
+          "id": "ui-002",
+          "title": "Fix file menu spacing",
+          "description": "Add proper spacing between menu items, separate from toolbar",
+          "estimate": "1h",
+          "priority": "P2",
+          "files": ["components/ProfessionalFileMenu.tsx"],
+          "deliverable": "Git patch",
+          "test": "Visual inspection - menu items properly spaced",
+          "risk": "Low - spacing fix only"
+        },
+        {
+          "id": "ui-003",
+          "title": "Fix typography hierarchy",
+          "description": "Establish consistent font sizes, make navigation readable",
+          "estimate": "1-2h",
+          "priority": "P2",
+          "files": ["styles/typography-system.css", "index.css"],
+          "deliverable": "Git patch",
+          "test": "Visual inspection - all text readable, consistent sizes",
+          "risk": "Low - CSS changes only"
+        },
+        {
+          "id": "ui-004",
+          "title": "Enforce z-index system",
+          "description": "Audit components, replace arbitrary z-index with z-stack classes",
+          "estimate": "2h",
+          "priority": "P2",
+          "files": ["styles/z-index-layers.css", "components/**/*.tsx"],
+          "deliverable": "Git patch",
+          "test": "Visual inspection - no z-index conflicts",
+          "risk": "Medium - may reveal hidden issues"
+        }
+      ]
+    },
+    "demo": {
+      "name": "Demo Preparation",
+      "tasks": [
+        {
+          "id": "demo-002",
+          "title": "Create demo flow guest experience",
+          "description": "Canvas → Sign → Generate proof_bundle.zip → Download button",
+          "estimate": "1-2h",
+          "priority": "P1",
+          "files": ["components/DemoFlow.tsx", "App.hardened.tsx"],
+          "deliverable": "Git patch + demo script",
+          "test": "1. Draw 2. Click Sign 3. Download bundle",
+          "risk": "Low - UI flow only"
+        },
+        {
+          "id": "demo-003",
+          "title": "3-minute demo video + README",
+          "description": "Record demo showing: draw → sign → bundle → verify. Create README_DEMO.md",
+          "estimate": "1-2h",
+          "priority": "P1",
+          "files": ["README_DEMO.md", "demo_video.mp4"],
+          "deliverable": "Video + markdown",
+          "test": "Review video and README",
+          "risk": "None - documentation only"
+        }
+      ]
+    }
+  },
+  "workflow": {
+    "taskFormat": {
+      "title": "Concise title",
+      "scope": "One-paragraph precise description",
+      "files": "List of file paths to modify",
+      "deliverable": "Git patch (unified diff) + test steps + risk statement",
+      "constraints": [
+        "Keep changes small and reversible (git apply/patch)",
+        "Run npm test and npx tsc --noEmit before finalizing",
+        "No secret or key creation in code"
+      ]
+    },
+    "patchAcceptance": [
+      "1. AI produces patch",
+      "2. Human reviews diff",
+      "3. If OK: git apply patch.diff",
+      "4. Run: npm test && npx tsc --noEmit",
+      "5. If tests fail: request AI to fix (new small task)"
+    ],
+    "creditConservation": [
+      "Batch multiple small edits into one prompt if logically linked",
+      "Use local model (Ollama) for frequent edits",
+      "Reserve Cursor credits for final review & creative tasks",
+      "Keep temperatures low, ask for structured output (diffs, not prose)"
+    ]
+  }
+}
+
+

@@ -1,0 +1,128 @@
+/**
+ * Z-Stack Token System
+ * Unified z-index management using semantic tokens
+ * Replaces arbitrary z-index values with named layers
+ * 
+ * #hashtag: z-stack z-index tokens component-isolation
+ * 
+ * Usage:
+ * - Use z-stack classes: `zstack-base`, `zstack-surface`, etc.
+ * - Or CSS variables: `z-index: var(--z-surface)`
+ * - NEVER use raw numbers: `z-index: 5000` ❌
+ */
+
+:root {
+  /* Base Layers (Bottom to Top) */
+  --z-base: 0;
+  --z-background: 1;
+  --z-canvas: 10;
+  --z-canvas-content: 11;
+  --z-canvas-overlay: 12;
+  
+  /* Surface Layers (UI Panels, Sidebars) */
+  --z-surface: 100;
+  --z-sidebar-left: 100;
+  --z-sidebar-right: 100;
+  --z-sidebar-resize-handle: 30;
+  --z-panel: 100;
+  
+  /* Interactive Layers (Tools, Controls) */
+  --z-tools: 200;
+  --z-guides: 40;
+  --z-transform-handles: 50;
+  --z-canvas-controls: 45;
+  --z-rulers: 50;
+  
+  /* Timeline (Dynamic - changes when expanded) */
+  --z-timeline-collapsed: 40;
+  --z-timeline-expanded: 100;
+  --z-timeline-drag-handle: 110;
+  --z-timeline-keyframes: 120;
+  
+  /* Floating Elements */
+  --z-floating: 300;
+  --z-floating-toolbar: 50;
+  --z-power-toolbar: 50;
+  
+  /* Menus & Dropdowns */
+  --z-menu: 400;
+  --z-dropdown: 500;
+  --z-submenu: 520;
+  --z-context-menu: 530;
+  
+  /* Modal Layers */
+  --z-modal: 1000;
+  --z-modal-backdrop: 200;
+  --z-dialog: 202;
+  
+  /* Overlay Layers */
+  --z-overlay: 2000;
+  --z-scanning-overlay: 200;
+  --z-lock-indicator: 300;
+  
+  /* Top Layers (Notifications, Tooltips) */
+  --z-top: 3000;
+  --z-toast: 10000;
+  --z-welcome: 10000;
+  --z-tooltip: 10001;
+}
+
+/* Z-Stack Helper Classes */
+.zstack-base { z-index: var(--z-base); }
+.zstack-background { z-index: var(--z-background); }
+.zstack-canvas { z-index: var(--z-canvas); }
+.zstack-canvas-content { z-index: var(--z-canvas-content); }
+.zstack-canvas-overlay { z-index: var(--z-canvas-overlay); }
+
+.zstack-surface { z-index: var(--z-surface); }
+.zstack-sidebar-left { z-index: var(--z-sidebar-left); }
+.zstack-sidebar-right { z-index: var(--z-sidebar-right); }
+.zstack-sidebar-resize-handle { z-index: var(--z-sidebar-resize-handle); }
+.zstack-panel { z-index: var(--z-panel); }
+
+.zstack-tools { z-index: var(--z-tools); }
+.zstack-guides { z-index: var(--z-guides); }
+.zstack-transform-handles { z-index: var(--z-transform-handles); }
+.zstack-canvas-controls { z-index: var(--z-canvas-controls); }
+.zstack-rulers { z-index: var(--z-rulers); }
+
+.zstack-timeline-collapsed { z-index: var(--z-timeline-collapsed); }
+.zstack-timeline-expanded { z-index: var(--z-timeline-expanded); }
+.zstack-timeline-drag-handle { z-index: var(--z-timeline-drag-handle); }
+.zstack-timeline-keyframes { z-index: var(--z-timeline-keyframes); }
+
+.zstack-floating { z-index: var(--z-floating); }
+.zstack-floating-toolbar { z-index: var(--z-floating-toolbar); }
+.zstack-power-toolbar { z-index: var(--z-power-toolbar); }
+
+.zstack-menu { z-index: var(--z-menu); }
+.zstack-dropdown { z-index: var(--z-dropdown); }
+.zstack-submenu { z-index: var(--z-submenu); }
+.zstack-context-menu { z-index: var(--z-context-menu); }
+
+.zstack-modal { z-index: var(--z-modal); }
+.zstack-modal-backdrop { z-index: var(--z-modal-backdrop); }
+.zstack-dialog { z-index: var(--z-dialog); }
+
+.zstack-overlay { z-index: var(--z-overlay); }
+.zstack-scanning-overlay { z-index: var(--z-scanning-overlay); }
+.zstack-lock-indicator { z-index: var(--z-lock-indicator); }
+
+.zstack-top { z-index: var(--z-top); }
+.zstack-toast { z-index: var(--z-toast); }
+.zstack-welcome { z-index: var(--z-welcome); }
+.zstack-tooltip { z-index: var(--z-tooltip); }
+
+/* Component Isolation - Z-Stack Groups */
+.zstack-group {
+  position: relative;
+  isolation: isolate;
+  z-index: 0; /* Within parent's z-stack group */
+}
+
+/* Prevent z-index leaks */
+.zstack-group * {
+  position: relative;
+  z-index: auto;
+}
+

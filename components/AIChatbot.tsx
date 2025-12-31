@@ -4,7 +4,7 @@
  * #provides: Conversational interface for users to control VectorForge with plain English
  * #usage: Import and use in LeftSidebar or as floating panel
  * #related: naturalLanguageTranslator, scriptParser, scriptExecutor, mcpScriptService
- * 
+ *
  * AI Chatbot Component
  * Makes VectorForge accessible through natural language conversation
  * Translates user requests to hashtag commands automatically
@@ -12,7 +12,10 @@
  */
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { translateToHashtags, getNaturalLanguageExamples } from '../services/naturalLanguageTranslator';
+import {
+  translateToHashtags,
+  getNaturalLanguageExamples,
+} from '../services/naturalLanguageTranslator';
 import { parseScript } from '../services/scriptParser';
 import { VectorLayer } from '../types';
 import ProgressBar from './ProgressBar';
@@ -42,15 +45,16 @@ const AIChatbot: React.FC<AIChatbotProps> = ({
   layers,
   currentScript,
   onScriptGenerated,
-  onExecuteScript
+  onExecuteScript,
 }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: '1',
       role: 'system',
-      content: 'Hi! I\'m your VectorForge assistant. Tell me what you want to animate, and I\'ll create the hashtag commands for you. Try: "Move the circle to the right" or "Rotate the button 45 degrees".',
-      timestamp: Date.now()
-    }
+      content:
+        'Hi! I\'m your VectorForge assistant. Tell me what you want to animate, and I\'ll create the hashtag commands for you. Try: "Move the circle to the right" or "Rotate the button 45 degrees".',
+      timestamp: Date.now(),
+    },
   ]);
   const [input, setInput] = useState('');
   const [isTranslating, setIsTranslating] = useState(false);
@@ -74,7 +78,7 @@ const AIChatbot: React.FC<AIChatbotProps> = ({
       id: `user-${Date.now()}`,
       role: 'user',
       content: input.trim(),
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
 
     setMessages(prev => [...prev, userMessage]);
@@ -98,8 +102,8 @@ const AIChatbot: React.FC<AIChatbotProps> = ({
           frame,
           layerId,
           layers: layers.map(l => ({ id: l.id, name: l.name })),
-          currentScript
-        }
+          currentScript,
+        },
       });
 
       clearInterval(progressInterval);
@@ -113,7 +117,7 @@ const AIChatbot: React.FC<AIChatbotProps> = ({
         hashtagScript: result.hashtagScript,
         timestamp: Date.now(),
         confidence: result.confidence,
-        errors: result.errors
+        errors: result.errors,
       };
 
       setMessages(prev => [...prev, assistantMessage]);
@@ -132,7 +136,7 @@ const AIChatbot: React.FC<AIChatbotProps> = ({
         id: `error-${Date.now()}`,
         role: 'assistant',
         content: `Sorry, I encountered an error: ${error instanceof Error ? error.message : 'Unknown error'}. Please try rephrasing your request.`,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       };
       clearInterval(progressInterval);
       setMessages(prev => [...prev, errorMessage]);
@@ -200,22 +204,24 @@ const AIChatbot: React.FC<AIChatbotProps> = ({
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto xibalba-scrollbar p-4 space-y-4 min-h-0">
-        {messages.map((message) => (
+        {messages.map(message => (
           <div
             key={message.id}
-            className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            className={`chat-message flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             <div
               className={`max-w-[80%] p-3 ${
+                message.role === 'assistant' && message.hashtagScript ? 'chat-command-executing' : ''
+              } ${
                 message.role === 'user'
                   ? 'bg-[var(--xibalba-accent)] text-white'
                   : message.role === 'system'
-                  ? 'bg-[var(--xibalba-grey-100)] xibalba-text-caption'
-                  : 'bg-[var(--xibalba-grey-200)] xibalba-text-body'
+                    ? 'bg-[var(--xibalba-grey-100)] xibalba-text-caption'
+                    : 'bg-[var(--xibalba-grey-200)] xibalba-text-body'
               }`}
             >
               <div className="whitespace-pre-wrap">{message.content}</div>
-              
+
               {/* Show hashtag script if available */}
               {message.hashtagScript && (
                 <div className="mt-2 pt-2 border-t border-white/20">
@@ -233,9 +239,9 @@ const AIChatbot: React.FC<AIChatbotProps> = ({
 
               {/* Show errors if any */}
               {message.errors && message.errors.length > 0 && (
-                <div className="mt-2 pt-2 border-t border-red-500/30">
-                  <div className="xibalba-text-caption text-red-400 mb-1">Issues:</div>
-                  <ul className="list-disc list-inside text-xs text-red-300">
+                <div className="mt-2 pt-2 border-t border-[var(--vectorforge-accent)]/30">
+                  <div className="xibalba-text-caption text-[var(--vectorforge-accent)] mb-1">Issues:</div>
+                  <ul className="list-disc list-inside text-xs text-[var(--vectorforge-accent)]">
                     {message.errors.map((error, i) => (
                       <li key={i}>{error}</li>
                     ))}
@@ -244,32 +250,34 @@ const AIChatbot: React.FC<AIChatbotProps> = ({
               )}
 
               {/* Action buttons for valid scripts */}
-              {message.hashtagScript && 
-               !message.hashtagScript.startsWith('//') && 
-               message.errors === undefined && (
-                <div className="mt-2 flex gap-2">
-                  <button
-                    onClick={() => onScriptGenerated(message.hashtagScript!)}
-                    className="xibalba-button-professional text-xs px-2 py-1"
-                  >
-                    <span className="material-symbols-outlined text-[14px] mr-1">code</span>
-                    Use Script
-                  </button>
-                  {onExecuteScript && (
+              {message.hashtagScript &&
+                !message.hashtagScript.startsWith('//') &&
+                message.errors === undefined && (
+                  <div className="mt-2 flex gap-2">
                     <button
-                      onClick={() => onExecuteScript(message.hashtagScript!)}
+                      onClick={() => onScriptGenerated(message.hashtagScript!)}
                       className="xibalba-button-professional text-xs px-2 py-1"
                     >
-                      <span className="material-symbols-outlined text-[14px] mr-1">play_arrow</span>
-                      Execute
+                      <span className="material-symbols-outlined text-[14px] mr-1">code</span>
+                      Use Script
                     </button>
-                  )}
-                </div>
-              )}
+                    {onExecuteScript && (
+                      <button
+                        onClick={() => onExecuteScript(message.hashtagScript!)}
+                        className="xibalba-button-professional text-xs px-2 py-1"
+                      >
+                        <span className="material-symbols-outlined text-[14px] mr-1">
+                          play_arrow
+                        </span>
+                        Execute
+                      </button>
+                    )}
+                  </div>
+                )}
             </div>
           </div>
         ))}
-        
+
         {isTranslating && (
           <div className="flex justify-start">
             <div className="bg-[var(--xibalba-grey-200)] p-3 w-full max-w-md">
@@ -283,7 +291,7 @@ const AIChatbot: React.FC<AIChatbotProps> = ({
             </div>
           </div>
         )}
-        
+
         <div ref={messagesEndRef} />
       </div>
 
@@ -293,7 +301,7 @@ const AIChatbot: React.FC<AIChatbotProps> = ({
           <textarea
             ref={inputRef}
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={e => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Tell me what you want to animate... (e.g., 'Move the circle to the right')"
             className="xibalba-input-professional flex-1 resize-none min-h-[60px] max-h-[120px]"
@@ -316,4 +324,3 @@ const AIChatbot: React.FC<AIChatbotProps> = ({
 };
 
 export default AIChatbot;
-

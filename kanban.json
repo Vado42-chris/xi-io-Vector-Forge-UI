@@ -1,0 +1,180 @@
+{
+  "project": "VectorFORGE - Sprint Kanban",
+  "created_at": "2025-12-30T09:30:00Z",
+  "owner": "chris@local",
+  "credits_remaining": 21,
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "Wire SignButton to real canvas export (UI patch)",
+      "estimate_hours": 1.5,
+      "priority": 1,
+      "status": "ready",
+      "description": "Add UI Sign & Append wiring: Pull current canvas export (SVG/canonical), call signAndAppend helper, show success/failure to user. Produce a git patch and test steps.",
+      "files": [
+        "components/ui/SignButton.tsx",
+        "components/actions/signAndAppend.ts",
+        "components/DraftsmanCanvas.tsx",
+        "scripts/make_proof_bundle.sh"
+      ],
+      "deliverable": "git patch that wires Sign button to live canvas export and triggers sign+append flow; UI shows status messages",
+      "test_steps": [
+        "Run dev server: npm run dev",
+        "Open app, draw with Pencil, click 'Sign & Append', verify message 'Signed and appended' and that LEDGER.ndjson has a new entry",
+        "Run ./scripts/demo_flow.sh to verify bundle generation flow still succeeds"
+      ],
+      "risk": "Low — only UI wiring; ensure correct canonical payload shape. If failing, revert patch.",
+      "prompt": "Task: Wire SignButton to real canvas export (UI patch)\n\nScope:\n- Add wiring so the existing Sign & Append UI (components/ui/SignButton.tsx) pulls the live canvas export from components/DraftsmanCanvas.tsx (SVG or canonical JSON), then runs the signAndAppend helper (components/actions/signAndAppend.ts) with the current private key path.\n- Show user-facing status messages: \"Signing...\", \"Signed and appended\", or \"Error: <message>\".\n- The change must be minimal: add an IPC or fetch path if Electron not used; fallback to saving canonical to temp file and calling script.\n\nFiles to modify:\n- components/ui/SignButton.tsx\n- components/actions/signAndAppend.ts\n- components/DraftsmanCanvas.tsx (small export hook)\n- Optional: add tests or a demo script invocation in scripts/demo_flow.sh\n\nDeliverable:\n- A git patch (unified diff) that implements the wiring and updates SignButton to call the helper.\n- Unit/integration test instructions: how to simulate click & verify LEDGER.ndjson appended.\n\nConstraints:\n- Keep changes reversible and minimal.\n- Do NOT create or commit private keys.\n- Tools allowed: node, jq, openssl, curl for POST.\n\nTest steps (must be returned with the patch):\n1. Start dev server (npm run dev).\n2. Open app, draw with Pencil tool, click Sign & Append.\n3. Verify message \"Signed and appended\" appears.\n4. Verify LEDGER.ndjson contains a new event (tail -n 10 LEDGER.ndjson).\n5. Run ./scripts/demo_flow.sh to ensure bundle generation still passes.\n\nRisk statement:\n- Low: UI wiring only. If LEDGER format mismatches, the demo flow will show hash/signature mismatch which is reversible by reverting the patch.\n\nReturn format:\n- Provide a unified git patch as the output (patch.diff).\n- Provide a short test log example showing success or failure.\n\nDo not apply the patch automatically — provide it for human review and git apply."
+    },
+    {
+      "id": "T2",
+      "title": "Make demo_flow use real canvas export and produce proof_bundle",
+      "estimate_hours": 1.0,
+      "priority": 2,
+      "status": "ready",
+      "description": "Update scripts/demo_flow.sh and signAndAppend to accept real exported SVG or canonical JSON from the canvas, then sign, bundle, and verify. Produce patch + script test.",
+      "files": [
+        "scripts/demo_flow.sh",
+        "components/actions/signAndAppend.ts",
+        "scripts/make_proof_bundle.sh",
+        "scripts/verify_quick_low_resource.sh"
+      ],
+      "deliverable": "demo_flow.sh uses the live export and produces proof_bundle.zip from real drawing",
+      "test_steps": [
+        "Start dev server, draw, export canonical payload from UI to a temp file",
+        "Run ./scripts/demo_flow.sh and verify ./proof_bundle.zip exists and ./scripts/verify_quick_low_resource.sh passes"
+      ],
+      "risk": "Low-medium — canonicalization shape must match action_record expectations"
+    },
+    {
+      "id": "T3",
+      "title": "Integrate Brush tool into canvas & palette",
+      "estimate_hours": 2.5,
+      "priority": 3,
+      "status": "ready",
+      "description": "Add Brush tool button to tool palette, ensure BrushTool adapter is mounted, and strokes render. Produce patch + smoke test.",
+      "files": [
+        "components/LeftSidebar.tsx",
+        "components/DraftsmanCanvas.tsx",
+        "components/tools/BrushTool.tsx",
+        "lib/tools/brush.ts"
+      ],
+      "deliverable": "Brush selectable and functional in canvas, undo/redo works, exportable path available",
+      "test_steps": [
+        "Select Brush in UI, draw, observe variable width",
+        "Undo/redo behavior works (Ctrl+Z/Ctrl+Shift+Z)",
+        "Export SVG path from Brush strokes and validate rendering in an SVG viewer"
+      ],
+      "risk": "Medium — rendering changes could affect canvas layer; keep changes minimal"
+    },
+    {
+      "id": "T4",
+      "title": "Export QA: PNG/PDF/SVG reliability & dialog",
+      "estimate_hours": 2.0,
+      "priority": 4,
+      "status": "ready",
+      "description": "Harden export flows (PNG, PDF via jsPDF, SVG). Add basic export dialog (size, DPI). Fix edge cases found in manual QA.",
+      "files": [
+        "components/ProfessionalFileMenu.tsx",
+        "lib/export/*.ts",
+        "scripts/make_proof_bundle.sh"
+      ],
+      "deliverable": "Export dialog, reliable exports, unit test for export conversion",
+      "test_steps": [
+        "Export sample drawings to PNG/PDF/SVG at various DPI and sizes",
+        "Open exported files in external viewers and verify fidelity",
+        "Run automated export test if present"
+      ],
+      "risk": "Medium — ensure jsPDF usage tested for large canvases"
+    },
+    {
+      "id": "T5",
+      "title": "Parity smoke tests: Cursor vs Zed path",
+      "estimate_hours": 2.5,
+      "priority": 5,
+      "status": "ready",
+      "description": "Run 10 canonical prompts/actions through both Cursor and Zed validated context paths and create a parity report; fix mismatches in low-risk files.",
+      "files": [
+        "lib/services/stateReplayService.ts",
+        "services/ledgerAdapter.ts",
+        "components/DevChatbot.tsx"
+      ],
+      "deliverable": "parity_report.json containing diffs and action items",
+      "test_steps": [
+        "Create 10 canonical test cases (exported payloads)",
+        "Run them through Cursor path and Zed path, save outputs",
+        "Compare outputs, record non-functional differences and invariant failures"
+      ],
+      "risk": "Low — mostly test orchestration; fixes may be needed for edge-case compatibility"
+    },
+    {
+      "id": "T6",
+      "title": "Pen scaffold → implement Bezier fitting",
+      "estimate_hours": 4.0,
+      "priority": 6,
+      "status": "ready",
+      "description": "Use the factory generator to create Pen tool scaffold and implement cubic Bezier fitting for accurate pen strokes.",
+      "files": [
+        "scripts/new-tool-scaffold.js",
+        "lib/tools/pen.ts",
+        "components/tools/PenTool.tsx",
+        "tests/pen.test.ts"
+      ],
+      "deliverable": "Pen tool implemented with bezier fitting and tests",
+      "test_steps": [
+        "Generate Pen scaffold: node scripts/new-tool-scaffold.js --name=pen --shortcut=P",
+        "Implement core, run unit tests, integrate into palette"
+      ],
+      "risk": "Medium — fitting algorithm must be tuned; keep scope minimal for demo"
+    },
+    {
+      "id": "T7",
+      "title": "Wargame harness (basic scenarios)",
+      "estimate_hours": 6.0,
+      "priority": 7,
+      "status": "ready",
+      "description": "Create automated scenarios to test sign→edit→merge race, stale proof reuse, and key compromise simulations. Save artifacts in wargame-output/.",
+      "files": [
+        "wargame/harness.js",
+        "wargame/scenarios/*.json",
+        "wargame/README.md"
+      ],
+      "deliverable": "wargame-output directory with results and action_items.json",
+      "test_steps": [
+        "Run harness locally: node wargame/harness.js",
+        "Inspect wargame-output for failing scenarios and reproduce"
+      ],
+      "risk": "Higher time commitment; can be run after demo"
+    },
+    {
+      "id": "T8",
+      "title": "CI replay check integration",
+      "estimate_hours": 2.0,
+      "priority": 8,
+      "status": "ready",
+      "description": "Wire ci/ci_replay_check.sh into CI pipeline to block PRs that break replay invariants. Provide clear diagnostics in failure logs.",
+      "files": [
+        "ci/ci_replay_check.sh",
+        ".github/workflows/ci.yml"
+      ],
+      "deliverable": "CI job that runs replay check and fails PRs on invariant violations",
+      "test_steps": [
+        "Push branch with intentional invariant violation to test CI failure",
+        "Verify failure shows relevant invariant error and offending event"
+      ],
+      "risk": "Medium — ensure CI runner has required tools (node, jq)"
+    }
+  ],
+  "workflow": {
+    "step1": "Open DevChatbot (/devchat route or Ctrl+K)",
+    "step2": "Copy task prompt from Kanban JSON",
+    "step3": "Paste into DevChatbot",
+    "step4": "Review generated patch",
+    "step5": "Apply: git apply patch.diff",
+    "step6": "Test: npm test && npx tsc --noEmit",
+    "step7": "If good: commit, if not: request fix",
+    "step8": "Move task to 'done' and start next"
+  }
+}
+
+

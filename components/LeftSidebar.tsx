@@ -13,6 +13,9 @@ import { ToolButton } from './shared/ToolButton';
 import { EmptyState } from './shared/EmptyState';
 import { StatusIndicator } from './shared/StatusIndicator';
 import { Button } from './shared/templates/Button';
+import { useClickTracking } from '../hooks/useClickTracking';
+import { errorReportingService } from '../services/errorReportingService';
+import { usabilityHeuristicsService } from '../services/usabilityHeuristicsService';
 
 interface LeftSidebarProps {
   state: AppState;
@@ -35,6 +38,9 @@ interface LeftSidebarProps {
 const LeftSidebar: React.FC<LeftSidebarProps> = ({
   state, setState, onGenerate, onRefine, onTerminalCommand, onVisionScan, activeTool, onToolChange
 }) => {
+  // TRACKING: Patent-safe click tracking
+  const { trackClick } = useClickTracking({ componentName: 'LeftSidebar' });
+
   // REUSE: Extract common resize/drag logic to shared hook
   const {
     width,
@@ -74,17 +80,18 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
       className="xibalba-sidebar shrink-0 flex flex-col xibalba-dockable-palette sidebar-fixed-left bg-[var(--xibalba-grey-050)] overflow-hidden zstack-sidebar-left"
       onPointerDown={handleDragStart}
       data-palette-id="left-sidebar"
-      style={{ 
-        '--sidebar-left-width': `${width}px`,
-        '--sidebar-width': `${width}px`, // Legacy support
-      } as React.CSSProperties}
+      data-sidebar-width={width}
+      data-sidebar-left-width={width}
     >
-      {/* Resize Handle */}
+      {/* Resize Handle - Always Visible */}
       <Tooltip content="Drag to resize sidebar" position="right">
         <div
           ref={resizeHandleRef}
-          onPointerDown={handleResizeStart}
-          className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-[var(--xibalba-text-100)] opacity-0 hover:opacity-100 transition-opacity zstack-sidebar-resize-handle"
+          onPointerDown={(e) => {
+            trackClick('resize-handle', 'drag');
+            handleResizeStart(e);
+          }}
+          className="absolute right-0 top-0 bottom-0 w-2 cursor-col-resize bg-[var(--xibalba-grey-200)] hover:bg-[var(--xibalba-accent)] opacity-40 hover:opacity-100 transition-all zstack-sidebar-resize-handle z-[1000]"
         />
       </Tooltip>
 
@@ -98,7 +105,10 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
           <div className="flex items-center gap-2">
             <Button
               icon={isCollapsed ? 'chevron_right' : 'chevron_left'}
-              onClick={() => setIsCollapsed(!isCollapsed)}
+              onClick={() => {
+                trackClick('button', 'click');
+                setIsCollapsed(!isCollapsed);
+              }}
               variant="icon-only"
               size="sm"
               tooltip={isCollapsed ? 'Expand Tools Panel' : 'Collapse Tools Panel'}
@@ -110,10 +120,11 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
         </div>
       </div>
 
-      {/* Quick Tool Selector - REUSE: Using ToolButton component */}
+      {/* Quick Tool Selector - REUSE: Using ToolButton component - Organized Grid */}
       {!isCollapsed && (
-        <div className="p-3 bg-[var(--xibalba-grey-050)]">
-          <div className="flex flex-col gap-1.5">
+        <div className="xibalba-panel-section bg-[var(--xibalba-grey-050)]">
+          <div className="xibalba-ia-group-header">Tools</div>
+          <div className="xibalba-tools-panel left-sidebar-tools">
             {tools.map(tool => {
               const tooltipContent = tool.id === 'select' ? `Select Tool (${tool.shortcut}) - Select and move objects` :
                 tool.id === 'pen' ? `Pen Tool (${tool.shortcut}) - Draw freeform paths` :
@@ -132,6 +143,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
                   onClick={(id) => onToolChange && onToolChange(id)}
                   disabled={!onToolChange}
                   tooltip={tooltipContent}
+                  variant="compact"
                 />
               );
             })}

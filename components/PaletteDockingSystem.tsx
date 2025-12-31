@@ -29,6 +29,7 @@ export interface PaletteProps {
   resizable?: boolean;
   onDock?: (zone: DockingZone) => void;
   onUndock?: () => void;
+  className?: string;
 }
 
 interface PaletteDockingSystemProps {
@@ -64,7 +65,7 @@ export const DraggablePalette: React.FC<PaletteProps & {
   id, title, children, position, onPositionChange, zIndex,
   defaultWidth = 300, defaultHeight = 400,
   minWidth = 200, minHeight = 200,
-  resizable = true, onDock, onUndock
+  resizable = true, onDock, onUndock, className = ''
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
@@ -211,10 +212,10 @@ export const DraggablePalette: React.FC<PaletteProps & {
   return (
     <div
       ref={(node) => {
-        paletteRef(node);
+        paletteRef.current = node;
         if (node) paletteRefWithStyle.current = node;
       }}
-      className="xibalba-palette bg-[var(--xibalba-grey-050)] border border-white/10 shadow-lg palette-positioned"
+      className={`xibalba-palette bg-[var(--xibalba-grey-050)] border border-white/10 shadow-lg palette-positioned ${className}`}
     >
       {/* Drag Handle */}
       <div
@@ -222,7 +223,7 @@ export const DraggablePalette: React.FC<PaletteProps & {
         onPointerDown={handleDragStart}
         className="h-8 bg-[var(--xibalba-grey-100)] border-b border-white/10 flex items-center justify-between px-3 cursor-grab active:cursor-grabbing"
       >
-        <span className="xibalba-text-subheading text-[10px] font-black uppercase tracking-widest">{title}</span>
+        <span className="xibalba-text-subheading text-sm font-black uppercase tracking-widest">{title}</span>
         <div className="flex items-center gap-2">
           <button
             onClick={() => {

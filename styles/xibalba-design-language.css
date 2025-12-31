@@ -1,4 +1,11 @@
-/* Xibalba Design Language */
+/* Xibalba Design Language - Design System Principles */
+/* 
+ * CLARITY:
+ * - Xibalba = Parent company (design system principles)
+ * - xi-io = Product line moniker
+ * - VectorForge = This specific product
+ * - Feature Color: Orange (#ff9800) ONLY for VectorForge interactive elements
+ */
 
 /* Canvas Styles */
 .canvas-content {
@@ -18,11 +25,15 @@
 }
 
 .grid-background {
+  background-color: var(--xibalba-grey-050);
   background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(to right, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
   background-size: var(--grid-size, 40px) var(--grid-size, 40px);
   background-position: var(--grid-offset-x, 0px) var(--grid-offset-y, 0px);
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-background);
 }
 
 .guide-line-vertical {
@@ -53,8 +64,8 @@
   right: 0 !important;
   height: 32px !important;
   background: var(--xibalba-grey-050) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-  z-index: 50 !important;
+  border-bottom: none !important;
+  z-index: var(--z-rulers) !important;
   overflow: visible !important;
 }
 
@@ -65,8 +76,8 @@
   bottom: 0 !important;
   width: 32px !important;
   background: var(--xibalba-grey-050) !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
-  z-index: 50 !important;
+  border-right: none !important;
+  z-index: var(--z-rulers) !important;
   overflow: visible !important;
 }
 
@@ -136,25 +147,46 @@
   line-height: 1;
 }
 
+/* Canvas Area - Container for canvas content */
+.canvas-area {
+  position: absolute;
+  background-color: var(--xibalba-grey-050, #010101) !important;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+  overflow: hidden;
+  pointer-events: auto;
+  width: 100% !important;
+  height: 100% !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+}
+
 /* Canvas Content Wrapper - NO INLINE STYLES */
 .canvas-content-wrapper {
-  top: 50%;
-  left: 50%;
-  width: var(--canvas-width, 1920px);
-  height: var(--canvas-height, 1080px);
-  transform: translate(calc(-50% + var(--canvas-pan-x, 0px)), calc(-50% + var(--canvas-pan-y, 0px))) scale(var(--canvas-zoom-scale, 1));
-  transform-origin: center center;
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  overflow: auto;
+  pointer-events: auto;
   box-shadow: 0 0 20px rgba(255, 255, 255, 0.05), inset 0 0 40px rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  min-width: var(--canvas-width, 1920px);
-  min-height: var(--canvas-height, 1080px);
+  display: block !important;
+  min-width: 100% !important;
+  min-height: 100% !important;
 }
 
 .canvas-svg {
-  pointer-events: none;
+  pointer-events: auto;
   display: block;
   width: 100%;
   height: 100%;
+  min-width: var(--svg-min-width, 800px);
+  min-height: var(--svg-min-height, 600px);
 }
 
 .canvas-layer {
@@ -174,22 +206,106 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 999;
-  opacity: 0.15;
+  z-index: var(--z-canvas-overlay, 12);
+  opacity: 0.2;
   mix-blend-mode: overlay;
+  background-color: var(--xibalba-grey-050);
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  /* Ensure it stays within canvas area and doesn't overlay menus */
+  isolation: isolate;
+  /* Contain within parent */
+  contain: layout style paint;
 }
 
 /* Construction Paper Layer for Menus and Palettes - Flat intermediary layer for text readability */
 .construction-paper-layer-menu {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   pointer-events: none;
-  z-index: 1;
+  z-index: -1;
   background-color: var(--xibalba-bg-secondary);
-  opacity: 0.95;
+  opacity: 0.15;
   mix-blend-mode: normal;
+  /* CRITICAL: Contain within parent - prevent escaping */
+  max-width: 100%;
+  max-height: 100%;
+  overflow: hidden;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  /* Ensure it stays within its parent container */
+  overflow: hidden;
+  contain: layout style paint;
+}
+
+/* Material Icons Font - Base Styles */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined', sans-serif;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  speak: none;
+  text-rendering: optimizeLegibility;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* CRITICAL FIX: For icons with data-icon attribute, hide text and show via pseudo-element */
+.material-symbols-outlined[aria-hidden="true"][data-icon] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+  width: 1em;
+  height: 1em;
+  /* Hide the actual text content completely */
+  font-size: 0 !important;
+  line-height: 0 !important;
+  text-indent: -9999px !important;
+  overflow: hidden !important;
+  color: transparent !important;
+}
+
+/* Show icon using pseudo-element with data-icon attribute */
+.material-symbols-outlined[aria-hidden="true"][data-icon]::before {
+  content: attr(data-icon);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: var(--icon-size, 1em);
+  line-height: 1;
+  text-indent: 0;
+  color: inherit;
+  font-family: 'Material Symbols Outlined', sans-serif;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* For icons without data-icon (legacy), try to hide text but allow font to render */
+.material-symbols-outlined[aria-hidden="true"]:not([data-icon]) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  /* Less aggressive - allow font to render if it loads */
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
 /* Menu items container - hide scrollbar unless needed, responsive */
@@ -197,6 +313,8 @@
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
   padding: 4px 0;
+  position: relative;
+  z-index: 10;
 }
 
 .menu-items-container::-webkit-scrollbar {
@@ -216,29 +334,34 @@
   background: rgba(255, 255, 255, 0.25);
 }
 
-/* Menu dropdown styling - integrated with UI */
+/* Menu dropdown styling - integrated with UI - NO BORDERS */
 .menu-dropdown {
-  background: var(--xibalba-bg-secondary);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  position: absolute;
+  background: var(--xibalba-grey-100, #1a1c22) !important;
+  /* NO BORDER - Xibalba design system */
   box-shadow: 
     0 8px 24px rgba(0, 0, 0, 0.4),
-    0 2px 4px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    0 2px 4px rgba(0, 0, 0, 0.3);
+  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
+  z-index: var(--z-dropdown, 500) !important;
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+  color: var(--xibalba-text-000, #ffffff) !important;
 }
 
-/* Menu dropdown positioning - ensure proper stacking */
-.menu-dropdown {
+/* Ensure parent menu container has relative positioning */
+.menu-container {
   position: relative;
 }
 
-/* Tool Palette Styles - NO INLINE STYLES */
+/* Tool Palette Styles - NO INLINE STYLES - NO BORDERS */
 .tool-palette {
   min-width: 200px;
   max-width: 320px;
   background: var(--xibalba-bg-secondary);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 6px;
+  /* NO BORDER - Xibalba design system */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   position: relative;
   overflow: hidden;
@@ -248,7 +371,7 @@
   position: fixed;
   left: var(--palette-left, 100px);
   top: var(--palette-top, 100px);
-  z-index: 1000;
+  z-index: var(--z-floating);
 }
 
 .tool-palette-pinned {
@@ -258,6 +381,7 @@
 }
 
 .palette-drag-handle {
+  -webkit-user-select: none;
   user-select: none;
 }
 
@@ -303,6 +427,7 @@
 /* Xibalba Logomark Styles */
 .xibalba-logomark-container {
   /* Cursor handled by className (cursor-pointer or cursor-default) */
+  -webkit-user-select: none;
   user-select: none;
 }
 
@@ -468,6 +593,7 @@
 
 /* Tool Locking System */
 .xibalba-tool-lock-indicator {
+  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
@@ -522,4 +648,260 @@
   background: var(--xibalba-accent);
   border-radius: 50%;
   box-shadow: 0 0 4px var(--xibalba-accent);
+}
+
+/* Error Display Styles - Replaces inline styles */
+.error-display-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 500px;
+  max-height: 400px;
+  background: var(--xibalba-grey-200, #050505);
+  border: 2px solid var(--vectorforge-accent, #ff9800);
+  border-radius: 8px;
+  padding: 20px;
+  z-index: var(--z-modal, 1000);
+  overflow: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+}
+
+.error-display-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.error-display-title {
+  color: var(--vectorforge-accent, #ff9800);
+  margin: 0;
+  font-size: 16px;
+}
+
+.error-display-close {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 20px;
+  padding: 0 10px;
+}
+
+.error-display-list {
+  max-height: 300px;
+  overflow: auto;
+}
+
+.error-display-item {
+  background: var(--xibalba-grey-100, #050505);
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  border-left: 3px solid #ff0000;
+}
+
+.error-display-message {
+  color: #ff0000;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.error-display-source {
+  color: var(--xibalba-text-muted, #b0b0b0);
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+.error-display-details {
+  margin-top: 10px;
+}
+
+.error-display-summary {
+  color: var(--vectorforge-accent, #ff9800);
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.error-display-stack {
+  color: var(--xibalba-text-secondary, #e0e0e0);
+  font-size: 11px;
+  white-space: pre-wrap;
+  margin-top: 5px;
+}
+
+.error-display-clear {
+  width: 100%;
+  margin-top: 15px;
+  padding: 10px;
+  background: var(--vectorforge-accent, #ff9800);
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* Footer Styles */
+.footer-background {
+  background-color: var(--xibalba-grey-050, #0a0a0a);
+  border-top: none;
+}
+
+/* Progress Bar Styles */
+.progress-bar-container {
+  width: 100%;
+  height: 4px;
+  background: var(--xibalba-grey-100, #050505);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--vectorforge-accent, #ff9800);
+  transition: width 0.3s ease;
+}
+
+/* Canvas Container with Dynamic Margin */
+.canvas-container {
+  transition: margin-left 0.2s ease;
+}
+
+/* Canvas Main Content - Now uses absolute positioning with direct left/right properties */
+/* Removed CSS custom properties approach - using inline styles for dynamic positioning */
+
+/* Flex Utilities */
+.flex-1 {
+  flex: 1;
+}
+
+/* Padding Utilities */
+.p-5 {
+  padding: 20px;
+}
+
+.p-3 {
+  padding: 12px;
+}
+
+.p-4 {
+  padding: 16px;
+}
+
+/* Border Utilities */
+.border-b {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Background Utilities - USE CSS VARIABLES */
+.bg-dark {
+  background-color: var(--xibalba-grey-050, #010101) !important;
+}
+
+.bg-darker {
+  background-color: var(--xibalba-grey-100, #020202) !important;
+}
+
+.bg-darkest {
+  background-color: var(--xibalba-grey-000, #000000) !important;
+}
+
+/* Nested List Indentation */
+.nested-list-item {
+  padding-left: var(--nested-level, 0px);
+}
+
+/* Dynamic Width for Progress */
+.progress-width {
+  width: var(--progress-value, 0%);
+}
+
+/* CRITICAL: Sidebar Fixed Positioning - MUST BE VISIBLE */
+/* VectorFORGE: Xibalba, xi-io product - uses z-stack system */
+/* Sidebar Fixed Positioning - MUST override all other styles with maximum specificity */
+aside.sidebar-fixed-left,
+aside.xibalba-sidebar.sidebar-fixed-left,
+aside.xibalba-dockable-palette.sidebar-fixed-left,
+.xibalba-sidebar.sidebar-fixed-left,
+.xibalba-dockable-palette.sidebar-fixed-left,
+.sidebar-fixed-left {
+  position: fixed !important;
+  left: 0 !important;
+  top: 48px !important;
+  height: calc(100vh - 48px) !important;
+  width: var(--sidebar-left-width, var(--sidebar-width, 320px)) !important;
+  min-width: 200px !important;
+  max-width: 600px !important;
+  z-index: var(--z-sidebar-left, 100) !important;
+  background-color: var(--xibalba-grey-050, #010101) !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  transform: none !important;
+  will-change: auto !important;
+  flex: none !important;
+  flex-shrink: 0 !important;
+  flex-grow: 0 !important;
+}
+
+div.sidebar-fixed-right,
+div.xibalba-dockable-palette.sidebar-fixed-right,
+.xibalba-dockable-palette.sidebar-fixed-right,
+.sidebar-fixed-right {
+  position: fixed !important;
+  right: 0 !important;
+  top: 48px !important;
+  height: calc(100vh - 48px) !important;
+  width: var(--sidebar-right-width, var(--sidebar-width, 360px)) !important;
+  min-width: 200px !important;
+  max-width: 600px !important;
+  z-index: var(--z-sidebar-right, 100) !important;
+  background-color: var(--xibalba-grey-050, #010101) !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  transform: none !important;
+  will-change: auto !important;
+  flex: none !important;
+  flex-shrink: 0 !important;
+  flex-grow: 0 !important;
+}
+
+/* CRITICAL: Header Fixed Positioning - MUST BE ABOVE SIDEBARS */
+/* VectorFORGE: Xibalba, xi-io product - uses z-stack system */
+.xibalba-header {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 48px !important;
+  max-height: 48px !important;
+  min-height: 48px !important;
+  z-index: var(--z-menu, 400) !important;
+  background-color: var(--xibalba-grey-000, #000000) !important;
+  border-bottom: 1px solid var(--xibalba-grey-200, #0a0a0a) !important;
+  overflow: hidden !important;
+  contain: layout style paint size !important;
+  box-sizing: border-box !important;
+}
+
+.xibalba-header * {
+  max-height: 48px !important;
+  box-sizing: border-box !important;
+}
+
+.xibalba-header > * {
+  height: 48px !important;
+  max-height: 48px !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+/* Prevent any absolute/fixed children from escaping header */
+.xibalba-header *[style*="position: absolute"],
+.xibalba-header *[style*="position: fixed"] {
+  display: none !important;
 }

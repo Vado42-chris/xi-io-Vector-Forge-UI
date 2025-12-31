@@ -134,8 +134,8 @@ const ToolPalette: React.FC<ToolPaletteProps> = ({
           className="palette-drag-handle flex items-center justify-between p-2 border-b border-white/10 cursor-grab active:cursor-grabbing relative z-10"
         >
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-[14px] text-[var(--xibalba-text-200)]">{icon}</span>
-            <span className="text-[11px] font-semibold text-[var(--xibalba-text-000)] uppercase tracking-wider">{title}</span>
+            <span className="material-symbols-outlined text-[14px] text-[var(--xibalba-text-100)]" aria-hidden="true" data-icon={icon}></span>
+            <span className="text-sm font-semibold text-[var(--xibalba-text-000)] uppercase tracking-wider">{title}</span>
           </div>
           <div className="flex items-center gap-1">
             <Tooltip content={isPinned ? 'Unpin from panel' : 'Pin to left panel'} position="bottom">
@@ -156,7 +156,7 @@ const ToolPalette: React.FC<ToolPaletteProps> = ({
                   className="palette-close-button xibalba-toolbar-button-professional text-[12px] p-1"
                   title="Close"
                 >
-                  <span className="material-symbols-outlined text-[14px]">close</span>
+                  <span className="material-symbols-outlined text-[14px]" aria-hidden="true" data-icon="close"></span>
                 </button>
               </Tooltip>
             )}
@@ -180,12 +180,12 @@ const ToolPalette: React.FC<ToolPaletteProps> = ({
                     onItemClick(id, item.id);
                   }
                 }}
-                className="palette-item-button w-full text-left px-3 py-2 text-[10px] font-medium text-[var(--xibalba-text-000)] hover:text-[var(--xibalba-text-000)] hover:bg-[var(--xibalba-grey-150)] flex items-center gap-3 bg-transparent border-none cursor-pointer rounded transition-colors"
+                className="palette-item-button w-full text-left px-3 py-2 text-sm font-medium text-[var(--xibalba-text-000)] hover:text-[var(--xibalba-text-000)] hover:bg-[var(--xibalba-grey-150)] flex items-center gap-3 bg-transparent border-none cursor-pointer rounded transition-colors"
               >
-                <span className="material-symbols-outlined text-[14px] opacity-80">{item.icon}</span>
+                <span className="material-symbols-outlined text-[14px] opacity-80" aria-hidden="true" data-icon={item.icon}></span>
                 <span className="flex-1">{item.label}</span>
                 {item.shortcut && (
-                  <span className="text-[8px] font-mono text-[var(--xibalba-text-300)] px-1.5 py-0.5 rounded bg-[var(--xibalba-grey-100)]">
+                  <span className="text-xs font-mono text-[var(--xibalba-text-100)] px-1.5 py-0.5 rounded bg-[var(--xibalba-grey-100)]">
                     {item.shortcut}
                   </span>
                 )}

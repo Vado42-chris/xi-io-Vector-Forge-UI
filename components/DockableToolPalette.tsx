@@ -9,6 +9,7 @@ import { ToolType } from '../types';
 import { DraggablePalette, PalettePosition } from './PaletteDockingSystem';
 import ToolLockingSystem, { useToolLock, ToolLockIndicator } from './ToolLockingSystem';
 import { HoverFeedback, RippleEffect } from './ProductionQualityInteractions';
+import { ToolButton } from './shared/ToolButton';
 
 interface DockableToolPaletteProps {
   activeTool: ToolType;
@@ -88,14 +89,14 @@ const DockableToolPalette: React.FC<DockableToolPaletteProps> = ({
         {toolGroups.map((group, groupIdx) => (
           <div key={group.name} className={groupIdx > 0 ? 'mt-4 pt-4 border-t border-white/10' : ''}>
             <div className="px-2 mb-2">
-              <span className="xibalba-text-caption text-[8px] font-black uppercase tracking-widest text-[var(--xibalba-text-200)]">
+              <span className="xibalba-text-caption text-xs font-black uppercase tracking-widest text-[var(--xibalba-text-100)]">
                 {group.name}
               </span>
             </div>
             <div className="grid grid-cols-1 gap-1">
               {group.tools.map(tool => {
-                const isActive = activeTool === tool.id;
                 const isLocked = lockState.isLocked && lockState.lockedTool === tool.id;
+                const isDisabled = lockState.isLocked && !isLocked;
                 
                 return (
                   <RippleEffect key={tool.id}>
@@ -103,41 +104,32 @@ const DockableToolPalette: React.FC<DockableToolPaletteProps> = ({
                       className="w-full"
                       hoverClassName=""
                     >
-                      <button
-                        onClick={() => {
-                          if (lockState.isLocked && lockState.lockedTool !== tool.id) {
-                            return; // Tool is locked to another tool
-                          }
-                          setTool(tool.id);
-                        }}
+                      <div
                         onContextMenu={(e) => {
                           e.preventDefault();
                           toggleLock(tool.id, `Locked: ${tool.label}`);
                         }}
-                        className={`
-                          xibalba-toolbar-button-professional w-full flex items-center justify-start gap-2 p-2
-                          transition-all duration-200 ease-out
-                          ${isActive ? 'bg-[var(--xibalba-accent)] text-white shadow-lg' : ''}
-                          ${isLocked ? 'ring-2 ring-[var(--xibalba-accent)] ring-opacity-50' : ''}
-                          hover:bg-[var(--xibalba-grey-150)]
-                          ${lockState.isLocked && !isLocked ? 'opacity-50 cursor-not-allowed' : ''}
-                        `}
-                        title={`${tool.label}${tool.shortcut ? ` (${tool.shortcut})` : ''}${isLocked ? ' [LOCKED]' : ''} - Right-click to lock`}
-                        disabled={lockState.isLocked && !isLocked}
+                        className={`relative ${isLocked ? 'ring-2 ring-[var(--xibalba-accent)] ring-opacity-50' : ''}`}
                       >
-                        <span className="material-symbols-outlined text-[18px]">{tool.icon}</span>
-                        <span className="xibalba-text-xs text-[10px] leading-tight flex-1">{tool.label}</span>
-                        <div className="flex items-center gap-1">
-                          {isLocked && (
-                            <span className="material-symbols-outlined text-[12px] text-[var(--xibalba-accent)]">
-                              lock
-                            </span>
-                          )}
-                          {tool.shortcut && (
-                            <span className="xibalba-text-caption text-[8px] opacity-50">{tool.shortcut}</span>
-                          )}
-                        </div>
-                      </button>
+                        <ToolButton
+                          tool={tool}
+                          activeTool={activeTool}
+                          onClick={(id) => {
+                            if (lockState.isLocked && lockState.lockedTool !== id) {
+                              return; // Tool is locked to another tool
+                            }
+                            setTool(id);
+                          }}
+                          disabled={isDisabled}
+                          variant="compact"
+                          tooltip={`${tool.label}${tool.shortcut ? ` (${tool.shortcut})` : ''}${isLocked ? ' [LOCKED]' : ''} - Right-click to lock`}
+                        />
+                        {isLocked && (
+                          <span className="material-symbols-outlined text-[12px] text-[var(--xibalba-accent)] absolute right-2 top-2 pointer-events-none">
+                            lock
+                          </span>
+                        )}
+                      </div>
                     </HoverFeedback>
                   </RippleEffect>
                 );
@@ -172,7 +164,7 @@ const DockableToolPalette: React.FC<DockableToolPaletteProps> = ({
                 <span className="material-symbols-outlined text-[14px] text-[var(--xibalba-accent)]">
                   lock
                 </span>
-                <span className="xibalba-text-caption text-[8px] text-[var(--xibalba-text-200)]">
+                <span className="xibalba-text-caption text-xs text-[var(--xibalba-text-100)]">
                   {lockState.lockedTool} locked
                 </span>
               </div>

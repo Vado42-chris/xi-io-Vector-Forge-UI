@@ -71,7 +71,7 @@ const ProfessionalRulers: React.FC<ProfessionalRulersProps> = ({
   }, [pan, zoomScale]);
 
   // Horizontal Ruler
-  const horizontalMarkings = [];
+  const horizontalMarkings: Array<{ position: number; value: number; isMajor: boolean }> = [];
   for (let i = 0; i <= canvasWidth; i += step) {
     const value = convertToUnit(i);
     const isMajor = i % (step * 5) === 0;
@@ -79,7 +79,7 @@ const ProfessionalRulers: React.FC<ProfessionalRulersProps> = ({
   }
 
   // Vertical Ruler
-  const verticalMarkings = [];
+  const verticalMarkings: Array<{ position: number; value: number; isMajor: boolean }> = [];
   for (let i = 0; i <= canvasHeight; i += step) {
     const value = convertToUnit(i);
     const isMajor = i % (step * 5) === 0;
@@ -141,7 +141,7 @@ const ProfessionalRulers: React.FC<ProfessionalRulersProps> = ({
         <select
           value={unit}
           onChange={(e) => onUnitChange(e.target.value as MeasurementUnit)}
-          className="xibalba-input-professional text-[9px] w-full h-full px-1 text-center cursor-pointer ruler-unit-selector"
+          className="xibalba-input-professional text-xs w-full h-full px-1 text-center cursor-pointer ruler-unit-selector"
           aria-label="Measurement unit selector"
           title="Select measurement unit"
         >

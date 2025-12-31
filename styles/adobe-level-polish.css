@@ -26,10 +26,9 @@
   --shadow-elevated: 0 2px 8px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08);
   --shadow-floating: 0 4px 16px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
   
-  /* Professional Borders */
-  --border-subtle: 1px solid rgba(255, 255, 255, 0.06);
-  --border-medium: 1px solid rgba(255, 255, 255, 0.1);
-  --border-strong: 1px solid rgba(255, 255, 255, 0.15);
+  /* XIBALBA: No borders - use background color differences instead */
+  /* Removed: --border-subtle, --border-medium, --border-strong */
+  /* Use background color variations for visual separation */
   
   /* Professional Transitions */
   --transition-instant: 100ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -37,15 +36,15 @@
   --transition-ease: 300ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Professional Input Fields - DARK THEME ONLY */
+/* Professional Input Fields - DARK THEME ONLY - NO BORDERS */
 .xibalba-input-professional,
 input.xibalba-input-professional,
 textarea.xibalba-input-professional {
   height: 28px;
   padding: 0 var(--space-3);
-  background: #2d2d2d !important;
-  border: 1px solid rgba(255, 255, 255, 0.06) !important;
-  color: #ffffff !important;
+  background: var(--xibalba-grey-200) !important;
+  border: none !important;
+  color: var(--xibalba-text-000) !important;
   font-size: var(--font-size-sm);
   font-weight: 400;
   transition: all var(--transition-smooth);
@@ -61,17 +60,15 @@ textarea.xibalba-input-professional {
 .xibalba-input-professional:hover,
 input.xibalba-input-professional:hover,
 textarea.xibalba-input-professional:hover {
-  background: #353535 !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
+  background: var(--xibalba-grey-250) !important;
 }
 
 .xibalba-input-professional:focus,
 input.xibalba-input-professional:focus,
 textarea.xibalba-input-professional:focus {
-  background: #353535 !important;
-  border-color: #ff9800 !important;
-  box-shadow: 0 0 0 1px #ff9800 !important;
-  color: #ffffff !important;
+  background: var(--xibalba-grey-250) !important;
+  box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.2) !important;
+  color: var(--xibalba-text-000) !important;
 }
 
 .xibalba-input-professional::placeholder,
@@ -81,12 +78,12 @@ textarea.xibalba-input-professional::placeholder {
   opacity: 1;
 }
 
-/* Professional Buttons */
+/* Professional Buttons - NO BORDERS */
 .xibalba-button-professional {
   height: 28px;
   padding: 0 var(--space-4);
   background: var(--xibalba-grey-150);
-  border: var(--border-subtle);
+  border: none !important;
   color: var(--xibalba-text-000);
   font-size: var(--font-size-sm);
   font-weight: 500;
@@ -101,7 +98,6 @@ textarea.xibalba-input-professional::placeholder {
 
 .xibalba-button-professional:hover {
   background: var(--xibalba-grey-200);
-  border-color: rgba(255, 255, 255, 0.12);
 }
 
 .xibalba-button-professional:active {
@@ -114,17 +110,17 @@ textarea.xibalba-input-professional::placeholder {
   cursor: not-allowed;
 }
 
-/* Professional Panels */
+/* Professional Panels - NO BORDERS */
 .xibalba-panel-professional {
   background: var(--xibalba-grey-100);
-  border: var(--border-subtle);
+  border: none !important;
   box-shadow: var(--shadow-panel);
   padding: var(--space-4);
 }
 
 .xibalba-panel-elevated-professional {
   background: var(--xibalba-grey-150);
-  border: var(--border-medium);
+  border: none !important;
   box-shadow: var(--shadow-elevated);
   padding: var(--space-5);
 }
@@ -203,8 +199,7 @@ textarea.xibalba-input-professional::placeholder {
 }
 
 .xibalba-color-picker-professional:hover {
-  border-color: rgba(255, 255, 255, 0.12);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  background: var(--xibalba-grey-250);
 }
 
 .xibalba-color-picker-professional:active {
@@ -222,7 +217,7 @@ textarea.xibalba-input-professional::placeholder {
   display: block;
 }
 
-/* Professional Section Headers */
+/* Professional Section Headers - NO BORDERS */
 .xibalba-section-header-professional {
   font-size: var(--font-size-xs);
   font-weight: 700;
@@ -231,15 +226,15 @@ textarea.xibalba-input-professional::placeholder {
   letter-spacing: 1px;
   padding: var(--space-3) var(--space-4);
   background: var(--xibalba-grey-050);
-  border-bottom: var(--border-subtle);
+  border-bottom: none !important;
   margin: calc(-1 * var(--space-4)) calc(-1 * var(--space-4)) var(--space-4);
 }
 
-/* Professional List Items */
+/* Professional List Items - NO BORDERS */
 .xibalba-list-item-professional {
   padding: var(--space-3) var(--space-4);
   background: var(--xibalba-grey-100);
-  border: var(--border-subtle);
+  border: none !important;
   margin-bottom: var(--space-2);
   transition: all var(--transition-smooth);
   cursor: pointer;
@@ -250,20 +245,18 @@ textarea.xibalba-input-professional::placeholder {
 
 .xibalba-list-item-professional:hover {
   background: var(--xibalba-grey-150);
-  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .xibalba-list-item-professional.selected {
   background: var(--xibalba-grey-200);
-  border-color: rgba(255, 255, 255, 0.15);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 0 1px rgba(255, 152, 0, 0.1);
 }
 
-/* Professional Tabs */
+/* Professional Tabs - NO BORDERS */
 .xibalba-tabs-professional {
   display: flex;
   background: var(--xibalba-grey-050);
-  border-bottom: var(--border-subtle);
+  border-bottom: none !important;
   padding: 0 var(--space-2);
 }
 
@@ -273,11 +266,14 @@ textarea.xibalba-input-professional::placeholder {
   font-weight: 500;
   color: var(--xibalba-text-200);
   background: transparent;
-  border: none;
-  border-bottom: 2px solid transparent;
+  border: none !important;
   cursor: pointer;
   transition: all var(--transition-smooth);
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  white-space: nowrap;
 }
 
 .xibalba-tab-professional:hover {
@@ -286,17 +282,19 @@ textarea.xibalba-input-professional::placeholder {
 }
 
 .xibalba-tab-professional.active {
-  color: var(--xibalba-text-000);
-  border-bottom-color: var(--xibalba-grey-250);
+  color: var(--xibalba-text-000) !important;
+  background: color-mix(in srgb, var(--xibalba-accent, #ff9800) 25%, var(--xibalba-grey-100)) !important;
+  border-left: 3px solid var(--xibalba-accent, #ff9800) !important;
+  box-shadow: 0 0 8px rgba(255, 152, 0, 0.3), inset 0 0 0 1px rgba(255, 152, 0, 0.2) !important;
 }
 
-/* Professional Toolbar Buttons */
+/* Professional Toolbar Buttons - NO BORDERS */
 .xibalba-toolbar-button-professional {
   width: 32px;
   height: 32px;
   padding: 0;
   background: transparent;
-  border: var(--border-subtle);
+  border: none !important;
   color: var(--xibalba-text-100);
   cursor: pointer;
   transition: all var(--transition-instant);
@@ -307,7 +305,6 @@ textarea.xibalba-input-professional::placeholder {
 
 .xibalba-toolbar-button-professional:hover {
   background: var(--xibalba-grey-150);
-  border-color: rgba(255, 255, 255, 0.1);
   color: var(--xibalba-text-000);
 }
 
@@ -318,7 +315,6 @@ textarea.xibalba-input-professional::placeholder {
 
 .xibalba-toolbar-button-professional.active {
   background: var(--xibalba-grey-200);
-  border-color: rgba(255, 255, 255, 0.15);
   color: var(--xibalba-text-000);
 }
 
