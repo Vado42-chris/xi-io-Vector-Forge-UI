@@ -222,6 +222,13 @@ textarea.xibalba-input-professional::placeholder {
   white-space: nowrap;
   overflow: visible;
   text-overflow: clip;
+}
+
+.xibalba-section-header-professional span {
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: clip;
+  display: inline-block;
   font-size: var(--font-size-xs);
   font-weight: 700;
   color: var(--xibalba-text-000);
