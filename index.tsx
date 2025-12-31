@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
+import './styles/header-fix.css'; // Header visibility hot-fix
 // TEMP: Using App.simple for salvage - working minimal version
 import App from './App.simple';
 import DevChatbot from './components/DevChatbot';

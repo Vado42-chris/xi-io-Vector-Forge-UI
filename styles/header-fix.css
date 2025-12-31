@@ -1,0 +1,36 @@
+/* Header Fix - Ensure header always appears above content */
+/* This is a temporary hot-fix until full layout is corrected */
+
+.xibalba-header {
+  position: sticky !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  height: 56px !important;
+  min-height: 56px !important;
+  max-height: 56px !important;
+  z-index: 1100 !important;
+  background: var(--xibalba-grey-000, #000000) !important;
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  border-bottom: 1px solid var(--xibalba-grey-200, #0a0a0a) !important;
+}
+
+/* Ensure main content isn't under the header */
+[data-app-root],
+#app-simple-root,
+main,
+[class*="main"],
+[class*="Main"] {
+  padding-top: 56px !important;
+}
+
+/* Ensure root container accounts for header */
+#root > *:first-child {
+  padding-top: 56px !important;
+}
+
