@@ -2430,9 +2430,10 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        {/* Animation Timeline - Fixed at bottom */}
-        <ErrorBoundary>
-          <AnimationTimeline
+        {/* Animation Timeline - Grid Row 3 (Bottom Drawer) */}
+        <div className="app-timeline-container">
+          <ErrorBoundary>
+            <AnimationTimeline
             frameState={frameState}
             onFrameStateChange={updates => setFrameState(prev => ({ ...prev, ...updates }))}
             keyframes={keyframes}
@@ -2471,17 +2472,20 @@ const App: React.FC = () => {
               showToast('Import from Animation Studio - Coming soon', 'info');
             }}
           />
-        </ErrorBoundary>
+          </ErrorBoundary>
+        </div>
 
-        {/* Footer */}
-        <ErrorBoundary>
-          <Footer
+        {/* Footer - Grid Row 4 */}
+        <div className="app-footer-container">
+          <ErrorBoundary>
+            <Footer
             nodeCount={state.layers.length}
             fillInfo={state.activeTool}
             isRendering={state.isGenerating}
             renderProgress={state.isGenerating ? 50 : undefined}
           />
-        </ErrorBoundary>
+          </ErrorBoundary>
+        </div>
 
         {/* XP Display - Compact in Footer Area */}
         <ErrorBoundary>
