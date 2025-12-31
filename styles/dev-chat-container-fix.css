@@ -112,13 +112,22 @@ footer .dev-chat-input-area,
 .bottom-drawer .dev-chat-input-area,
 .app-bottom-drawer .dev-chat-input-area,
 .animation-timeline-container .dev-chat-input-area,
-.xibalba-timeline .dev-chat-input-area {
+.xibalba-timeline .dev-chat-input-area,
+footer textarea[id*="dev-chat"],
+.app-footer textarea[id*="dev-chat"],
+.bottom-drawer textarea[id*="dev-chat"],
+.app-bottom-drawer textarea[id*="dev-chat"],
+.animation-timeline-container textarea[id*="dev-chat"],
+.xibalba-timeline textarea[id*="dev-chat"] {
   display: none !important;
   visibility: hidden !important;
   height: 0 !important;
   padding: 0 !important;
   margin: 0 !important;
   overflow: hidden !important;
+  position: absolute !important;
+  left: -9999px !important;
+  opacity: 0 !important;
 }
 
 /* CRITICAL: Ensure timeline doesn't contain chat input */
