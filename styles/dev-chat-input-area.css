@@ -12,18 +12,23 @@
 }
 
 .dev-chat-input-area {
-  position: relative;
-  width: 100%;
-  padding: 12px;
-  background: var(--xibalba-grey-050);
-  border-top: 2px solid var(--xibalba-grey-200);
-  z-index: 1000;
-  flex-shrink: 0;
-  margin-top: auto;
-  display: block;
-  visibility: visible;
-  opacity: 1;
-  box-sizing: border-box;
+  position: relative !important; /* CRITICAL: Must be relative, not fixed/absolute */
+  width: 100% !important;
+  padding: 12px !important;
+  background: var(--xibalba-grey-050) !important;
+  border-top: 2px solid var(--xibalba-grey-200) !important;
+  z-index: 1 !important; /* Low z-index - stays in container */
+  flex-shrink: 0 !important;
+  margin-top: auto !important; /* Push to bottom of flex container */
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  box-sizing: border-box !important;
+  /* CRITICAL: Ensure it stays within its parent container */
+  top: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  right: auto !important;
 }
 
 .dev-chat-input-wrapper {
