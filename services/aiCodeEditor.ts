@@ -1,13 +1,13 @@
 /**
  * AI Code Editor Service
  * Uses local Ollama or remote AI to generate code edits
- * 
+ *
  * Follows the biological pattern: AI "grows" new code like nature grows new structures
- * 
+ *
  * #hashtag: ai-code-editor code-generation ollama
  */
 
-import { mcpConfig } from '../config/mcpConfig';
+import { loadMCPConfig } from '../config/mcpConfig';
 
 export interface CodeEditRequest {
   filePath: string;
@@ -28,24 +28,33 @@ export class AICodeEditor {
     const prompt = this.buildPrompt(filePath, currentCode, userRequest, context);
 
     try {
+      // Load MCP config
+      const mcpConfig = loadMCPConfig();
+
       // Try local Ollama first (like using local resources)
       if (mcpConfig.useLocalAI && mcpConfig.localAIProvider === 'ollama') {
         try {
-          return await this.callOllama(prompt);
+          return await this.callOllama(prompt, mcpConfig);
         } catch (ollamaError) {
           // If Ollama fails, provide helpful error
           const errorMsg = ollamaError instanceof Error ? ollamaError.message : 'Unknown error';
           if (errorMsg.includes('fetch') || errorMsg.includes('connect')) {
-            throw new Error(`Cannot connect to Ollama at ${mcpConfig.localAIServerUrl}. Is it running? Try: ollama serve`);
+            throw new Error(
+              `Cannot connect to Ollama at ${mcpConfig.localAIServerUrl}. Is it running? Try: ollama serve`
+            );
           }
           throw ollamaError;
         }
       }
 
       // Fallback: Return error message
-      throw new Error('AI not configured. Please set up Ollama (ollama serve) or configure API key.');
+      throw new Error(
+        'AI not configured. Please set up Ollama (ollama serve) or configure API key.'
+      );
     } catch (error) {
-      throw new Error(`Failed to generate code edit: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to generate code edit: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -102,7 +111,10 @@ BEGIN CODE:`;
    * Call Ollama local AI
    * Like consulting local knowledge before acting
    */
-  private async callOllama(prompt: string): Promise<string> {
+  private async callOllama(
+    prompt: string,
+    mcpConfig: ReturnType<typeof loadMCPConfig>
+  ): Promise<string> {
     const serverUrl = mcpConfig.localAIServerUrl || 'http://localhost:11434';
     const model = mcpConfig.localAIModelName || 'codellama:latest';
 
@@ -118,8 +130,8 @@ BEGIN CODE:`;
             temperature: 0.3, // Lower temperature for more consistent code
             top_p: 0.9,
             num_predict: 4000, // Allow longer responses for code files
-          }
-        })
+          },
+        }),
       });
 
       if (!response.ok) {
@@ -127,14 +139,14 @@ BEGIN CODE:`;
       }
 
       const data = await response.json();
-      
+
       if (!data.response) {
         throw new Error('Ollama returned empty response');
       }
 
       // Clean up the response - remove any markdown code fences if present
       let code = data.response.trim();
-      
+
       // Remove markdown code fences if present
       if (code.startsWith('```')) {
         const lines = code.split('\n');
@@ -160,7 +172,10 @@ BEGIN CODE:`;
    * Validate that generated code looks reasonable
    * Like nature checking if a new structure is viable
    */
-  validateGeneratedCode(code: string, originalCode: string): {
+  validateGeneratedCode(
+    code: string,
+    originalCode: string
+  ): {
     valid: boolean;
     warnings: string[];
   } {
@@ -184,8 +199,7 @@ BEGIN CODE:`;
 
     return {
       valid: warnings.length === 0,
-      warnings
+      warnings,
     };
   }
 }
-
