@@ -24,7 +24,10 @@ export default defineConfig(({ mode }) => {
             changeOrigin: true,
             bypass: (req, res, options) => {
               // Block ALL auth requests - return 404 immediately
+<<<<<<< Updated upstream
               if (!res) return false;
+=======
+>>>>>>> Stashed changes
               console.log('🚫 Vite: Blocked auth request:', req.url);
               res.statusCode = 404;
               res.setHeader('Content-Type', 'application/json');

@@ -88,6 +88,7 @@ await tasksRoutes(app);
 await sprintsRoutes(app);
 await projectsRoutes(app);
 await fileSystemRoutes(app);
+<<<<<<< Updated upstream
 // #region agent log
 console.log('[DEBUG] API routes registered', { timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'B' });
 // #endregion
@@ -95,6 +96,8 @@ console.log('[DEBUG] API routes registered', { timestamp: Date.now(), sessionId:
 // Proof/Signing API Routes
 import { proofRoutes } from './api/proof.js';
 await proofRoutes(app);
+=======
+>>>>>>> Stashed changes
 
 // AI Generation Endpoint
 app.post('/api/ai/generate', async (req, res) => {

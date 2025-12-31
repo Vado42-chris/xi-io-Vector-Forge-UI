@@ -31,7 +31,10 @@ const App: React.FC = () => {
     workspaceLayout: 'default',
     dockedPanels: [],
     engineConfig: { provider: 'gemini-pro' as any, apiKey: '', thinkingBudget: 32768 },
+<<<<<<< Updated upstream
     fileOperationLoading: { type: null },
+=======
+>>>>>>> Stashed changes
   }));
 
   return (

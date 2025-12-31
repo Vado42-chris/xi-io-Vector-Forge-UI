@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
+<<<<<<< Updated upstream
 import {
   AppState,
   ToolType,
@@ -8,6 +9,9 @@ import {
   TextShape,
   AnimationKeyframe,
 } from './types';
+=======
+import { AppState, ToolType, VectorLayer, VectorNode, ToolProperties, TextShape, AnimationKeyframe } from './types';
+>>>>>>> Stashed changes
 // TEMPORARILY DISABLED: useUndoRedo hook causing errors - will fix after UI is working
 // import { useUndoRedo } from './hooks/useUndoRedo';
 import { clipboardService } from './services/clipboardService';
@@ -203,7 +207,11 @@ const App: React.FC = () => {
   //     prevStateRef.current = state;
   //   }
   // }, [state, undoRedoState]);
+<<<<<<< Updated upstream
 
+=======
+  
+>>>>>>> Stashed changes
   // Temporary stub for undo/redo
   const undoRedoState = {
     canUndo: false,
@@ -241,6 +249,16 @@ const App: React.FC = () => {
     canvas: true,
     timeline: true,
   });
+  
+  // Debug: Log panel visibility on mount
+  useEffect(() => {
+    console.log('✅ App mounted - Right Sidebar visibility:', panelVisibility['right-sidebar']);
+    // Force right sidebar to be visible if somehow it's not
+    if (!panelVisibility['right-sidebar']) {
+      console.warn('⚠️ Right Sidebar was hidden, forcing it visible for Dev Chat access');
+      setPanelVisibility(prev => ({ ...prev, 'right-sidebar': true }));
+    }
+  }, []);
 
   // Debug: Log panel visibility on mount
   useEffect(() => {
@@ -259,6 +277,31 @@ const App: React.FC = () => {
   }, []);
 
   // Initialize default template frames
+<<<<<<< Updated upstream
+=======
+  useEffect(() => {
+    const existingFrames = templateFrameService.getAllFrames();
+    if (existingFrames.length === 0) {
+      // Create a default template frame
+      templateFrameService.registerFrame({
+        id: 'default-template-frame',
+        name: 'Default Template Frame',
+        containerId: 'template-frame-default',
+        position: {
+          x: 100,
+          y: 100,
+          width: 400,
+          height: 300,
+        },
+        zIndex: 1000,
+        visible: true,
+        attachedComponents: [],
+      });
+    }
+  }, []);
+
+  // Keyboard shortcuts for UI automation components
+>>>>>>> Stashed changes
   useEffect(() => {
     const existingFrames = templateFrameService.getAllFrames();
     if (existingFrames.length === 0) {
@@ -1222,6 +1265,8 @@ const App: React.FC = () => {
             break;
           case 'EDIT_UNDO': {
             // TEMPORARILY DISABLED: Using old undo system until hook is fixed
+<<<<<<< Updated upstream
+=======
             if (state.history && state.history.length > 1) {
               const prevSvg = state.history[state.history.length - 2];
               const newHistory = [...state.history];
@@ -1240,6 +1285,26 @@ const App: React.FC = () => {
             break;
           }
           case 'EDIT_UNDO_OLD':
+>>>>>>> Stashed changes
+            if (state.history && state.history.length > 1) {
+              const prevSvg = state.history[state.history.length - 2];
+              const newHistory = [...state.history];
+              newHistory.pop();
+              setState(prev => ({
+                ...prev,
+                currentSvg: prevSvg,
+                layers: syncLayersFromSvg(prevSvg),
+                history: newHistory,
+                redoHistory: [...prev.redoHistory, prev.currentSvg],
+              }));
+              showToast('Undone', 'success');
+            } else {
+              showToast('Nothing to undo', 'info');
+            }
+            break;
+<<<<<<< Updated upstream
+          }
+          case 'EDIT_UNDO_OLD':
             if (state.history && state.history.length > 1) {
               const prevSvg = state.history[state.history.length - 2];
               const newHistory = [...state.history];
@@ -1254,6 +1319,8 @@ const App: React.FC = () => {
               showToast('Undone', 'success');
             }
             break;
+=======
+>>>>>>> Stashed changes
           case 'EDIT_REDO': {
             // TEMPORARILY DISABLED: Using old redo system until hook is fixed
             if (state.redoHistory && state.redoHistory.length > 0) {
@@ -1981,6 +2048,7 @@ const App: React.FC = () => {
       >
         {/* Header with File Menu - Fixed at top */}
         <ErrorBoundary>
+<<<<<<< Updated upstream
           <div className="flex items-center w-full">
             <ProfessionalFileMenu
               onAction={handleAction}
@@ -2001,6 +2069,12 @@ const App: React.FC = () => {
               />
             </div>
           </div>
+=======
+          <ProfessionalFileMenu 
+          onAction={handleAction} 
+          onLayoutChange={handleLayoutChange}
+        />
+>>>>>>> Stashed changes
         </ErrorBoundary>
 
         {/* Left Sidebar - Fixed position (positioned via CSS class) */}
@@ -2480,7 +2554,11 @@ const App: React.FC = () => {
             handleAction('FILE_SAVE');
             showToast('File saved', 'success');
           }}
+<<<<<<< Updated upstream
           onSelectTool={tool => {
+=======
+          onSelectTool={(tool) => {
+>>>>>>> Stashed changes
             setState(prev => ({ ...prev, activeTool: tool }));
             showToast(`Switched to ${tool} tool`, 'info');
           }}

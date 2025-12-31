@@ -766,6 +766,7 @@ const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({
         },
         { label: 'Show Grid', action: 'VIEW_SHOW_GRID', shortcut: "Ctrl+'", icon: 'grid_on' },
         { divider: true },
+<<<<<<< Updated upstream
         {
           label: '💬 Dev Chat',
           action: 'VIEW_DEV_CHAT',
@@ -785,6 +786,14 @@ const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({
           shortcut: 'Ctrl+U',
           icon: 'auto_awesome',
         },
+=======
+        { label: 'Show Rulers', action: 'VIEW_SHOW_RULERS', shortcut: 'Ctrl+R', icon: 'straighten' },
+        { label: 'Show Grid', action: 'VIEW_SHOW_GRID', shortcut: 'Ctrl+\'', icon: 'grid_on' },
+        { divider: true },
+        { label: '💬 Dev Chat', action: 'VIEW_DEV_CHAT', shortcut: 'Ctrl+K', icon: 'chat', description: 'Open Dev Chat - Self-Modifying AI' },
+        { label: 'Show Guides', action: 'VIEW_SHOW_GUIDES', shortcut: 'Ctrl+;', icon: 'drag_indicator' },
+        { label: 'Smart Guides', action: 'VIEW_SMART_GUIDES', shortcut: 'Ctrl+U', icon: 'auto_awesome' },
+>>>>>>> Stashed changes
         { divider: true },
         { label: 'New View...', action: 'VIEW_NEW', shortcut: '', icon: 'add' },
         { label: 'Edit Views...', action: 'VIEW_EDIT', shortcut: '', icon: 'edit' },
@@ -847,6 +856,7 @@ const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({
         },
         { label: 'Type', action: 'WINDOW_TYPE', shortcut: '', icon: 'text_fields', submenu: true },
         { divider: true },
+<<<<<<< Updated upstream
         {
           label: '💬 Dev Chat',
           action: 'VIEW_DEV_CHAT',
@@ -854,6 +864,9 @@ const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({
           icon: 'chat',
           description: 'Self-Modifying AI Assistant',
         },
+=======
+        { label: '💬 Dev Chat', action: 'VIEW_DEV_CHAT', shortcut: 'Ctrl+K', icon: 'chat', description: 'Self-Modifying AI Assistant' },
+>>>>>>> Stashed changes
         { divider: true },
         { label: 'Bug Reporter', action: 'WINDOW_BUG_REPORTER', shortcut: '', icon: 'bug_report' },
         {
@@ -959,8 +972,16 @@ const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({
         {/* Professional Menu Bar - NO BUTTON BORDERS */}
         <nav className="flex items-center xibalba-header-nav">
           {menus.map(menu => (
+<<<<<<< Updated upstream
             <div key={menu.label} className="menu-container relative xibalba-header-menu-button">
               <button
+=======
+            <div 
+              key={menu.label}
+              className="menu-container relative xibalba-header-menu-button"
+            >
+              <button 
+>>>>>>> Stashed changes
                 className={`xibalba-header-menu-label px-5 text-sm font-black uppercase tracking-widest bg-transparent border-none hover:bg-[var(--xibalba-bg-hover)] transition-colors ${activeMenu === menu.label ? 'bg-[var(--xibalba-bg-tertiary)]' : ''}`}
                 onMouseEnter={() => {
                   if (menuTimeoutRef.current) {

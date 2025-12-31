@@ -34,7 +34,10 @@ const App: React.FC = () => {
     measurementUnit: 'px',
     workspaceLayout: 'default',
     dockedPanels: [],
+<<<<<<< Updated upstream
     fileOperationLoading: { type: null },
+=======
+>>>>>>> Stashed changes
   }));
 
   return (
