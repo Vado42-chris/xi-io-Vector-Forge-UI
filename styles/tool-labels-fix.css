@@ -1,0 +1,93 @@
+/* Tool Labels Fix - Prevent Truncation */
+/* CRITICAL: Tool labels must be fully visible, not truncated */
+
+.xibalba-tool-label {
+  font-size: 12px !important;
+  line-height: 1.2 !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  max-width: none !important;
+  width: auto !important;
+  display: block !important;
+  text-align: center !important;
+}
+
+.xibalba-tool-shortcut {
+  font-size: 10px !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  max-width: none !important;
+  width: auto !important;
+  display: block !important;
+  text-align: center !important;
+  margin-top: 2px !important;
+}
+
+.xibalba-tool-button-container {
+  width: 100% !important;
+  min-width: 60px !important;
+  overflow: visible !important;
+}
+
+.xibalba-tools-panel {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)) !important;
+  gap: 8px !important;
+  padding: 8px !important;
+  overflow: visible !important;
+}
+
+.xibalba-tools-panel .xibalba-tool-button-container {
+  min-width: 80px !important;
+  width: 100% !important;
+}
+
+/* Ensure File Menu is Always Visible and Clickable */
+.xibalba-header {
+  position: relative !important;
+  z-index: var(--z-menu, 400) !important;
+  background: var(--xibalba-grey-000) !important;
+  border-bottom: 1px solid var(--xibalba-grey-200) !important;
+  padding: 8px 16px !important;
+  min-height: 48px !important;
+}
+
+.xibalba-header button {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  z-index: calc(var(--z-menu, 400) + 1) !important;
+}
+
+.menu-dropdown {
+  z-index: var(--z-dropdown, 500) !important;
+  pointer-events: auto !important;
+}
+
+.menu-dropdown button {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+/* Fix Material Icons in Timeline */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined' !important;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24 !important;
+  font-display: swap !important;
+  speak: none !important;
+}
+
+/* Ensure timeline input shows icon, not text */
+.timeline-input .material-symbols-outlined {
+  display: inline-block !important;
+  width: 20px !important;
+  height: 20px !important;
+  font-size: 20px !important;
+  line-height: 1 !important;
+  text-indent: 0 !important;
+  overflow: hidden !important;
+  text-overflow: clip !important;
+}
+

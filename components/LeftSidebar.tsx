@@ -60,7 +60,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
   // REMOVED: Console and Engine tabs moved to RightSidebar
   // Left sidebar is now just for tools
   
-  // Tool selector for quick access
+  // Tool selector for quick access - FULL LABELS (no truncation)
   const tools: { id: ToolType; label: string; icon: string; shortcut?: string }[] = [
     { id: 'select', label: 'Select', icon: 'near_me', shortcut: 'V' },
     { id: 'pen', label: 'Pen', icon: 'edit', shortcut: 'P' },

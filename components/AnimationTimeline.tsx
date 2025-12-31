@@ -384,10 +384,11 @@ const AnimationTimeline: React.FC<AnimationTimelineProps> = ({
       {/* Timeline Toggle Button */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="absolute top-4 right-4 h-12 flex items-center justify-center z-10 hover:bg-[var(--xibalba-grey-100)] transition-colors"
+        className="absolute top-4 right-4 h-12 w-12 flex items-center justify-center z-10 hover:bg-[var(--xibalba-grey-100)] transition-colors rounded"
         title={isExpanded ? 'Collapse Timeline' : 'Expand Timeline'}
+        aria-label={isExpanded ? 'Collapse Timeline' : 'Expand Timeline'}
       >
-        <span className="material-symbols-outlined text-[16px]">
+        <span className="material-symbols-outlined text-[20px] text-[var(--xibalba-text-000)]" style={{ fontFamily: 'Material Symbols Outlined', fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>
           {isExpanded ? 'keyboard_arrow_down' : 'keyboard_arrow_up'}
         </span>
       </button>

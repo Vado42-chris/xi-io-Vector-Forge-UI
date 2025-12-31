@@ -530,7 +530,7 @@ const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({ onAction, o
   ];
 
   return (
-    <header className="xibalba-header shrink-0 flex items-center justify-between zstack-menu select-none">
+    <header className="xibalba-header shrink-0 flex items-center justify-between zstack-menu select-none" style={{ zIndex: 'var(--z-menu, 10000)', position: 'relative' }}>
       <div className="flex items-center gap-6 xibalba-header-right">
         {/* Xibalba Brand Identity Block */}
         <div className="flex items-center gap-4 pr-6">

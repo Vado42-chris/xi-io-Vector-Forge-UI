@@ -70,16 +70,16 @@ export const ToolButton: React.FC<ToolButtonProps> = ({
       />
         {variant !== 'icon-only' && (
           <>
-            <span className={`xibalba-tool-label ${isActive ? 'font-semibold text-[var(--xibalba-text-000)]' : ''}`}>
+            <span className={`xibalba-tool-label ${isActive ? 'font-semibold text-[var(--xibalba-text-000)]' : 'text-[var(--xibalba-text-100)]'}`}>
               {tool.label}
             </span>
             {showShortcut && tool.shortcut && (
               <span className={`xibalba-tool-shortcut ${
                 isActive 
                   ? 'text-[var(--xibalba-accent)]' 
-                  : ''
+                  : 'text-[var(--xibalba-text-200)]'
               }`}>
-                {tool.shortcut}
+                ({tool.shortcut})
               </span>
             )}
           </>

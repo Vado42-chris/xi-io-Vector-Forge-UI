@@ -45,11 +45,11 @@
   --z-floating-toolbar: 150; /* Must be above sidebars */
   --z-power-toolbar: 150; /* Must be above sidebars to be accessible */
   
-  /* Menus & Dropdowns */
-  --z-menu: 400;
-  --z-dropdown: 500;
-  --z-submenu: 520;
-  --z-context-menu: 530;
+  /* Menus & Dropdowns - CRITICAL: File menu must be above everything */
+  --z-menu: 10000; /* File menu must be highest priority */
+  --z-dropdown: 10010; /* Dropdowns above menu */
+  --z-submenu: 10020; /* Submenus above dropdowns */
+  --z-context-menu: 10030;
   
   /* Modal Layers */
   --z-modal: 1000;
