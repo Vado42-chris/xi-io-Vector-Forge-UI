@@ -42,6 +42,13 @@
   background: var(--xibalba-grey-000);
   isolation: isolate; /* Isolate canvas from sidebars and header */
   contain: layout paint; /* Contain canvas layout and painting */
-  z-index: 1; /* Ensure canvas is below floating elements */
+  z-index: var(--z-canvas, 10); /* Canvas below sidebars but above background */
+  /* Account for fixed left sidebar - canvas starts after sidebar */
+  margin-left: var(--sidebar-left-width, 320px);
+  /* Account for fixed right sidebar - canvas ends before sidebar */
+  margin-right: var(--sidebar-right-width, 360px);
+  /* Width accounts for both sidebars */
+  width: calc(100% - var(--sidebar-left-width, 320px) - var(--sidebar-right-width, 360px));
+  min-width: 0; /* Allow flex shrinking */
 }
 

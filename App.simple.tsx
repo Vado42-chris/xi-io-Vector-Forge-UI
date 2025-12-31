@@ -154,7 +154,15 @@ const App: React.FC = () => {
 
   return (
     <ErrorBoundary>
-      <div className="app-layout-grid">
+      <div 
+        className="app-layout-grid"
+        data-sidebar-left-visible={panelVisibility['left-sidebar'] ? 'true' : 'false'}
+        data-sidebar-right-visible={panelVisibility['right-sidebar'] ? 'true' : 'false'}
+        style={{
+          '--sidebar-left-width': panelVisibility['left-sidebar'] ? '320px' : '0px',
+          '--sidebar-right-width': panelVisibility['right-sidebar'] ? '360px' : '0px',
+        } as React.CSSProperties}
+      >
         {/* Professional File Menu - Full menu bar with tabs */}
         <div className="app-header-container">
           <ProfessionalFileMenu 
