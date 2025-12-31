@@ -2500,6 +2500,7 @@ const App: React.FC = () => {
 
         {/* Floating Dev Chat Button removed - Dev Chat accessible via Right Sidebar (Ctrl+K) */}
       </div>
+    </div>
 
       {/* Toast Notifications */}
       <ToastContainer toasts={(state.toasts || []).map(t => ({ ...t, timestamp: Date.now() }))} />
