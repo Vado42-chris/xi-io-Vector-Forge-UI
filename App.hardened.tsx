@@ -2045,7 +2045,9 @@ const App: React.FC = () => {
   return (
     <ErrorBoundary>
       <div
+        id="app-simple-root"
         className="app-layout-grid"
+        data-app-root
         data-sidebar-left-visible={panelVisibility['left-sidebar'] ? 'true' : 'false'}
         data-sidebar-right-visible={panelVisibility['right-sidebar'] ? 'true' : 'false'}
         style={{
