@@ -219,6 +219,9 @@ textarea.xibalba-input-professional::placeholder {
 
 /* Professional Section Headers - NO BORDERS */
 .xibalba-section-header-professional {
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: clip;
   font-size: var(--font-size-xs);
   font-weight: 700;
   color: var(--xibalba-text-000);

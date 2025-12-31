@@ -157,11 +157,6 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
                   disabled={false}
                   tooltip={tooltipContent}
                   variant="compact"
-                  style={{
-                    pointerEvents: 'auto',
-                    cursor: 'pointer',
-                    opacity: 1
-                  }}
                 />
               );
             })}

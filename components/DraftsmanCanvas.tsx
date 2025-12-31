@@ -771,31 +771,6 @@ const DraftsmanCanvas: React.FC<DraftsmanCanvasProps> = ({
               </div>
             </div>
           )}
-          {layers.length === 0 && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-              <div className="text-center opacity-80">
-                <span className="material-symbols-outlined text-6xl mb-4 text-[var(--xibalba-text-000)] block">
-                  gesture
-                </span>
-                <p className="text-lg font-semibold text-[var(--xibalba-text-000)] mb-2">
-                  Start Creating
-                </p>
-                <p className="text-sm text-[var(--xibalba-text-200)]">
-                  Select a tool and draw on the canvas
-                </p>
-                <div className="mt-4 flex items-center justify-center gap-2 text-xs text-[var(--xibalba-text-200)]">
-                  <span className="font-mono bg-[var(--xibalba-grey-100)] px-2 py-1 rounded">P</span>
-                  <span>Pen</span>
-                  <span className="mx-2">•</span>
-                  <span className="font-mono bg-[var(--xibalba-grey-100)] px-2 py-1 rounded">M</span>
-                  <span>Rectangle</span>
-                  <span className="mx-2">•</span>
-                  <span className="font-mono bg-[var(--xibalba-grey-100)] px-2 py-1 rounded">L</span>
-                  <span>Ellipse</span>
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* Animation Paths Visualization */}
           {keyframes

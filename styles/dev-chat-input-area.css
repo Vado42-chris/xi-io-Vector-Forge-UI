@@ -63,6 +63,9 @@
 }
 
 .dev-chat-diagnostics-button {
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: clip;
   min-width: 100px;
   height: 60px;
   padding: 12px 16px;

@@ -33,6 +33,8 @@
 }
 
 .xibalba-tools-panel {
+  /* Ensure tool labels are not truncated */
+  overflow: visible;
   display: grid !important;
   grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)) !important;
   gap: 8px !important;
