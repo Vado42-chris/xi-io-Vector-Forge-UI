@@ -152,26 +152,15 @@ const App: React.FC = () => {
     onCreateOutlines: () => {},
   };
 
-  // DEBUG: Log before render
-  console.log('🔵 App.simple rendering - Header should be called');
-  
   return (
     <ErrorBoundary>
-      <div 
-        className="relative w-screen h-screen text-[var(--xibalba-text-000)] font-sans overflow-hidden bg-[var(--xibalba-grey-000)]"
-        style={{ display: 'grid', gridTemplateRows: '56px 1fr', gridTemplateColumns: 'auto 1fr auto', minHeight: '100vh' }}
-      >
-        {/* Header - Simple and working - MUST be fixed at top */}
-        <div style={{ gridRow: '1 / 2', gridColumn: '1 / 4', position: 'sticky', top: 0, zIndex: 1100, background: '#000000', height: '56px', minHeight: '56px' }}>
-          {(() => {
-            console.log('🔵 App.simple: About to render Header component');
-            try {
-              return <Header onAction={handleAction} credits={25000} />;
-            } catch (error) {
-              console.error('🔴 ERROR rendering Header:', error);
-              return <div style={{ color: 'red', padding: '10px', background: '#ff0000', color: '#ffffff' }}>Header Error: {String(error)}</div>;
-            }
-          })()}
+      <div className="app-layout-grid">
+        {/* Professional File Menu - Full menu bar with tabs */}
+        <div className="app-header-container">
+          <ProfessionalFileMenu 
+            onAction={handleAction} 
+            onLayoutChange={handleLayoutChange}
+          />
         </div>
 
         {/* Main Layout - MUST start below fixed header */}

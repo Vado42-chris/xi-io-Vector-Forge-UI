@@ -28,3 +28,10 @@
   height: 100%;
 }
 
+.app-canvas-area {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: var(--xibalba-grey-000);
+}
+
