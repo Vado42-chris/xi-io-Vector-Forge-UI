@@ -53,10 +53,12 @@
   bottom: 0 !important;
   left: var(--sidebar-left-width, 320px) !important;
   right: var(--sidebar-right-width, 360px) !important;
-  width: calc(100% - var(--sidebar-left-width, 320px) - var(--sidebar-right-width, 360px)) !important;
-  height: 100% !important; /* Fill parent completely */
+  width: auto !important; /* Let left/right handle width */
+  height: 100% !important; /* Fill parent completely - CRITICAL */
+  min-height: 100% !important; /* Ensure minimum fill */
+  max-height: 100% !important; /* Don't exceed parent */
   overflow: hidden;
-  background: var(--xibalba-grey-000);
+  background: var(--xibalba-grey-000) !important; /* Ensure background fills */
   isolation: isolate; /* Isolate canvas from sidebars and header */
   contain: layout paint; /* Contain canvas layout and painting */
   z-index: var(--z-canvas, 10); /* Canvas below sidebars but above background */
