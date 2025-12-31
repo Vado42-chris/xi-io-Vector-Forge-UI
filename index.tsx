@@ -42,62 +42,21 @@ const Router: React.FC = () => {
   );
 };
 
-// Global error handler - shows errors on screen
+// Global error handler - LOG ONLY, NO UI DISPLAY
 window.addEventListener('error', (event) => {
-  const rootElement = document.getElementById('root');
-  if (rootElement && !rootElement.querySelector('.error-display')) {
-    rootElement.innerHTML = `
-      <div class="error-display" style="
-        position: fixed;
-        inset: 0;
-        background: #0a0b0e;
-        color: #ff0000;
-        padding: 40px;
-        font-family: monospace;
-        overflow: auto;
-        z-index: 99999;
-      ">
-        <h1 style="color: #ff9800; margin-bottom: 20px;">🚨 VectorForge Error</h1>
-        <div style="background: #1a1c22; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-          <h2 style="color: #ff0000;">Error:</h2>
-          <pre style="color: #ffffff; white-space: pre-wrap; word-wrap: break-word;">${event.error?.message || event.message || 'Unknown error'}</pre>
-        </div>
-        <div style="background: #1a1c22; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-          <h2 style="color: #ff9800;">Stack Trace:</h2>
-          <pre style="color: #999999; white-space: pre-wrap; word-wrap: break-word; font-size: 12px;">${event.error?.stack || 'No stack trace'}</pre>
-        </div>
-        <div style="background: #1a1c22; padding: 20px; border-radius: 8px;">
-          <h2 style="color: #ff9800;">File:</h2>
-          <p style="color: #ffffff;">${event.filename || 'Unknown'}:${event.lineno || '?'}:${event.colno || '?'}</p>
-        </div>
-      </div>
-    `;
-  }
+  console.error('VectorForge Error:', {
+    message: event.error?.message || event.message,
+    stack: event.error?.stack,
+    file: `${event.filename || 'Unknown'}:${event.lineno || '?'}:${event.colno || '?'}`
+  });
 });
 
-// Unhandled promise rejection handler
+// Unhandled promise rejection handler - LOG ONLY, NO UI DISPLAY
 window.addEventListener('unhandledrejection', (event) => {
-  const rootElement = document.getElementById('root');
-  if (rootElement && !rootElement.querySelector('.error-display')) {
-    rootElement.innerHTML = `
-      <div class="error-display" style="
-        position: fixed;
-        inset: 0;
-        background: #0a0b0e;
-        color: #ff0000;
-        padding: 40px;
-        font-family: monospace;
-        overflow: auto;
-        z-index: 99999;
-      ">
-        <h1 style="color: #ff9800; margin-bottom: 20px;">🚨 VectorForge Promise Rejection</h1>
-        <div style="background: #1a1c22; padding: 20px; border-radius: 8px;">
-          <h2 style="color: #ff0000;">Error:</h2>
-          <pre style="color: #ffffff; white-space: pre-wrap; word-wrap: break-word;">${event.reason?.message || String(event.reason) || 'Unknown promise rejection'}</pre>
-        </div>
-      </div>
-    `;
-  }
+  console.error('VectorForge Promise Rejection:', {
+    message: event.reason?.message || String(event.reason),
+    stack: event.reason?.stack
+  });
 });
 
 // CRITICAL: Block auth redirects at client level - MUST happen before React loads

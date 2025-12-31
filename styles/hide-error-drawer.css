@@ -1,0 +1,39 @@
+/**
+ * Hide Error Drawer
+ * ErrorDisplay should only show when there are actual errors
+ * Hide it when empty or when user dismisses it
+ */
+
+/* Hide ErrorDisplay when it's empty or dismissed */
+.error-display-container:empty,
+.error-display-container[data-visible="false"],
+.error-display-container[aria-hidden="true"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+}
+
+/* ErrorDisplay should be compact and dismissible */
+.error-display-container {
+  position: fixed !important;
+  bottom: 60px !important; /* Above footer (48px) + margin */
+  right: 20px !important;
+  max-width: 400px !important;
+  max-height: 300px !important;
+  z-index: var(--z-toast, 10000) !important;
+  background: var(--xibalba-grey-100) !important;
+  border: 1px solid var(--xibalba-primary, #ff9800) !important;
+  border-radius: 4px !important;
+  padding: 12px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
+  overflow-y: auto !important;
+  font-size: var(--font-size-sm, 13px) !important; /* Larger for readability */
+}
+
+/* Only show when there are errors */
+.error-display-container:not(:has(.error-item)) {
+  display: none !important;
+}
+
