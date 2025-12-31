@@ -32,17 +32,16 @@
 .app-main-content {
   grid-row: 2 / 3;
   grid-column: 1 / 4;
-  display: flex;
+  display: block !important; /* Changed from flex - canvas is absolute */
   height: 100% !important; /* CRITICAL: Fill grid cell exactly */
   min-height: 0 !important; /* CRITICAL: Allow flex shrinking */
   max-height: 100% !important; /* CRITICAL: Don't exceed grid cell */
   isolation: isolate; /* Isolate main content from header */
   contain: layout; /* Contain layout to prevent bleeding */
-  position: relative;
+  position: relative !important; /* CRITICAL: Positioning context for absolute canvas */
   overflow: hidden !important; /* Prevent content from spilling */
   margin: 0 !important;
   padding: 0 !important;
-  align-items: stretch !important; /* Force children to fill height */
   /* CRITICAL: Ensure this fills grid row 2 completely - no gaps */
   align-self: stretch !important;
   justify-self: stretch !important;
