@@ -2041,14 +2041,26 @@ const App: React.FC = () => {
   }, [showToast]);
 
   return (
-    <>
-      {/* File Bar - TEMP: Using Header to test render path */}
-      <ErrorBoundary>
-        <Header
-          onAction={handleAction}
-          credits={25000}
-        />
-      </ErrorBoundary>
+    <ErrorBoundary>
+      <div
+        className="app-layout-grid"
+        data-sidebar-left-visible={panelVisibility['left-sidebar'] ? 'true' : 'false'}
+        data-sidebar-right-visible={panelVisibility['right-sidebar'] ? 'true' : 'false'}
+        style={{
+          '--sidebar-left-width': panelVisibility['left-sidebar'] ? '320px' : '0px',
+          '--sidebar-right-width': panelVisibility['right-sidebar'] ? '360px' : '0px',
+        } as React.CSSProperties}
+      >
+        {/* Header with File Menu - Grid Row 1 */}
+        <div className="app-header-container">
+          <ErrorBoundary>
+            <ProfessionalFileMenu
+              onAction={handleAction}
+              onLayoutChange={handleLayoutChange}
+              fileOperationLoading={state.fileOperationLoading}
+            />
+          </ErrorBoundary>
+        </div>
       <ErrorBoundary>
         <div
           className="relative w-screen h-screen text-[var(--xibalba-text-000)] font-sans overflow-hidden bg-[var(--xibalba-grey-000)]"
