@@ -2472,17 +2472,17 @@ const App: React.FC = () => {
           </ErrorBoundary>
         </div>
 
-        {/* Footer - Grid Row 4 */}
-        <div className="app-footer-container">
+        {/* Footer - Grid Row 3 */}
+        <footer className="app-footer">
           <ErrorBoundary>
             <Footer
-            nodeCount={state.layers.length}
-            fillInfo={state.activeTool}
-            isRendering={state.isGenerating}
-            renderProgress={state.isGenerating ? 50 : undefined}
-          />
+              nodeCount={state.layers.length}
+              fillInfo={state.activeTool}
+              isRendering={state.isGenerating}
+              renderProgress={state.isGenerating ? 50 : undefined}
+            />
           </ErrorBoundary>
-        </div>
+        </footer>
 
         {/* XP Display - Compact in Footer Area */}
         <ErrorBoundary>
