@@ -1,11 +1,29 @@
 /* Dev Chat Input Area - NO INLINE STYLES */
+.dev-chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  min-height: 0;
+}
+
+.dev-chat-message-content {
+  white-space: pre-wrap;
+}
+
 .dev-chat-input-area {
   position: relative;
   width: 100%;
   padding: 12px;
   background: var(--xibalba-grey-050);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 2px solid var(--xibalba-grey-200);
+  z-index: 1000;
   flex-shrink: 0;
+  margin-top: auto;
+  display: block;
+  visibility: visible;
+  opacity: 1;
+  box-sizing: border-box;
 }
 
 .dev-chat-input-wrapper {
@@ -18,16 +36,19 @@
 .dev-chat-textarea {
   flex: 1;
   min-height: 60px;
-  max-height: 200px;
+  max-height: 120px;
   padding: 12px;
-  background: var(--xibalba-grey-200);
-  color: var(--xibalba-text-100);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--xibalba-grey-100);
+  border: 2px solid var(--xibalba-grey-200);
   border-radius: 4px;
-  font-family: var(--font-sans, sans-serif);
+  color: var(--xibalba-text-000);
   font-size: 14px;
+  font-family: inherit;
   resize: vertical;
-  overflow-y: auto;
+  display: block;
+  visibility: visible;
+  opacity: 1;
+  box-sizing: border-box;
 }
 
 .dev-chat-textarea:focus {
@@ -39,6 +60,40 @@
 .dev-chat-textarea:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.dev-chat-diagnostics-button {
+  min-width: 100px;
+  height: 60px;
+  padding: 12px 16px;
+  background: var(--xibalba-grey-300);
+  color: var(--xibalba-text-000);
+  border: 2px solid var(--xibalba-grey-200);
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: not-allowed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  visibility: visible;
+  opacity: 1;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.dev-chat-diagnostics-button:not(:disabled) {
+  background: var(--xibalba-grey-200);
+  cursor: pointer;
+}
+
+.dev-chat-diagnostics-button:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.dev-chat-diagnostics-icon {
+  font-size: 18px;
 }
 
 .dev-chat-send-button {
@@ -58,6 +113,7 @@
   visibility: visible;
   opacity: 1;
   transition: all 0.2s;
+  box-sizing: border-box;
 }
 
 .dev-chat-send-button:not(:disabled) {
@@ -73,5 +129,24 @@
 .dev-chat-send-button:hover:not(:disabled) {
   background: var(--xibalba-accent-hover, var(--xibalba-accent));
   opacity: 0.9;
+}
+
+.dev-chat-status {
+  margin-top: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: var(--xibalba-text-100);
+}
+
+.dev-chat-status .saving {
+  color: var(--xibalba-accent);
+}
+
+.dev-chat-status .saved {
+  color: #4caf50;
+}
+
+.dev-chat-status .error {
+  color: #f44336;
 }
 

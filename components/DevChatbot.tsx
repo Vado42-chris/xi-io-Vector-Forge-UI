@@ -749,7 +749,7 @@ Be concise, helpful, and focus on actionable responses. Format your responses wi
 
   return (
     <ErrorBoundary>
-      <div className="dev-chat-container" style={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%', minHeight: 0 }}>
+      <div className="dev-chat-container">
         {/* Header */}
         <div className="dev-chat-header">
           <div className="dev-chat-header-content">
@@ -787,7 +787,7 @@ Be concise, helpful, and focus on actionable responses. Format your responses wi
               key={message.id}
               className={`dev-chat-message ${message.role}`}
             >
-              <div className="dev-chat-message-content" style={{ whiteSpace: 'pre-wrap' }}>
+              <div className="dev-chat-message-content">
                 {message.content.split('\n').map((line, i) => (
                   <React.Fragment key={i}>
                     {line}
@@ -813,24 +813,8 @@ Be concise, helpful, and focus on actionable responses. Format your responses wi
         </div>
 
         {/* Input - CRITICAL: Must be visible and functional */}
-        <div 
-          className="dev-chat-input-area"
-          style={{
-            position: 'relative',
-            width: '100%',
-            padding: '12px',
-            background: 'var(--xibalba-grey-050)',
-            borderTop: '2px solid var(--xibalba-grey-200)',
-            zIndex: 1000,
-            flexShrink: 0,
-            marginTop: 'auto',
-            display: 'block',
-            visibility: 'visible',
-            opacity: 1,
-            boxSizing: 'border-box'
-          }}
-        >
-          <div className="dev-chat-input-wrapper" style={{ display: 'flex', gap: '8px', alignItems: 'flex-end', width: '100%' }}>
+        <div className="dev-chat-input-area">
+          <div className="dev-chat-input-wrapper">
             <textarea
               ref={inputRef}
               id="dev-chat-input"
@@ -842,80 +826,29 @@ Be concise, helpful, and focus on actionable responses. Format your responses wi
               className="dev-chat-textarea"
               placeholder="Type your message here... (e.g., 'read package.json' or 'help')"
               rows={3}
-                maxHeight: '120px',
-                padding: '12px',
-                background: 'var(--xibalba-grey-100)',
-                border: '2px solid var(--xibalba-grey-200)',
-                borderRadius: '4px',
-                color: 'var(--xibalba-text-000)',
-                fontSize: '14px',
-                fontFamily: 'inherit',
-                resize: 'vertical',
-                display: 'block',
-                visibility: 'visible',
-                opacity: 1,
-                boxSizing: 'border-box'
-              }}
             />
             <button
               onClick={handleDiagnostics}
               disabled={isProcessing || !messages.some(m => m.role === 'assistant')}
               className="dev-chat-diagnostics-button"
               title="Analyze the last AI response for errors and improvements"
-              style={{
-                minWidth: '100px',
-                height: '60px',
-                padding: '12px 16px',
-                background: messages.some(m => m.role === 'assistant') && !isProcessing ? 'var(--xibalba-grey-200)' : 'var(--xibalba-grey-300)',
-                color: 'var(--xibalba-text-000)',
-                border: '2px solid var(--xibalba-grey-200)',
-                borderRadius: '4px',
-                fontWeight: 600,
-                fontSize: '13px',
-                cursor: messages.some(m => m.role === 'assistant') && !isProcessing ? 'pointer' : 'not-allowed',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px',
-                visibility: 'visible',
-                opacity: 1,
-                transition: 'all 0.2s ease'
-              }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>psychology</span>
+              <span className="material-symbols-outlined dev-chat-diagnostics-icon">psychology</span>
               Diagnostics
             </button>
             <button
               onClick={handleSend}
               disabled={!input.trim() || isProcessing}
               className="dev-chat-send-button"
-              style={{
-                minWidth: '80px',
-                height: '60px',
-                padding: '12px 24px',
-                background: input.trim() && !isProcessing ? 'var(--xibalba-accent)' : 'var(--xibalba-grey-200)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                fontWeight: 600,
-                fontSize: '14px',
-                cursor: input.trim() && !isProcessing ? 'pointer' : 'not-allowed',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                visibility: 'visible',
-                opacity: 1,
-                boxSizing: 'border-box'
-              }}
             >
               Send
             </button>
           </div>
-          <div className="dev-chat-status" style={{ marginTop: '8px', padding: '8px 12px', fontSize: '12px', color: 'var(--xibalba-text-100)' }}>
+          <div className="dev-chat-status">
             💡 Try: "read package.json" • "run npm run dev" • "list components" • "help"
-            {saveStatus === 'saving' && <span className="saving" style={{ color: 'var(--xibalba-accent)' }}> • 💾 Saving...</span>}
-            {saveStatus === 'saved' && <span className="saved" style={{ color: '#4caf50' }}> • 💾 Saved</span>}
-            {saveStatus === 'error' && <span className="error" style={{ color: '#f44336' }}> • ⚠️ Save failed</span>}
+            {saveStatus === 'saving' && <span className="saving"> • 💾 Saving...</span>}
+            {saveStatus === 'saved' && <span className="saved"> • 💾 Saved</span>}
+            {saveStatus === 'error' && <span className="error"> • ⚠️ Save failed</span>}
           </div>
         </div>
       </div>
