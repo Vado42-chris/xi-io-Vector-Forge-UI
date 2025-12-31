@@ -160,6 +160,7 @@ const App: React.FC = () => {
           <ProfessionalFileMenu 
             onAction={handleAction} 
             onLayoutChange={handleLayoutChange}
+            fileOperationLoading={null}
           />
         </div>
 
