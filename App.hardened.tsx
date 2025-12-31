@@ -2068,8 +2068,9 @@ const App: React.FC = () => {
         <div className="app-main-content">
           {/* Left Sidebar */}
           {panelVisibility['left-sidebar'] && (
-            <ErrorBoundary>
-              <LeftSidebar
+            <aside className="app-left">
+              <ErrorBoundary>
+                <LeftSidebar
                 state={state}
                 setState={setState}
                 onGenerate={handleGenerate}
@@ -2420,8 +2421,9 @@ const App: React.FC = () => {
         )}
 
         {/* Bottom Drawer - FIXED OVERLAY (not in grid flow) */}
-        <ErrorBoundary>
-          <BottomDrawer
+        <div className="app-bottom-drawer">
+          <ErrorBoundary>
+            <BottomDrawer
               isOpen={bottomDrawerOpen}
               onToggle={() => setBottomDrawerOpen(!bottomDrawerOpen)}
               frameState={frameState}

@@ -1,5 +1,14 @@
 /* App Layout - CSS Grid - NO INLINE STYLES */
-/* Standard productized UI: Header | Main Content | Timeline | Footer */
+/* Master Template: Header | Main Content (Left + Center + Right) | Footer */
+/* Bottom Drawer is fixed overlay, NOT in grid flow */
+
+:root {
+  --header-h: 56px;
+  --footer-h: 48px;
+  --left-w: 240px;
+  --right-w: 320px;
+}
+
 .app-layout-grid {
   position: relative;
   width: 100vw !important;
@@ -9,8 +18,8 @@
   overflow: hidden;
   background: var(--xibalba-grey-000);
   display: grid !important;
-  grid-template-rows: auto 1fr auto !important; /* Header | Main Content | Footer - NO GAPS, NO TIMELINE ROW */
-  grid-template-columns: auto 1fr auto;
+  grid-template-rows: var(--header-h) 1fr var(--footer-h) !important; /* Header | Main | Footer - 3 ROWS ONLY */
+  grid-template-columns: var(--left-w) 1fr var(--right-w) !important; /* Left | Center | Right */
   grid-gap: 0 !important; /* NO GAPS BETWEEN ROWS */
   gap: 0 !important; /* NO GAPS */
   min-height: 100vh !important;
@@ -18,52 +27,68 @@
   isolation: isolate; /* Isolate grid from external styles */
 }
 
-.app-header-container {
+.app-header {
   grid-row: 1 / 2;
   grid-column: 1 / 4;
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: var(--z-menu, 1100);
-  isolation: isolate; /* Isolate header from other components */
-  contain: layout style paint; /* Contain header layout */
-  overflow: visible; /* Allow dropdowns to show */
+  isolation: isolate;
+  contain: layout style paint;
+  overflow: visible;
+  height: var(--header-h);
+  min-height: var(--header-h);
+  max-height: var(--header-h);
 }
 
 .app-main-content {
   grid-row: 2 / 3;
   grid-column: 1 / 4;
-  display: block !important; /* Changed from flex - canvas is absolute */
-  height: 100% !important; /* CRITICAL: Fill grid cell exactly */
-  min-height: 0 !important; /* CRITICAL: Allow flex shrinking */
-  max-height: 100% !important; /* CRITICAL: Don't exceed grid cell */
-  isolation: isolate; /* Isolate main content from header */
-  contain: layout; /* Contain layout to prevent bleeding */
-  position: relative !important; /* CRITICAL: Positioning context for absolute canvas */
-  overflow: hidden !important; /* Prevent content from spilling */
+  display: grid !important; /* Grid for left/center/right columns */
+  grid-template-columns: var(--left-w) 1fr var(--right-w) !important;
+  height: 100% !important;
+  min-height: 0 !important; /* CRITICAL: Allow shrinking */
+  max-height: 100% !important;
+  isolation: isolate;
+  contain: layout;
+  overflow: hidden !important;
   margin: 0 !important;
   padding: 0 !important;
-  /* CRITICAL: Ensure this fills grid row 2 completely - no gaps */
+  gap: 0 !important;
   align-self: stretch !important;
   justify-self: stretch !important;
 }
 
+.app-left {
+  grid-column: 1 / 2;
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 100%;
+  min-height: 0;
+}
+
+.app-center {
+  grid-column: 2 / 3;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  position: relative !important;
+}
+
 .app-canvas-area {
-  position: absolute !important; /* CRITICAL: Absolute positioning to fill parent */
-  top: 0 !important;
-  bottom: 0 !important;
-  left: var(--sidebar-left-width, 320px) !important;
-  right: var(--sidebar-right-width, 360px) !important;
-  width: auto !important; /* Let left/right handle width */
-  height: 100% !important; /* Fill parent completely - CRITICAL */
-  min-height: 100% !important; /* Ensure minimum fill */
-  max-height: 100% !important; /* Don't exceed parent */
-  overflow: hidden;
-  background: var(--xibalba-grey-000) !important; /* Ensure background fills */
-  isolation: isolate; /* Isolate canvas from sidebars and header */
-  contain: layout paint; /* Contain canvas layout and painting */
-  z-index: var(--z-canvas, 10); /* Canvas below sidebars but above background */
+  flex: 1 1 auto !important; /* Fill available space in flex container */
+  min-height: 0 !important; /* CRITICAL: Allow flex shrinking */
+  height: 100% !important; /* Fill parent completely */
+  width: 100% !important; /* Fill parent width */
+  overflow: hidden !important;
+  background: var(--xibalba-grey-000) !important;
+  isolation: isolate;
+  contain: layout paint;
+  z-index: var(--z-canvas, 10);
   margin: 0 !important;
   padding: 0 !important;
+  position: relative !important; /* Relative, not absolute - let flex handle positioning */
 }
 
 /* Timeline Container - REMOVED - BottomDrawer is now fixed overlay, not in grid */
