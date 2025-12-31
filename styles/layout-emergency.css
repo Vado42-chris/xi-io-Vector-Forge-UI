@@ -1,23 +1,24 @@
-/* Emergency layout override - reversible */
-#app-simple-root, [data-app-root], .app-layout-grid, body > #root {
+/* Emergency layout override - FIXED to match app-layout.css */
+#app-simple-root,
+[data-app-root],
+.app-layout-grid,
+body > #root {
   display: grid !important;
-  grid-template-rows: 56px 1fr 48px !important; /* header, main (canvas), bottom toolbar */
-  grid-template-columns: 240px 1fr 320px !important; /* left, center, right */
+  grid-template-rows: var(--header-h, 56px) var(--tab-bar-h, 40px) 1fr var(--footer-h, 32px) !important; /* Header | Tab Bar | Main | Footer - 4 ROWS */
+  grid-template-columns: var(--left-w, 320px) 1fr var(--right-w, 360px) !important; /* Left | Center | Right - FIXED widths */
   height: 100vh !important;
   min-height: 100vh !important;
+  gap: 0 !important;
+  grid-gap: 0 !important;
 }
 
-.app-canvas-area, main, [data-canvas], .canvas {
-  grid-row: 2 / 3 !important;
-  grid-column: 2 / 3 !important;
-  min-height: 0 !important; /* critical for flex/grid shrink behavior */
-  height: 100% !important;
-  overflow: hidden !important;
-}
+/* REMOVED - This conflicts with app-layout.css grid structure */
+/* Canvas area is now positioned by app-layout.css grid, not emergency override */
 
-.bottom-toolbar, footer, .timeline {
+.bottom-toolbar,
+footer,
+.timeline {
   grid-row: 3 / 4 !important;
   position: relative !important;
   z-index: 2000 !important;
 }
-

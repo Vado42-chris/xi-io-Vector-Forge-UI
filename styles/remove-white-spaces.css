@@ -1,0 +1,71 @@
+/**
+ * Remove White Spaces Between Component Groups
+ * Ensures no gaps, margins, or padding between major UI sections
+ */
+
+/* Remove all gaps between grid items */
+.app-layout-grid > * {
+  margin: 0 !important;
+  padding: 0 !important;
+  gap: 0 !important;
+}
+
+/* Ensure header has no bottom margin */
+.app-header,
+.xibalba-header,
+.professional-file-menu-header {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* Ensure tab bar has no margins */
+.app-tab-bar-container,
+.document-tab-bar {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* Ensure main content has no margins */
+.app-main-content {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* Ensure sidebars have no margins */
+.app-left,
+.app-right,
+.xibalba-sidebar {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Ensure canvas area has no margins */
+.app-canvas-area,
+.app-center {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Ensure footer has no top margin */
+.app-footer-container,
+.app-footer,
+.status-bar {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* Remove any border spacing */
+* {
+  border-spacing: 0 !important;
+}
+
+/* Ensure no gaps in flex containers */
+.app-main-content,
+.app-center,
+.app-canvas-area {
+  gap: 0 !important;
+}

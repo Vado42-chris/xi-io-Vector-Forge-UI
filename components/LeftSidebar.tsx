@@ -16,6 +16,7 @@ import { Button } from './shared/templates/Button';
 import { useClickTracking } from '../hooks/useClickTracking';
 import { errorReportingService } from '../services/errorReportingService';
 import { usabilityHeuristicsService } from '../services/usabilityHeuristicsService';
+import GenerativeVectorAIPanel from './GenerativeVectorAIPanel';
 
 interface LeftSidebarProps {
   state: AppState;
@@ -36,7 +37,14 @@ interface LeftSidebarProps {
 }
 
 const LeftSidebar: React.FC<LeftSidebarProps> = ({
-  state, setState, onGenerate, onRefine, onTerminalCommand, onVisionScan, activeTool, onToolChange
+  state,
+  setState,
+  onGenerate,
+  onRefine,
+  onTerminalCommand,
+  onVisionScan,
+  activeTool,
+  onToolChange,
 }) => {
   // TRACKING: Patent-safe click tracking
   const { trackClick } = useClickTracking({ componentName: 'LeftSidebar' });
@@ -59,7 +67,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
 
   // REMOVED: Console and Engine tabs moved to RightSidebar
   // Left sidebar is now just for tools
-  
+
   // Tool selector for quick access - FULL LABELS (no truncation)
   const tools: { id: ToolType; label: string; icon: string; shortcut?: string }[] = [
     { id: 'select', label: 'Select', icon: 'near_me', shortcut: 'V' },
@@ -68,16 +76,16 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
     { id: 'ellipse', label: 'Ellipse', icon: 'radio_button_unchecked', shortcut: 'L' },
     { id: 'text', label: 'Text', icon: 'text_fields', shortcut: 'T' },
     { id: 'pan', label: 'Pan', icon: 'open_with', shortcut: 'H' },
-    { id: 'zoom', label: 'Zoom', icon: 'zoom_in', shortcut: 'Z' }
+    { id: 'zoom', label: 'Zoom', icon: 'zoom_in', shortcut: 'Z' },
   ];
-  
+
   // REMOVED: Terminal settings moved to RightSidebar
   // REUSE: Resize/drag logic now in usePanelResize hook
 
   return (
-    <aside 
+    <aside
       ref={sidebarRef}
-      className="xibalba-sidebar shrink-0 flex flex-col xibalba-dockable-palette sidebar-fixed-left bg-[var(--xibalba-grey-050)] overflow-hidden zstack-sidebar-left"
+      className="xibalba-sidebar shrink-0 flex flex-row xibalba-dockable-palette sidebar-fixed-left bg-[var(--xibalba-grey-050)] overflow-hidden zstack-sidebar-left left-sidebar-container"
       onPointerDown={handleDragStart}
       data-palette-id="left-sidebar"
       data-sidebar-width={width}
@@ -87,95 +95,65 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
       <Tooltip content="Drag to resize sidebar" position="right">
         <div
           ref={resizeHandleRef}
-          onPointerDown={(e) => {
+          onPointerDown={e => {
             trackClick('resize-handle', 'drag');
             handleResizeStart(e);
           }}
-          className="absolute right-0 top-0 bottom-0 w-3 cursor-col-resize bg-[var(--xibalba-grey-200)] hover:bg-[var(--xibalba-accent)] opacity-60 hover:opacity-100 transition-all zstack-sidebar-resize-handle"
+          className="absolute right-0 top-0 bottom-0 w-3 cursor-col-resize bg-[var(--xibalba-grey-200)] hover:bg-[var(--xibalba-accent)] opacity-60 hover:opacity-100 transition-all zstack-sidebar-resize-handle z-[1000]"
         />
       </Tooltip>
 
-      {/* Tools Panel Header - Background layer with title */}
-      <div className="relative w-full bg-[var(--xibalba-grey-050)] overflow-hidden xibalba-sidebar-header">
-        {/* Construction Paper Layer for readability - constrained to header only */}
-        <div className="construction-paper-layer-menu xibalba-sidebar-header-paper" />
-        
-        {/* Header Content */}
-        <div className="relative z-10 p-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Button
-              icon={isCollapsed ? 'chevron_right' : 'chevron_left'}
-              onClick={() => {
-                trackClick('button', 'click');
-                setIsCollapsed(!isCollapsed);
-              }}
-              variant="icon-only"
-              size="sm"
-              tooltip={isCollapsed ? 'Expand Tools Panel' : 'Collapse Tools Panel'}
-              aria-label={isCollapsed ? 'Expand Tools Panel' : 'Collapse Tools Panel'}
-            />
-            <span className="text-xs font-bold text-[var(--xibalba-text-primary)] uppercase tracking-widest">Tools Panel</span>
-          </div>
-          <span className="text-xs text-[var(--xibalba-text-100)] normal-case">Press key to switch</span>
-        </div>
+      {/* Vertical Toolbar - Far Left (just icons) */}
+      <div className="left-sidebar-vertical-toolbar">
+        {tools.map(tool => {
+          const tooltipContent =
+            tool.id === 'select'
+              ? `Select Tool (${tool.shortcut})`
+              : tool.id === 'pen'
+                ? `Pen Tool (${tool.shortcut})`
+                : tool.id === 'rectangle'
+                  ? `Rectangle Tool (${tool.shortcut})`
+                  : tool.id === 'ellipse'
+                    ? `Ellipse Tool (${tool.shortcut})`
+                    : tool.id === 'text'
+                      ? `Text Tool (${tool.shortcut})`
+                      : tool.id === 'pan'
+                        ? `Pan Tool (${tool.shortcut})`
+                        : tool.id === 'zoom'
+                          ? `Zoom Tool (${tool.shortcut})`
+                          : `${tool.label} (${tool.shortcut || 'N/A'})`;
+
+          return (
+            <Tooltip key={tool.id} content={tooltipContent} position="right">
+              <button
+                className={`left-sidebar-tool-icon ${activeTool === tool.id ? 'left-sidebar-tool-icon-active' : ''}`}
+                onClick={() => onToolChange && onToolChange(tool.id)}
+                disabled={!onToolChange}
+                aria-label={tool.label}
+              >
+                <span className="material-symbols-outlined">{tool.icon}</span>
+              </button>
+            </Tooltip>
+          );
+        })}
       </div>
 
-      {/* Quick Tool Selector - REUSE: Using ToolButton component - Organized Grid */}
-      {!isCollapsed && (
-        <div className="xibalba-panel-section bg-[var(--xibalba-grey-050)]">
-          <div className="xibalba-ia-group-header">Tools</div>
-          <div className="xibalba-tools-panel left-sidebar-tools">
-            {tools.map(tool => {
-              const tooltipContent = tool.id === 'select' ? `Select Tool (${tool.shortcut}) - Select and move objects` :
-                tool.id === 'pen' ? `Pen Tool (${tool.shortcut}) - Draw freeform paths` :
-                tool.id === 'rectangle' ? `Rectangle Tool (${tool.shortcut}) - Draw rectangles` :
-                tool.id === 'ellipse' ? `Ellipse Tool (${tool.shortcut}) - Draw circles and ellipses` :
-                tool.id === 'text' ? `Text Tool (${tool.shortcut}) - Add text to canvas` :
-                tool.id === 'pan' ? `Pan Tool (${tool.shortcut}) - Move canvas view` :
-                tool.id === 'zoom' ? `Zoom Tool (${tool.shortcut}) - Zoom in/out` :
-                `${tool.label} (${tool.shortcut || 'N/A'})`;
-              
-              return (
-                <ToolButton
-                  key={tool.id}
-                  tool={tool}
-                  activeTool={activeTool}
-                  onClick={(id) => {
-                    console.log('Tool clicked:', id);
-                    if (onToolChange) {
-                      onToolChange(id);
-                    }
-                  }}
-                  disabled={false}
-                  tooltip={tooltipContent}
-                  variant="compact"
-                />
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Pinned Tool Palettes Area - REUSE: Using EmptyState component */}
-      {!isCollapsed && (
-        <div className="flex-1 overflow-y-auto xibalba-scrollbar p-4">
-          <EmptyState
-            icon="palette"
-            message="Pin tool palettes here from the Palettes menu"
-            action={{
-              label: 'Window → Palettes',
-              onClick: () => {},
-            }}
-          />
-        </div>
-      )}
-
-      {/* REUSE: Using StatusIndicator component */}
-      <div className="p-4 bg-[var(--xibalba-grey-050)]">
-        <StatusIndicator
-          status={state.isGenerating ? 'processing' : 'ready'}
-          message={state.isGenerating ? 'AI SYNTHESIZING' : 'SYSTEM READY'}
-          secondary={`CREDITS: ${state.credits}`}
+      {/* Generative Vector AI Panel - Right Side */}
+      <div className="left-sidebar-ai-panel-container">
+        <GenerativeVectorAIPanel
+          prompt={state.prompt}
+          onPromptChange={p => setState(prev => ({ ...prev, prompt: p }))}
+          style={state.style}
+          onStyleChange={s => setState(prev => ({ ...prev, style: s }))}
+          complexity={state.complexity}
+          onComplexityChange={c => setState(prev => ({ ...prev, complexity: c }))}
+          palette={['#d46b32', '#343842', '#b8bfcc']}
+          onPaletteChange={p => {
+            // Store palette in state if needed
+            console.log('Palette changed:', p);
+          }}
+          credits={state.credits}
+          onGenerate={onGenerate || (async () => {})}
         />
       </div>
     </aside>

@@ -1,0 +1,83 @@
+/**
+ * Header Buttons Styles
+ * Matches design: ONLINE, SHARE buttons, user profile icon
+ */
+
+.header-online-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--xibalba-grey-100, #25282f);
+  border: 1px solid var(--xibalba-grey-200, #343842);
+  border-radius: 4px;
+  color: var(--xibalba-text-000, #ffffff);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.header-online-button:hover {
+  background: var(--xibalba-grey-150, #2a2d35);
+  border-color: var(--xibalba-grey-300, #3d4149);
+}
+
+.header-online-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--xibalba-accent, #d46b32);
+  flex-shrink: 0;
+}
+
+.header-share-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--xibalba-grey-100, #25282f);
+  border: 1px solid var(--xibalba-accent, #d46b32);
+  border-radius: 4px;
+  color: var(--xibalba-text-000, #ffffff);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.header-share-button:hover {
+  background: var(--xibalba-accent, #d46b32);
+}
+
+.header-share-button .material-symbols-outlined {
+  font-size: 16px;
+  color: var(--xibalba-accent, #d46b32);
+}
+
+.header-share-button:hover .material-symbols-outlined {
+  color: var(--xibalba-text-000, #ffffff);
+}
+
+.header-user-profile {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.header-user-profile:hover {
+  transform: scale(1.05);
+}
+
+.header-user-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

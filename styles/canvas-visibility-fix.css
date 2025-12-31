@@ -1,0 +1,60 @@
+/**
+ * Canvas Visibility Fix
+ * Ensures canvas area is visible with proper background and dimensions
+ */
+
+/* Ensure canvas area has visible background and minimum height */
+.app-canvas-area {
+  background-color: var(--xibalba-grey-050, #1e2025) !important;
+  min-height: 400px !important; /* Minimum height to ensure visibility */
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Ensure grid background is visible */
+.grid-background {
+  opacity: 0.3 !important; /* Always visible, even when snap is off */
+  z-index: 1 !important;
+}
+
+/* Ensure canvas container is visible */
+.canvas-container {
+  min-height: 400px !important;
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Ensure canvas area wrapper is visible */
+.canvas-area {
+  min-height: 400px !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Ensure sidebars are visible when panelVisibility is true */
+.app-left,
+.app-right {
+  min-width: 200px !important; /* Minimum width to ensure visibility */
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Ensure main content area fills available space */
+.app-main-content {
+  min-height: 400px !important; /* Minimum height to ensure visibility */
+  display: grid !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Ensure center canvas area is visible */
+.app-center {
+  min-height: 400px !important;
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}

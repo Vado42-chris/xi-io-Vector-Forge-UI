@@ -29,7 +29,10 @@ class ApiService {
   private defaultHeaders: Record<string, string>;
 
   constructor(baseUrl?: string) {
-    this.baseUrl = baseUrl || import.meta.env.VITE_XIBALBA_MCP_URL || 'http://localhost:8000';
+    // Use current origin for API calls (same server), fallback to MCP URL only for Xibalba-specific calls
+    // For task/filesystem APIs, use relative paths to connect to the same server (port 3000)
+    this.baseUrl =
+      baseUrl || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
     this.defaultHeaders = {
       'Content-Type': 'application/json',
     };
@@ -37,9 +40,7 @@ class ApiService {
 
   async request<T = unknown>(request: ApiRequest): Promise<ApiResponse<T>> {
     try {
-      const url = request.url.startsWith('http') 
-        ? request.url 
-        : `${this.baseUrl}${request.url}`;
+      const url = request.url.startsWith('http') ? request.url : `${this.baseUrl}${request.url}`;
 
       const response = await fetch(url, {
         method: request.method || 'GET',
@@ -81,15 +82,26 @@ class ApiService {
     return this.request<T>({ url, method: 'GET', headers });
   }
 
-  async post<T = unknown>(url: string, body?: unknown, headers?: Record<string, string>): Promise<ApiResponse<T>> {
+  async post<T = unknown>(
+    url: string,
+    body?: unknown,
+    headers?: Record<string, string>
+  ): Promise<ApiResponse<T>> {
     return this.request<T>({ url, method: 'POST', body, headers });
   }
 
-  async put<T = unknown>(url: string, body?: unknown, headers?: Record<string, string>): Promise<ApiResponse<T>> {
+  async put<T = unknown>(
+    url: string,
+    body?: unknown,
+    headers?: Record<string, string>
+  ): Promise<ApiResponse<T>> {
     return this.request<T>({ url, method: 'PUT', body, headers });
   }
 
-  async delete<T = unknown>(url: string, headers?: Record<string, string>): Promise<ApiResponse<T>> {
+  async delete<T = unknown>(
+    url: string,
+    headers?: Record<string, string>
+  ): Promise<ApiResponse<T>> {
     return this.request<T>({ url, method: 'DELETE', headers });
   }
 

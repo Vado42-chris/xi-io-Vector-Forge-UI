@@ -107,6 +107,7 @@
 }
 
 /* CRITICAL: Prevent any chat input from appearing in timeline/footer */
+/* Target ALL possible containers and ALL textarea variants */
 footer .dev-chat-input-area,
 .app-footer .dev-chat-input-area,
 .bottom-drawer .dev-chat-input-area,
@@ -115,22 +116,35 @@ footer .dev-chat-input-area,
 .xibalba-timeline .dev-chat-input-area,
 footer textarea[id*="dev-chat"],
 footer textarea[name*="dev-chat"],
+footer textarea[class*="dev-chat"],
 .app-footer textarea[id*="dev-chat"],
 .app-footer textarea[name*="dev-chat"],
+.app-footer textarea[class*="dev-chat"],
 .bottom-drawer textarea[id*="dev-chat"],
 .bottom-drawer textarea[name*="dev-chat"],
+.bottom-drawer textarea[class*="dev-chat"],
 .app-bottom-drawer textarea[id*="dev-chat"],
 .app-bottom-drawer textarea[name*="dev-chat"],
+.app-bottom-drawer textarea[class*="dev-chat"],
 .animation-timeline-container textarea[id*="dev-chat"],
 .animation-timeline-container textarea[name*="dev-chat"],
+.animation-timeline-container textarea[class*="dev-chat"],
 .xibalba-timeline textarea[id*="dev-chat"],
 .xibalba-timeline textarea[name*="dev-chat"],
+.xibalba-timeline textarea[class*="dev-chat"],
 footer .dev-chat-textarea,
 .app-footer .dev-chat-textarea,
 .bottom-drawer .dev-chat-textarea,
 .app-bottom-drawer .dev-chat-textarea,
 .animation-timeline-container .dev-chat-textarea,
-.xibalba-timeline .dev-chat-textarea {
+.xibalba-timeline .dev-chat-textarea,
+/* Also hide any input wrapper in timeline */
+footer .dev-chat-input-wrapper,
+.app-footer .dev-chat-input-wrapper,
+.bottom-drawer .dev-chat-input-wrapper,
+.app-bottom-drawer .dev-chat-input-wrapper,
+.animation-timeline-container .dev-chat-input-wrapper,
+.xibalba-timeline .dev-chat-input-wrapper {
   display: none !important;
   visibility: hidden !important;
   height: 0 !important;
@@ -141,6 +155,9 @@ footer .dev-chat-textarea,
   left: -9999px !important;
   opacity: 0 !important;
   pointer-events: none !important;
+  width: 0 !important;
+  max-width: 0 !important;
+  min-width: 0 !important;
 }
 
 /* CRITICAL: Ensure timeline doesn't contain chat input */
@@ -163,3 +180,81 @@ footer .dev-chat-textarea,
   overflow: hidden !important;
 }
 
+/* MAXIMUM SPECIFICITY: Hide ANY textarea in timeline area, regardless of class/id */
+.bottom-drawer textarea,
+.app-bottom-drawer textarea,
+.animation-timeline-container textarea,
+.xibalba-timeline textarea,
+footer textarea,
+.app-footer textarea {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  position: absolute !important;
+  left: -9999px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  z-index: -9999 !important;
+}
+
+/* CRITICAL: Ensure input area CANNOT escape its container */
+.dev-chat-input-area {
+  contain: strict !important;
+  isolation: isolate !important;
+  position: relative !important;
+  will-change: auto !important;
+  transform: none !important;
+  top: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  right: auto !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  max-width: 100% !important;
+  overflow: visible !important;
+}
+
+/* CRITICAL: Ensure input area IS VISIBLE when in right sidebar */
+.xibalba-right-sidebar-content .dev-chat-input-area,
+.sidebar-fixed-right .dev-chat-input-area,
+.app-right .dev-chat-input-area,
+.dev-chat-wrapper .dev-chat-input-area,
+.dev-chat-container .dev-chat-input-area {
+  display: flex !important;
+  visibility: visible !important;
+  height: auto !important;
+  min-height: 60px !important;
+  padding: 12px !important;
+  margin: 0 !important;
+  overflow: visible !important;
+  position: relative !important;
+  left: auto !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* CRITICAL: Ensure textarea IS VISIBLE when in right sidebar */
+.xibalba-right-sidebar-content textarea[id='dev-chat-input'],
+.sidebar-fixed-right textarea[id='dev-chat-input'],
+.app-right textarea[id='dev-chat-input'],
+.dev-chat-wrapper textarea[id='dev-chat-input'],
+.dev-chat-container textarea[id='dev-chat-input'] {
+  display: block !important;
+  visibility: visible !important;
+  height: auto !important;
+  min-height: 60px !important;
+  padding: 8px !important;
+  margin: 0 !important;
+  overflow: visible !important;
+  position: relative !important;
+  left: auto !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}

@@ -1,0 +1,161 @@
+/**
+ * Document Tab Bar Styles
+ * Matches design concept: tabs below header with active state, close buttons, new tab button
+ */
+
+.document-tab-bar {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  background: var(--xibalba-grey-050, #1e2025);
+  border-bottom: 1px solid var(--xibalba-grey-200, #343842);
+  padding: 0 8px;
+  gap: 4px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  z-index: var(--z-menu, 400);
+  position: relative;
+}
+
+.document-tabs-container {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.document-tabs-container::-webkit-scrollbar {
+  display: none;
+}
+
+.document-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  min-width: 120px;
+  max-width: 200px;
+  height: 32px;
+  background: var(--xibalba-grey-100, #25282f);
+  border: 1px solid transparent;
+  border-radius: 4px 4px 0 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.document-tab:hover {
+  background: var(--xibalba-grey-150, #2a2d35);
+}
+
+.document-tab-active {
+  background: var(--xibalba-grey-050, #1e2025) !important;
+  border-top: 2px solid var(--xibalba-accent, #d46b32) !important;
+  border-left: 1px solid var(--xibalba-grey-200, #343842);
+  border-right: 1px solid var(--xibalba-grey-200, #343842);
+  border-bottom: 1px solid var(--xibalba-grey-050, #1e2025) !important;
+  z-index: 1;
+}
+
+.document-tab-icon {
+  font-size: 16px;
+  color: var(--xibalba-text-200, #b8bfcc);
+  flex-shrink: 0;
+}
+
+.document-tab-active .document-tab-icon {
+  color: var(--xibalba-accent, #d46b32);
+}
+
+.document-tab-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--xibalba-text-200, #b8bfcc);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
+}
+
+.document-tab-active .document-tab-label {
+  color: var(--xibalba-text-000, #ffffff);
+  font-weight: 600;
+}
+
+.document-tab-dirty-indicator {
+  font-size: 8px;
+  color: var(--xibalba-accent, #d46b32);
+  flex-shrink: 0;
+  margin-left: -4px;
+}
+
+.document-tab-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  margin-left: 4px;
+  background: transparent;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.document-tab:hover .document-tab-close,
+.document-tab-active .document-tab-close {
+  opacity: 1;
+}
+
+.document-tab-close:hover {
+  background: var(--xibalba-grey-200, #343842);
+}
+
+.document-tab-close .material-symbols-outlined {
+  font-size: 14px;
+  color: var(--xibalba-text-200, #b8bfcc);
+}
+
+.document-tab-close:hover .material-symbols-outlined {
+  color: var(--xibalba-text-000, #ffffff);
+}
+
+.document-tab-new {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  margin-left: 4px;
+}
+
+.document-tab-new:hover {
+  background: var(--xibalba-grey-150, #2a2d35);
+  border-color: var(--xibalba-grey-200, #343842);
+}
+
+.document-tab-new .material-symbols-outlined {
+  font-size: 20px;
+  color: var(--xibalba-text-200, #b8bfcc);
+}
+
+.document-tab-new:hover .material-symbols-outlined {
+  color: var(--xibalba-accent, #d46b32);
+}

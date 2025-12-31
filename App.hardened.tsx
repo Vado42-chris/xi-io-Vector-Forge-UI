@@ -21,7 +21,8 @@ import PowerUserToolbar from './components/PowerUserToolbar';
 import SignButton from './components/SignButton';
 import AnimationTimeline from './components/AnimationTimeline';
 import BottomDrawer from './components/BottomDrawer';
-import Footer from './components/Footer';
+import StatusBar from './components/StatusBar';
+import DocumentTabBar, { Document } from './components/DocumentTabBar';
 import ToastContainer from './components/ToastContainer';
 import WelcomeScreen from './components/WelcomeScreen';
 import { clickTrackingService } from './services/clickTrackingService';
@@ -93,7 +94,7 @@ const App: React.FC = () => {
   console.log('🔴 App.hardened FUNCTION CALLED');
   console.error('🔴 App.hardened FUNCTION CALLED (error)');
   console.warn('🔴 App.hardened FUNCTION CALLED (warn)');
-  
+
   const [state, setState] = useState<AppState>(() => {
     try {
       const saved = localStorage.getItem('vforge_xibalba_prime');
@@ -236,7 +237,13 @@ const App: React.FC = () => {
   const [gridSize, setGridSize] = useState(10);
   const [showOnionSkin, setShowOnionSkin] = useState(false);
   const [onionSkinFrames, setOnionSkinFrames] = useState(2);
-  const [bottomDrawerOpen, setBottomDrawerOpen] = useState(true);
+  const [bottomDrawerOpen, setBottomDrawerOpen] = useState(false); // Start closed - slides up when needed
+
+  // Document management state
+  const [documents, setDocuments] = useState<Document[]>([
+    { id: '1', name: 'Untitled-1.svg', isDirty: false },
+  ]);
+  const [activeDocumentId, setActiveDocumentId] = useState<string | null>('1');
 
   // Workflow layout state
   const [currentLayout, setCurrentLayout] = useState<WorkflowLayout | null>(null);
@@ -798,7 +805,7 @@ const App: React.FC = () => {
             try {
               // Check if we have a current file path
               const currentFilePath = (state as any).currentFilePath;
-              
+
               if (currentFilePath) {
                 // Save to existing file
                 const fileData = {
@@ -808,26 +815,32 @@ const App: React.FC = () => {
                   pan: state.pan,
                   timestamp: Date.now(),
                 };
-                
+
                 // Use File System Access API if available, otherwise download
                 if ('showSaveFilePicker' in window) {
                   try {
                     const fileHandle = await (window as any).showSaveFilePicker({
                       suggestedName: currentFilePath,
-                      types: [{
-                        description: 'VectorForge Project',
-                        accept: { 'application/xibalba': ['.xibalba'] }
-                      }]
+                      types: [
+                        {
+                          description: 'VectorForge Project',
+                          accept: { 'application/xibalba': ['.xibalba'] },
+                        },
+                      ],
                     });
                     const writable = await fileHandle.createWritable();
                     await writable.write(JSON.stringify(fileData, null, 2));
                     await writable.close();
-                    
+
                     // Also save to localStorage as backup
                     localStorage.setItem('vforge_xibalba_prime', JSON.stringify(state));
                     localStorage.setItem('vforge_current_file_path', currentFilePath);
-                    
-                    setState(prev => ({ ...prev, fileOperationLoading: { type: null }, currentFilePath: currentFilePath }));
+
+                    setState(prev => ({
+                      ...prev,
+                      fileOperationLoading: { type: null },
+                      currentFilePath,
+                    }));
                     showToast('File saved', 'success');
                     announceToScreenReader('File saved successfully');
                   } catch (err: any) {
@@ -840,18 +853,22 @@ const App: React.FC = () => {
                   }
                 } else {
                   // Fallback: Download file
-                  const blob = new Blob([JSON.stringify(fileData, null, 2)], { type: 'application/json' });
+                  const blob = new Blob([JSON.stringify(fileData, null, 2)], {
+                    type: 'application/json',
+                  });
                   const url = URL.createObjectURL(blob);
                   const a = document.createElement('a');
                   a.href = url;
-                  a.download = currentFilePath.endsWith('.xibalba') ? currentFilePath : `${currentFilePath}.xibalba`;
+                  a.download = currentFilePath.endsWith('.xibalba')
+                    ? currentFilePath
+                    : `${currentFilePath}.xibalba`;
                   a.click();
                   URL.revokeObjectURL(url);
-                  
+
                   // Also save to localStorage as backup
                   localStorage.setItem('vforge_xibalba_prime', JSON.stringify(state));
                   localStorage.setItem('vforge_current_file_path', currentFilePath);
-                  
+
                   setState(prev => ({ ...prev, fileOperationLoading: { type: null } }));
                   showToast('File saved', 'success');
                   announceToScreenReader('File saved successfully');
@@ -861,7 +878,7 @@ const App: React.FC = () => {
                 void handleAction('FILE_SAVE_AS');
                 return;
               }
-              
+
               // Award XP for saving
               awardXPAndCheckLevelUp(
                 'file-save',
@@ -872,7 +889,10 @@ const App: React.FC = () => {
               userProfileService.updateStat('filesSaved', 1);
             } catch (error) {
               setState(prev => ({ ...prev, fileOperationLoading: { type: null } }));
-              showToast(`Failed to save file: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error');
+              showToast(
+                `Failed to save file: ${error instanceof Error ? error.message : 'Unknown error'}`,
+                'error'
+              );
               console.error('Save error:', error);
             }
             break;
@@ -886,42 +906,52 @@ const App: React.FC = () => {
                 pan: state.pan,
                 timestamp: Date.now(),
               };
-              
+
               // Use File System Access API if available
               if ('showSaveFilePicker' in window) {
                 try {
                   const fileHandle = await (window as any).showSaveFilePicker({
                     suggestedName: `vectorforge_project_${Date.now()}.xibalba`,
-                    types: [{
-                      description: 'VectorForge Project',
-                      accept: { 'application/xibalba': ['.xibalba'] }
-                    }]
+                    types: [
+                      {
+                        description: 'VectorForge Project',
+                        accept: { 'application/xibalba': ['.xibalba'] },
+                      },
+                    ],
                   });
                   const writable = await fileHandle.createWritable();
                   await writable.write(JSON.stringify(fileData, null, 2));
                   await writable.close();
-                  
+
                   // Get file name from handle
                   const fileName = fileHandle.name;
-                  
+
                   // Save to localStorage as backup
                   localStorage.setItem('vforge_xibalba_prime', JSON.stringify(state));
                   localStorage.setItem('vforge_current_file_path', fileName);
-                  
+
                   // Update recent files
                   try {
                     const recentFilesStr = localStorage.getItem('vforge_recent_files') || '[]';
                     const recentFiles = JSON.parse(recentFilesStr);
                     if (Array.isArray(recentFiles)) {
-                      recentFiles.unshift({ name: fileName, path: fileName, timestamp: Date.now() });
+                      recentFiles.unshift({
+                        name: fileName,
+                        path: fileName,
+                        timestamp: Date.now(),
+                      });
                       const updatedRecent = recentFiles.slice(0, 10);
                       localStorage.setItem('vforge_recent_files', JSON.stringify(updatedRecent));
                     }
                   } catch (error) {
                     console.error('Failed to update recent files:', error);
                   }
-                  
-                  setState(prev => ({ ...prev, fileOperationLoading: { type: null }, currentFilePath: fileName }));
+
+                  setState(prev => ({
+                    ...prev,
+                    fileOperationLoading: { type: null },
+                    currentFilePath: fileName,
+                  }));
                   showToast(`File saved as ${fileName}`, 'success');
                   announceToScreenReader(`File saved as ${fileName}`);
                 } catch (err: any) {
@@ -934,7 +964,9 @@ const App: React.FC = () => {
                 }
               } else {
                 // Fallback: Download file
-                const blob = new Blob([JSON.stringify(fileData, null, 2)], { type: 'application/json' });
+                const blob = new Blob([JSON.stringify(fileData, null, 2)], {
+                  type: 'application/json',
+                });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
@@ -942,11 +974,11 @@ const App: React.FC = () => {
                 a.download = fileName;
                 a.click();
                 URL.revokeObjectURL(url);
-                
+
                 // Save to localStorage as backup
                 localStorage.setItem('vforge_xibalba_prime', JSON.stringify(state));
                 localStorage.setItem('vforge_current_file_path', fileName);
-                
+
                 // Update recent files
                 try {
                   const recentFilesStr = localStorage.getItem('vforge_recent_files') || '[]';
@@ -959,12 +991,16 @@ const App: React.FC = () => {
                 } catch (error) {
                   console.error('Failed to update recent files:', error);
                 }
-                
-                setState(prev => ({ ...prev, fileOperationLoading: { type: null }, currentFilePath: fileName }));
+
+                setState(prev => ({
+                  ...prev,
+                  fileOperationLoading: { type: null },
+                  currentFilePath: fileName,
+                }));
                 showToast(`File saved as ${fileName}`, 'success');
                 announceToScreenReader(`File saved as ${fileName}`);
               }
-              
+
               // Award XP for saving
               awardXPAndCheckLevelUp(
                 'file-save',
@@ -975,7 +1011,10 @@ const App: React.FC = () => {
               userProfileService.updateStat('filesSaved', 1);
             } catch (error) {
               setState(prev => ({ ...prev, fileOperationLoading: { type: null } }));
-              showToast(`Failed to save file: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error');
+              showToast(
+                `Failed to save file: ${error instanceof Error ? error.message : 'Unknown error'}`,
+                'error'
+              );
               console.error('Save As error:', error);
             }
             break;
@@ -2050,13 +2089,48 @@ const App: React.FC = () => {
         data-app-root
         data-sidebar-left-visible={panelVisibility['left-sidebar'] ? 'true' : 'false'}
         data-sidebar-right-visible={panelVisibility['right-sidebar'] ? 'true' : 'false'}
-        style={{
-          '--sidebar-left-width': panelVisibility['left-sidebar'] ? '320px' : '0px',
-          '--sidebar-right-width': panelVisibility['right-sidebar'] ? '360px' : '0px',
-        } as React.CSSProperties}
+        style={
+          {
+            '--sidebar-left-width': panelVisibility['left-sidebar'] ? '320px' : '0px',
+            '--sidebar-right-width': panelVisibility['right-sidebar'] ? '360px' : '0px',
+          } as React.CSSProperties
+        }
       >
         {/* Header with File Menu - Grid Row 1 */}
-        <div className="app-header-container">
+        <header className="app-header">
+          {/* #region agent log */}
+          {(() => {
+            const headerEl = document.querySelector('.app-header');
+            if (headerEl) {
+              setTimeout(() => {
+                const computedStyle = window.getComputedStyle(headerEl);
+                const rect = headerEl.getBoundingClientRect();
+                fetch('http://127.0.0.1:7242/ingest/9192f36e-3223-469d-8e1d-e9ca20bc6049', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    location: 'App.hardened.tsx:2066',
+                    message: 'Header rendered - checking grid position',
+                    data: {
+                      className: headerEl.className,
+                      computedDisplay: computedStyle.display,
+                      computedGridRow: computedStyle.gridRow,
+                      computedGridColumn: computedStyle.gridColumn,
+                      rectTop: rect.top,
+                      rectHeight: rect.height,
+                      isVisible: rect.height > 0,
+                    },
+                    timestamp: Date.now(),
+                    sessionId: 'debug-session',
+                    runId: 'run1',
+                    hypothesisId: 'A',
+                  }),
+                }).catch(() => {});
+              }, 100);
+            }
+            return null;
+          })()}
+          {/* #endregion */}
           <ErrorBoundary>
             <ProfessionalFileMenu
               onAction={handleAction}
@@ -2064,21 +2138,131 @@ const App: React.FC = () => {
               fileOperationLoading={state.fileOperationLoading}
             />
           </ErrorBoundary>
+        </header>
+
+        {/* Document Tab Bar - Grid Row 2 */}
+        <div
+          className="app-tab-bar-container"
+          ref={el => {
+            // #region agent log
+            if (el) {
+              setTimeout(() => {
+                const computedStyle = window.getComputedStyle(el);
+                const rect = el.getBoundingClientRect();
+                fetch('http://127.0.0.1:7242/ingest/9192f36e-3223-469d-8e1d-e9ca20bc6049', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    location: 'App.hardened.tsx:2077',
+                    message: 'Tab bar rendered - checking grid position',
+                    data: {
+                      className: el.className,
+                      computedDisplay: computedStyle.display,
+                      computedGridRow: computedStyle.gridRow,
+                      computedGridColumn: computedStyle.gridColumn,
+                      computedMargin: computedStyle.margin,
+                      computedPadding: computedStyle.padding,
+                      rectTop: rect.top,
+                      rectHeight: rect.height,
+                      isVisible: rect.height > 0,
+                    },
+                    timestamp: Date.now(),
+                    sessionId: 'debug-session',
+                    runId: 'run1',
+                    hypothesisId: 'D',
+                  }),
+                }).catch(() => {});
+              }, 100);
+            }
+            // #endregion
+          }}
+        >
+          <ErrorBoundary>
+            <DocumentTabBar
+              documents={documents}
+              activeDocumentId={activeDocumentId}
+              onDocumentSelect={id => {
+                setActiveDocumentId(id);
+                const doc = documents.find(d => d.id === id);
+                if (doc?.path) {
+                  // Load document content
+                  showToast(`Switched to ${doc.name}`, 'info');
+                }
+              }}
+              onDocumentClose={id => {
+                if (documents.length === 1) {
+                  showToast('Cannot close the last document', 'warning');
+                  return;
+                }
+                setDocuments(prev => prev.filter(d => d.id !== id));
+                if (activeDocumentId === id) {
+                  const remaining = documents.filter(d => d.id !== id);
+                  setActiveDocumentId(remaining[0]?.id || null);
+                }
+              }}
+              onNewDocument={() => {
+                const newId = `doc-${Date.now()}`;
+                const newDoc: Document = {
+                  id: newId,
+                  name: `Untitled-${documents.length + 1}.svg`,
+                  isDirty: false,
+                };
+                setDocuments(prev => [...prev, newDoc]);
+                setActiveDocumentId(newId);
+                handleAction('FILE_NEW');
+              }}
+            />
+          </ErrorBoundary>
         </div>
 
-        {/* Main Content - Grid Row 2: Left Sidebar + Canvas + Right Sidebar */}
-        <div className="app-main-content">
+        {/* Main Content - Grid Row 3: Left Sidebar + Canvas + Right Sidebar */}
+        <div
+          className="app-main-content"
+          ref={el => {
+            // #region agent log
+            if (el) {
+              setTimeout(() => {
+                const computedStyle = window.getComputedStyle(el);
+                const rect = el.getBoundingClientRect();
+                fetch('http://127.0.0.1:7242/ingest/9192f36e-3223-469d-8e1d-e9ca20bc6049', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    location: 'App.hardened.tsx:2130',
+                    message: 'Main content rendered - checking grid position',
+                    data: {
+                      className: el.className,
+                      computedDisplay: computedStyle.display,
+                      computedGridRow: computedStyle.gridRow,
+                      computedGridColumn: computedStyle.gridColumn,
+                      computedMargin: computedStyle.margin,
+                      computedPadding: computedStyle.padding,
+                      rectTop: rect.top,
+                      rectHeight: rect.height,
+                      isVisible: rect.height > 0,
+                    },
+                    timestamp: Date.now(),
+                    sessionId: 'debug-session',
+                    runId: 'run1',
+                    hypothesisId: 'C',
+                  }),
+                }).catch(() => {});
+              }, 100);
+            }
+            // #endregion
+          }}
+        >
           {/* Left Sidebar */}
           {panelVisibility['left-sidebar'] && (
             <aside className="app-left">
               <ErrorBoundary>
                 <LeftSidebar
-                state={state}
-                setState={setState}
-                onGenerate={handleGenerate}
-                activeTool={state.activeTool}
-                onToolChange={handleToolChange}
-              />
+                  state={state}
+                  setState={setState}
+                  onGenerate={handleGenerate}
+                  activeTool={state.activeTool}
+                  onToolChange={handleToolChange}
+                />
               </ErrorBoundary>
             </aside>
           )}
@@ -2086,65 +2270,67 @@ const App: React.FC = () => {
           {/* Center Canvas Area - 100% height/width in container */}
           <main className="app-center">
             <div className="app-canvas-area">
-            <ErrorBoundary>
-              <DraftsmanCanvas
-                svgContent={state.currentSvg}
-                layers={state.layers}
-                activeTool={state.activeTool}
-                selectedLayerId={state.selectedLayerId}
-                zoom={state.zoom}
-                pan={state.pan}
-                onPan={handlePan}
-                onZoom={handleZoom}
-                onSelectLayer={handleLayerSelect}
-                onCreateLayer={(layer: VectorLayer) => {
-                  setState(prev => {
-                    const newLayers = [...prev.layers, layer];
-                    setTimeout(() => updateSvgFromLayers(newLayers), 0);
-                    return { ...prev, layers: newLayers, selectedLayerId: layer.id };
-                  });
-                  showToast(`Created ${layer.name}`, 'success');
-                }}
-                onUpdateLayer={(id: string, updates: Partial<VectorLayer>) => {
-                  const newLayers = state.layers.map(l => (l.id === id ? { ...l, ...updates } : l));
-                  updateSvgFromLayers(newLayers);
-                  setState(prev => ({ ...prev, layers: newLayers }));
-                }}
-                keyframes={keyframes}
-                frameState={frameState}
-                onAddKeyframe={kf => setKeyframes(prev => [...prev, kf])}
-                onUpdateKeyframe={(id, props) =>
-                  setKeyframes(prev => prev.map(k => (k.id === id ? { ...k, ...props } : k)))
-                }
-                onInterpolateFrame={undefined}
-                showGuides={showGuides}
-                snapToGrid={snapToGrid}
-                snapToGuides={snapToGuides}
-                gridSize={gridSize}
-                measurementUnit="px"
-                onUnitChange={unit => showToast(`Unit changed to ${unit}`, 'info')}
-                toolProperties={toolProperties}
-                isSpacebarDown={false}
-              />
-            </ErrorBoundary>
+              <ErrorBoundary>
+                <DraftsmanCanvas
+                  svgContent={state.currentSvg}
+                  layers={state.layers}
+                  activeTool={state.activeTool}
+                  selectedLayerId={state.selectedLayerId}
+                  zoom={state.zoom}
+                  pan={state.pan}
+                  onPan={handlePan}
+                  onZoom={handleZoom}
+                  onSelectLayer={handleLayerSelect}
+                  onCreateLayer={(layer: VectorLayer) => {
+                    setState(prev => {
+                      const newLayers = [...prev.layers, layer];
+                      setTimeout(() => updateSvgFromLayers(newLayers), 0);
+                      return { ...prev, layers: newLayers, selectedLayerId: layer.id };
+                    });
+                    showToast(`Created ${layer.name}`, 'success');
+                  }}
+                  onUpdateLayer={(id: string, updates: Partial<VectorLayer>) => {
+                    const newLayers = state.layers.map(l =>
+                      l.id === id ? { ...l, ...updates } : l
+                    );
+                    updateSvgFromLayers(newLayers);
+                    setState(prev => ({ ...prev, layers: newLayers }));
+                  }}
+                  keyframes={keyframes}
+                  frameState={frameState}
+                  onAddKeyframe={kf => setKeyframes(prev => [...prev, kf])}
+                  onUpdateKeyframe={(id, props) =>
+                    setKeyframes(prev => prev.map(k => (k.id === id ? { ...k, ...props } : k)))
+                  }
+                  onInterpolateFrame={undefined}
+                  showGuides={showGuides}
+                  snapToGrid={snapToGrid}
+                  snapToGuides={snapToGuides}
+                  gridSize={gridSize}
+                  measurementUnit="px"
+                  onUnitChange={unit => showToast(`Unit changed to ${unit}`, 'info')}
+                  toolProperties={toolProperties}
+                  isSpacebarDown={false}
+                />
+              </ErrorBoundary>
 
-            {/* Power User Toolbar - Positioned absolutely within canvas */}
-            <ErrorBoundary>
-              <PowerUserToolbar
-                snapToGrid={snapToGrid}
-                onSnapToGridChange={setSnapToGrid}
-                snapToGuides={snapToGuides}
-                onSnapToGuidesChange={setSnapToGuides}
-                showGuides={showGuides}
-                onShowGuidesChange={setShowGuides}
-                gridSize={gridSize}
-                onGridSizeChange={setGridSize}
-                showOnionSkin={showOnionSkin}
-                onShowOnionSkinChange={setShowOnionSkin}
-                onionSkinFrames={onionSkinFrames}
-                onOnionSkinFramesChange={setOnionSkinFrames}
-              />
-            </ErrorBoundary>
+              {/* Power User Toolbar - Positioned absolutely within canvas */}
+              <ErrorBoundary>
+                <PowerUserToolbar
+                  snapToGrid={snapToGrid}
+                  onSnapToGridChange={setSnapToGrid}
+                  snapToGuides={snapToGuides}
+                  onSnapToGuidesChange={setSnapToGuides}
+                  showGuides={showGuides}
+                  onShowGuidesChange={setShowGuides}
+                  gridSize={gridSize}
+                  onGridSizeChange={setGridSize}
+                  showOnionSkin={showOnionSkin}
+                  onShowOnionSkinChange={setShowOnionSkin}
+                  onionSkinFrames={onionSkinFrames}
+                  onOnionSkinFramesChange={setOnionSkinFrames}
+                />
+              </ErrorBoundary>
             </div>
           </main>
 
@@ -2153,354 +2339,408 @@ const App: React.FC = () => {
             <aside className="app-right">
               <ErrorBoundary>
                 <RightSidebar
-              layers={state.layers || []}
-              selectedLayerId={state.selectedLayerId}
-              activeTool={state.activeTool}
-              toolProperties={toolProperties}
-              onToolPropertiesChange={handleToolPropertiesChange}
-              onSelectLayer={handleLayerSelect}
-              onToggleVisibility={id => {
-                const newLayers = state.layers.map(l =>
-                  l.id === id ? { ...l, visible: !l.visible } : l
-                );
-                updateSvgFromLayers(newLayers);
-                setState(prev => ({ ...prev, layers: newLayers }));
-              }}
-              onToggleLock={id => {
-                const newLayers = state.layers.map(l =>
-                  l.id === id ? { ...l, locked: !l.locked } : l
-                );
-                updateSvgFromLayers(newLayers);
-                setState(prev => ({ ...prev, layers: newLayers }));
-              }}
-              onUpdateProperty={(id, property, value) => {
-                const newLayers = state.layers.map(l => {
-                  if (l.id === id) {
-                    return { ...l, [property]: value };
-                  }
-                  return l;
-                });
-                updateSvgFromLayers(newLayers);
-                setState(prev => ({ ...prev, layers: newLayers }));
-                // Track property update
-                if (typeof window !== 'undefined' && (window as any).clickTrackingService) {
-                  (window as any).clickTrackingService.trackClick(
-                    'property',
-                    property,
-                    `Updated ${property}`,
-                    'update',
-                    { layerId: id, value, property }
-                  );
-                }
-              }}
-              onDeleteLayer={id => {
-                const newLayers = state.layers.filter(l => l.id !== id);
-                updateSvgFromLayers(newLayers);
-                setState(prev => ({ ...prev, layers: newLayers, selectedLayerId: null }));
-                showToast('Layer deleted', 'success');
-              }}
-              onDuplicateLayer={id => {
-                const layer = state.layers.find(l => l.id === id);
-                if (layer) {
-                  const newLayer = {
-                    ...layer,
-                    id: `layer-${Date.now()}`,
-                    name: `${layer.name} Copy`,
-                  };
-                  const newLayers = [...state.layers, newLayer];
-                  updateSvgFromLayers(newLayers);
-                  setState(prev => ({ ...prev, layers: newLayers, selectedLayerId: newLayer.id }));
-                  showToast('Layer duplicated', 'success');
-                }
-              }}
-              onReorderLayer={(oldIndex, newIndex) => {
-                const newLayers = [...state.layers];
-                const [moved] = newLayers.splice(oldIndex, 1);
-                newLayers.splice(newIndex, 0, moved);
-                updateSvgFromLayers(newLayers);
-                setState(prev => ({ ...prev, layers: newLayers }));
-              }}
-              onRenameLayer={(id, newName) => {
-                const newLayers = state.layers.map(l =>
-                  l.id === id ? { ...l, name: newName } : l
-                );
-                setState(prev => ({ ...prev, layers: newLayers }));
-              }}
-              onUpdateLayer={(id, updates) => {
-                const newLayers = state.layers.map(l => (l.id === id ? { ...l, ...updates } : l));
-                updateSvgFromLayers(newLayers);
-                setState(prev => ({ ...prev, layers: newLayers }));
-              }}
-              onCreateLayer={() => {
-                const newLayer: VectorLayer = {
-                  id: `layer-${Date.now()}`,
-                  name: `Layer ${state.layers.length + 1}`,
-                  visible: true,
-                  locked: false,
-                  opacity: 1,
-                  blendMode: 'normal',
-                  color: '#ffffff',
-                  stroke: 'none',
-                  strokeWidth: 0,
-                  shape: {
-                    type: 'rect',
-                    x: 0,
-                    y: 0,
-                    width: 100,
-                    height: 100,
-                    borderRadius: 0,
-                    fill: '#ffffff',
-                    stroke: 'none',
-                    strokeWidth: 0,
-                  },
-                };
-                const newLayers = [...state.layers, newLayer];
-                updateSvgFromLayers(newLayers);
-                setState(prev => ({ ...prev, layers: newLayers, selectedLayerId: newLayer.id }));
-                showToast(`Created ${newLayer.name}`, 'success');
-              }}
-              onCreateSublayer={parentId => {
-                const parent = state.layers.find(l => l.id === parentId);
-                if (parent) {
-                  const newLayer: VectorLayer = {
-                    id: `layer-${Date.now()}`,
-                    name: `${parent.name} / Sublayer`,
-                    visible: true,
-                    locked: false,
-                    opacity: 1,
-                    blendMode: 'normal',
-                    color: '#ffffff',
-                    stroke: 'none',
-                    strokeWidth: 0,
-                    shape: {
-                      type: 'rect',
-                      x: 0,
-                      y: 0,
-                      width: 50,
-                      height: 50,
-                      borderRadius: 0,
-                      fill: '#ffffff',
+                  layers={state.layers || []}
+                  selectedLayerId={state.selectedLayerId}
+                  activeTool={state.activeTool}
+                  toolProperties={toolProperties}
+                  onToolPropertiesChange={handleToolPropertiesChange}
+                  onSelectLayer={handleLayerSelect}
+                  onToggleVisibility={id => {
+                    const newLayers = state.layers.map(l =>
+                      l.id === id ? { ...l, visible: !l.visible } : l
+                    );
+                    updateSvgFromLayers(newLayers);
+                    setState(prev => ({ ...prev, layers: newLayers }));
+                  }}
+                  onToggleLock={id => {
+                    const newLayers = state.layers.map(l =>
+                      l.id === id ? { ...l, locked: !l.locked } : l
+                    );
+                    updateSvgFromLayers(newLayers);
+                    setState(prev => ({ ...prev, layers: newLayers }));
+                  }}
+                  onUpdateProperty={(id, property, value) => {
+                    const newLayers = state.layers.map(l => {
+                      if (l.id === id) {
+                        return { ...l, [property]: value };
+                      }
+                      return l;
+                    });
+                    updateSvgFromLayers(newLayers);
+                    setState(prev => ({ ...prev, layers: newLayers }));
+                    // Track property update
+                    if (typeof window !== 'undefined' && (window as any).clickTrackingService) {
+                      (window as any).clickTrackingService.trackClick(
+                        'property',
+                        property,
+                        `Updated ${property}`,
+                        'update',
+                        { layerId: id, value, property }
+                      );
+                    }
+                  }}
+                  onDeleteLayer={id => {
+                    const newLayers = state.layers.filter(l => l.id !== id);
+                    updateSvgFromLayers(newLayers);
+                    setState(prev => ({ ...prev, layers: newLayers, selectedLayerId: null }));
+                    showToast('Layer deleted', 'success');
+                  }}
+                  onDuplicateLayer={id => {
+                    const layer = state.layers.find(l => l.id === id);
+                    if (layer) {
+                      const newLayer = {
+                        ...layer,
+                        id: `layer-${Date.now()}`,
+                        name: `${layer.name} Copy`,
+                      };
+                      const newLayers = [...state.layers, newLayer];
+                      updateSvgFromLayers(newLayers);
+                      setState(prev => ({
+                        ...prev,
+                        layers: newLayers,
+                        selectedLayerId: newLayer.id,
+                      }));
+                      showToast('Layer duplicated', 'success');
+                    }
+                  }}
+                  onReorderLayer={(oldIndex, newIndex) => {
+                    const newLayers = [...state.layers];
+                    const [moved] = newLayers.splice(oldIndex, 1);
+                    newLayers.splice(newIndex, 0, moved);
+                    updateSvgFromLayers(newLayers);
+                    setState(prev => ({ ...prev, layers: newLayers }));
+                  }}
+                  onRenameLayer={(id, newName) => {
+                    const newLayers = state.layers.map(l =>
+                      l.id === id ? { ...l, name: newName } : l
+                    );
+                    setState(prev => ({ ...prev, layers: newLayers }));
+                  }}
+                  onUpdateLayer={(id, updates) => {
+                    const newLayers = state.layers.map(l =>
+                      l.id === id ? { ...l, ...updates } : l
+                    );
+                    updateSvgFromLayers(newLayers);
+                    setState(prev => ({ ...prev, layers: newLayers }));
+                  }}
+                  onCreateLayer={() => {
+                    const newLayer: VectorLayer = {
+                      id: `layer-${Date.now()}`,
+                      name: `Layer ${state.layers.length + 1}`,
+                      visible: true,
+                      locked: false,
+                      opacity: 1,
+                      blendMode: 'normal',
+                      color: '#ffffff',
                       stroke: 'none',
                       strokeWidth: 0,
-                    },
-                  };
-                  const newLayers = [...state.layers, newLayer];
-                  updateSvgFromLayers(newLayers);
-                  setState(prev => ({ ...prev, layers: newLayers, selectedLayerId: newLayer.id }));
-                  showToast(`Created sublayer`, 'success');
-                }
-              }}
-              onGroupLayers={ids => {
-                const layersToGroup = state.layers.filter(l => ids.includes(l.id));
-                if (layersToGroup.length > 0) {
-                  const groupLayer: VectorLayer = {
-                    id: `group-${Date.now()}`,
-                    name: 'Group',
-                    visible: true,
-                    locked: false,
-                    opacity: 1,
-                    blendMode: 'normal',
-                    color: '#ffffff',
-                    stroke: 'none',
-                    strokeWidth: 0,
-                    shape: { type: 'group', children: layersToGroup.map(l => l.shape) },
-                  };
-                  const otherLayers = state.layers.filter(l => !ids.includes(l.id));
-                  const newLayers = [...otherLayers, groupLayer];
-                  updateSvgFromLayers(newLayers);
-                  setState(prev => ({
-                    ...prev,
-                    layers: newLayers,
-                    selectedLayerId: groupLayer.id,
-                  }));
-                  showToast('Layers grouped', 'success');
-                }
-              }}
-              onUngroupLayer={id => {
-                const layer = state.layers.find(l => l.id === id);
-                if (layer && layer.shape.type === 'group') {
-                  const ungroupedLayers = layer.shape.children.map((child, i) => ({
-                    id: `layer-${Date.now()}-${i}`,
-                    name: `Ungrouped ${i + 1}`,
-                    visible: layer.visible,
-                    locked: layer.locked,
-                    opacity: layer.opacity,
-                    blendMode: layer.blendMode,
-                    color: layer.color,
-                    stroke: layer.stroke,
-                    strokeWidth: layer.strokeWidth,
-                    shape: child,
-                  }));
-                  const otherLayers = state.layers.filter(l => l.id !== id);
-                  const newLayers = [...otherLayers, ...ungroupedLayers];
-                  updateSvgFromLayers(newLayers);
-                  setState(prev => ({ ...prev, layers: newLayers }));
-                  showToast('Layer ungrouped', 'success');
-                }
-              }}
-              onCreateClippingMask={(layerId, maskId) => {
-                const newLayers = state.layers.map(l => {
-                  if (l.id === layerId) {
-                    return { ...l, clippingMask: true, mask: maskId };
-                  }
-                  return l;
-                });
-                setState(prev => ({ ...prev, layers: newLayers }));
-              }}
-              onReleaseClippingMask={layerId => {
-                const newLayers = state.layers.map(l => {
-                  if (l.id === layerId) {
-                    const { clippingMask, ...rest } = l;
-                    return rest;
-                  }
-                  return l;
-                });
-                setState(prev => ({ ...prev, layers: newLayers }));
-              }}
-              onBringToFront={id => {
-                const layer = state.layers.find(l => l.id === id);
-                if (layer) {
-                  const otherLayers = state.layers.filter(l => l.id !== id);
-                  const newLayers = [...otherLayers, layer];
-                  updateSvgFromLayers(newLayers);
-                  setState(prev => ({ ...prev, layers: newLayers }));
-                }
-              }}
-              onSendToBack={id => {
-                const layer = state.layers.find(l => l.id === id);
-                if (layer) {
-                  const otherLayers = state.layers.filter(l => l.id !== id);
-                  const newLayers = [layer, ...otherLayers];
-                  updateSvgFromLayers(newLayers);
-                  setState(prev => ({ ...prev, layers: newLayers }));
-                }
-              }}
-              onBringForward={id => {
-                const index = state.layers.findIndex(l => l.id === id);
-                if (index < state.layers.length - 1) {
-                  const newLayers = [...state.layers];
-                  [newLayers[index], newLayers[index + 1]] = [
-                    newLayers[index + 1],
-                    newLayers[index],
-                  ];
-                  updateSvgFromLayers(newLayers);
-                  setState(prev => ({ ...prev, layers: newLayers }));
-                }
-              }}
-              onSendBackward={id => {
-                const index = state.layers.findIndex(l => l.id === id);
-                if (index > 0) {
-                  const newLayers = [...state.layers];
-                  [newLayers[index], newLayers[index - 1]] = [
-                    newLayers[index - 1],
-                    newLayers[index],
-                  ];
-                  updateSvgFromLayers(newLayers);
-                  setState(prev => ({ ...prev, layers: newLayers }));
-                }
-              }}
-              onExpandAppearance={id => showToast('Appearance expanded', 'info')}
-              onCreateOutlines={id => showToast('Outlines created', 'info')}
-              snapshots={[]}
-              onRestoreSnapshot={svg => {
-                setState(prev => ({ ...prev, currentSvg: svg }));
-                showToast('Snapshot restored', 'success');
-              }}
-              keyframes={keyframes}
-              frameState={frameState}
-              onScriptChange={(frame, layerId, script) => {
-                // Handle script change
-              }}
-              onScriptExecute={script => {
-                // Handle script execution
-              }}
-              state={state}
-              setState={setState}
-              onScriptGenerated={script => {
-                showToast('Script generated', 'success');
-              }}
-              onTerminalCommand={cmd => {
-                showToast(`Terminal: ${cmd}`, 'info');
-              }}
-            />
+                      shape: {
+                        type: 'rect',
+                        x: 0,
+                        y: 0,
+                        width: 100,
+                        height: 100,
+                        borderRadius: 0,
+                        fill: '#ffffff',
+                        stroke: 'none',
+                        strokeWidth: 0,
+                      },
+                    };
+                    const newLayers = [...state.layers, newLayer];
+                    updateSvgFromLayers(newLayers);
+                    setState(prev => ({
+                      ...prev,
+                      layers: newLayers,
+                      selectedLayerId: newLayer.id,
+                    }));
+                    showToast(`Created ${newLayer.name}`, 'success');
+                  }}
+                  onCreateSublayer={parentId => {
+                    const parent = state.layers.find(l => l.id === parentId);
+                    if (parent) {
+                      const newLayer: VectorLayer = {
+                        id: `layer-${Date.now()}`,
+                        name: `${parent.name} / Sublayer`,
+                        visible: true,
+                        locked: false,
+                        opacity: 1,
+                        blendMode: 'normal',
+                        color: '#ffffff',
+                        stroke: 'none',
+                        strokeWidth: 0,
+                        shape: {
+                          type: 'rect',
+                          x: 0,
+                          y: 0,
+                          width: 50,
+                          height: 50,
+                          borderRadius: 0,
+                          fill: '#ffffff',
+                          stroke: 'none',
+                          strokeWidth: 0,
+                        },
+                      };
+                      const newLayers = [...state.layers, newLayer];
+                      updateSvgFromLayers(newLayers);
+                      setState(prev => ({
+                        ...prev,
+                        layers: newLayers,
+                        selectedLayerId: newLayer.id,
+                      }));
+                      showToast(`Created sublayer`, 'success');
+                    }
+                  }}
+                  onGroupLayers={ids => {
+                    const layersToGroup = state.layers.filter(l => ids.includes(l.id));
+                    if (layersToGroup.length > 0) {
+                      const groupLayer: VectorLayer = {
+                        id: `group-${Date.now()}`,
+                        name: 'Group',
+                        visible: true,
+                        locked: false,
+                        opacity: 1,
+                        blendMode: 'normal',
+                        color: '#ffffff',
+                        stroke: 'none',
+                        strokeWidth: 0,
+                        shape: { type: 'group', children: layersToGroup.map(l => l.shape) },
+                      };
+                      const otherLayers = state.layers.filter(l => !ids.includes(l.id));
+                      const newLayers = [...otherLayers, groupLayer];
+                      updateSvgFromLayers(newLayers);
+                      setState(prev => ({
+                        ...prev,
+                        layers: newLayers,
+                        selectedLayerId: groupLayer.id,
+                      }));
+                      showToast('Layers grouped', 'success');
+                    }
+                  }}
+                  onUngroupLayer={id => {
+                    const layer = state.layers.find(l => l.id === id);
+                    if (layer && layer.shape.type === 'group') {
+                      const ungroupedLayers = layer.shape.children.map((child, i) => ({
+                        id: `layer-${Date.now()}-${i}`,
+                        name: `Ungrouped ${i + 1}`,
+                        visible: layer.visible,
+                        locked: layer.locked,
+                        opacity: layer.opacity,
+                        blendMode: layer.blendMode,
+                        color: layer.color,
+                        stroke: layer.stroke,
+                        strokeWidth: layer.strokeWidth,
+                        shape: child,
+                      }));
+                      const otherLayers = state.layers.filter(l => l.id !== id);
+                      const newLayers = [...otherLayers, ...ungroupedLayers];
+                      updateSvgFromLayers(newLayers);
+                      setState(prev => ({ ...prev, layers: newLayers }));
+                      showToast('Layer ungrouped', 'success');
+                    }
+                  }}
+                  onCreateClippingMask={(layerId, maskId) => {
+                    const newLayers = state.layers.map(l => {
+                      if (l.id === layerId) {
+                        return { ...l, clippingMask: true, mask: maskId };
+                      }
+                      return l;
+                    });
+                    setState(prev => ({ ...prev, layers: newLayers }));
+                  }}
+                  onReleaseClippingMask={layerId => {
+                    const newLayers = state.layers.map(l => {
+                      if (l.id === layerId) {
+                        const { clippingMask, ...rest } = l;
+                        return rest;
+                      }
+                      return l;
+                    });
+                    setState(prev => ({ ...prev, layers: newLayers }));
+                  }}
+                  onBringToFront={id => {
+                    const layer = state.layers.find(l => l.id === id);
+                    if (layer) {
+                      const otherLayers = state.layers.filter(l => l.id !== id);
+                      const newLayers = [...otherLayers, layer];
+                      updateSvgFromLayers(newLayers);
+                      setState(prev => ({ ...prev, layers: newLayers }));
+                    }
+                  }}
+                  onSendToBack={id => {
+                    const layer = state.layers.find(l => l.id === id);
+                    if (layer) {
+                      const otherLayers = state.layers.filter(l => l.id !== id);
+                      const newLayers = [layer, ...otherLayers];
+                      updateSvgFromLayers(newLayers);
+                      setState(prev => ({ ...prev, layers: newLayers }));
+                    }
+                  }}
+                  onBringForward={id => {
+                    const index = state.layers.findIndex(l => l.id === id);
+                    if (index < state.layers.length - 1) {
+                      const newLayers = [...state.layers];
+                      [newLayers[index], newLayers[index + 1]] = [
+                        newLayers[index + 1],
+                        newLayers[index],
+                      ];
+                      updateSvgFromLayers(newLayers);
+                      setState(prev => ({ ...prev, layers: newLayers }));
+                    }
+                  }}
+                  onSendBackward={id => {
+                    const index = state.layers.findIndex(l => l.id === id);
+                    if (index > 0) {
+                      const newLayers = [...state.layers];
+                      [newLayers[index], newLayers[index - 1]] = [
+                        newLayers[index - 1],
+                        newLayers[index],
+                      ];
+                      updateSvgFromLayers(newLayers);
+                      setState(prev => ({ ...prev, layers: newLayers }));
+                    }
+                  }}
+                  onExpandAppearance={id => showToast('Appearance expanded', 'info')}
+                  onCreateOutlines={id => showToast('Outlines created', 'info')}
+                  snapshots={[]}
+                  onRestoreSnapshot={svg => {
+                    setState(prev => ({ ...prev, currentSvg: svg }));
+                    showToast('Snapshot restored', 'success');
+                  }}
+                  keyframes={keyframes}
+                  frameState={frameState}
+                  onScriptChange={(frame, layerId, script) => {
+                    // Handle script change
+                  }}
+                  onScriptExecute={script => {
+                    // Handle script execution
+                  }}
+                  state={state}
+                  setState={setState}
+                  onScriptGenerated={script => {
+                    showToast('Script generated', 'success');
+                  }}
+                  onTerminalCommand={cmd => {
+                    showToast(`Terminal: ${cmd}`, 'info');
+                  }}
+                />
               </ErrorBoundary>
             </aside>
           )}
 
-        {/* Bottom Drawer - FIXED OVERLAY (not in grid flow) */}
-        <div className="app-bottom-drawer">
-          <ErrorBoundary>
-            <BottomDrawer
-              isOpen={bottomDrawerOpen}
-              onToggle={() => setBottomDrawerOpen(!bottomDrawerOpen)}
-              frameState={frameState}
-              onFrameStateChange={updates => setFrameState(prev => ({ ...prev, ...updates }))}
-              keyframes={keyframes}
-              onAddKeyframe={kf => setKeyframes(prev => [...prev, kf])}
-              onUpdateKeyframe={(id, props) =>
-                setKeyframes(prev => prev.map(k => (k.id === id ? { ...k, ...props } : k)))
-              }
-              onDeleteKeyframe={id => setKeyframes(prev => prev.filter(k => k.id !== id))}
-              selectedLayerId={state.selectedLayerId}
-              layers={state.layers}
-              presets={[]}
-              onApplyPreset={(preset, layerId) => {
-                if (!layerId) return;
-                const startKeyframe: AnimationKeyframe = {
-                  id: `kf-${Date.now()}`,
-                  frame: frameState.currentFrame,
-                  layerId,
-                  properties: preset.properties,
-                  easing: preset.easing,
-                };
-                const endKeyframe: AnimationKeyframe = {
-                  id: `kf-${Date.now() + 1}`,
-                  frame: frameState.currentFrame + preset.duration,
-                  layerId,
-                  properties: {},
-                  easing: preset.easing,
-                };
-                setKeyframes(prev => [...prev, startKeyframe, endKeyframe]);
-              }}
-              onScriptClick={() => {
-                showToast('Switch to Scripts tab to edit animation scripts', 'info');
-              }}
-              onImportFromStudio={() => {
-                showToast('Import from Animation Studio - Coming soon', 'info');
-              }}
-              selectedNodeId={null}
-              onNodeSelect={() => {}}
-            />
-          </ErrorBoundary>
-        </div>
-
-        {/* Footer - Grid Row 3 */}
-        <footer className="app-footer">
-          <ErrorBoundary>
-            <Footer
-              nodeCount={state.layers.length}
-              fillInfo={state.activeTool}
-              isRendering={state.isGenerating}
-              renderProgress={state.isGenerating ? 50 : undefined}
-            />
-          </ErrorBoundary>
-        </footer>
-
-        {/* XP Display - Compact in Footer Area */}
-        <ErrorBoundary>
-          <div className="fixed bottom-16 right-4 zstack-floating">
-            <XPDisplay compact={true} showLevel={true} showProgress={true} />
+          {/* Bottom Drawer - FIXED OVERLAY (not in grid flow) */}
+          <div className="app-bottom-drawer">
+            <ErrorBoundary>
+              <BottomDrawer
+                isOpen={bottomDrawerOpen}
+                onToggle={() => setBottomDrawerOpen(!bottomDrawerOpen)}
+                frameState={frameState}
+                onFrameStateChange={updates => setFrameState(prev => ({ ...prev, ...updates }))}
+                keyframes={keyframes}
+                onAddKeyframe={kf => setKeyframes(prev => [...prev, kf])}
+                onUpdateKeyframe={(id, props) =>
+                  setKeyframes(prev => prev.map(k => (k.id === id ? { ...k, ...props } : k)))
+                }
+                onDeleteKeyframe={id => setKeyframes(prev => prev.filter(k => k.id !== id))}
+                selectedLayerId={state.selectedLayerId}
+                layers={state.layers}
+                presets={[]}
+                onApplyPreset={(preset, layerId) => {
+                  if (!layerId) return;
+                  const startKeyframe: AnimationKeyframe = {
+                    id: `kf-${Date.now()}`,
+                    frame: frameState.currentFrame,
+                    layerId,
+                    properties: preset.properties,
+                    easing: preset.easing,
+                  };
+                  const endKeyframe: AnimationKeyframe = {
+                    id: `kf-${Date.now() + 1}`,
+                    frame: frameState.currentFrame + preset.duration,
+                    layerId,
+                    properties: {},
+                    easing: preset.easing,
+                  };
+                  setKeyframes(prev => [...prev, startKeyframe, endKeyframe]);
+                }}
+                onScriptClick={() => {
+                  showToast('Switch to Scripts tab to edit animation scripts', 'info');
+                }}
+                onImportFromStudio={() => {
+                  showToast('Import from Animation Studio - Coming soon', 'info');
+                }}
+                selectedNodeId={null}
+                onNodeSelect={() => {}}
+              />
+            </ErrorBoundary>
           </div>
-        </ErrorBoundary>
 
-        {/* Template Frame Container */}
-        <ErrorBoundary>
-          <TemplateFrameContainer />
-        </ErrorBoundary>
+          {/* Status Bar - Grid Row 4 */}
+          <div className="app-footer-container">
+            {/* #region agent log */}
+            {(() => {
+              const footerEl = document.querySelector('.app-footer-container');
+              if (footerEl) {
+                setTimeout(() => {
+                  const computedStyle = window.getComputedStyle(footerEl);
+                  const rect = footerEl.getBoundingClientRect();
+                  fetch('http://127.0.0.1:7242/ingest/9192f36e-3223-469d-8e1d-e9ca20bc6049', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      location: 'App.hardened.tsx:2525',
+                      message: 'Footer rendered - checking grid position',
+                      data: {
+                        className: footerEl.className,
+                        computedDisplay: computedStyle.display,
+                        computedGridRow: computedStyle.gridRow,
+                        computedGridColumn: computedStyle.gridColumn,
+                        rectBottom: rect.bottom,
+                        rectHeight: rect.height,
+                        isVisible: rect.height > 0,
+                      },
+                      timestamp: Date.now(),
+                      sessionId: 'debug-session',
+                      runId: 'run1',
+                      hypothesisId: 'B',
+                    }),
+                  }).catch(() => {});
+                }, 100);
+              }
+              return null;
+            })()}
+            {/* #endregion */}
+            <ErrorBoundary>
+              <StatusBar
+                selectionInfo={
+                  state.selectedLayerId
+                    ? `${state.layers.find(l => l.id === state.selectedLayerId)?.name || 'Selected'}`
+                    : 'No Selection'
+                }
+                colorMode="RGB"
+                colorDepth="8bpc"
+                zoom={Math.round(state.zoom * 100)}
+                canvasWidth={800}
+                canvasHeight={600}
+                aiEngineStatus={state.isGenerating ? 'processing' : 'ready'}
+              />
+            </ErrorBoundary>
+          </div>
 
-        {/* Floating Dev Chat Button removed - Dev Chat accessible via Right Sidebar (Ctrl+K) */}
+          {/* XP Display - Compact in Footer Area */}
+          <ErrorBoundary>
+            <div className="fixed bottom-16 right-4 zstack-floating">
+              <XPDisplay compact={true} showLevel={true} showProgress={true} />
+            </div>
+          </ErrorBoundary>
+
+          {/* Template Frame Container */}
+          <ErrorBoundary>
+            <TemplateFrameContainer />
+          </ErrorBoundary>
+
+          {/* Floating Dev Chat Button removed - Dev Chat accessible via Right Sidebar (Ctrl+K) */}
+        </div>
       </div>
-    </div>
 
       {/* Toast Notifications */}
       <ToastContainer toasts={(state.toasts || []).map(t => ({ ...t, timestamp: Date.now() }))} />

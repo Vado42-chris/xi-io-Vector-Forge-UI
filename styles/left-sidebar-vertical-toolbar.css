@@ -1,0 +1,39 @@
+/**
+ * Left Sidebar Vertical Toolbar Styles
+ * Far left vertical toolbar with just icons (matches design concept)
+ */
+
+.left-sidebar-tool-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--xibalba-text-200, #b8bfcc);
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.left-sidebar-tool-icon:hover:not(:disabled) {
+  background: var(--xibalba-grey-100, #25282f);
+  color: var(--xibalba-text-000, #ffffff);
+}
+
+.left-sidebar-tool-icon-active {
+  background: var(--xibalba-grey-100, #25282f) !important;
+  border-color: var(--xibalba-accent, #d46b32) !important;
+  color: var(--xibalba-accent, #d46b32) !important;
+}
+
+.left-sidebar-tool-icon:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.left-sidebar-tool-icon .material-symbols-outlined {
+  font-size: 20px;
+}

@@ -1,0 +1,33 @@
+/**
+ * Left Sidebar Layout
+ * Matches design: Vertical toolbar (far left) + Generative Vector AI panel (right side)
+ */
+
+.left-sidebar-container {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  width: 100%;
+}
+
+.left-sidebar-vertical-toolbar {
+  width: 48px;
+  min-width: 48px;
+  max-width: 48px;
+  display: flex;
+  flex-direction: column;
+  background: var(--xibalba-grey-000, #000000);
+  border-right: 1px solid var(--xibalba-grey-200, #343842);
+  padding: 8px 4px;
+  gap: 4px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.left-sidebar-ai-panel-container {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}

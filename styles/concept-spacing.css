@@ -1,0 +1,65 @@
+/**
+ * Concept Spacing - Match Intentional Component Separation
+ * The white spaces in the concept show where components are grouped and separated
+ * This ensures spacing matches the design concept, not removing all spacing
+ */
+
+/* Ensure grid items have no gaps but maintain visual separation through borders/shadows */
+.app-layout-grid {
+  gap: 0 !important;
+  grid-gap: 0 !important;
+}
+
+/* Header - No margin/padding that would create unwanted gaps */
+.app-header {
+  margin: 0 !important;
+  padding: 0 !important;
+  border-bottom: 1px solid var(--xibalba-grey-200, #343842); /* Visual separation */
+}
+
+/* Tab Bar - Seamless connection to header, visual separation via border */
+.app-tab-bar-container {
+  margin: 0 !important;
+  padding: 0 !important;
+  border-bottom: 1px solid var(--xibalba-grey-200, #343842); /* Visual separation */
+}
+
+/* Main Content - No gaps, seamless connection */
+.app-main-content {
+  margin: 0 !important;
+  padding: 0 !important;
+  gap: 0 !important;
+}
+
+/* Footer - Seamless connection, visual separation via border */
+.app-footer-container {
+  margin: 0 !important;
+  padding: 0 !important;
+  border-top: 1px solid var(--xibalba-grey-200, #343842); /* Visual separation */
+}
+
+/* Sidebars - No margins that would create gaps */
+.app-left,
+.app-right {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Canvas - No margins, fills space */
+.app-canvas-area {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Bottom Drawer - Fixed overlay, visible handle when closed */
+.bottom-drawer {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Ensure handle is visible when drawer is closed */
+.bottom-drawer-closed .bottom-drawer-handle {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}

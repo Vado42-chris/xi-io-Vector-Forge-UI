@@ -4,9 +4,10 @@
 
 :root {
   --header-h: 56px;
-  --footer-h: 48px;
-  --left-w: 240px;
-  --right-w: 320px;
+  --tab-bar-h: 40px;
+  --footer-h: 32px;
+  --left-w: 320px; /* FIXED: Match actual sidebar width */
+  --right-w: 360px; /* FIXED: Match actual sidebar width */
 }
 
 .app-layout-grid {
@@ -18,7 +19,7 @@
   overflow: hidden;
   background: var(--xibalba-grey-000);
   display: grid !important;
-  grid-template-rows: var(--header-h) 1fr var(--footer-h) !important; /* Header | Main | Footer - 3 ROWS ONLY */
+  grid-template-rows: var(--header-h) var(--tab-bar-h) 1fr var(--footer-h) !important; /* Header | Tab Bar | Main | Footer - 4 ROWS */
   grid-template-columns: var(--left-w) 1fr var(--right-w) !important; /* Left | Center | Right */
   grid-gap: 0 !important; /* NO GAPS BETWEEN ROWS */
   gap: 0 !important; /* NO GAPS */
@@ -40,8 +41,21 @@
   max-height: var(--header-h);
 }
 
-.app-main-content {
+.app-tab-bar-container {
   grid-row: 2 / 3;
+  grid-column: 1 / 4;
+  position: relative;
+  z-index: var(--z-menu, 400);
+  isolation: isolate;
+  contain: layout style paint;
+  overflow: visible;
+  height: var(--tab-bar-h);
+  min-height: var(--tab-bar-h);
+  max-height: var(--tab-bar-h);
+}
+
+.app-main-content {
+  grid-row: 3 / 4; /* FIXED: Main content is row 3, not row 4 */
   grid-column: 1 / 4;
   display: grid !important; /* Grid for left/center/right columns */
   grid-template-columns: var(--left-w) 1fr var(--right-w) !important;
@@ -64,6 +78,18 @@
   overflow-x: hidden;
   height: 100%;
   min-height: 0;
+  z-index: var(--z-sidebar-left, 100);
+  position: relative;
+}
+
+.app-right {
+  grid-column: 3 / 4;
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 100%;
+  min-height: 0;
+  z-index: var(--z-sidebar-right, 100) !important; /* CRITICAL: Above bottom drawer (40) */
+  position: relative;
 }
 
 .app-center {
@@ -119,11 +145,10 @@
   z-index: var(--z-timeline-expanded, 100);
   isolation: isolate;
   contain: layout style paint;
-  height: 48px; /* Footer height - EXACT */
-  min-height: 48px;
-  max-height: 48px;
+  height: var(--footer-h, 32px); /* Footer height - EXACT */
+  min-height: var(--footer-h, 32px);
+  max-height: var(--footer-h, 32px);
   margin: 0 !important;
   padding: 0 !important;
   gap: 0 !important;
 }
-

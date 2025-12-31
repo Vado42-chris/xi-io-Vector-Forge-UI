@@ -1,0 +1,312 @@
+/**
+ * Generative Vector AI Panel Styles
+ * Matches design concept: PROMPT, STYLE & COMPLEXITY, PALETTE sections
+ */
+
+.generative-vector-ai-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--xibalba-grey-050, #1e2025);
+  padding: 16px;
+  gap: 20px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.generative-ai-header {
+  margin-bottom: 8px;
+}
+
+.generative-ai-title {
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--xibalba-text-000, #ffffff);
+  margin: 0;
+}
+
+.generative-ai-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.generative-ai-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.generative-ai-section-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--xibalba-text-200, #b8bfcc);
+}
+
+.generative-ai-history-link {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--xibalba-accent, #d46b32);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: opacity 0.2s ease;
+}
+
+.generative-ai-history-link:hover {
+  opacity: 0.8;
+}
+
+.generative-ai-prompt-wrapper {
+  position: relative;
+}
+
+.generative-ai-prompt-textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 12px;
+  background: var(--xibalba-grey-100, #25282f);
+  border: 1px solid var(--xibalba-grey-200, #343842);
+  border-radius: 4px;
+  color: var(--xibalba-text-000, #ffffff);
+  font-size: 12px;
+  font-family: inherit;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.generative-ai-prompt-textarea:focus {
+  outline: none;
+  border-color: var(--xibalba-accent, #d46b32);
+}
+
+.generative-ai-prompt-textarea::placeholder {
+  color: var(--xibalba-text-200, #b8bfcc);
+}
+
+.generative-ai-prompt-icon {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--xibalba-grey-200, #343842);
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  color: var(--xibalba-text-200, #b8bfcc);
+  transition: all 0.2s ease;
+}
+
+.generative-ai-prompt-icon:hover {
+  background: var(--xibalba-accent, #d46b32);
+  color: var(--xibalba-text-000, #ffffff);
+}
+
+.generative-ai-prompt-icon .material-symbols-outlined {
+  font-size: 16px;
+}
+
+.generative-ai-style-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.generative-ai-style-button {
+  padding: 10px 12px;
+  background: var(--xibalba-grey-100, #25282f);
+  border: 1px solid var(--xibalba-grey-200, #343842);
+  border-radius: 4px;
+  color: var(--xibalba-text-200, #b8bfcc);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.generative-ai-style-button:hover {
+  background: var(--xibalba-grey-150, #2a2d35);
+  color: var(--xibalba-text-000, #ffffff);
+}
+
+.generative-ai-style-button-active {
+  background: var(--xibalba-grey-050, #1e2025) !important;
+  border-color: var(--xibalba-accent, #d46b32) !important;
+  color: var(--xibalba-accent, #d46b32) !important;
+}
+
+.generative-ai-complexity {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.generative-ai-complexity-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--xibalba-text-200, #b8bfcc);
+}
+
+.generative-ai-complexity-slider {
+  width: 100%;
+  height: 4px;
+  background: var(--xibalba-grey-200, #343842);
+  border-radius: 2px;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.generative-ai-complexity-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: var(--xibalba-accent, #d46b32);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.generative-ai-complexity-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: var(--xibalba-accent, #d46b32);
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+
+.generative-ai-palette-indicator {
+  font-size: 8px;
+  color: var(--xibalba-accent, #d46b32);
+}
+
+.generative-ai-palette {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background: var(--xibalba-grey-100, #25282f);
+  border-radius: 4px;
+}
+
+.generative-ai-palette-swatch {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--xibalba-grey-200, #343842);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.generative-ai-palette-swatch:hover {
+  transform: scale(1.1);
+  border-color: var(--xibalba-accent, #d46b32);
+}
+
+.generative-ai-palette-add {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px dashed var(--xibalba-grey-200, #343842);
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--xibalba-text-200, #b8bfcc);
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.generative-ai-palette-add:hover {
+  border-color: var(--xibalba-accent, #d46b32);
+  color: var(--xibalba-accent, #d46b32);
+}
+
+.generative-ai-palette-add .material-symbols-outlined {
+  font-size: 20px;
+}
+
+.generative-ai-generate-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--xibalba-grey-200, #343842);
+}
+
+.generative-ai-generate-button {
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--xibalba-grey-100, #25282f);
+  border: 2px solid var(--xibalba-accent, #d46b32);
+  border-radius: 4px;
+  color: var(--xibalba-text-000, #ffffff);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.generative-ai-generate-button:hover:not(:disabled) {
+  background: var(--xibalba-accent, #d46b32);
+}
+
+.generative-ai-generate-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.generative-ai-generate-button .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.generative-ai-credits {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--xibalba-text-200, #b8bfcc);
+}
+
+.generative-ai-credits .material-symbols-outlined {
+  font-size: 14px;
+  color: var(--xibalba-accent, #d46b32);
+}
+
+.generative-ai-buy-more {
+  font-size: 11px;
+  color: var(--xibalba-text-000, #ffffff);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  padding: 4px;
+  transition: opacity 0.2s ease;
+}
+
+.generative-ai-buy-more:hover {
+  opacity: 0.8;
+}

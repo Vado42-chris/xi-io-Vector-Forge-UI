@@ -39,7 +39,7 @@
             };
         })();
     </script>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://esm.sh https://fonts.googleapis.com https://fonts.gstatic.com; script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net; style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https: blob: https://api.dicebear.com; connect-src 'self' https: ws: wss: http://localhost:*; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; worker-src 'self' blob:;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://esm.sh https://fonts.googleapis.com https://fonts.gstatic.com; script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net; style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https: blob: https://api.dicebear.com; connect-src 'self' https: ws: wss: http://localhost:3000 http://localhost:8000 http://localhost:7242 http://localhost:11434 http://localhost:8080 http://localhost:7860 http://127.0.0.1:3000 http://127.0.0.1:8000 http://127.0.0.1:7242 http://127.0.0.1:11434 http://127.0.0.1:8080 http://127.0.0.1:7860; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; worker-src 'self' blob:;">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <!-- X-Frame-Options must be set via HTTP header, not meta tag -->
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
@@ -107,9 +107,18 @@
     <link rel="stylesheet" href="/styles/readability-and-visual-language.css">
     <link rel="stylesheet" href="/styles/canvas-z-stack-fix.css">
     <link rel="stylesheet" href="/styles/bottom-drawer.css">
+    <link rel="stylesheet" href="/styles/remove-white-spaces.css">
+    <link rel="stylesheet" href="/styles/concept-spacing.css">
+    <link rel="stylesheet" href="/styles/canvas-visibility-fix.css">
     <link rel="stylesheet" href="/styles/layout-emergency.css">
     <!-- CRITICAL: Must be last to override all dev-chat CSS and prevent input from escaping to timeline -->
     <link rel="stylesheet" href="/styles/dev-chat-container-fix.css">
+    <link rel="stylesheet" href="/styles/document-tab-bar.css">
+    <link rel="stylesheet" href="/styles/status-bar.css">
+    <link rel="stylesheet" href="/styles/generative-vector-ai-panel.css">
+    <link rel="stylesheet" href="/styles/left-sidebar-layout.css">
+    <link rel="stylesheet" href="/styles/left-sidebar-vertical-toolbar.css">
+    <link rel="stylesheet" href="/styles/header-buttons.css">
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <style>
         :root {

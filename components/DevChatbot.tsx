@@ -4,7 +4,7 @@
  * #provides: Chat interface that can read/write files and execute commands
  * #usage: Add to RightSidebar as "Dev Chat" tab
  * #related: fileSystemClient, terminalClient, xibalbaService
- * 
+ *
  * Development Chatbot
  * Works independently - doesn't need Cursor or Zed
  * Can read files, write files, execute commands
@@ -14,7 +14,10 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useFileSystem } from '../hooks/useFileSystem';
 import { useTerminal } from '../hooks/useTerminal';
-import { conversationHistoryService, ConversationMessage as ServiceMessage } from '../services/conversationHistoryService';
+import {
+  conversationHistoryService,
+  ConversationMessage as ServiceMessage,
+} from '../services/conversationHistoryService';
 import { MoltingService } from '../services/moltingService';
 import { AICodeEditor } from '../services/aiCodeEditor';
 // Note: xibalbaService doesn't export callXibalbaAI directly
@@ -48,26 +51,137 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
   // Debug: Log when component mounts
   useEffect(() => {
     console.log('✅ DevChatbot mounted and ready');
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/9192f36e-3223-469d-8e1d-e9ca20bc6049', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        location: 'DevChatbot.tsx:50',
+        message: 'DevChatbot component mounted',
+        data: { component: 'DevChatbot', timestamp: Date.now() },
+        timestamp: Date.now(),
+        sessionId: 'debug-session',
+        runId: 'run1',
+        hypothesisId: 'D',
+      }),
+    }).catch(() => {});
+    // #endregion
   }, []);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: '1',
       role: 'system',
-      content: '💬 **Dev Chat - Self-Modifying AI**\n\nHi! I\'m your development assistant with **self-modification** capabilities.\n\n**I can:**\n- ✅ Read and edit files\n- ✅ Execute commands\n- ✅ Search files\n- ✅ **Edit myself** (molting system)\n- ✅ Help you build the application\n\n**Quick Start:**\n- Type **"test"** - Check if I\'m working\n- **"read package.json"** - Read a file\n- **"Test molting system"** - Full diagnostic\n- **"Edit yourself to..."** - Self-modify (needs Ollama)\n\n**Status:** ✅ Ready to help! 🐍\n\n**Try it now:** Type "test" to verify I\'m working!',
-      timestamp: new Date()
-    }
+      content:
+        '💬 **Dev Chat - Self-Modifying AI**\n\nHi! I\'m your development assistant with **self-modification** capabilities.\n\n**I can:**\n- ✅ Read and edit files\n- ✅ Execute commands\n- ✅ Search files\n- ✅ **Edit myself** (molting system)\n- ✅ Help you build the application\n\n**Quick Start:**\n- Type **"test"** - Check if I\'m working\n- **"read package.json"** - Read a file\n- **"Test molting system"** - Full diagnostic\n- **"Edit yourself to..."** - Self-modify (needs Ollama)\n\n**Status:** ✅ Ready to help! 🐍\n\n**Try it now:** Type "test" to verify I\'m working!',
+      timestamp: new Date(),
+    },
   ]);
   const [input, setInput] = useState('');
+
+  // #region agent log
+  // Instrumentation: Check for duplicate textareas and DOM structure
+  useEffect(() => {
+    const checkTextareas = () => {
+      const allTextareas = document.querySelectorAll('textarea');
+      const devChatTextareas = Array.from(allTextareas).filter(
+        t =>
+          t.id === 'dev-chat-input' ||
+          t.name === 'dev-chat-input' ||
+          t.className.includes('dev-chat-textarea')
+      );
+
+      const textareaData = devChatTextareas.map((textarea, i) => {
+        const rect = textarea.getBoundingClientRect();
+        const parent = textarea.closest(
+          '.bottom-drawer, .app-bottom-drawer, .animation-timeline-container, .xibalba-timeline, .dev-chat-wrapper, .dev-chat-container, .xibalba-right-sidebar-content, .sidebar-fixed-right'
+        );
+        const computedStyle = window.getComputedStyle(textarea);
+        return {
+          index: i,
+          id: textarea.id,
+          name: textarea.name,
+          className: textarea.className,
+          location: { top: rect.top, left: rect.left, bottom: rect.bottom, right: rect.right },
+          inTimeline:
+            parent &&
+            (parent.classList.contains('bottom-drawer') ||
+              parent.classList.contains('app-bottom-drawer') ||
+              parent.classList.contains('animation-timeline-container') ||
+              parent.classList.contains('xibalba-timeline')),
+          inRightSidebar:
+            parent &&
+            (parent.classList.contains('xibalba-right-sidebar-content') ||
+              parent.classList.contains('sidebar-fixed-right') ||
+              parent.classList.contains('dev-chat-wrapper')),
+          parentClassName: parent?.className || 'NO PARENT FOUND',
+          computedDisplay: computedStyle.display,
+          computedVisibility: computedStyle.visibility,
+          computedPosition: computedStyle.position,
+        };
+      });
+
+      // Check CSS rules
+      const stylesheetCheck = {
+        devChatContainerFixLoaded: Array.from(document.styleSheets).some(sheet => {
+          try {
+            return Array.from(sheet.cssRules || sheet.rules || []).some(
+              (rule: any) =>
+                rule.selectorText && rule.selectorText.includes('dev-chat-container-fix')
+            );
+          } catch (e) {
+            return false;
+          }
+        }),
+        timelineHideRuleExists: Array.from(document.styleSheets).some(sheet => {
+          try {
+            return Array.from(sheet.cssRules || sheet.rules || []).some(
+              (rule: any) =>
+                rule.selectorText &&
+                (rule.selectorText.includes('.bottom-drawer textarea') ||
+                  rule.selectorText.includes('.xibalba-timeline textarea'))
+            );
+          } catch (e) {
+            return false;
+          }
+        }),
+      };
+
+      fetch('http://127.0.0.1:7242/ingest/9192f36e-3223-469d-8e1d-e9ca20bc6049', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          location: 'DevChatbot.tsx:60',
+          message: 'Checking all textareas in DOM and CSS rules',
+          data: {
+            totalTextareas: allTextareas.length,
+            devChatTextareas: devChatTextareas.length,
+            textareaData,
+            stylesheetCheck,
+          },
+          timestamp: Date.now(),
+          sessionId: 'debug-session',
+          runId: 'run1',
+          hypothesisId: 'B',
+        }),
+      }).catch(() => {});
+    };
+
+    // Check immediately and after a short delay to catch any async rendering
+    checkTextareas();
+    const timeout = setTimeout(checkTextareas, 100);
+    return () => clearTimeout(timeout);
+  }, []);
+  // #endregion
   const [isProcessing, setIsProcessing] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  
+
   // Molting system - for self-modification (use useMemo to avoid recreating on every render)
   const moltingService = useMemo(() => new MoltingService(), []);
   const aiCodeEditor = useMemo(() => new AICodeEditor(), []);
   const SELF_FILE_PATH = 'components/DevChatbot.tsx';
-  
+
   // Replication system - subtle infrastructure for "save both" capability
   // Not a UI feature - automatic background capability
   const [isReplicating, setIsReplicating] = useState(false);
@@ -81,7 +195,7 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
         role: msg.role,
         content: msg.content,
         timestamp: new Date(msg.timestamp),
-        actions: msg.actions as ChatMessage['actions']
+        actions: msg.actions as ChatMessage['actions'],
       }));
       setMessages(loadedMessages);
     }
@@ -89,7 +203,8 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
 
   // Save conversation after each message
   useEffect(() => {
-    if (messages.length > 1) { // Don't save if only system message
+    if (messages.length > 1) {
+      // Don't save if only system message
       setSaveStatus('saving');
       try {
         const serviceMessages: ServiceMessage[] = messages.map(msg => ({
@@ -97,7 +212,7 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
           role: msg.role,
           content: msg.content,
           timestamp: msg.timestamp.getTime(),
-          actions: msg.actions
+          actions: msg.actions,
         }));
 
         const metadata = conversationHistoryService.createMetadata(
@@ -108,7 +223,7 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
 
         conversationHistoryService.saveConversation({
           metadata,
-          messages: serviceMessages
+          messages: serviceMessages,
         });
 
         setSaveStatus('saved');
@@ -124,13 +239,13 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
 
   const fileSystem = useFileSystem();
   const terminal = useTerminal();
-  
+
   // Service availability state
   const [servicesAvailable, setServicesAvailable] = useState<{
     fileSystem: boolean;
     terminal: boolean;
   }>({ fileSystem: false, terminal: false });
-  
+
   // Check service availability on mount
   useEffect(() => {
     const checkServices = async () => {
@@ -144,7 +259,7 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
         console.warn('FileSystem service not available:', error);
         setServicesAvailable(prev => ({ ...prev, fileSystem: false }));
       }
-      
+
       try {
         // Test terminal (simple ping)
         await terminal.executeSimple('echo test').catch(() => {
@@ -156,7 +271,7 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
         setServicesAvailable(prev => ({ ...prev, terminal: false }));
       }
     };
-    
+
     checkServices();
   }, [fileSystem, terminal]);
 
@@ -171,7 +286,7 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
       id: `user-${Date.now()}`,
       role: 'user',
       content: input.trim(),
-      timestamp: new Date()
+      timestamp: new Date(),
     };
 
     setMessages(prev => [...prev, userMessage]);
@@ -182,9 +297,9 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
     try {
       // Parse user intent
       const intent = parseIntent(userInput);
-      
+
       let response: ChatMessage;
-      
+
       if (intent.type === 'read') {
         response = await handleRead(intent.path!);
       } else if (intent.type === 'write') {
@@ -211,7 +326,7 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
         id: `error-${Date.now()}`,
         role: 'assistant',
         content: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
       setMessages(prev => [...prev, errorMessage]);
     } finally {
@@ -223,7 +338,9 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
     }
   };
 
-  const parseIntent = (input: string): {
+  const parseIntent = (
+    input: string
+  ): {
     type: 'read' | 'write' | 'execute' | 'list' | 'search' | 'self-modify' | 'unknown';
     path?: string;
     content?: string;
@@ -232,7 +349,7 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
     request?: string;
   } => {
     const lower = input.toLowerCase();
-    
+
     // Self-modification detection (molting)
     if (
       lower.includes('edit yourself') ||
@@ -247,37 +364,39 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
     ) {
       return { type: 'self-modify', request: input };
     }
-    
+
     // Read file
     if (lower.match(/^(read|show|open|view|display)\s+(.+)$/)) {
       const match = input.match(/^(?:read|show|open|view|display)\s+(.+)$/i);
       return { type: 'read', path: match?.[1] };
     }
-    
+
     // Write file
     if (lower.match(/^(write|save|edit|update|create)\s+(.+?)\s+(with|to|as|:)\s+(.+)$/)) {
-      const match = input.match(/^(?:write|save|edit|update|create)\s+(.+?)\s+(?:with|to|as|:)\s+(.+)$/i);
+      const match = input.match(
+        /^(?:write|save|edit|update|create)\s+(.+?)\s+(?:with|to|as|:)\s+(.+)$/i
+      );
       return { type: 'write', path: match?.[1], content: match?.[2] };
     }
-    
+
     // Execute command
     if (lower.match(/^(run|execute|do|run command|run:)\s+(.+)$/)) {
       const match = input.match(/^(?:run|execute|do|run command|run:)\s+(.+)$/i);
       return { type: 'execute', command: match?.[1] };
     }
-    
+
     // List directory
     if (lower.match(/^(list|show files|ls|dir)\s*(.*)$/)) {
       const match = input.match(/^(?:list|show files|ls|dir)\s*(.*)$/i);
       return { type: 'list', path: match?.[1] || '.' };
     }
-    
+
     // Search files
     if (lower.match(/^(search|find|look for)\s+(.+)$/)) {
       const match = input.match(/^(?:search|find|look for)\s+(.+)$/i);
       return { type: 'search', pattern: match?.[1] };
     }
-    
+
     return { type: 'unknown' };
   };
 
@@ -287,27 +406,27 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
         id: `read-error-${Date.now()}`,
         role: 'assistant',
         content: `❌ **File System Unavailable**\n\nCannot read files. Please ensure:\n1. Dev server is running: \`npm run dev\`\n2. Backend API is accessible: \`/api/filesystem\`\n3. Check browser console (F12) for errors`,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     }
-    
+
     try {
       const content = await fileSystem.readFile(path);
       onFileSelect?.(path);
-      
+
       return {
         id: `read-${Date.now()}`,
         role: 'assistant',
         content: `Read file: ${path}\n\n\`\`\`\n${content.substring(0, 1000)}${content.length > 1000 ? '\n... (truncated)' : ''}\n\`\`\``,
         timestamp: new Date(),
-        actions: [{ type: 'read', path, result: content }]
+        actions: [{ type: 'read', path, result: content }],
       };
     } catch (error) {
       return {
         id: `read-error-${Date.now()}`,
         role: 'assistant',
         content: `Failed to read ${path}: ${error instanceof Error ? error.message : 'Unknown error'}\n\n**Troubleshooting:**\n1. Check if file exists\n2. Check file permissions\n3. Ensure backend API is running`,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     }
   };
@@ -315,20 +434,20 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
   const handleWrite = async (path: string, content: string): Promise<ChatMessage> => {
     try {
       await fileSystem.writeFile(path, content);
-      
+
       return {
         id: `write-${Date.now()}`,
         role: 'assistant',
         content: `✅ Written to ${path}`,
         timestamp: new Date(),
-        actions: [{ type: 'write', path, result: 'success' }]
+        actions: [{ type: 'write', path, result: 'success' }],
       };
     } catch (error) {
       return {
         id: `write-error-${Date.now()}`,
         role: 'assistant',
         content: `Failed to write ${path}: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     }
   };
@@ -339,30 +458,30 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
         id: `execute-error-${Date.now()}`,
         role: 'assistant',
         content: `❌ **Terminal Unavailable**\n\nCannot execute commands. Please ensure:\n1. Dev server is running: \`npm run dev\`\n2. Backend API is accessible: \`/api/terminal\`\n3. Check browser console (F12) for errors`,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     }
-    
+
     try {
       const response = await terminal.executeSimple(command);
-      
+
       let output = '';
       if (response.stdout) output += response.stdout;
       if (response.stderr) output += `\n[Error]\n${response.stderr}`;
-      
+
       return {
         id: `execute-${Date.now()}`,
         role: 'assistant',
         content: `$ ${command}\n\n${output || '(no output)'}`,
         timestamp: new Date(),
-        actions: [{ type: 'execute', command, result: output }]
+        actions: [{ type: 'execute', command, result: output }],
       };
     } catch (error) {
       return {
         id: `execute-error-${Date.now()}`,
         role: 'assistant',
         content: `Failed to execute: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     }
   };
@@ -370,21 +489,23 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
   const handleList = async (path: string): Promise<ChatMessage> => {
     try {
       const entries = await fileSystem.listDirectory(path);
-      const fileList = entries.map(e => `${e.type === 'directory' ? '📁' : '📄'} ${e.name}`).join('\n');
-      
+      const fileList = entries
+        .map(e => `${e.type === 'directory' ? '📁' : '📄'} ${e.name}`)
+        .join('\n');
+
       return {
         id: `list-${Date.now()}`,
         role: 'assistant',
         content: `Directory: ${path}\n\n${fileList}`,
         timestamp: new Date(),
-        actions: [{ type: 'list', path, result: fileList }]
+        actions: [{ type: 'list', path, result: fileList }],
       };
     } catch (error) {
       return {
         id: `list-error-${Date.now()}`,
         role: 'assistant',
         content: `Failed to list ${path}: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     }
   };
@@ -393,19 +514,19 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
     try {
       const results = await fileSystem.searchFiles(pattern);
       const resultList = results.slice(0, 20).join('\n');
-      
+
       return {
         id: `search-${Date.now()}`,
         role: 'assistant',
         content: `Found ${results.length} files matching "${pattern}":\n\n${resultList}${results.length > 20 ? '\n... (more results)' : ''}`,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     } catch (error) {
       return {
         id: `search-error-${Date.now()}`,
         role: 'assistant',
         content: `Failed to search: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     }
   };
@@ -415,15 +536,17 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
    */
   const testMoltingSystem = async (): Promise<string> => {
     const results: string[] = [];
-    
+
     // Test 1: File system access
     try {
       await fileSystem.readFile('package.json');
       results.push('✅ File system access: Working');
     } catch (error) {
-      results.push(`❌ File system access: Failed (${error instanceof Error ? error.message : 'Unknown'})`);
+      results.push(
+        `❌ File system access: Failed (${error instanceof Error ? error.message : 'Unknown'})`
+      );
     }
-    
+
     // Test 2: Ollama connection
     try {
       const config = await import('../config/mcpConfig');
@@ -431,7 +554,7 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
       if (mcpConfig.useLocalAI && mcpConfig.localAIProvider === 'ollama') {
         const response = await fetch(`${mcpConfig.localAIServerUrl}/api/tags`, {
           method: 'GET',
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
         });
         if (response.ok) {
           const data = await response.json();
@@ -444,9 +567,11 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
         results.push('⚠️ Ollama not configured in settings');
       }
     } catch (error) {
-      results.push(`❌ Ollama connection: Failed (${error instanceof Error ? error.message : 'Unknown'})`);
+      results.push(
+        `❌ Ollama connection: Failed (${error instanceof Error ? error.message : 'Unknown'})`
+      );
     }
-    
+
     // Test 3: Self file exists
     try {
       await fileSystem.readFile(SELF_FILE_PATH);
@@ -454,7 +579,7 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
     } catch (error) {
       results.push(`❌ Self file missing: ${SELF_FILE_PATH}`);
     }
-    
+
     return results.join('\n');
   };
 
@@ -473,10 +598,10 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
           id: `self-modify-error-${Date.now()}`,
           role: 'assistant',
           content: `❌ **Cannot read self**\n\nError: ${error instanceof Error ? error.message : 'Unknown error'}\n\nMake sure the file exists: ${SELF_FILE_PATH}`,
-          timestamp: new Date()
+          timestamp: new Date(),
         };
       }
-      
+
       // Step 2: Generate new code using AI (grow new body)
       let newCode: string;
       try {
@@ -484,7 +609,8 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
           filePath: SELF_FILE_PATH,
           currentCode,
           userRequest,
-          context: 'This is the DevChatbot component. It handles file operations, terminal commands, and self-modification.'
+          context:
+            'This is the DevChatbot component. It handles file operations, terminal commands, and self-modification.',
         });
       } catch (error) {
         const errorMsg = error instanceof Error ? error.message : 'Unknown error';
@@ -493,7 +619,7 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
             id: `self-modify-error-${Date.now()}`,
             role: 'assistant',
             content: `❌ **AI Not Available**\n\n${errorMsg}\n\n**To fix:**\n1. Start Ollama: \`ollama serve\`\n2. Install model: \`ollama pull codellama:latest\`\n3. Try again\n\nOr use regular file editing: "write components/DevChatbot.tsx with content: ..."`,
-            timestamp: new Date()
+            timestamp: new Date(),
           };
         }
         throw error;
@@ -507,7 +633,7 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
           id: `self-modify-warning-${Date.now()}`,
           role: 'assistant',
           content: `⚠️ **Generated code has warnings:**\n${validation.warnings.join('\n')}\n\n**Options:**\n1. Proceed anyway (may have issues)\n2. Try a different request\n3. Use manual editing: "write components/DevChatbot.tsx with content: ..."`,
-          timestamp: new Date()
+          timestamp: new Date(),
         };
       }
 
@@ -519,14 +645,14 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
           id: `self-modify-success-${Date.now()}`,
           role: 'assistant',
           content: `🐍 **Molting Complete!**\n\n✅ New body grown and validated\n✅ Bodies swapped successfully\n✅ Old body preserved as backup: ${result.backupPath}\n\n🔄 Reloading in 1 second to activate new body...\n\n**Preview of new body:**\n\`\`\`tsx\n${result.preview || 'Preview unavailable'}\n\`\`\``,
-          timestamp: new Date()
+          timestamp: new Date(),
         };
       } else {
         return {
           id: `self-modify-error-${Date.now()}`,
           role: 'assistant',
           content: `❌ **Molting Failed**\n\n${result.message}\n\n**Old body preserved.** You can:\n1. Try again with a different request\n2. Use manual editing: "write components/DevChatbot.tsx with content: ..."\n3. Rollback if needed`,
-          timestamp: new Date()
+          timestamp: new Date(),
         };
       }
     } catch (error) {
@@ -534,7 +660,7 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
         id: `self-modify-error-${Date.now()}`,
         role: 'assistant',
         content: `❌ **Self-Modification Failed**\n\nError: ${error instanceof Error ? error.message : 'Unknown error'}\n\n**Old body preserved.**\n\n**Troubleshooting:**\n1. Check if Ollama is running: \`ollama serve\`\n2. Check file permissions\n3. Try manual editing: "write components/DevChatbot.tsx with content: ..."`,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     }
   };
@@ -546,30 +672,33 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
   const handleAIRequest = async (input: string): Promise<ChatMessage> => {
     // Check if this request involves multiple approaches/choices
     // If so, use subtle replication to explore all paths (save both)
-    
+
     // For now, use standard handling
     // Future: Detect choices and auto-replicate
     // Check if user wants to test the system
     const lowerInput = input.toLowerCase();
-    if (lowerInput.includes('test') && (lowerInput.includes('molting') || lowerInput.includes('system'))) {
+    if (
+      lowerInput.includes('test') &&
+      (lowerInput.includes('molting') || lowerInput.includes('system'))
+    ) {
       try {
         const testResults = await testMoltingSystem();
         return {
           id: `test-${Date.now()}`,
           role: 'assistant',
           content: `🧪 **Molting System Test Results:**\n\n${testResults}\n\n**To use self-modification:**\n"Edit yourself to add a new feature"`,
-          timestamp: new Date()
+          timestamp: new Date(),
         };
       } catch (error) {
         return {
           id: `test-error-${Date.now()}`,
           role: 'assistant',
           content: `❌ **Test Failed**\n\nError: ${error instanceof Error ? error.message : 'Unknown error'}\n\n**Troubleshooting:**\n1. Check dev server is running: \`npm run dev\`\n2. Check backend API: Open browser console and look for errors\n3. Check Ollama: \`curl http://localhost:11434/api/tags\``,
-          timestamp: new Date()
+          timestamp: new Date(),
         };
       }
     }
-    
+
     // Quick connectivity test
     if (lowerInput === 'test' || lowerInput === 'ping' || lowerInput === 'status') {
       try {
@@ -579,27 +708,27 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
           id: `status-${Date.now()}`,
           role: 'assistant',
           content: `✅ **System Status: ONLINE**\n\n- File system: ✅ Working\n- Dev Chat: ✅ Ready\n- Self-modification: ✅ Available\n\n**Try:**\n- "read package.json" - Test file reading\n- "Test molting system" - Full system test\n- "Edit yourself to..." - Self-modification`,
-          timestamp: new Date()
+          timestamp: new Date(),
         };
       } catch (error) {
         return {
           id: `status-error-${Date.now()}`,
           role: 'assistant',
           content: `❌ **System Status: ERROR**\n\nFile system test failed: ${error instanceof Error ? error.message : 'Unknown error'}\n\n**Fix:**\n1. Make sure dev server is running: \`npm run dev\`\n2. Check backend is accessible\n3. Check browser console for errors`,
-          timestamp: new Date()
+          timestamp: new Date(),
         };
       }
     }
-    
+
     // ACTUALLY CALL OLLAMA FOR AI RESPONSES
     try {
       const { loadMCPConfig } = await import('../config/mcpConfig');
       const mcpConfig = loadMCPConfig();
-      
+
       if (!mcpConfig.useLocalAI || mcpConfig.localAIProvider !== 'ollama') {
         throw new Error('Ollama not configured. Please enable local AI in settings.');
       }
-      
+
       const serverUrl = mcpConfig.localAIServerUrl || 'http://localhost:11434';
       const model = mcpConfig.localAIModelName || 'codellama:latest';
 
@@ -608,27 +737,28 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
       const conversationContext = recentMessages
         .map(msg => `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`)
         .join('\n\n');
-      
+
       // Get user profile and lexicon for personalization
       const userProfile = userProfileService.getProfile();
       const personalizedContext = userLexiconService.getPersonalizedContext(userProfile.userId);
-      
+
       // Learn from current conversation (update lexicon)
       userLexiconService.learnFromMessages(
         userProfile.userId,
         messages.map(m => ({ role: m.role, content: m.content }))
       );
-      
+
       // RAG: Retrieve relevant past conversations for context
       const relevantHistory = conversationHistoryService.searchConversations(
         userInput,
         userProfile.userId,
         3 // Top 3 relevant conversations
       );
-      
-      const ragContext = relevantHistory.length > 0
-        ? `\n\nRelevant past conversations:\n${relevantHistory.map(h => `- ${h.summary || h.messages[0]?.content?.substring(0, 100)}`).join('\n')}`
-        : '';
+
+      const ragContext =
+        relevantHistory.length > 0
+          ? `\n\nRelevant past conversations:\n${relevantHistory.map(h => `- ${h.summary || h.messages[0]?.content?.substring(0, 100)}`).join('\n')}`
+          : '';
 
       // Build full prompt with context
       const systemPrompt = `You are a helpful development assistant for VectorForge, a vector graphics editor. You can:
@@ -641,7 +771,11 @@ Be concise, helpful, and focus on actionable responses. Format your responses wi
 
       const fullPrompt = `${systemPrompt}\n\n${personalizedContext}\n\nConversation history:\n${conversationContext}${ragContext}\n\nUser: ${userInput}\n\nAssistant:`;
 
-      console.log('[DEBUG] Calling Ollama for conversational response', { serverUrl, model, promptLength: fullPrompt.length });
+      console.log('[DEBUG] Calling Ollama for conversational response', {
+        serverUrl,
+        model,
+        promptLength: fullPrompt.length,
+      });
 
       // Call Ollama
       const response = await fetch(`${serverUrl}/api/generate`, {
@@ -664,40 +798,44 @@ Be concise, helpful, and focus on actionable responses. Format your responses wi
       }
 
       const data = await response.json();
-      
+
       if (!data.response) {
         throw new Error('Ollama returned empty response');
       }
 
       const trimmedResponse = data.response.trim();
-      
+
       console.log('[DEBUG] Ollama response received', { responseLength: trimmedResponse.length });
 
       return {
         id: `ai-${Date.now()}`,
         role: 'assistant',
         content: trimmedResponse,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-      
+
       // If Ollama connection fails, provide helpful fallback
-      if (errorMsg.includes('Ollama') || errorMsg.includes('connect') || errorMsg.includes('fetch')) {
+      if (
+        errorMsg.includes('Ollama') ||
+        errorMsg.includes('connect') ||
+        errorMsg.includes('fetch')
+      ) {
         return {
           id: `ai-error-${Date.now()}`,
           role: 'assistant',
           content: `❌ **AI Not Available**\n\n${errorMsg}\n\n**To fix:**\n1. Start Ollama: \`ollama serve\`\n2. Install model: \`ollama pull codellama:latest\`\n3. Try again\n\n**Or try file operations:**\n- "read package.json" - Read a file\n- "list components" - List directory\n- "run npm run dev" - Execute command`,
-          timestamp: new Date()
+          timestamp: new Date(),
         };
       }
-      
+
       // Other errors
       return {
         id: `ai-error-${Date.now()}`,
         role: 'assistant',
         content: `❌ **Error**\n\n${errorMsg}\n\n**Try:**\n- "read package.json" - Read a file\n- "list components" - List directory\n- "run npm run dev" - Execute command`,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     }
   };
@@ -713,12 +851,13 @@ Be concise, helpful, and focus on actionable responses. Format your responses wi
   const handleDiagnostics = async () => {
     // Find the last assistant message
     const lastAssistantMessage = [...messages].reverse().find(m => m.role === 'assistant');
-    
+
     if (!lastAssistantMessage) {
       const errorMessage: ChatMessage = {
         id: `error-${Date.now()}`,
         role: 'assistant',
-        content: '❌ **No AI response to analyze**\n\nPlease submit a prompt first and wait for the AI to respond.',
+        content:
+          '❌ **No AI response to analyze**\n\nPlease submit a prompt first and wait for the AI to respond.',
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, errorMessage]);
@@ -726,11 +865,11 @@ Be concise, helpful, and focus on actionable responses. Format your responses wi
     }
 
     setIsProcessing(true);
-    
+
     try {
       // Ask the AI to analyze its own response
       const diagnosticPrompt = `Analyze and critique this AI response. Identify any errors, inconsistencies, or areas for improvement. Be thorough and honest:\n\n---\n\n${lastAssistantMessage.content}\n\n---\n\nProvide a diagnostic report.`;
-      
+
       const diagnosticResponse = await handleAIRequest(diagnosticPrompt);
       setMessages(prev => [...prev, diagnosticResponse]);
     } catch (error) {
@@ -749,27 +888,7 @@ Be concise, helpful, and focus on actionable responses. Format your responses wi
 
   return (
     <ErrorBoundary>
-      <div 
-        className="dev-chat-container"
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          height: '100%',
-          width: '100%',
-          minHeight: 0,
-          position: 'relative',
-          overflow: 'hidden',
-          isolation: 'isolate',
-          contain: 'layout style paint',
-          boxSizing: 'border-box',
-          top: 'auto',
-          bottom: 'auto',
-          left: 'auto',
-          right: 'auto',
-          transform: 'none',
-          zIndex: 1
-        }}
-      >
+      <div className="dev-chat-container">
         {/* Header */}
         <div className="dev-chat-header">
           <div className="dev-chat-header-content">
@@ -777,9 +896,11 @@ Be concise, helpful, and focus on actionable responses. Format your responses wi
               <span className="dev-chat-title">💬 Dev Chat</span>
               <span className="dev-chat-subtitle">Self-Modifying AI</span>
               {/* Service Status Indicators */}
-              <span 
+              <span
                 className={`dev-chat-service-status ${servicesAvailable.fileSystem ? 'online' : 'offline'}`}
-                title={servicesAvailable.fileSystem ? 'File System: Online' : 'File System: Offline'}
+                title={
+                  servicesAvailable.fileSystem ? 'File System: Online' : 'File System: Offline'
+                }
               >
                 {servicesAvailable.fileSystem ? '📁' : '⚠️'}
               </span>
@@ -795,18 +916,21 @@ Be concise, helpful, and focus on actionable responses. Format your responses wi
               className="dev-chat-history-button"
               title="View History"
             >
-              <span className="material-symbols-outlined dev-chat-history-icon" aria-hidden="true" data-icon="history">history</span>
+              <span
+                className="material-symbols-outlined dev-chat-history-icon"
+                aria-hidden="true"
+                data-icon="history"
+              >
+                history
+              </span>
             </button>
           </div>
         </div>
 
         {/* Messages */}
         <div className="dev-chat-messages">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`dev-chat-message ${message.role}`}
-            >
+          {messages.map(message => (
+            <div key={message.id} className={`dev-chat-message ${message.role}`}>
               <div className="dev-chat-message-content">
                 {message.content.split('\n').map((line, i) => (
                   <React.Fragment key={i}>
@@ -833,35 +957,102 @@ Be concise, helpful, and focus on actionable responses. Format your responses wi
         </div>
 
         {/* Input - CRITICAL: Must be visible and functional */}
-        <div 
+        <div
           className="dev-chat-input-area"
-          style={{
-            position: 'relative',
-            width: '100%',
-            padding: '12px',
-            background: 'var(--xibalba-grey-050)',
-            borderTop: '2px solid var(--xibalba-grey-200)',
-            zIndex: 1,
-            flexShrink: 0,
-            marginTop: 'auto',
-            top: 'auto',
-            bottom: 'auto',
-            left: 'auto',
-            right: 'auto',
-            transform: 'none',
-            maxWidth: '100%',
-            boxSizing: 'border-box',
-            isolation: 'isolate',
-            contain: 'layout style paint'
+          ref={inputAreaEl => {
+            // #region agent log
+            if (inputAreaEl) {
+              setTimeout(() => {
+                const computedStyle = window.getComputedStyle(inputAreaEl);
+                const parent = inputAreaEl.parentElement;
+                const inTimeline =
+                  inputAreaEl.closest(
+                    '.bottom-drawer, .app-bottom-drawer, .animation-timeline-container, .xibalba-timeline, footer, .app-footer'
+                  ) !== null;
+                const inRightSidebar =
+                  inputAreaEl.closest(
+                    '.xibalba-right-sidebar-content, .sidebar-fixed-right, .app-right, .dev-chat-wrapper'
+                  ) !== null;
+                fetch('http://127.0.0.1:7242/ingest/9192f36e-3223-469d-8e1d-e9ca20bc6049', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    location: 'DevChatbot.tsx:884',
+                    message: 'Input area rendered - checking visibility',
+                    data: {
+                      className: inputAreaEl.className,
+                      computedDisplay: computedStyle.display,
+                      computedVisibility: computedStyle.visibility,
+                      computedHeight: computedStyle.height,
+                      computedWidth: computedStyle.width,
+                      computedOpacity: computedStyle.opacity,
+                      inTimeline,
+                      inRightSidebar,
+                      parentClassName: parent?.className,
+                    },
+                    timestamp: Date.now(),
+                    sessionId: 'debug-session',
+                    runId: 'run1',
+                    hypothesisId: 'A',
+                  }),
+                }).catch(() => {});
+              }, 100);
+            }
+            // #endregion
           }}
         >
           <div className="dev-chat-input-wrapper">
             <textarea
-              ref={inputRef}
+              ref={el => {
+                inputRef.current = el;
+                // #region agent log
+                if (el) {
+                  setTimeout(() => {
+                    const parent = el.parentElement;
+                    const grandparent = parent?.parentElement;
+                    const computedStyle = window.getComputedStyle(el);
+                    const inTimeline =
+                      el.closest(
+                        '.bottom-drawer, .app-bottom-drawer, .animation-timeline-container, .xibalba-timeline, footer, .app-footer'
+                      ) !== null;
+                    const inRightSidebar =
+                      el.closest(
+                        '.xibalba-right-sidebar-content, .sidebar-fixed-right, .app-right, .dev-chat-wrapper'
+                      ) !== null;
+                    fetch('http://127.0.0.1:7242/ingest/9192f36e-3223-469d-8e1d-e9ca20bc6049', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        location: 'DevChatbot.tsx:900',
+                        message: 'Textarea rendered - checking DOM location and styles',
+                        data: {
+                          textareaId: el.id,
+                          className: el.className,
+                          computedDisplay: computedStyle.display,
+                          computedVisibility: computedStyle.visibility,
+                          computedHeight: computedStyle.height,
+                          computedWidth: computedStyle.width,
+                          computedPosition: computedStyle.position,
+                          computedOpacity: computedStyle.opacity,
+                          inTimeline,
+                          inRightSidebar,
+                          parentClassName: parent?.className,
+                          grandparentClassName: grandparent?.className,
+                        },
+                        timestamp: Date.now(),
+                        sessionId: 'debug-session',
+                        runId: 'run1',
+                        hypothesisId: 'A',
+                      }),
+                    }).catch(() => {});
+                  }, 100);
+                }
+                // #endregion
+              }}
               id="dev-chat-input"
               name="dev-chat-input"
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={e => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
               disabled={isProcessing}
               className="dev-chat-textarea"
@@ -874,7 +1065,9 @@ Be concise, helpful, and focus on actionable responses. Format your responses wi
               className="dev-chat-diagnostics-button"
               title="Analyze the last AI response for errors and improvements"
             >
-              <span className="material-symbols-outlined dev-chat-diagnostics-icon">psychology</span>
+              <span className="material-symbols-outlined dev-chat-diagnostics-icon">
+                psychology
+              </span>
               Diagnostics
             </button>
             <button
@@ -914,12 +1107,15 @@ Be concise, helpful, and focus on actionable responses. Format your responses wi
         onCancel={() => {
           setShowSelfModifyConfirm(false);
           setPendingSelfModifyRequest(null);
-          setMessages(prev => [...prev, {
-            id: `self-modify-cancelled-${Date.now()}`,
-            role: 'assistant',
-            content: '❌ **Self-modification cancelled**\n\nNo changes were made.',
-            timestamp: new Date()
-          }]);
+          setMessages(prev => [
+            ...prev,
+            {
+              id: `self-modify-cancelled-${Date.now()}`,
+              role: 'assistant',
+              content: '❌ **Self-modification cancelled**\n\nNo changes were made.',
+              timestamp: new Date(),
+            },
+          ]);
         }}
       />
     </ErrorBoundary>
@@ -927,4 +1123,3 @@ Be concise, helpful, and focus on actionable responses. Format your responses wi
 };
 
 export default DevChatbot;
-
