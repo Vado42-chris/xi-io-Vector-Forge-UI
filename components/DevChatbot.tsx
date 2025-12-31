@@ -833,6 +833,8 @@ Be concise, helpful, and focus on actionable responses. Format your responses wi
           <div className="dev-chat-input-wrapper" style={{ display: 'flex', gap: '8px', alignItems: 'flex-end', width: '100%' }}>
             <textarea
               ref={inputRef}
+              id="dev-chat-input"
+              name="dev-chat-input"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
@@ -840,9 +842,6 @@ Be concise, helpful, and focus on actionable responses. Format your responses wi
               className="dev-chat-textarea"
               placeholder="Type your message here... (e.g., 'read package.json' or 'help')"
               rows={3}
-              style={{
-                flex: 1,
-                minHeight: '60px',
                 maxHeight: '120px',
                 padding: '12px',
                 background: 'var(--xibalba-grey-100)',

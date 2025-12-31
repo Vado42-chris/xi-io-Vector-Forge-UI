@@ -300,6 +300,8 @@ const AIChatbot: React.FC<AIChatbotProps> = ({
         <div className="flex gap-2">
           <textarea
             ref={inputRef}
+            id="ai-chatbot-input"
+            name="ai-chatbot-input"
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
