@@ -1,0 +1,143 @@
+/* CRITICAL FIX: Ensure DevChatbot input stays in right drawer, NOT timeline */
+/* This file MUST be loaded after all other dev-chat CSS files */
+
+/* Container isolation - prevent input from escaping */
+.dev-chat-wrapper {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  width: 100% !important;
+  min-height: 0 !important;
+  position: relative !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+  contain: layout style paint !important;
+  box-sizing: border-box !important;
+}
+
+/* DevChatbot container - MUST stay within wrapper */
+.dev-chat-container {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  width: 100% !important;
+  min-height: 0 !important;
+  position: relative !important; /* CRITICAL: NOT fixed/absolute */
+  overflow: hidden !important;
+  isolation: isolate !important;
+  contain: layout style paint !important;
+  box-sizing: border-box !important;
+  /* CRITICAL: Reset all positioning that might escape */
+  top: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  right: auto !important;
+  transform: none !important;
+  z-index: 1 !important; /* Low z-index - stays in container */
+}
+
+/* Messages area - takes available space */
+.dev-chat-messages {
+  flex: 1 1 auto !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 16px !important;
+  min-height: 0 !important; /* CRITICAL: Allow flex shrinking */
+  position: relative !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Input area - MUST stay at bottom of container, NOT escape to timeline */
+.dev-chat-input-area {
+  position: relative !important; /* CRITICAL: NOT fixed/absolute */
+  width: 100% !important;
+  padding: 12px !important;
+  background: var(--xibalba-grey-050) !important;
+  border-top: 2px solid var(--xibalba-grey-200) !important;
+  z-index: 1 !important; /* Low z-index - stays in container */
+  flex-shrink: 0 !important;
+  margin-top: auto !important; /* Push to bottom of flex container */
+  /* CRITICAL: Reset all positioning to keep it in container */
+  top: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  right: auto !important;
+  transform: none !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  /* CRITICAL: Ensure it doesn't escape its parent */
+  isolation: isolate !important;
+  contain: layout style paint !important;
+}
+
+/* Textarea - must stay within input area */
+.dev-chat-textarea {
+  position: relative !important; /* NOT fixed/absolute */
+  width: 100% !important;
+  box-sizing: border-box !important;
+  /* Reset positioning */
+  top: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  right: auto !important;
+  transform: none !important;
+}
+
+/* Right sidebar content - ensure proper height */
+.xibalba-right-sidebar-content {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  position: relative !important;
+  isolation: isolate !important;
+  contain: layout style paint !important;
+}
+
+/* Ensure RightSidebar itself has proper height */
+.sidebar-fixed-right {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+/* CRITICAL: Prevent any chat input from appearing in timeline/footer */
+footer .dev-chat-input-area,
+.app-footer .dev-chat-input-area,
+.bottom-drawer .dev-chat-input-area,
+.app-bottom-drawer .dev-chat-input-area,
+.animation-timeline-container .dev-chat-input-area,
+.xibalba-timeline .dev-chat-input-area {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+}
+
+/* CRITICAL: Ensure timeline doesn't contain chat input */
+.bottom-drawer,
+.app-bottom-drawer,
+.animation-timeline-container,
+.xibalba-timeline {
+  /* Explicitly exclude chat input from timeline */
+}
+
+.bottom-drawer * .dev-chat-input-area,
+.app-bottom-drawer * .dev-chat-input-area,
+.animation-timeline-container * .dev-chat-input-area,
+.xibalba-timeline * .dev-chat-input-area {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+}
+
