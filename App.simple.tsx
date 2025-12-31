@@ -182,15 +182,28 @@ const App: React.FC = () => {
           <div className="app-canvas-area">
             <ErrorBoundary>
               <DraftsmanCanvas
+                svgContent=""
                 layers={state.layers}
                 selectedLayerId={state.selectedLayerId}
                 activeTool={state.activeTool}
                 toolProperties={state.toolProperties}
                 pan={state.pan}
                 zoom={state.zoom}
+                onPan={(newPan) => setState(prev => ({ ...prev, pan: newPan }))}
+                onZoom={(newZoom) => setState(prev => ({ ...prev, zoom: newZoom }))}
                 onSelectLayer={handleSelectLayer}
                 onCreateLayer={handleCreateLayer}
                 onUpdateLayer={minimalHandlers.onUpdateLayer}
+                frameState={{ currentFrame: 0, totalFrames: 30 }}
+                keyframes={[]}
+                onAddKeyframe={() => {}}
+                onUpdateKeyframe={() => {}}
+                showGuides={false}
+                snapToGrid={state.snapToGrid}
+                snapToGuides={false}
+                gridSize={20}
+                measurementUnit="px"
+                onUnitChange={() => {}}
               />
             </ErrorBoundary>
           </div>
