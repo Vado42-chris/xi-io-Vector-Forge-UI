@@ -49,7 +49,7 @@ const BottomDrawer: React.FC<BottomDrawerProps> = ({
   const [activeTab, setActiveTab] = useState<'timeline' | 'non-linear'>('timeline');
 
   return (
-    <div className={`bottom-drawer ${isOpen ? 'bottom-drawer-open' : 'bottom-drawer-closed'}`}>
+    <div className={`bottom-drawer ${isOpen ? 'bottom-drawer-open' : 'bottom-drawer-closed'}`} role="complementary" aria-label="Bottom drawer with timeline and non-linear view">
       {/* Drawer Handle */}
       <button
         className="bottom-drawer-handle"
