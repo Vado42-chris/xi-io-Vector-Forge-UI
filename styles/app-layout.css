@@ -11,6 +11,7 @@
   grid-template-rows: auto 1fr;
   grid-template-columns: auto 1fr auto;
   min-height: 100vh;
+  isolation: isolate; /* Isolate grid from external styles */
 }
 
 .app-header-container {
@@ -19,6 +20,9 @@
   position: sticky;
   top: 0;
   z-index: var(--z-menu, 1100);
+  isolation: isolate; /* Isolate header from other components */
+  contain: layout style paint; /* Contain header layout */
+  overflow: visible; /* Allow dropdowns to show */
 }
 
 .app-main-content {
@@ -26,6 +30,9 @@
   grid-column: 1 / 4;
   display: flex;
   height: 100%;
+  isolation: isolate; /* Isolate main content from header */
+  contain: layout; /* Contain layout to prevent bleeding */
+  position: relative;
 }
 
 .app-canvas-area {
@@ -33,5 +40,8 @@
   position: relative;
   overflow: hidden;
   background: var(--xibalba-grey-000);
+  isolation: isolate; /* Isolate canvas from sidebars and header */
+  contain: layout paint; /* Contain canvas layout and painting */
+  z-index: 1; /* Ensure canvas is below floating elements */
 }
 
