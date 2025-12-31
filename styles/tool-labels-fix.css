@@ -45,20 +45,34 @@
   width: 100% !important;
 }
 
-/* Ensure File Menu is Always Visible and Clickable */
+/* Ensure File Menu is Always Visible and Clickable - CRITICAL */
 .xibalba-header {
   position: relative !important;
-  z-index: var(--z-menu, 400) !important;
+  z-index: var(--z-menu, 10000) !important;
   background: var(--xibalba-grey-000) !important;
   border-bottom: 1px solid var(--xibalba-grey-200) !important;
   padding: 8px 16px !important;
   min-height: 48px !important;
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  flex-shrink: 0 !important;
 }
 
-.xibalba-header button {
+.xibalba-header button,
+.xibalba-header a,
+.xibalba-header [role="button"] {
   pointer-events: auto !important;
   cursor: pointer !important;
-  z-index: calc(var(--z-menu, 400) + 1) !important;
+  z-index: calc(var(--z-menu, 10000) + 1) !important;
+  position: relative !important;
+}
+
+/* Ensure menu buttons are visible */
+.xibalba-header > div {
+  z-index: calc(var(--z-menu, 10000) + 1) !important;
+  position: relative !important;
 }
 
 .menu-dropdown {
