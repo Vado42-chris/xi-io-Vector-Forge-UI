@@ -178,7 +178,7 @@ const App: React.FC = () => {
           )}
 
           {/* Canvas Area */}
-          <div className="flex-1 relative overflow-hidden bg-[var(--xibalba-grey-000)]">
+          <div className="app-canvas-area">
             <ErrorBoundary>
               <DraftsmanCanvas
                 layers={state.layers}
