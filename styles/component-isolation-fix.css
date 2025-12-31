@@ -1,0 +1,74 @@
+/* Component Isolation Fix - Prevent Bleeding Between Components */
+
+/* File Menu Header - Isolated at top */
+.professional-file-menu-header {
+  isolation: isolate;
+  contain: layout style paint;
+  overflow: visible; /* Allow dropdowns to show */
+}
+
+.app-header-container {
+  isolation: isolate;
+  contain: layout style paint;
+  overflow: visible;
+  position: relative;
+  z-index: 1100;
+}
+
+/* Canvas Area - Isolated from header and sidebars */
+.app-canvas-area {
+  isolation: isolate;
+  contain: layout paint;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+/* Main Content - Container for sidebars and canvas */
+.app-main-content {
+  isolation: isolate;
+  contain: layout;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Power Toolbar - Isolated floating element */
+.zstack-power-toolbar {
+  isolation: isolate;
+  contain: layout style paint;
+  overflow: visible;
+  position: absolute !important;
+  pointer-events: auto !important;
+}
+
+/* Left Sidebar - Isolated */
+.left-sidebar-container,
+[class*="left-sidebar"] {
+  isolation: isolate;
+  contain: layout paint;
+  overflow: hidden;
+  position: relative;
+  z-index: 100;
+}
+
+/* Right Sidebar - Isolated */
+.right-sidebar-container,
+[class*="right-sidebar"] {
+  isolation: isolate;
+  contain: layout paint;
+  overflow: hidden;
+  position: relative;
+  z-index: 100;
+}
+
+/* Prevent any component from bleeding into others */
+.app-layout-grid > * {
+  box-sizing: border-box;
+}
+
+/* Ensure header doesn't overlap content */
+.app-header-container + .app-main-content {
+  margin-top: 0;
+  padding-top: 0;
+}
+
