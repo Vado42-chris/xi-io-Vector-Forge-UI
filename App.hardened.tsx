@@ -2471,7 +2471,6 @@ const App: React.FC = () => {
             />
           </ErrorBoundary>
         </div>
-        )}
 
         {/* Footer - Grid Row 3 */}
         <footer className="app-footer">
