@@ -5,7 +5,7 @@
  */
 
 import React, { useState } from 'react';
-import Header from './components/Header';
+import ProfessionalFileMenu from './components/ProfessionalFileMenu';
 import LeftSidebar from './components/LeftSidebar';
 import RightSidebar from './components/RightSidebar';
 import DraftsmanCanvas from './components/DraftsmanCanvas';
