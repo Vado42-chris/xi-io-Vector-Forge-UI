@@ -1,4 +1,5 @@
 /* App Layout - CSS Grid - NO INLINE STYLES */
+/* Standard productized UI: Header | Main Content | Timeline | Footer */
 .app-layout-grid {
   position: relative;
   width: 100vw;
@@ -8,7 +9,7 @@
   overflow: hidden;
   background: var(--xibalba-grey-000);
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto 1fr auto auto; /* Header | Main Content | Timeline | Footer */
   grid-template-columns: auto 1fr auto;
   min-height: 100vh;
   isolation: isolate; /* Isolate grid from external styles */
@@ -50,5 +51,32 @@
   /* Width accounts for both sidebars */
   width: calc(100% - var(--sidebar-left-width, 320px) - var(--sidebar-right-width, 360px));
   min-width: 0; /* Allow flex shrinking */
+}
+
+/* Timeline Container - Fixed at bottom, above footer */
+.app-timeline-container {
+  grid-row: 3 / 4;
+  grid-column: 1 / 4;
+  position: relative;
+  z-index: var(--z-timeline-expanded, 100);
+  isolation: isolate;
+  contain: layout style paint;
+  height: 200px; /* Default timeline height */
+  min-height: 200px;
+  max-height: 400px; /* Allow expansion */
+  overflow: hidden;
+}
+
+/* Footer Container - Fixed at very bottom */
+.app-footer-container {
+  grid-row: 4 / 5;
+  grid-column: 1 / 4;
+  position: relative;
+  z-index: var(--z-timeline-expanded, 100);
+  isolation: isolate;
+  contain: layout style paint;
+  height: 48px; /* Footer height */
+  min-height: 48px;
+  max-height: 48px;
 }
 

@@ -9,8 +9,10 @@ import ProfessionalFileMenu from './components/ProfessionalFileMenu';
 import LeftSidebar from './components/LeftSidebar';
 import RightSidebar from './components/RightSidebar';
 import DraftsmanCanvas from './components/DraftsmanCanvas';
+import AnimationTimeline from './components/AnimationTimeline';
+import Footer from './components/Footer';
 import ErrorBoundary from './components/ErrorBoundary';
-import { VectorLayer, ToolType, ToolProperties, AppState } from './types';
+import { VectorLayer, ToolType, ToolProperties, AppState, FrameState, AnimationKeyframe } from './types';
 
 const App: React.FC = () => {
   // Minimal state - just enough to render
@@ -31,6 +33,15 @@ const App: React.FC = () => {
     fileOperationLoading: false,
     terminalLogs: [],
   });
+
+  // Timeline state
+  const [frameState, setFrameState] = useState<FrameState>({
+    currentFrame: 0,
+    totalFrames: 30,
+    isPlaying: false,
+    fps: 30,
+  });
+  const [keyframes, setKeyframes] = useState<AnimationKeyframe[]>([]);
 
   // Panel visibility - not used but kept for compatibility
   const panelVisibility = {
@@ -237,6 +248,38 @@ const App: React.FC = () => {
               />
             </ErrorBoundary>
           )}
+        </div>
+
+        {/* Animation Timeline - Fixed at bottom, above footer */}
+        <div className="app-timeline-container">
+          <ErrorBoundary>
+            <AnimationTimeline
+              frameState={frameState}
+              onFrameStateChange={(updates) => setFrameState(prev => ({ ...prev, ...updates }))}
+              keyframes={keyframes}
+              onAddKeyframe={(kf) => setKeyframes(prev => [...prev, kf])}
+              onUpdateKeyframe={(id, props) => setKeyframes(prev => prev.map(k => (k.id === id ? { ...k, ...props } : k)))}
+              onDeleteKeyframe={(id) => setKeyframes(prev => prev.filter(k => k.id !== id))}
+              selectedLayerId={state.selectedLayerId}
+              layers={state.layers}
+              presets={[]}
+              onApplyPreset={() => {}}
+              onImportFromStudio={() => {}}
+              onScriptClick={() => {}}
+            />
+          </ErrorBoundary>
+        </div>
+
+        {/* Footer/Status Bar - Fixed at very bottom */}
+        <div className="app-footer-container">
+          <ErrorBoundary>
+            <Footer
+              nodeCount={state.layers.length}
+              fillInfo={state.selectedLayerId || 'WORKSPACE_ROOT'}
+              isRendering={false}
+              renderProgress={undefined}
+            />
+          </ErrorBoundary>
         </div>
       </div>
     </ErrorBoundary>
