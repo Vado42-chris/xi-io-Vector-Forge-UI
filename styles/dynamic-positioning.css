@@ -29,10 +29,21 @@
   left: var(--playhead-position, 0%);
 }
 
-.timeline-positioned {
+/* Timeline positioned - ONLY when NOT in grid container */
+.timeline-positioned:not(.app-timeline-container .timeline-positioned) {
   bottom: var(--timeline-bottom, 48px);
   left: 0;
   right: var(--timeline-right, 360px);
+}
+
+/* Timeline in grid - NO positioning, fills container */
+.app-timeline-container .timeline-positioned {
+  position: relative !important;
+  bottom: auto !important;
+  left: auto !important;
+  right: auto !important;
+  width: 100% !important;
+  height: 100% !important;
 }
 
 /* Floating toolbar positioning */

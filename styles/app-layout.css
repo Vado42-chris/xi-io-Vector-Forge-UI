@@ -9,8 +9,10 @@
   overflow: hidden;
   background: var(--xibalba-grey-000);
   display: grid;
-  grid-template-rows: auto 1fr auto auto; /* Header | Main Content | Timeline | Footer */
+  grid-template-rows: auto 1fr auto auto; /* Header | Main Content | Timeline | Footer - NO GAPS */
   grid-template-columns: auto 1fr auto;
+  grid-gap: 0; /* NO GAPS BETWEEN ROWS */
+  gap: 0; /* NO GAPS */
   min-height: 100vh;
   isolation: isolate; /* Isolate grid from external styles */
 }
@@ -31,15 +33,18 @@
   grid-column: 1 / 4;
   display: flex;
   height: 100%;
-  min-height: 0; /* Allow flex shrinking */
+  min-height: 0 !important; /* CRITICAL: Allow flex shrinking */
+  max-height: 100% !important; /* CRITICAL: Don't exceed grid cell */
   isolation: isolate; /* Isolate main content from header */
   contain: layout; /* Contain layout to prevent bleeding */
   position: relative;
   overflow: hidden; /* Prevent content from spilling */
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 .app-canvas-area {
-  flex: 1;
+  flex: 1 1 auto;
   position: relative;
   overflow: hidden;
   background: var(--xibalba-grey-000);
@@ -52,10 +57,15 @@
   margin-right: var(--sidebar-right-width, 360px);
   /* Width accounts for both sidebars */
   width: calc(100% - var(--sidebar-left-width, 320px) - var(--sidebar-right-width, 360px));
-  min-width: 0; /* Allow flex shrinking */
+  min-width: 0 !important; /* Allow flex shrinking */
+  min-height: 0 !important; /* CRITICAL: Allow flex shrinking - prevents gap */
+  max-height: 100% !important; /* Don't exceed parent */
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding: 0 !important;
 }
 
-/* Timeline Container - In grid, NO FIXED POSITIONING */
+/* Timeline Container - In grid, NO FIXED POSITIONING, NO GAPS, EXACT HEIGHT */
 .app-timeline-container {
   grid-row: 3 / 4;
   grid-column: 1 / 4;
@@ -63,26 +73,37 @@
   z-index: var(--z-timeline-expanded, 100);
   isolation: isolate;
   contain: layout style paint;
-  height: 200px; /* Default timeline height */
-  min-height: 200px;
-  max-height: 400px; /* Allow expansion */
-  overflow: hidden;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
+  height: 200px !important; /* EXACT - NO VARIATION */
+  min-height: 200px !important;
+  max-height: 200px !important; /* NO EXPANSION */
+  overflow: hidden !important;
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  gap: 0 !important;
+  border: none !important;
 }
 
-/* Timeline inside grid container - NO fixed positioning */
-.app-timeline-container > * {
+/* Timeline inside grid container - FILLS CONTAINER EXACTLY, NO WRAPPER SPACE */
+.app-timeline-container > *,
+.app-timeline-container .xibalba-timeline,
+.app-timeline-container .animation-timeline-container {
   position: relative !important;
   width: 100% !important;
   height: 100% !important;
+  min-height: 100% !important;
+  max-height: 100% !important;
   bottom: auto !important;
   left: auto !important;
   right: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  flex: 1 1 100% !important;
 }
 
-/* Footer Container - Fixed at very bottom */
+/* Footer Container - Fixed at very bottom, NO GAPS */
 .app-footer-container {
   grid-row: 4 / 5;
   grid-column: 1 / 4;
@@ -90,8 +111,11 @@
   z-index: var(--z-timeline-expanded, 100);
   isolation: isolate;
   contain: layout style paint;
-  height: 48px; /* Footer height */
+  height: 48px; /* Footer height - EXACT */
   min-height: 48px;
   max-height: 48px;
+  margin: 0 !important;
+  padding: 0 !important;
+  gap: 0 !important;
 }
 
