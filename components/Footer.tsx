@@ -11,7 +11,7 @@ interface FooterProps {
 
 const Footer: React.FC<FooterProps> = ({ nodeCount, fillInfo, isRendering, renderProgress }) => {
   return (
-    <footer className="xibalba-footer fixed bottom-0 left-0 right-0 h-12 flex items-center justify-between font-black select-none z-40 px-6 footer-background">
+    <footer className="xibalba-footer h-12 flex items-center justify-between font-black select-none z-40 px-6 footer-background">
       <div className="flex items-center gap-8">
         <div className="flex items-center gap-3 group cursor-help">
           <span className="material-symbols-outlined text-[16px] text-[var(--xibalba-text-100)] group-hover:rotate-12 transition-transform">architecture</span>
