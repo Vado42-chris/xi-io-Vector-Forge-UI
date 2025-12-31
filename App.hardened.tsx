@@ -1,5 +1,13 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { AppState, ToolType, VectorLayer, VectorNode, ToolProperties, TextShape, AnimationKeyframe } from './types';
+import {
+  AppState,
+  ToolType,
+  VectorLayer,
+  VectorNode,
+  ToolProperties,
+  TextShape,
+  AnimationKeyframe,
+} from './types';
 // TEMPORARILY DISABLED: useUndoRedo hook causing errors - will fix after UI is working
 // import { useUndoRedo } from './hooks/useUndoRedo';
 import { clipboardService } from './services/clipboardService';
@@ -195,7 +203,7 @@ const App: React.FC = () => {
   //     prevStateRef.current = state;
   //   }
   // }, [state, undoRedoState]);
-  
+
   // Temporary stub for undo/redo
   const undoRedoState = {
     canUndo: false,
@@ -233,7 +241,7 @@ const App: React.FC = () => {
     canvas: true,
     timeline: true,
   });
-  
+
   // Debug: Log panel visibility on mount
   useEffect(() => {
     console.log('✅ App mounted - Right Sidebar visibility:', panelVisibility['right-sidebar']);
@@ -538,46 +546,48 @@ const App: React.FC = () => {
       const doc = parser.parseFromString(svg, 'image/svg+xml');
       const paths = Array.from(doc.querySelectorAll('path, rect, circle, ellipse, text'));
 
-      return paths.map((p, idx): VectorLayer => ({
-        id: p.id || `layer_${idx}`,
-        name: p.getAttribute('data-name') || p.id || 'Unnamed Layer',
-        visible: p.getAttribute('display') !== 'none',
-        locked: p.getAttribute('data-locked') === 'true',
-        color: p.getAttribute('fill') || 'var(--xibalba-text-000, #ffffff)',
-        stroke: p.getAttribute('stroke') || 'var(--xibalba-grey-000, #000000)',
-        strokeWidth: parseFloat(p.getAttribute('stroke-width') || '0'),
-        opacity: parseFloat(p.getAttribute('opacity') || '1'),
-        blendMode: (p.getAttribute('data-blend-mode') || 'normal') as VectorLayer['blendMode'],
-        shape:
-          p.tagName === 'rect'
-            ? {
-                type: 'rect' as const,
-                x: parseFloat(p.getAttribute('x') || '0'),
-                y: parseFloat(p.getAttribute('y') || '0'),
-                width: parseFloat(p.getAttribute('width') || '0'),
-                height: parseFloat(p.getAttribute('height') || '0'),
-                borderRadius: parseFloat(p.getAttribute('rx') || '0'),
-              }
-            : p.tagName === 'text'
+      return paths.map(
+        (p, idx): VectorLayer => ({
+          id: p.id || `layer_${idx}`,
+          name: p.getAttribute('data-name') || p.id || 'Unnamed Layer',
+          visible: p.getAttribute('display') !== 'none',
+          locked: p.getAttribute('data-locked') === 'true',
+          color: p.getAttribute('fill') || 'var(--xibalba-text-000, #ffffff)',
+          stroke: p.getAttribute('stroke') || 'var(--xibalba-grey-000, #000000)',
+          strokeWidth: parseFloat(p.getAttribute('stroke-width') || '0'),
+          opacity: parseFloat(p.getAttribute('opacity') || '1'),
+          blendMode: (p.getAttribute('data-blend-mode') || 'normal') as VectorLayer['blendMode'],
+          shape:
+            p.tagName === 'rect'
               ? {
-                  type: 'text' as const,
+                  type: 'rect' as const,
                   x: parseFloat(p.getAttribute('x') || '0'),
                   y: parseFloat(p.getAttribute('y') || '0'),
-                  content: p.textContent || '',
-                  fontFamily: p.getAttribute('font-family') || 'Inter',
-                  fontSize: parseFloat(p.getAttribute('font-size') || '16'),
-                  fontWeight: parseInt(p.getAttribute('font-weight') || '400'),
-                  fontStyle: (p.getAttribute('font-style') || 'normal') as 'normal' | 'italic',
-                  fill: p.getAttribute('fill') || 'var(--xibalba-text-000, #ffffff)',
-                  stroke: p.getAttribute('stroke') || 'var(--xibalba-grey-000, #000000)',
-                  strokeWidth: parseFloat(p.getAttribute('stroke-width') || '0'),
-                } as TextShape
-              : {
-                  type: 'path' as const,
-                  d: p.getAttribute('d') || '',
-                  nodes: parseSvgPath(p.getAttribute('d') || ''),
-                },
-      }));
+                  width: parseFloat(p.getAttribute('width') || '0'),
+                  height: parseFloat(p.getAttribute('height') || '0'),
+                  borderRadius: parseFloat(p.getAttribute('rx') || '0'),
+                }
+              : p.tagName === 'text'
+                ? ({
+                    type: 'text' as const,
+                    x: parseFloat(p.getAttribute('x') || '0'),
+                    y: parseFloat(p.getAttribute('y') || '0'),
+                    content: p.textContent || '',
+                    fontFamily: p.getAttribute('font-family') || 'Inter',
+                    fontSize: parseFloat(p.getAttribute('font-size') || '16'),
+                    fontWeight: parseInt(p.getAttribute('font-weight') || '400'),
+                    fontStyle: (p.getAttribute('font-style') || 'normal') as 'normal' | 'italic',
+                    fill: p.getAttribute('fill') || 'var(--xibalba-text-000, #ffffff)',
+                    stroke: p.getAttribute('stroke') || 'var(--xibalba-grey-000, #000000)',
+                    strokeWidth: parseFloat(p.getAttribute('stroke-width') || '0'),
+                  } as TextShape)
+                : {
+                    type: 'path' as const,
+                    d: p.getAttribute('d') || '',
+                    nodes: parseSvgPath(p.getAttribute('d') || ''),
+                  },
+        })
+      );
     } catch (error) {
       console.error('Failed to sync layers:', error);
       return [];
@@ -634,10 +644,7 @@ const App: React.FC = () => {
             if (layer.shape.type === 'rect') {
               el = doc.createElementNS('http://www.w3.org/2000/svg', 'rect') as SVGElement;
             } else if (layer.shape.type === 'ellipse') {
-              el = doc.createElementNS(
-                'http://www.w3.org/2000/svg',
-                'ellipse'
-              ) as SVGElement;
+              el = doc.createElementNS('http://www.w3.org/2000/svg', 'ellipse') as SVGElement;
             } else if (layer.shape.type === 'text') {
               el = doc.createElementNS('http://www.w3.org/2000/svg', 'text') as SVGElement;
             } else if (layer.shape.type === 'path') {
@@ -836,44 +843,47 @@ const App: React.FC = () => {
                     const text = await file.text();
                     const data = JSON.parse(text);
                     if (data.svg && data.layers) {
-                    const openData = {
-                      ...data,
-                      name: file.name,
-                      timestamp: Date.now(),
-                    };
-                    setState(prev => ({
-                      ...prev,
-                      currentSvg: data.svg,
-                      layers: data.layers || [],
-                      selectedLayerId: null,
-                      zoom: data.zoom || prev.zoom,
-                      pan: data.pan || prev.pan,
-                      fileOperationLoading: { type: null },
-                    }));
-                    // Update recent files
-                    try {
-                      const recentFilesStr = localStorage.getItem('vforge_recent_files') || '[]';
-                      const recentFiles = JSON.parse(recentFilesStr);
-                      if (Array.isArray(recentFiles)) {
-                        recentFiles.unshift(openData);
-                        const updatedRecent = recentFiles.slice(0, 10); // Keep last 10
-                        localStorage.setItem('vforge_recent_files', JSON.stringify(updatedRecent));
+                      const openData = {
+                        ...data,
+                        name: file.name,
+                        timestamp: Date.now(),
+                      };
+                      setState(prev => ({
+                        ...prev,
+                        currentSvg: data.svg,
+                        layers: data.layers || [],
+                        selectedLayerId: null,
+                        zoom: data.zoom || prev.zoom,
+                        pan: data.pan || prev.pan,
+                        fileOperationLoading: { type: null },
+                      }));
+                      // Update recent files
+                      try {
+                        const recentFilesStr = localStorage.getItem('vforge_recent_files') || '[]';
+                        const recentFiles = JSON.parse(recentFilesStr);
+                        if (Array.isArray(recentFiles)) {
+                          recentFiles.unshift(openData);
+                          const updatedRecent = recentFiles.slice(0, 10); // Keep last 10
+                          localStorage.setItem(
+                            'vforge_recent_files',
+                            JSON.stringify(updatedRecent)
+                          );
+                        }
+                      } catch (error) {
+                        console.error('Failed to update recent files:', error);
+                        // Initialize with current file
+                        localStorage.setItem('vforge_recent_files', JSON.stringify([openData]));
                       }
-                    } catch (error) {
-                      console.error('Failed to update recent files:', error);
-                      // Initialize with current file
-                      localStorage.setItem('vforge_recent_files', JSON.stringify([openData]));
+                      showToast('File opened', 'success');
+                    } else {
+                      setState(prev => ({ ...prev, fileOperationLoading: { type: null } }));
+                      showToast('Invalid file format', 'error');
                     }
-                    showToast('File opened', 'success');
-                  } else {
+                  } catch (error) {
                     setState(prev => ({ ...prev, fileOperationLoading: { type: null } }));
-                    showToast('Invalid file format', 'error');
+                    showToast('Failed to open file', 'error');
                   }
-                } catch (error) {
-                  setState(prev => ({ ...prev, fileOperationLoading: { type: null } }));
-                  showToast('Failed to open file', 'error');
                 }
-              }
               })();
             };
             input.click();
@@ -919,14 +929,14 @@ const App: React.FC = () => {
               const img = new Image();
               const svgBlob = new Blob([state.currentSvg], { type: 'image/svg+xml' });
               const url = URL.createObjectURL(svgBlob);
-              
+
               // Set timeout to prevent stuck loading state
               const timeoutId = setTimeout(() => {
                 setState(prev => ({ ...prev, fileOperationLoading: { type: null } }));
                 showToast('PNG export timed out', 'error');
                 URL.revokeObjectURL(url);
               }, 10000); // 10 second timeout
-              
+
               img.onload = () => {
                 clearTimeout(timeoutId);
                 // eslint-disable-next-line no-case-declarations
@@ -958,14 +968,14 @@ const App: React.FC = () => {
                   URL.revokeObjectURL(url);
                 }
               };
-              
+
               img.onerror = () => {
                 clearTimeout(timeoutId);
                 setState(prev => ({ ...prev, fileOperationLoading: { type: null } }));
                 showToast('PNG export failed - image could not be loaded', 'error');
                 URL.revokeObjectURL(url);
               };
-              
+
               img.src = url;
             } catch (error) {
               setState(prev => ({ ...prev, fileOperationLoading: { type: null } }));
@@ -1097,41 +1107,10 @@ const App: React.FC = () => {
                   try {
                     if (file.type === 'image/svg+xml' || file.name.endsWith('.svg')) {
                       const text = await file.text();
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(text, 'image/svg+xml');
-                    const svgElement = doc.querySelector('svg');
-                    if (svgElement) {
-                      const placedLayer: VectorLayer = {
-                        id: `placed_${Date.now()}`,
-                        name: file.name,
-                        visible: true,
-                        locked: false,
-                        color: 'none',
-                        stroke: 'none',
-                        strokeWidth: 0,
-                        opacity: 1,
-                        blendMode: 'normal',
-                        shape: {
-                          type: 'path',
-                          d: svgElement.getAttribute('viewBox') ? `M 0 0` : '',
-                          nodes: [],
-                        },
-                      };
-                      const newLayers = [...state.layers, placedLayer];
-                      updateSvgFromLayers(newLayers);
-                      setState(prev => ({
-                        ...prev,
-                        layers: newLayers,
-                        selectedLayerId: placedLayer.id,
-                      }));
-                      showToast('File placed', 'success');
-                    }
-                  } else {
-                    // For raster images, create image layer
-                    const reader = new FileReader();
-                    reader.onload = e => {
-                      const img = new Image();
-                      img.onload = () => {
+                      const parser = new DOMParser();
+                      const doc = parser.parseFromString(text, 'image/svg+xml');
+                      const svgElement = doc.querySelector('svg');
+                      if (svgElement) {
                         const placedLayer: VectorLayer = {
                           id: `placed_${Date.now()}`,
                           name: file.name,
@@ -1144,7 +1123,7 @@ const App: React.FC = () => {
                           blendMode: 'normal',
                           shape: {
                             type: 'path',
-                            d: `M 0 0 L ${img.width} 0 L ${img.width} ${img.height} Z`,
+                            d: svgElement.getAttribute('viewBox') ? `M 0 0` : '',
                             nodes: [],
                           },
                         };
@@ -1155,16 +1134,47 @@ const App: React.FC = () => {
                           layers: newLayers,
                           selectedLayerId: placedLayer.id,
                         }));
-                        showToast('Image placed', 'success');
+                        showToast('File placed', 'success');
+                      }
+                    } else {
+                      // For raster images, create image layer
+                      const reader = new FileReader();
+                      reader.onload = e => {
+                        const img = new Image();
+                        img.onload = () => {
+                          const placedLayer: VectorLayer = {
+                            id: `placed_${Date.now()}`,
+                            name: file.name,
+                            visible: true,
+                            locked: false,
+                            color: 'none',
+                            stroke: 'none',
+                            strokeWidth: 0,
+                            opacity: 1,
+                            blendMode: 'normal',
+                            shape: {
+                              type: 'path',
+                              d: `M 0 0 L ${img.width} 0 L ${img.width} ${img.height} Z`,
+                              nodes: [],
+                            },
+                          };
+                          const newLayers = [...state.layers, placedLayer];
+                          updateSvgFromLayers(newLayers);
+                          setState(prev => ({
+                            ...prev,
+                            layers: newLayers,
+                            selectedLayerId: placedLayer.id,
+                          }));
+                          showToast('Image placed', 'success');
+                        };
+                        img.src = e.target?.result as string;
                       };
-                      img.src = e.target?.result as string;
-                    };
-                    reader.readAsDataURL(file);
+                      reader.readAsDataURL(file);
+                    }
+                  } catch (error) {
+                    showToast('Failed to place file', 'error');
                   }
-                } catch (error) {
-                  showToast('Failed to place file', 'error');
                 }
-              }
               })();
             };
             placeInput.click();
@@ -1183,37 +1193,37 @@ const App: React.FC = () => {
                       const text = await file.text();
                       const data = JSON.parse(text);
                       if (data.layers && Array.isArray(data.layers)) {
-                      const importedLayers = data.layers.map((l: VectorLayer) => ({
-                        ...l,
-                        id: `imported_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-                        name: `${l.name} (imported)`,
-                      }));
-                      const newLayers = [...state.layers, ...importedLayers];
+                        const importedLayers = data.layers.map((l: VectorLayer) => ({
+                          ...l,
+                          id: `imported_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                          name: `${l.name} (imported)`,
+                        }));
+                        const newLayers = [...state.layers, ...importedLayers];
+                        updateSvgFromLayers(newLayers);
+                        setState(prev => ({ ...prev, layers: newLayers }));
+                        showToast(`Imported ${importedLayers.length} layer(s)`, 'success');
+                      } else {
+                        showToast('Invalid import file', 'error');
+                      }
+                    } else if (file.name.endsWith('.svg')) {
+                      const text = await file.text();
+                      const importedLayers = syncLayersFromSvg(text);
+                      const newLayers = [
+                        ...state.layers,
+                        ...importedLayers.map(l => ({
+                          ...l,
+                          id: `imported_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                          name: `${l.name} (imported)`,
+                        })),
+                      ];
                       updateSvgFromLayers(newLayers);
                       setState(prev => ({ ...prev, layers: newLayers }));
                       showToast(`Imported ${importedLayers.length} layer(s)`, 'success');
-                    } else {
-                      showToast('Invalid import file', 'error');
                     }
-                  } else if (file.name.endsWith('.svg')) {
-                    const text = await file.text();
-                    const importedLayers = syncLayersFromSvg(text);
-                    const newLayers = [
-                      ...state.layers,
-                      ...importedLayers.map(l => ({
-                        ...l,
-                        id: `imported_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-                        name: `${l.name} (imported)`,
-                      })),
-                    ];
-                    updateSvgFromLayers(newLayers);
-                    setState(prev => ({ ...prev, layers: newLayers }));
-                    showToast(`Imported ${importedLayers.length} layer(s)`, 'success');
+                  } catch (error) {
+                    showToast('Failed to import file', 'error');
                   }
-                } catch (error) {
-                  showToast('Failed to import file', 'error');
                 }
-              }
               })();
             };
             importInput.click();
@@ -1740,7 +1750,7 @@ const App: React.FC = () => {
             ) {
               showToast(`${action.replace(/_/g, ' ')} - Coming soon`, 'info');
             }
-        // eslint-enable no-case-declarations
+          // eslint-enable no-case-declarations
         }
       } catch (error) {
         console.error('Action error:', error);
@@ -1995,17 +2005,18 @@ const App: React.FC = () => {
         {/* Header with File Menu - Fixed at top */}
         <ErrorBoundary>
           <div className="flex items-center w-full">
-            <ProfessionalFileMenu 
-              onAction={handleAction} 
+            <ProfessionalFileMenu
+              onAction={handleAction}
               onLayoutChange={handleLayoutChange}
+              fileOperationLoading={state.fileOperationLoading}
             />
             <div className="ml-auto mr-4">
               <SignButton
                 svgContent={state.currentSvg}
-                onSigned={(bundlePath) => {
+                onSigned={bundlePath => {
                   showToast(`✅ Proof bundle created: ${bundlePath}`, 'success');
                 }}
-                onError={(error) => {
+                onError={error => {
                   showToast(`❌ Signing failed: ${error}`, 'error');
                 }}
                 label="Sign & Create Proof"
@@ -2082,7 +2093,11 @@ const App: React.FC = () => {
               onDuplicateLayer={id => {
                 const layer = state.layers.find(l => l.id === id);
                 if (layer) {
-                  const newLayer = { ...layer, id: `layer-${Date.now()}`, name: `${layer.name} Copy` };
+                  const newLayer = {
+                    ...layer,
+                    id: `layer-${Date.now()}`,
+                    name: `${layer.name} Copy`,
+                  };
                   const newLayers = [...state.layers, newLayer];
                   updateSvgFromLayers(newLayers);
                   setState(prev => ({ ...prev, layers: newLayers, selectedLayerId: newLayer.id }));
@@ -2103,9 +2118,7 @@ const App: React.FC = () => {
                 setState(prev => ({ ...prev, layers: newLayers }));
               }}
               onUpdateLayer={(id, updates) => {
-                const newLayers = state.layers.map(l =>
-                  l.id === id ? { ...l, ...updates } : l
-                );
+                const newLayers = state.layers.map(l => (l.id === id ? { ...l, ...updates } : l));
                 updateSvgFromLayers(newLayers);
                 setState(prev => ({ ...prev, layers: newLayers }));
               }}
@@ -2120,14 +2133,24 @@ const App: React.FC = () => {
                   color: '#ffffff',
                   stroke: 'none',
                   strokeWidth: 0,
-                  shape: { type: 'rect', x: 0, y: 0, width: 100, height: 100, borderRadius: 0, fill: '#ffffff', stroke: 'none', strokeWidth: 0 },
+                  shape: {
+                    type: 'rect',
+                    x: 0,
+                    y: 0,
+                    width: 100,
+                    height: 100,
+                    borderRadius: 0,
+                    fill: '#ffffff',
+                    stroke: 'none',
+                    strokeWidth: 0,
+                  },
                 };
                 const newLayers = [...state.layers, newLayer];
                 updateSvgFromLayers(newLayers);
                 setState(prev => ({ ...prev, layers: newLayers, selectedLayerId: newLayer.id }));
                 showToast(`Created ${newLayer.name}`, 'success');
               }}
-              onCreateSublayer={(parentId) => {
+              onCreateSublayer={parentId => {
                 const parent = state.layers.find(l => l.id === parentId);
                 if (parent) {
                   const newLayer: VectorLayer = {
@@ -2140,7 +2163,17 @@ const App: React.FC = () => {
                     color: '#ffffff',
                     stroke: 'none',
                     strokeWidth: 0,
-                    shape: { type: 'rect', x: 0, y: 0, width: 50, height: 50, borderRadius: 0, fill: '#ffffff', stroke: 'none', strokeWidth: 0 },
+                    shape: {
+                      type: 'rect',
+                      x: 0,
+                      y: 0,
+                      width: 50,
+                      height: 50,
+                      borderRadius: 0,
+                      fill: '#ffffff',
+                      stroke: 'none',
+                      strokeWidth: 0,
+                    },
                   };
                   const newLayers = [...state.layers, newLayer];
                   updateSvgFromLayers(newLayers);
@@ -2148,7 +2181,7 @@ const App: React.FC = () => {
                   showToast(`Created sublayer`, 'success');
                 }
               }}
-              onGroupLayers={(ids) => {
+              onGroupLayers={ids => {
                 const layersToGroup = state.layers.filter(l => ids.includes(l.id));
                 if (layersToGroup.length > 0) {
                   const groupLayer: VectorLayer = {
@@ -2166,11 +2199,15 @@ const App: React.FC = () => {
                   const otherLayers = state.layers.filter(l => !ids.includes(l.id));
                   const newLayers = [...otherLayers, groupLayer];
                   updateSvgFromLayers(newLayers);
-                  setState(prev => ({ ...prev, layers: newLayers, selectedLayerId: groupLayer.id }));
+                  setState(prev => ({
+                    ...prev,
+                    layers: newLayers,
+                    selectedLayerId: groupLayer.id,
+                  }));
                   showToast('Layers grouped', 'success');
                 }
               }}
-              onUngroupLayer={(id) => {
+              onUngroupLayer={id => {
                 const layer = state.layers.find(l => l.id === id);
                 if (layer && layer.shape.type === 'group') {
                   const ungroupedLayers = layer.shape.children.map((child, i) => ({
@@ -2201,7 +2238,7 @@ const App: React.FC = () => {
                 });
                 setState(prev => ({ ...prev, layers: newLayers }));
               }}
-              onReleaseClippingMask={(layerId) => {
+              onReleaseClippingMask={layerId => {
                 const newLayers = state.layers.map(l => {
                   if (l.id === layerId) {
                     const { clippingMask, ...rest } = l;
@@ -2233,7 +2270,10 @@ const App: React.FC = () => {
                 const index = state.layers.findIndex(l => l.id === id);
                 if (index < state.layers.length - 1) {
                   const newLayers = [...state.layers];
-                  [newLayers[index], newLayers[index + 1]] = [newLayers[index + 1], newLayers[index]];
+                  [newLayers[index], newLayers[index + 1]] = [
+                    newLayers[index + 1],
+                    newLayers[index],
+                  ];
                   updateSvgFromLayers(newLayers);
                   setState(prev => ({ ...prev, layers: newLayers }));
                 }
@@ -2242,7 +2282,10 @@ const App: React.FC = () => {
                 const index = state.layers.findIndex(l => l.id === id);
                 if (index > 0) {
                   const newLayers = [...state.layers];
-                  [newLayers[index], newLayers[index - 1]] = [newLayers[index - 1], newLayers[index]];
+                  [newLayers[index], newLayers[index - 1]] = [
+                    newLayers[index - 1],
+                    newLayers[index],
+                  ];
                   updateSvgFromLayers(newLayers);
                   setState(prev => ({ ...prev, layers: newLayers }));
                 }
@@ -2250,7 +2293,7 @@ const App: React.FC = () => {
               onExpandAppearance={id => showToast('Appearance expanded', 'info')}
               onCreateOutlines={id => showToast('Outlines created', 'info')}
               snapshots={[]}
-              onRestoreSnapshot={(svg) => {
+              onRestoreSnapshot={svg => {
                 setState(prev => ({ ...prev, currentSvg: svg }));
                 showToast('Snapshot restored', 'success');
               }}
@@ -2259,15 +2302,15 @@ const App: React.FC = () => {
               onScriptChange={(frame, layerId, script) => {
                 // Handle script change
               }}
-              onScriptExecute={(script) => {
+              onScriptExecute={script => {
                 // Handle script execution
               }}
               state={state}
               setState={setState}
-              onScriptGenerated={(script) => {
+              onScriptGenerated={script => {
                 showToast('Script generated', 'success');
               }}
-              onTerminalCommand={(cmd) => {
+              onTerminalCommand={cmd => {
                 showToast(`Terminal: ${cmd}`, 'info');
               }}
             />
@@ -2286,75 +2329,73 @@ const App: React.FC = () => {
                   : 'xibalba-canvas-area-no-sidebars'
           }`}
         >
-            {/* Canvas - Takes remaining space */}
-            <div className="flex-1 relative overflow-hidden bg-[var(--xibalba-grey-000)] xibalba-canvas-container">
-              <ErrorBoundary>
-                <DraftsmanCanvas
-                  svgContent={state.currentSvg}
-                  layers={state.layers}
-                  activeTool={state.activeTool}
-                  selectedLayerId={state.selectedLayerId}
-                  zoom={state.zoom}
-                  pan={state.pan}
-                  onPan={handlePan}
-                  onZoom={handleZoom}
-                  onSelectLayer={handleLayerSelect}
-                  onCreateLayer={(layer: VectorLayer) => {
-                    setState(prev => {
-                      const newLayers = [...prev.layers, layer];
-                      // Update SVG and state together
-                      setTimeout(() => updateSvgFromLayers(newLayers), 0);
-                      return { ...prev, layers: newLayers, selectedLayerId: layer.id };
-                    });
-                    showToast(`Created ${layer.name}`, 'success');
-                  }}
-                  onUpdateLayer={(id: string, updates: Partial<VectorLayer>) => {
-                    const newLayers = state.layers.map(l =>
-                      l.id === id ? { ...l, ...updates } : l
-                    );
-                    updateSvgFromLayers(newLayers);
-                    setState(prev => ({
-                      ...prev,
-                      layers: newLayers,
-                    }));
-                  }}
-                  keyframes={keyframes}
-                  frameState={frameState}
-                  onAddKeyframe={kf => setKeyframes(prev => [...prev, kf])}
-                  onUpdateKeyframe={(id, props) =>
-                    setKeyframes(prev => prev.map(k => (k.id === id ? { ...k, ...props } : k)))
-                  }
-                  onInterpolateFrame={undefined}
-                  showGuides={showGuides}
-                  snapToGrid={snapToGrid}
-                  snapToGuides={snapToGuides}
-                  gridSize={gridSize}
-                  measurementUnit="px"
-                  onUnitChange={unit => showToast(`Unit changed to ${unit}`, 'info')}
-                  toolProperties={toolProperties}
-                  isSpacebarDown={false}
-                />
-              </ErrorBoundary>
-              
-              {/* Power User Toolbar - Positioned absolutely within canvas, AFTER DraftsmanCanvas */}
-              <ErrorBoundary>
-                <PowerUserToolbar
-                  snapToGrid={snapToGrid}
-                  onSnapToGridChange={setSnapToGrid}
-                  snapToGuides={snapToGuides}
-                  onSnapToGuidesChange={setSnapToGuides}
-                  showGuides={showGuides}
-                  onShowGuidesChange={setShowGuides}
-                  gridSize={gridSize}
-                  onGridSizeChange={setGridSize}
-                  showOnionSkin={showOnionSkin}
-                  onShowOnionSkinChange={setShowOnionSkin}
-                  onionSkinFrames={onionSkinFrames}
-                  onOnionSkinFramesChange={setOnionSkinFrames}
-                />
-              </ErrorBoundary>
-            </div>
+          {/* Canvas - Takes remaining space */}
+          <div className="flex-1 relative overflow-hidden bg-[var(--xibalba-grey-000)] xibalba-canvas-container">
+            <ErrorBoundary>
+              <DraftsmanCanvas
+                svgContent={state.currentSvg}
+                layers={state.layers}
+                activeTool={state.activeTool}
+                selectedLayerId={state.selectedLayerId}
+                zoom={state.zoom}
+                pan={state.pan}
+                onPan={handlePan}
+                onZoom={handleZoom}
+                onSelectLayer={handleLayerSelect}
+                onCreateLayer={(layer: VectorLayer) => {
+                  setState(prev => {
+                    const newLayers = [...prev.layers, layer];
+                    // Update SVG and state together
+                    setTimeout(() => updateSvgFromLayers(newLayers), 0);
+                    return { ...prev, layers: newLayers, selectedLayerId: layer.id };
+                  });
+                  showToast(`Created ${layer.name}`, 'success');
+                }}
+                onUpdateLayer={(id: string, updates: Partial<VectorLayer>) => {
+                  const newLayers = state.layers.map(l => (l.id === id ? { ...l, ...updates } : l));
+                  updateSvgFromLayers(newLayers);
+                  setState(prev => ({
+                    ...prev,
+                    layers: newLayers,
+                  }));
+                }}
+                keyframes={keyframes}
+                frameState={frameState}
+                onAddKeyframe={kf => setKeyframes(prev => [...prev, kf])}
+                onUpdateKeyframe={(id, props) =>
+                  setKeyframes(prev => prev.map(k => (k.id === id ? { ...k, ...props } : k)))
+                }
+                onInterpolateFrame={undefined}
+                showGuides={showGuides}
+                snapToGrid={snapToGrid}
+                snapToGuides={snapToGuides}
+                gridSize={gridSize}
+                measurementUnit="px"
+                onUnitChange={unit => showToast(`Unit changed to ${unit}`, 'info')}
+                toolProperties={toolProperties}
+                isSpacebarDown={false}
+              />
+            </ErrorBoundary>
+
+            {/* Power User Toolbar - Positioned absolutely within canvas, AFTER DraftsmanCanvas */}
+            <ErrorBoundary>
+              <PowerUserToolbar
+                snapToGrid={snapToGrid}
+                onSnapToGridChange={setSnapToGrid}
+                snapToGuides={snapToGuides}
+                onSnapToGuidesChange={setSnapToGuides}
+                showGuides={showGuides}
+                onShowGuidesChange={setShowGuides}
+                gridSize={gridSize}
+                onGridSizeChange={setGridSize}
+                showOnionSkin={showOnionSkin}
+                onShowOnionSkinChange={setShowOnionSkin}
+                onionSkinFrames={onionSkinFrames}
+                onOnionSkinFramesChange={setOnionSkinFrames}
+              />
+            </ErrorBoundary>
           </div>
+        </div>
 
         {/* Animation Timeline - Fixed at bottom */}
         <ErrorBoundary>
@@ -2462,7 +2503,7 @@ const App: React.FC = () => {
             handleAction('FILE_SAVE');
             showToast('File saved', 'success');
           }}
-          onSelectTool={(tool) => {
+          onSelectTool={tool => {
             setState(prev => ({ ...prev, activeTool: tool }));
             showToast(`Switched to ${tool} tool`, 'info');
           }}

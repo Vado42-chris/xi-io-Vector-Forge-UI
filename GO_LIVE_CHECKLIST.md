@@ -22,6 +22,7 @@
 - [ ] Rosetta Stone service (protocol translation)
 - [ ] VPN Blackhole service (unified API)
 - [ ] Handshaking service (discovery/negotiation)
+
 - [ ] Enhanced RAG with semantic search
 
 ## Testing Checklist
@@ -32,6 +33,7 @@
 - [ ] Rollback works correctly
 - [ ] Backup cleanup works
 - [ ] Security validation catches dangerous code
+
 - [ ] File operations work (read, write, execute)
 - [ ] Intent parsing correctly identifies questions vs commands
 
@@ -41,7 +43,9 @@
 - [ ] Build succeeds (`npm run build`)
 - [ ] Production server tested
 - [ ] USB key deployment tested
+
 - [ ] Local AI (Ollama) setup documented
+
 - [ ] Error handling verified
 - [ ] Logging configured
 
