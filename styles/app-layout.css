@@ -1,0 +1,30 @@
+/* App Layout - CSS Grid - NO INLINE STYLES */
+.app-layout-grid {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  color: var(--xibalba-text-000);
+  font-family: var(--font-sans, sans-serif);
+  overflow: hidden;
+  background: var(--xibalba-grey-000);
+  display: grid;
+  grid-template-rows: auto 1fr;
+  grid-template-columns: auto 1fr auto;
+  min-height: 100vh;
+}
+
+.app-header-container {
+  grid-row: 1 / 2;
+  grid-column: 1 / 4;
+  position: sticky;
+  top: 0;
+  z-index: var(--z-menu, 1100);
+}
+
+.app-main-content {
+  grid-row: 2 / 3;
+  grid-column: 1 / 4;
+  display: flex;
+  height: 100%;
+}
+

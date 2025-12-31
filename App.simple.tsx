@@ -175,7 +175,7 @@ const App: React.FC = () => {
         </div>
 
         {/* Main Layout - MUST start below fixed header */}
-        <div className="flex" style={{ gridRow: '2 / 3', gridColumn: '1 / 4', height: '100%' }}>
+        <div className="app-main-content">
           {/* Left Sidebar */}
           {panelVisibility['left-sidebar'] && (
             <ErrorBoundary>
