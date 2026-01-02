@@ -714,7 +714,7 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
       
       // Build personalized system prompt
       // Build system prompt
-      const systemPrompt = `You are a helpful development assistant for VectorForge, a vector graphics editor with self-modifying AI capabilities.
+      let systemPrompt = `You are a helpful development assistant for VectorForge, a vector graphics editor with self-modifying AI capabilities.
 You can help with:
 - Code questions and explanations
 - Development tasks and debugging
