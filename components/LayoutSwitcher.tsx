@@ -57,11 +57,8 @@ const LayoutSwitcher: React.FC<LayoutSwitcherProps> = ({ onLayoutChange }) => {
       {isOpen && (
         <>
           <div
-<<<<<<< Updated upstream
             className="fixed inset-0 z-[var(--z-modal-backdrop,200)]"
-=======
             className="fixed inset-0"
->>>>>>> Stashed changes
             onClick={() => setIsOpen(false)}
             className="z-[var(--z-modal-backdrop,200)]"
           />

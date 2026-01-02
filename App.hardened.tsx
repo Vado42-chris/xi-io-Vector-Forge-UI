@@ -1,17 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-<<<<<<< Updated upstream
-import {
-  AppState,
-  ToolType,
-  VectorLayer,
-  VectorNode,
-  ToolProperties,
-  TextShape,
-  AnimationKeyframe,
-} from './types';
-=======
 import { AppState, ToolType, VectorLayer, VectorNode, ToolProperties, TextShape, AnimationKeyframe } from './types';
->>>>>>> Stashed changes
 // TEMPORARILY DISABLED: useUndoRedo hook causing errors - will fix after UI is working
 // import { useUndoRedo } from './hooks/useUndoRedo';
 import { clipboardService } from './services/clipboardService';
@@ -207,11 +195,7 @@ const App: React.FC = () => {
   //     prevStateRef.current = state;
   //   }
   // }, [state, undoRedoState]);
-<<<<<<< Updated upstream
-
-=======
   
->>>>>>> Stashed changes
   // Temporary stub for undo/redo
   const undoRedoState = {
     canUndo: false,
@@ -277,31 +261,6 @@ const App: React.FC = () => {
   }, []);
 
   // Initialize default template frames
-<<<<<<< Updated upstream
-=======
-  useEffect(() => {
-    const existingFrames = templateFrameService.getAllFrames();
-    if (existingFrames.length === 0) {
-      // Create a default template frame
-      templateFrameService.registerFrame({
-        id: 'default-template-frame',
-        name: 'Default Template Frame',
-        containerId: 'template-frame-default',
-        position: {
-          x: 100,
-          y: 100,
-          width: 400,
-          height: 300,
-        },
-        zIndex: 1000,
-        visible: true,
-        attachedComponents: [],
-      });
-    }
-  }, []);
-
-  // Keyboard shortcuts for UI automation components
->>>>>>> Stashed changes
   useEffect(() => {
     const existingFrames = templateFrameService.getAllFrames();
     if (existingFrames.length === 0) {
@@ -837,7 +796,6 @@ const App: React.FC = () => {
               setState(prev => ({ ...prev, fileOperationLoading: { type: null } }));
               showToast('Failed to save file', 'error');
             }
-            break;
           }
           case 'FILE_OPEN': {
             const input = document.createElement('input');
@@ -896,7 +854,6 @@ const App: React.FC = () => {
               })();
             };
             input.click();
-            break;
           }
           case 'FILE_EXPORT':
           case 'FILE_EXPORT_SVG': {
@@ -929,7 +886,6 @@ const App: React.FC = () => {
               setState(prev => ({ ...prev, fileOperationLoading: { type: null } }));
               showToast('Export failed', 'error');
             }
-            break;
           }
           case 'FILE_EXPORT_PNG': {
             setState(prev => ({ ...prev, fileOperationLoading: { type: 'export-png' } }));
@@ -990,7 +946,6 @@ const App: React.FC = () => {
               setState(prev => ({ ...prev, fileOperationLoading: { type: null } }));
               showToast('PNG export failed', 'error');
             }
-            break;
           }
           case 'FILE_EXPORT_PDF':
             showToast('PDF export - Coming soon (requires PDF library)', 'info');
@@ -1187,7 +1142,6 @@ const App: React.FC = () => {
               })();
             };
             placeInput.click();
-            break;
           }
           case 'FILE_IMPORT': {
             const importInput = document.createElement('input');
@@ -1236,7 +1190,6 @@ const App: React.FC = () => {
               })();
             };
             importInput.click();
-            break;
           }
           case 'FILE_EXIT':
             showErrorPreventionDialog(
@@ -1265,8 +1218,6 @@ const App: React.FC = () => {
             break;
           case 'EDIT_UNDO': {
             // TEMPORARILY DISABLED: Using old undo system until hook is fixed
-<<<<<<< Updated upstream
-=======
             if (state.history && state.history.length > 1) {
               const prevSvg = state.history[state.history.length - 2];
               const newHistory = [...state.history];
@@ -1282,45 +1233,9 @@ const App: React.FC = () => {
             } else {
               showToast('Nothing to undo', 'info');
             }
-            break;
           }
-          case 'EDIT_UNDO_OLD':
->>>>>>> Stashed changes
-            if (state.history && state.history.length > 1) {
-              const prevSvg = state.history[state.history.length - 2];
-              const newHistory = [...state.history];
-              newHistory.pop();
-              setState(prev => ({
-                ...prev,
-                currentSvg: prevSvg,
-                layers: syncLayersFromSvg(prevSvg),
-                history: newHistory,
-                redoHistory: [...prev.redoHistory, prev.currentSvg],
-              }));
-              showToast('Undone', 'success');
-            } else {
-              showToast('Nothing to undo', 'info');
-            }
-            break;
-<<<<<<< Updated upstream
           }
-          case 'EDIT_UNDO_OLD':
-            if (state.history && state.history.length > 1) {
-              const prevSvg = state.history[state.history.length - 2];
-              const newHistory = [...state.history];
-              newHistory.pop();
-              setState(prev => ({
-                ...prev,
-                currentSvg: prevSvg,
-                layers: syncLayersFromSvg(prevSvg),
-                history: newHistory,
-                redoHistory: [...prev.redoHistory, prev.currentSvg],
-              }));
-              showToast('Undone', 'success');
-            }
             break;
-=======
->>>>>>> Stashed changes
           case 'EDIT_REDO': {
             // TEMPORARILY DISABLED: Using old redo system until hook is fixed
             if (state.redoHistory && state.redoHistory.length > 0) {
@@ -1338,7 +1253,6 @@ const App: React.FC = () => {
             } else {
               showToast('Nothing to redo', 'info');
             }
-            break;
           }
           case 'EDIT_REDO_OLD':
             if (state.redoHistory && state.redoHistory.length > 0) {
@@ -1375,7 +1289,6 @@ const App: React.FC = () => {
             } else {
               showToast('Nothing selected to cut', 'warning');
             }
-            break;
           }
           case 'EDIT_CUT_OLD':
             if (state.selectedLayerId && state.layers) {
@@ -1404,7 +1317,6 @@ const App: React.FC = () => {
             } else {
               showToast('Nothing selected to copy', 'warning');
             }
-            break;
           }
           case 'EDIT_COPY_OLD':
             if (state.selectedLayerId && state.layers) {
@@ -1443,7 +1355,6 @@ const App: React.FC = () => {
             } else {
               showToast('Clipboard is empty', 'warning');
             }
-            break;
           }
           case 'EDIT_PASTE_OLD': {
             void (async () => {
@@ -1465,7 +1376,6 @@ const App: React.FC = () => {
                 showToast('Nothing to paste', 'warning');
               }
             })();
-            break;
           }
           case 'SELECT_ALL':
             if (state.layers && state.layers.length > 0) {
@@ -1615,7 +1525,6 @@ const App: React.FC = () => {
             updateSvgFromLayers(unlockedLayers);
             setState(prev => ({ ...prev, layers: unlockedLayers }));
             showToast('Unlocked all', 'success');
-            break;
           }
           case 'OBJECT_HIDE':
             if (state.selectedLayerId) {
@@ -1632,7 +1541,6 @@ const App: React.FC = () => {
             updateSvgFromLayers(visibleLayers);
             setState(prev => ({ ...prev, layers: visibleLayers }));
             showToast('Shown all', 'success');
-            break;
           }
           case 'HELP_HELP':
           case 'HELP_ABOUT':
@@ -2048,7 +1956,6 @@ const App: React.FC = () => {
       >
         {/* Header with File Menu - Fixed at top */}
         <ErrorBoundary>
-<<<<<<< Updated upstream
           <div className="flex items-center w-full">
             <ProfessionalFileMenu
               onAction={handleAction}
@@ -2069,12 +1976,10 @@ const App: React.FC = () => {
               />
             </div>
           </div>
-=======
           <ProfessionalFileMenu 
           onAction={handleAction} 
           onLayoutChange={handleLayoutChange}
         />
->>>>>>> Stashed changes
         </ErrorBoundary>
 
         {/* Left Sidebar - Fixed position (positioned via CSS class) */}
@@ -2554,11 +2459,8 @@ const App: React.FC = () => {
             handleAction('FILE_SAVE');
             showToast('File saved', 'success');
           }}
-<<<<<<< Updated upstream
           onSelectTool={tool => {
-=======
           onSelectTool={(tool) => {
->>>>>>> Stashed changes
             setState(prev => ({ ...prev, activeTool: tool }));
             showToast(`Switched to ${tool} tool`, 'info');
           }}

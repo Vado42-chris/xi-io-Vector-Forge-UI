@@ -12,10 +12,7 @@ import NodeEditor from './NodeEditor';
 import ErrorBoundary from './ErrorBoundary';
 import { createCanvasCoordinateConverter, screenToWorld } from '../utils/coordinateConverter';
 import { CoordinateConverter } from '../lib/ourmaths/CoordinateFrame';
-<<<<<<< Updated upstream
 import { BrushToolComponent } from './tools/BrushTool';
-=======
->>>>>>> Stashed changes
 
 interface DraftsmanCanvasProps {
   svgContent: string;

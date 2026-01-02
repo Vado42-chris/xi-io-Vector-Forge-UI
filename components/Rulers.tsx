@@ -28,10 +28,7 @@ const Rulers: React.FC<RulersProps> = ({ zoom, pan, onAddGuide }) => {
               className="absolute bottom-0 flex flex-col items-center ruler-mark-horizontal"
               data-ruler-pan-x={pan.x}
               data-ruler-mark-left={i * step}
-<<<<<<< Updated upstream
-=======
               className="ruler-mark-horizontal"
->>>>>>> Stashed changes
             >
               <div className={`w-px ${i % 2 === 0 ? 'h-3 bg-[var(--xibalba-text-200)]/40' : 'h-1.5 bg-[var(--xibalba-grey-300)]'}`}></div>
               {i % 2 === 0 && (
