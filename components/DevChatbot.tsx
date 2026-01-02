@@ -20,7 +20,7 @@ import {
 } from '../services/conversationHistoryService';
 import { MoltingService } from '../services/moltingService';
 import { AICodeEditor } from '../services/aiCodeEditor';
-import { userLexiconService } from '../services/userLexiconService';
+// import { userLexiconService } from '../services/userLexiconService'; // Service not yet implemented
 import { userProfileService } from '../services/userProfileService';
 // Note: xibalbaService doesn't export callXibalbaAI directly
 // We'll use a simple approach for now - can enhance later
@@ -672,13 +672,14 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
       
       // Get user profile and lexicon for personalization
       const userProfile = userProfileService.getProfile();
-      const personalizedContext = userLexiconService.getPersonalizedContext(userProfile.userId);
+      // const personalizedContext = userLexiconService.getPersonalizedContext(userProfile.userId); // Service not yet implemented
+      const personalizedContext = null; // TODO: Implement userLexiconService
       
       // Learn from current conversation (update lexicon)
-      userLexiconService.learnFromMessages(
-        userProfile.userId,
-        messages.map(m => ({ role: m.role, content: m.content }))
-      );
+      // userLexiconService.learnFromMessages(
+      //   userProfile.userId,
+      //   messages.map(m => ({ role: m.role, content: m.content }))
+      // ); // Service not yet implemented
       
       // RAG: Retrieve relevant past conversations for context
       const allConversations = conversationHistoryService.getAllConversations();
@@ -712,7 +713,6 @@ const DevChatbot: React.FC<DevChatbotProps> = ({ onFileSelect, onShowHistory }) 
       }
       
       // Build personalized system prompt
-      let systemPrompt = `You are a helpful development assistant for VectorForge, a vector graphics editor with self-modifying AI capabilities.
       // Build system prompt
       const systemPrompt = `You are a helpful development assistant for VectorForge, a vector graphics editor with self-modifying AI capabilities.
 You can help with:
@@ -727,8 +727,6 @@ You can help with:
 Be concise, helpful, and technical. If the user asks about file operations or commands, guide them on the proper syntax.`;
 
       // Build user prompt with context
-
-- General programming help`;
 
       // Add personalized context if available
       if (personalizedContext) {
@@ -746,9 +744,6 @@ Be concise, helpful, and technical. If the user asks about file operations or co
         userPrompt += `CURRENT CONVERSATION:\n${conversationContext}\n\n`;
       }
       userPrompt += `User: ${input}\n\nAssistant:`;
-      const userPrompt = conversationContext 
-        ? `${conversationContext}\n\nUser: ${input}\n\nAssistant:`
-        : input;
       const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
       // #region agent log
       console.log('[DEBUG] About to call Ollama', { serverUrl, model, promptLength: fullPrompt.length, promptPreview: fullPrompt.substring(0, 200), timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'G,H' });
@@ -847,10 +842,6 @@ Be concise, helpful, and technical. If the user asks about file operations or co
         timestamp: new Date()
       };
     }
-        timestamp: new Date()
-      };
-    }
-
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {

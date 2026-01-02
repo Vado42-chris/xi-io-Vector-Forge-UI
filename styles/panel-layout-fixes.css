@@ -29,6 +29,13 @@
   gap: 0;
 }
 
+/* CRITICAL: Override flex for grid layout containers */
+.xibalba-sidebar .sidebar-two-column-layout,
+aside.sidebar-fixed-left .sidebar-two-column-layout {
+  display: grid !important;
+  flex-direction: unset !important;
+}
+
 /* ============================================
    TOOL GRID ORGANIZATION
    ============================================ */

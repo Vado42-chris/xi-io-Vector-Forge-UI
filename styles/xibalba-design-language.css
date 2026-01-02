@@ -820,16 +820,17 @@
 /* CRITICAL: Sidebar Fixed Positioning - MUST BE VISIBLE */
 /* VectorFORGE: Xibalba, xi-io product - uses z-stack system */
 /* Sidebar Fixed Positioning - MUST override all other styles with maximum specificity */
+/* NOTE: Changed from fixed to relative for flex layout compatibility */
 aside.sidebar-fixed-left,
 aside.xibalba-sidebar.sidebar-fixed-left,
 aside.xibalba-dockable-palette.sidebar-fixed-left,
 .xibalba-sidebar.sidebar-fixed-left,
 .xibalba-dockable-palette.sidebar-fixed-left,
 .sidebar-fixed-left {
-  position: fixed !important;
-  left: 0 !important;
-  top: 48px !important;
-  height: calc(100vh - 48px) !important;
+  position: relative !important; /* Changed from fixed to relative for flex layout */
+  left: auto !important;
+  top: auto !important;
+  height: 100% !important;
   width: var(--sidebar-left-width, var(--sidebar-width, 320px)) !important;
   min-width: 200px !important;
   max-width: 600px !important;
@@ -846,14 +847,84 @@ aside.xibalba-dockable-palette.sidebar-fixed-left,
   flex-grow: 0 !important;
 }
 
+/* Force two-column layout inside left sidebar using CSS Grid */
+.sidebar-two-column-layout,
+aside .sidebar-two-column-layout,
+.sidebar-fixed-left .sidebar-two-column-layout,
+aside.sidebar-fixed-left .sidebar-two-column-layout {
+  display: grid !important;
+  grid-template-columns: 48px 1fr !important;
+  grid-template-rows: 1fr !important;
+  width: 100% !important;
+  height: 100% !important;
+  gap: 0 !important;
+  position: relative !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+.tool-dock-column,
+.sidebar-two-column-layout .tool-dock-column,
+aside .tool-dock-column,
+aside.sidebar-fixed-left .tool-dock-column {
+  width: 48px !important;
+  min-width: 48px !important;
+  max-width: 48px !important;
+  position: relative !important;
+  z-index: 10 !important;
+  grid-column: 1 / 2 !important;
+  grid-row: 1 !important;
+  overflow: hidden !important;
+  flex-shrink: 0 !important;
+  flex-grow: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.tool-dock-column button {
+  font-size: 0 !important;
+  line-height: 0 !important;
+  text-indent: 0 !important;
+  overflow: hidden !important;
+  width: 48px !important;
+  min-width: 48px !important;
+  max-width: 48px !important;
+}
+
+.tool-dock-column .material-symbols-outlined {
+  font-size: 20px !important;
+  line-height: 20px !important;
+  display: block !important;
+}
+
+.ai-panel-column,
+.sidebar-two-column-layout .ai-panel-column,
+aside .ai-panel-column,
+aside.sidebar-fixed-left .ai-panel-column {
+  position: relative !important;
+  z-index: 1 !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  grid-column: 2 / -1 !important;
+  grid-row: 1 !important;
+  min-width: 0 !important;
+  width: auto !important;
+  display: block !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+}
+
 div.sidebar-fixed-right,
 div.xibalba-dockable-palette.sidebar-fixed-right,
 .xibalba-dockable-palette.sidebar-fixed-right,
 .sidebar-fixed-right {
-  position: fixed !important;
-  right: 0 !important;
-  top: 48px !important;
-  height: calc(100vh - 48px) !important;
+  position: relative !important; /* Changed from fixed to relative for flex layout */
+  right: auto !important;
+  top: auto !important;
+  height: 100% !important;
   width: var(--sidebar-right-width, var(--sidebar-width, 360px)) !important;
   min-width: 200px !important;
   max-width: 600px !important;

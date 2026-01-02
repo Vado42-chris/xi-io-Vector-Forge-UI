@@ -269,9 +269,9 @@ const App: React.FC = () => {
 
   // Tool palette position - docked to left by default
   const [toolPalettePosition, setToolPalettePosition] = useState<PalettePosition>({
-    zone: 'left',
-    x: 0,
-    y: 56, // Below header
+    zone: 'floating', // Changed from 'left' to prevent overlap with LeftSidebar
+    x: 100,
+    y: 100, // Floating position, not overlapping
     width: 200,
     height: window.innerHeight - 56 - 48, // Full height minus header and footer
     order: 0,
@@ -1104,6 +1104,7 @@ const App: React.FC = () => {
 
   return (
     <div className="h-screen w-screen flex flex-col overflow-hidden bg-[var(--xibalba-grey-000)] text-[var(--xibalba-text-000)] antialiased">
+      {/* Toast Notifications */}
       <div className="fixed top-14 left-1/2 -translate-x-1/2 z-[200] pointer-events-none flex flex-col gap-2">
         {state.toasts.map(toast => (
           <div
@@ -1115,7 +1116,8 @@ const App: React.FC = () => {
         ))}
       </div>
 
-      <div className="header-container">
+      {/* Header - Fixed at top, 48px height */}
+      <div className="header-container shrink-0 h-12 bg-[var(--xibalba-grey-050)] border-b border-white/10">
         {/* Temporarily disabled to prevent circular dependencies */}
         {/* <ProfessionalFileMenu
           onAction={action => handleAction(action)}
@@ -1123,88 +1125,48 @@ const App: React.FC = () => {
         /> */}
         <div className="header-actions">
           {/* Temporarily disabled to prevent circular dependencies */}
-          {/* <SubscriptionStatusIndicator
-            onAccountClick={() => setShowBillingPanel(true)}
-            onUpgradeClick={() => {
-              setUpgradeFeature({ id: 'general', name: 'Premium Features', tier: 'pro' });
-              setShowUpgradePrompt(true);
-            }}
-          />
-          <ActionCenter
-            userId="user-1" // TODO: Get from auth context
-            onAction={action => {
-              console.log('Action Center action:', action);
-              // Handle action (e.g., navigate to task, open dialog)
-            }}
-          />
-          <AccountMenu
-            userId="user-1"
-            userName="User"
-            userEmail="user@example.com"
-            onPreferencesClick={() => {
-              setShowPreferences(true);
-              setPreferencesCategory('visual');
-            }}
-            onBillingClick={() => setShowBillingPanel(true)}
-            onUpgradeClick={() => {
-              setUpgradeFeature({ id: 'general', name: 'Premium Features', tier: 'pro' });
-              setShowUpgradePrompt(true);
-            }}
-            onSignOut={() => {
-              if (confirm('Sign out?')) {
-                // TODO: Implement sign out
-                console.log('Sign out');
-              }
-            }}
-          /> */}
         </div>
       </div>
 
-      {/* Tool Palette - Fixed position, docked to left by default, draggable */}
-      {/* Wrapped in ToolLockingSystem for production-quality tool stability */}
-      <ToolLockingSystem
-        activeTool={state.activeTool}
-        onToolChange={t => setState(p => ({ ...p, activeTool: t }))}
-        lockConfig={{
-          preventChange: true,
-          showIndicator: true,
-          requireConfirmation: false,
-        }}
-      >
-        <DockableToolPalette
+      {/* Tool Palette - Hidden when LeftSidebar is visible to prevent overlap */}
+      {/* LeftSidebar now provides tool selection, so DockableToolPalette is disabled */}
+      {false && (
+        <ToolLockingSystem
           activeTool={state.activeTool}
-          setTool={t => setState(p => ({ ...p, activeTool: t }))}
-          onSmartMagic={async () => {
-            if (!state.selectedLayerId) {
-              showToast('Select a topological node', 'warning');
-              return;
-            }
-            setState(p => ({ ...p, isGenerating: true }));
-            // Temporarily disabled - const suggestions = await getSmartSuggestions(state.currentSvg, state.selectedLayerId);
-            const suggestions = [] as any;
-            setAiSuggestions(suggestions);
-            setState(p => ({ ...p, isGenerating: false }));
+          onToolChange={t => setState(p => ({ ...p, activeTool: t }))}
+          lockConfig={{
+            preventChange: true,
+            showIndicator: true,
+            requireConfirmation: false,
           }}
-          position={toolPalettePosition}
-          onPositionChange={pos => {
-            setToolPalettePosition(pos);
-          }}
-          zIndex={1000}
-        />
-      </ToolLockingSystem>
-
-      <div className="flex-1 flex overflow-hidden relative">
-        {/* Main content area - adjusts margin for docked tool palette */}
-        <div
-          ref={(node) => {
-            if (node) {
-              const width = toolPalettePosition.zone === 'left' ? (toolPalettePosition.width || 200) : 0;
-              node.style.setProperty('--palette-width', `${width}px`);
-            }
-          }}
-          className="flex-1 flex overflow-hidden canvas-main-content palette-container"
-          data-palette-zone={toolPalettePosition.zone}
         >
+          <DockableToolPalette
+            activeTool={state.activeTool}
+            setTool={t => setState(p => ({ ...p, activeTool: t }))}
+            onSmartMagic={async () => {
+              if (!state.selectedLayerId) {
+                showToast('Select a topological node', 'warning');
+                return;
+              }
+              setState(p => ({ ...p, isGenerating: true }));
+              // Temporarily disabled - const suggestions = await getSmartSuggestions(state.currentSvg, state.selectedLayerId);
+              const suggestions = [] as any;
+              setAiSuggestions(suggestions);
+              setState(p => ({ ...p, isGenerating: false }));
+            }}
+            position={toolPalettePosition}
+            onPositionChange={pos => {
+              setToolPalettePosition(pos);
+            }}
+            zIndex={1000}
+          />
+        </ToolLockingSystem>
+      )}
+
+      {/* Main Content Area - Flex layout with sidebars */}
+      <div className="flex-1 flex overflow-hidden min-h-0" style={{ minHeight: 0 }}>
+        {/* Left Sidebar - Fixed width, no overlap */}
+        <div className="shrink-0">
           <LeftSidebar
             state={state}
             setState={setState}
@@ -1238,9 +1200,13 @@ const App: React.FC = () => {
               }))
             }
             onVisionScan={() => {}}
+            activeTool={state.activeTool}
+            onToolChange={(tool) => setState(p => ({ ...p, activeTool: tool }))}
           />
+        </div>
 
-          <main className="flex-1 flex flex-col bg-[var(--xibalba-grey-000)] relative overflow-hidden">
+        {/* Main content area - Flexible, accounts for sidebar */}
+        <main className="flex-1 flex flex-col bg-[var(--xibalba-grey-000)] relative overflow-hidden min-w-0">
             {/* View Switcher */}
             <div className="flex items-center gap-2 p-2 border-b border-white/10 bg-[var(--xibalba-grey-050)]">
               <button
@@ -1436,10 +1402,10 @@ const App: React.FC = () => {
               </>
             )}
           </main>
-        </div>
 
-        <div className="xibalba-property-panel shrink-0 w-[360px] flex flex-col border-l border-white/10 bg-[var(--xibalba-grey-050)] relative z-20">
-          <RightSidebar
+          {/* Right Sidebar - Fixed width, no overlap */}
+          <div className="xibalba-property-panel shrink-0 w-[360px] flex flex-col border-l border-white/10 bg-[var(--xibalba-grey-050)] relative z-20">
+            <RightSidebar
             layers={state.layers}
             selectedLayerId={state.selectedLayerId}
             activeTool={state.activeTool}

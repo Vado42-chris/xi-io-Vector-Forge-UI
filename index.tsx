@@ -123,11 +123,15 @@ window.addEventListener('error', (event) => {
 window.addEventListener('unhandledrejection', (event) => {
   const rootElement = document.getElementById('root');
   if (rootElement && !rootElement.querySelector('.error-display')) {
-    rootElement.innerHTML = `
-      <div class="error-display" style="
-        position: fixed;
-        inset: 0;
-        background: #0a0b0e;
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-display';
+    errorDiv.style.cssText = 'position: fixed; inset: 0; background: #0a0b0e; color: #ff0000; padding: 40px; font-family: monospace; overflow: auto; z-index: 99999;';
+    const errorMsg = event.reason?.message || String(event.reason) || 'Unknown promise rejection';
+    errorDiv.innerHTML = '<h1 style="color: #ff9800; margin-bottom: 20px;">🚨 Promise Rejection</h1><div style="background: #1a1c22; padding: 20px; border-radius: 8px;"><h2 style="color: #ff0000;">Error:</h2><pre style="color: #ffffff; white-space: pre-wrap; word-wrap: break-word;">' + errorMsg + '</pre></div>';
+    rootElement.appendChild(errorDiv);
+  }
+});
+
 // Minimal working app - guaranteed to load
 const MinimalApp: React.FC = () => {
   return (
@@ -162,32 +166,19 @@ if (rootElement) {
     const root = ReactDOM.createRoot(rootElement);
     root.render(
       <React.StrictMode>
-        <MinimalApp />
+        <Router />
       </React.StrictMode>
     );
-    console.log('✅ Minimal app mounted successfully');
+    console.log('✅ VectorForge app mounted successfully');
   } catch (error) {
     console.error('❌ Failed to mount minimal app:', error);
-    rootElement.innerHTML = `
-      <div style="
-        position: fixed;
-        inset: 0;
-        background: #010101;
-        color: #ff0000;
-        padding: 40px;
-        font-family: monospace;
-        overflow: auto;
-        z-index: 99999;
-      ">
-        <h1 style="color: #ff9800; margin-bottom: 20px;">🚨 VectorForge Promise Rejection</h1>
-        <div style="background: #1a1c22; padding: 20px; border-radius: 8px;">
-          <h2 style="color: #ff0000;">Error:</h2>
-          <pre style="color: #ffffff; white-space: pre-wrap; word-wrap: break-word;">${event.reason?.message || String(event.reason) || 'Unknown promise rejection'}</pre>
-        </div>
-      </div>
-    `;
+    const errorDiv = document.createElement('div');
+    errorDiv.style.cssText = 'position: fixed; inset: 0; background: #010101; color: #ff0000; padding: 40px; font-family: monospace; overflow: auto; z-index: 99999;';
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    errorDiv.innerHTML = '<h1 style="color: #ff9800; margin-bottom: 20px;">🚨 VectorForge Error</h1><div style="background: #1a1c22; padding: 20px; border-radius: 8px;"><h2 style="color: #ff0000;">Error:</h2><pre style="color: #ffffff; white-space: pre-wrap; word-wrap: break-word;">' + errorMsg + '</pre></div>';
+    rootElement.appendChild(errorDiv);
   }
-});
+}
 
 // CRITICAL: Block auth redirects at client level - MUST happen before React loads
 (function() {
@@ -206,42 +197,6 @@ if (rootElement) {
   }
 })();
 
-// Mount React immediately
-const rootElement = document.getElementById('root');
-// #region agent log
-console.log('[DEBUG] Root element check', { exists: !!rootElement, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'D,E' });
-// #endregion
-if (!rootElement) {
-  throw new Error("Could not find root element to mount to");
-}
-
-// eslint-disable-next-line no-console
-console.log('🚀 Starting React mount...');
-console.log('📍 Current path:', window.location.pathname);
-// #region agent log
-console.log('[DEBUG] About to create root', { ReactDOM: typeof ReactDOM, React: typeof React, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'D,E' });
-// #endregion
-const root = ReactDOM.createRoot(rootElement);
-// #region agent log
-console.log('[DEBUG] Root created, about to render', { timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'D,E' });
-// #endregion
-root.render(
-  <React.StrictMode>
-    <Router />
-  </React.StrictMode>
-);
-// eslint-disable-next-line no-console
-console.log('✅ Router mounted successfully');
-// #region agent log
-console.log('[DEBUG] root.render() completed', { timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'D,E' });
-// #endregion
-        <h1 style="color: #ff9800; margin-bottom: 20px;">🚨 Mount Error</h1>
-        <pre style="color: #ffffff; white-space: pre-wrap;">${error instanceof Error ? error.message : String(error)}</pre>
-        <pre style="color: #999; font-size: 12px; margin-top: 20px;">${error instanceof Error ? error.stack : 'No stack trace'}</pre>
-      </div>
-    `;
-  }
-} else {
-  console.error('❌ Root element not found');
-}
+// Mount React immediately - REMOVED DUPLICATE CODE
+// The mount happens above at line 160-176
 
