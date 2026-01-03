@@ -21,7 +21,10 @@
     "portable": true,
     "usbReady": true,
     "requiresInternet": false,
-    "localAIOnly": true
+    "localAIOnly": true,
+    "cutTheCord": true,
+    "offlineMode": true,
+    "standaloneMode": true
   }
 }
 
