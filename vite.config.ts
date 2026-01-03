@@ -8,6 +8,8 @@ export default defineConfig(({ mode }) => {
       server: {
         port: 3000,
         host: '0.0.0.0',
+        // Allow internal.xi-io.com hostname (cut the cord feature)
+        allowedHosts: ['internal.xi-io.com', 'localhost', '127.0.0.1'],
         // File watcher limit is set to 524288 (good)
         // Using optimized polling for large codebase reliability
         watch: {
