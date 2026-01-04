@@ -261,20 +261,32 @@ def status():
         ollama_status = 'disconnected'
         ollama_models = []
     
-    html = """
+    # Format models list
+    models_html = ''.join([f'<li>{m}</li>' for m in ollama_models[:10]]) if ollama_models else '<li>No models found</li>'
+    
+    # Format recent requests
+    recent_requests_html = ''.join([
+        f'<div class="log-entry">[{r.get("timestamp", "unknown")}] {r.get("endpoint", "unknown")} - {r.get("source", "unknown")} - Status: {r.get("status", "unknown")}</div>' 
+        for r in request_log[-10:]
+    ]) if request_log else '<div class="log-entry">No requests yet</div>'
+    
+    # Format last cursor request
+    last_cursor = cursor_requests[-1]['timestamp'] if cursor_requests else 'Never'
+    
+    html = f"""
     <!DOCTYPE html>
     <html>
     <head>
         <title>Cursor Filter Bridge - Status</title>
         <style>
-            body { font-family: monospace; margin: 40px; background: #1a1a1a; color: #fff; }
-            .status { padding: 20px; background: #2a2a2a; border-radius: 8px; margin: 20px 0; }
-            .success { color: #4ade80; }
-            .error { color: #f87171; }
-            .info { color: #60a5fa; }
-            h1 { color: #fbbf24; }
-            .log { max-height: 400px; overflow-y: auto; background: #000; padding: 10px; border-radius: 4px; }
-            .log-entry { margin: 5px 0; font-size: 12px; }
+            body {{ font-family: monospace; margin: 40px; background: #1a1a1a; color: #fff; }}
+            .status {{ padding: 20px; background: #2a2a2a; border-radius: 8px; margin: 20px 0; }}
+            .success {{ color: #4ade80; }}
+            .error {{ color: #f87171; }}
+            .info {{ color: #60a5fa; }}
+            h1 {{ color: #fbbf24; }}
+            .log {{ max-height: 400px; overflow-y: auto; background: #000; padding: 10px; border-radius: 4px; }}
+            .log-entry {{ margin: 5px 0; font-size: 12px; }}
         </style>
     </head>
     <body>
@@ -283,54 +295,41 @@ def status():
         <div class="status">
             <h2>Service Status</h2>
             <p>Bridge: <span class="success">✅ Running on port 8080</span></p>
-            <p>Ollama: <span class="{}">{}</span></p>
-            <p>Ollama URL: <span class="info">{}</span></p>
-            <p>Default Model: <span class="info">{}</span></p>
+            <p>Ollama: <span class="{'success' if ollama_status == 'connected' else 'error'}">{'✅ Connected' if ollama_status == 'connected' else '❌ Disconnected'}</span></p>
+            <p>Ollama URL: <span class="info">{OLLAMA_URL}</span></p>
+            <p>Default Model: <span class="info">{DEFAULT_MODEL}</span></p>
         </div>
         
         <div class="status">
             <h2>Available Ollama Models</h2>
             <ul>
-                {}
+                {models_html}
             </ul>
         </div>
         
         <div class="status">
             <h2>Cursor Connection Status</h2>
-            <p>Total Requests: <span class="info">{}</span></p>
-            <p>Cursor Requests Detected: <span class="{}">{}</span></p>
-            <p>Last Cursor Request: <span class="info">{}</span></p>
+            <p>Total Requests: <span class="info">{len(request_log)}</span></p>
+            <p>Cursor Requests Detected: <span class="{'success' if len(cursor_requests) > 0 else 'error'}">{'✅ YES' if len(cursor_requests) > 0 else '❌ NO'}</span></p>
+            <p>Last Cursor Request: <span class="info">{last_cursor}</span></p>
         </div>
         
         <div class="status">
             <h2>Recent Requests (Last 10)</h2>
             <div class="log">
-                {}
+                {recent_requests_html}
             </div>
         </div>
         
         <div class="status">
             <h2>Configuration</h2>
             <p>Endpoint: <code>http://localhost:8080/api/cursor/filter</code></p>
-            <p>API Key: <code>{}</code></p>
+            <p>API Key: <code>{API_KEY}</code></p>
             <p>Cursor Settings: Already configured ✅</p>
         </div>
     </body>
     </html>
-    """.format(
-        'success' if ollama_status == 'connected' else 'error',
-        '✅ Connected' if ollama_status == 'connected' else '❌ Disconnected',
-        OLLAMA_URL,
-        DEFAULT_MODEL,
-        len(request_log),
-        'success' if len(cursor_requests) > 0 else 'error',
-        '✅ YES' if len(cursor_requests) > 0 else '❌ NO',
-        cursor_requests[-1]['timestamp'] if cursor_requests else 'Never',
-        ''.join([f'<li>{m}</li>' for m in ollama_models[:10]]),
-        ''.join([f'<div class="log-entry">[{r["timestamp"]}] {r["endpoint"]} - {r["source"]} - Status: {r["status"]}</div>' 
-                for r in request_log[-10:]]),
-        API_KEY
-    )
+    """
     
     return html
 
