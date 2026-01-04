@@ -5,7 +5,7 @@
  * Run: Before and after every integration
  */
 
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
 
 describe('Integration Verification', () => {
   describe('Core Capabilities', () => {

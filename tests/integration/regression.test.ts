@@ -5,7 +5,7 @@
  * Run: After every integration
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from '@jest/globals';
 
 describe('Regression Tests - Core Functionality', () => {
   describe('DevChatbot', () => {
