@@ -1,0 +1,197 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-01-03T21:00:00Z",
+  "discoveries": [
+    {
+      "id": "dreamcatcher",
+      "name": "Dreamcatcher System",
+      "tier": "top",
+      "priority": "very_high",
+      "risk": "high",
+      "status": "not_started",
+      "location": "_00-xibalba-framework/core/_00-xibalba/_13-dreamcatcher/",
+      "description": "Dreams fall out fully complete - roadmap execution system",
+      "dependencies": ["fire-team-orchestrator", "workflow-orchestrator"],
+      "integration_phase": "4.3"
+    },
+    {
+      "id": "fire-team-orchestrator",
+      "name": "Fire Team Orchestrator",
+      "tier": "top",
+      "priority": "high",
+      "risk": "medium",
+      "status": "not_started",
+      "location": "_00-xibalba-framework/core/_00-xibalba/_00-core/distributed_brain/",
+      "description": "Orchestrates Fire Teams (ZR1s) for fast reconnaissance",
+      "dependencies": [],
+      "integration_phase": "2.1"
+    },
+    {
+      "id": "4d-fractal-system",
+      "name": "4D Fractal System",
+      "tier": "top",
+      "priority": "very_high",
+      "risk": "high",
+      "status": "not_started",
+      "location": "_00-xibalba-framework/core/_00-xibalba/_000-4d-fractal-system/",
+      "description": "Complete 4D fractal organizational system",
+      "dependencies": [],
+      "integration_phase": "4.4"
+    },
+    {
+      "id": "workflow-orchestrator",
+      "name": "Workflow Orchestrator",
+      "tier": "top",
+      "priority": "high",
+      "risk": "medium",
+      "status": "not_started",
+      "location": "_00-xibalba-framework/core/_00-xibalba/_00-core/workflow_automation/",
+      "description": "Orchestrates workflows and task automation",
+      "dependencies": ["handoff-manager"],
+      "integration_phase": "2.3"
+    },
+    {
+      "id": "conversation-cache",
+      "name": "Conversation Caching",
+      "tier": "top",
+      "priority": "high",
+      "risk": "low",
+      "status": "ready_to_start",
+      "location": "_00-xibalba-framework/breakthrough-foundation/",
+      "description": "Caches conversations at hot/cold levels for performance",
+      "dependencies": [],
+      "integration_phase": "1.1"
+    },
+    {
+      "id": "vpn-infrastructure",
+      "name": "VPN Infrastructure",
+      "tier": "top",
+      "priority": "high",
+      "risk": "medium",
+      "status": "not_started",
+      "location": "_00-xibalba-framework/breakthrough-foundation/",
+      "description": "VPN infrastructure nodes and network abstraction",
+      "dependencies": [],
+      "integration_phase": "3.1"
+    },
+    {
+      "id": "hallberg-methodology",
+      "name": "Hallberg Methodology",
+      "tier": "top",
+      "priority": "very_high",
+      "risk": "high",
+      "status": "not_started",
+      "location": "_00-xibalba-framework/breakthrough-foundation/",
+      "description": "Core innovation patterns and framework philosophy",
+      "dependencies": [],
+      "integration_phase": "core_foundation"
+    },
+    {
+      "id": "handoff-manager",
+      "name": "Handoff Manager",
+      "tier": "medium",
+      "priority": "high",
+      "risk": "medium",
+      "status": "not_started",
+      "location": "_00-xibalba-framework/core/_00-xibalba/_00-core/workflow_automation/",
+      "description": "Manages handoffs between Fire Teams and Sprint Teams",
+      "dependencies": ["fire-team-orchestrator"],
+      "integration_phase": "2.2"
+    },
+    {
+      "id": "sprint-docket-calendar",
+      "name": "Sprint/Docket/Calendar Integration",
+      "tier": "medium",
+      "priority": "high",
+      "risk": "medium",
+      "status": "not_started",
+      "location": "_00-xibalba-framework/breakthrough-foundation/",
+      "description": "Unified workflow for Sprint, Docket, and Calendar systems",
+      "dependencies": ["calendar-system", "dockets-system"],
+      "integration_phase": "4.1"
+    },
+    {
+      "id": "dockets-system",
+      "name": "Dockets System",
+      "tier": "medium",
+      "priority": "high",
+      "risk": "medium",
+      "status": "not_started",
+      "location": "_00-xibalba-framework/core/_00-xibalba/_20-dockets/",
+      "description": "Project management and task organization",
+      "dependencies": [],
+      "integration_phase": "4.2"
+    },
+    {
+      "id": "development-tools",
+      "name": "Development Tools",
+      "tier": "medium",
+      "priority": "high",
+      "risk": "medium",
+      "status": "not_started",
+      "location": "_00-xibalba-framework/core/_00-xibalba/_09-tools/",
+      "description": "AI/ML systems, automation, and integration tools",
+      "dependencies": [],
+      "integration_phase": "2+"
+    },
+    {
+      "id": "hashtag-processor",
+      "name": "Hashtag Processor",
+      "tier": "lower",
+      "priority": "medium",
+      "risk": "low",
+      "status": "not_started",
+      "location": "_00-xibalba-framework/core/_00-xibalba/_00-core/workflow_automation/",
+      "description": "Tag-based organization and content categorization",
+      "dependencies": [],
+      "integration_phase": "1.2"
+    },
+    {
+      "id": "incoming-processor",
+      "name": "Incoming Processor",
+      "tier": "lower",
+      "priority": "medium",
+      "risk": "low",
+      "status": "not_started",
+      "location": "_00-xibalba-framework/core/_00-xibalba/_00-core/workflow_automation/",
+      "description": "Input handling and message routing",
+      "dependencies": [],
+      "integration_phase": "1.3"
+    },
+    {
+      "id": "dynamic-navigation",
+      "name": "Dynamic Navigation",
+      "tier": "lower",
+      "priority": "medium",
+      "risk": "low",
+      "status": "not_started",
+      "location": "_00-xibalba-framework/breakthrough-foundation/",
+      "description": "Adaptive UI navigation and context-aware menus",
+      "dependencies": [],
+      "integration_phase": "3.2"
+    },
+    {
+      "id": "team-ideation-simulation",
+      "name": "Team Ideation Simulation",
+      "tier": "lower",
+      "priority": "medium",
+      "risk": "low",
+      "status": "not_started",
+      "location": "_00-xibalba-framework/breakthrough-foundation/",
+      "description": "Team ideation sessions and brainstorming support",
+      "dependencies": [],
+      "integration_phase": "3+"
+    }
+  ],
+  "statistics": {
+    "total": 15,
+    "top_tier": 7,
+    "medium_tier": 4,
+    "lower_tier": 4,
+    "ready_to_start": 1,
+    "not_started": 14,
+    "in_progress": 0,
+    "completed": 0
+  }
+}
+
