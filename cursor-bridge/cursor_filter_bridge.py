@@ -59,11 +59,11 @@ def cursor_filter():
     user_agent = request.headers.get('User-Agent', 'unknown')
     source = 'cursor' if 'cursor' in user_agent.lower() else 'other'
     
-    # Verify API key
-    auth_header = request.headers.get('Authorization', '')
-    if API_KEY not in auth_header and request.headers.get('X-API-Key') != API_KEY:
-        log_request('/api/cursor/filter', None, 401, source)
-        return jsonify({'error': 'Unauthorized'}), 401
+    # Verify API key (optional for local use - comment out for testing)
+    # auth_header = request.headers.get('Authorization', '')
+    # if API_KEY not in auth_header and request.headers.get('X-API-Key') != API_KEY:
+    #     log_request('/api/cursor/filter', None, 401, source)
+    #     return jsonify({'error': 'Unauthorized'}), 401
     
     try:
         data = request.get_json()
