@@ -1,0 +1,129 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-01-03",
+  "capabilities": [
+    {
+      "id": "devchatbot",
+      "name": "DevChatbot",
+      "description": "Self-modifying AI chatbot with file operations and terminal commands",
+      "status": "working",
+      "version": "1.0.0",
+      "category": "ai",
+      "tests": ["tests/devchatbot.test.ts"],
+      "dependencies": ["ollama", "file-system"],
+      "integration_points": ["ollama", "file-system", "terminal"],
+      "performance": {
+        "response_time_ms": 500,
+        "memory_mb": 50,
+        "cpu_percent": 5
+      },
+      "features": [
+        "self-modification",
+        "file-operations",
+        "terminal-commands",
+        "ai-integration"
+      ]
+    },
+    {
+      "id": "molting-system",
+      "name": "Molting System",
+      "description": "Self-modification system for safe code changes",
+      "status": "working",
+      "version": "1.0.0",
+      "category": "ai",
+      "tests": ["tests/molting.test.ts"],
+      "dependencies": ["file-system"],
+      "integration_points": ["devchatbot", "file-system"],
+      "performance": {
+        "response_time_ms": 200,
+        "memory_mb": 20,
+        "cpu_percent": 2
+      },
+      "features": [
+        "working-copy-creation",
+        "validation",
+        "safe-swapping",
+        "backup"
+      ]
+    },
+    {
+      "id": "replication-system",
+      "name": "Replication System",
+      "description": "Multiple AI instances for parallel exploration",
+      "status": "working",
+      "version": "1.0.0",
+      "category": "ai",
+      "tests": ["tests/replication.test.ts"],
+      "dependencies": ["devchatbot"],
+      "integration_points": ["devchatbot", "ai"],
+      "performance": {
+        "response_time_ms": 1000,
+        "memory_mb": 100,
+        "cpu_percent": 10
+      },
+      "features": [
+        "multiple-instances",
+        "parallel-execution",
+        "result-merging",
+        "consensus-building"
+      ]
+    },
+    {
+      "id": "cursor-bypass",
+      "name": "Cursor Bypass",
+      "description": "Local AI bypass for Cursor IDE",
+      "status": "working",
+      "version": "1.0.0",
+      "category": "infrastructure",
+      "tests": ["tests/cursor-bypass.test.ts"],
+      "dependencies": ["ollama"],
+      "integration_points": ["ollama", "cursor-ide"],
+      "performance": {
+        "response_time_ms": 300,
+        "memory_mb": 30,
+        "cpu_percent": 3
+      },
+      "features": [
+        "local-ai",
+        "api-intercept",
+        "network-bridge",
+        "settings-bypass"
+      ]
+    },
+    {
+      "id": "left-sidebar",
+      "name": "Left Sidebar",
+      "description": "Tool dock and AI panel layout",
+      "status": "working",
+      "version": "1.0.0",
+      "category": "ui",
+      "tests": ["tests/ui/left-sidebar.test.tsx"],
+      "dependencies": [],
+      "integration_points": ["devchatbot", "tool-dock"],
+      "performance": {
+        "render_time_ms": 50,
+        "memory_mb": 10,
+        "cpu_percent": 1
+      },
+      "features": [
+        "two-column-layout",
+        "tool-dock",
+        "ai-panel",
+        "responsive"
+      ]
+    }
+  ],
+  "integrations": [],
+  "baseline": {
+    "date": "2026-01-03",
+    "total_capabilities": 5,
+    "working_capabilities": 5,
+    "broken_capabilities": 0,
+    "performance_baseline": {
+      "average_response_time_ms": 410,
+      "total_memory_mb": 210,
+      "total_cpu_percent": 21
+    }
+  }
+}
+
