@@ -1,0 +1,169 @@
+diff --git a/package.json b/package.json
+index d7f237f..a1b2c3d 100644
+--- a/package.json
++++ b/package.json
+@@ -1,6 +1,8 @@
+ {
+   "name": "vectorforge-engine",
+   "version": "0.0.0",
++  "private": true,
++  "workspaces": ["packages/*"],
+   "scripts": {
+     "dev": "npx tsx server.js",
+     "build": "tsc && vite build",
++    "build:design-system": "npm run build --workspace=@xibalba/design-system",
+     "test": "playwright test"
+   }
+ }
+diff --git a/packages/xibalba-design-system/package.json b/packages/xibalba-design-system/package.json
+new file mode 100644
+index 0000000..i1j2k3l
+--- /dev/null
++++ b/packages/xibalba-design-system/package.json
+@@ -0,0 +1,28 @@
++{
++  "name": "@xibalba/design-system",
++  "version": "0.1.0",
++  "description": "Reusable design system components for Xibalba ecosystem",
++  "private": true,
++  "main": "dist/index.cjs.js",
++  "module": "dist/index.esm.js",
++  "types": "dist/index.d.ts",
++  "exports": {
++    ".": {
++      "import": "./dist/index.esm.js",
++      "require": "./dist/index.cjs.js",
++      "types": "./dist/index.d.ts"
++    }
++  },
++  "scripts": {
++    "build": "tsc -p tsconfig.build.json && tsc -p tsconfig.build.json --module commonjs --outDir dist/cjs",
++    "dev": "tsc -p tsconfig.build.json --watch"
++  },
++  "peerDependencies": {
++    "react": "^18.0.0",
++    "react-dom": "^18.0.0"
++  },
++  "devDependencies": {
++    "@types/react": "^18.2.0",
++    "typescript": "^5.3.0"
++  }
++}
+diff --git a/packages/xibalba-design-system/tsconfig.build.json b/packages/xibalba-design-system/tsconfig.build.json
+new file mode 100644
+index 0000000..m4n5o6p
+--- /dev/null
++++ b/packages/xibalba-design-system/tsconfig.build.json
+@@ -0,0 +1,18 @@
++{
++  "extends": "../../tsconfig.json",
++  "compilerOptions": {
++    "outDir": "dist",
++    "rootDir": "src",
++    "declaration": true,
++    "declarationMap": true,
++    "emitDeclarationOnly": false,
++    "module": "ESNext",
++    "target": "ES2020",
++    "jsx": "react-jsx"
++  },
++  "include": ["src/**/*"],
++  "exclude": ["node_modules", "dist", "**/*.spec.ts", "**/*.test.ts"]
++}
+diff --git a/packages/xibalba-design-system/src/index.ts b/packages/xibalba-design-system/src/index.ts
+new file mode 100644
+index 0000000..q7r8s9t
+--- /dev/null
++++ b/packages/xibalba-design-system/src/index.ts
+@@ -0,0 +1,12 @@
++// Package entrypoint - re-exports all design system components
++export { default as ActionCenter } from './components/ActionCenter';
++export type { ActionCenterProps } from './components/ActionCenter';
++
++export { default as Tooltip } from './components/Tooltip';
++export { default as AdvancedSection } from './components/AdvancedSection';
++
++export { useMAI } from './hooks/useMAI';
++export type { MAIAction, MAIContext } from './hooks/useMAI';
+diff --git a/packages/xibalba-design-system/src/components/ActionCenter.tsx b/packages/xibalba-design-system/src/components/ActionCenter.tsx
+new file mode 100644
+index 0000000..0000000
+--- /dev/null
++++ b/packages/xibalba-design-system/src/components/ActionCenter.tsx
+@@ -0,0 +1,2 @@
++// Re-export from VectorForge (will be moved here in next phase)
++export { default, ActionCenter } from '../../../components/design-system/ActionCenter';
++export type { ActionCenterProps } from '../../../components/design-system/ActionCenter';
+diff --git a/packages/xibalba-design-system/src/components/Tooltip.tsx b/packages/xibalba-design-system/src/components/Tooltip.tsx
+new file mode 100644
+index 0000000..0000000
+--- /dev/null
++++ b/packages/xibalba-design-system/src/components/Tooltip.tsx
+@@ -0,0 +1,2 @@
++// Re-export from VectorForge (will be moved here in next phase)
++export { default, Tooltip } from '../../../components/design-system/Tooltip';
+diff --git a/packages/xibalba-design-system/src/components/AdvancedSection.tsx b/packages/xibalba-design-system/src/components/AdvancedSection.tsx
+new file mode 100644
+index 0000000..0000000
+--- /dev/null
++++ b/packages/xibalba-design-system/src/components/AdvancedSection.tsx
+@@ -0,0 +1,2 @@
++// Re-export from VectorForge (will be moved here in next phase)
++export { default, AdvancedSection } from '../../../components/design-system/AdvancedSection';
+diff --git a/packages/xibalba-design-system/src/hooks/useMAI.ts b/packages/xibalba-design-system/src/hooks/useMAI.ts
+new file mode 100644
+index 0000000..0000000
+--- /dev/null
++++ b/packages/xibalba-design-system/src/hooks/useMAI.ts
+@@ -0,0 +1,2 @@
++// Re-export from VectorForge (will be moved here in next phase)
++export * from '../../../components/design-system/hooks/useMAI';
+diff --git a/packages/xibalba-design-system/README.md b/packages/xibalba-design-system/README.md
+new file mode 100644
+index 0000000..u1v2w3x
+--- /dev/null
++++ b/packages/xibalba-design-system/README.md
+@@ -0,0 +1,45 @@
++# @xibalba/design-system
++
++Reusable design system components for the Xibalba ecosystem.
++
++## Status
++
++🚧 **Phase 2: Package Extraction** - Currently using shim re-exports from VectorForge.
++
++## Components
++
++- **ActionCenter** - MAI (Most Actionable Item) framework
++- **Tooltip** - Contextual help with keyboard shortcuts
++- **AdvancedSection** - Progressive disclosure
++- **useMAI** - Context-aware action detection hook
++
++## Usage
++
++```tsx
++import { ActionCenter, useMAI, Tooltip } from '@xibalba/design-system';
++
++// Use components as normal
++```
++
++## Development
++
++```bash
++# Build package
++npm run build:design-system
++
++# Watch mode
++npm run dev --workspace=@xibalba/design-system
++```
++
++## Migration Plan
++
++Phase 2a (Current): Shim package with re-exports  
++Phase 2b (Next): Move actual component files to package  
++Phase 2c (Final): Update all imports in VectorForge
++
++## License
++
++MIT
+

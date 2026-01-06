@@ -3,11 +3,15 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "dev": "npx tsx server.js",
     "dev:vite": "vite",
     "dev:server": "npx tsx server.js",
-"build": "vite build",
+    "build": "vite build",
+    "build:design-system": "npm run build --workspace=@xibalba/design-system",
     "preview": "vite preview",
     "start": "NODE_ENV=production npx tsx server.js",
     "build:installer": "./scripts/build-installer.sh",
