@@ -111,11 +111,12 @@ module.exports = {
       },
     },
     {
-      // Monorepo packages: Use root tsconfig.json which includes packages/* via **/*.ts patterns
-      // The root tsconfig.json includes all .ts/.tsx files recursively, so packages are covered
+      // Monorepo packages: Root tsconfig.json includes packages/* via **/*.ts patterns
+      // ESLint will use the root tsconfig for type-aware linting, which includes all packages
       files: ['packages/**/*.ts', 'packages/**/*.tsx'],
       parserOptions: {
-        // Use root tsconfig which includes packages via **/*.ts patterns
+        // Root tsconfig includes all .ts/.tsx files recursively via **/*.ts patterns
+        // This works because root tsconfig.json has include: ["**/*.ts", "**/*.tsx"]
         project: './tsconfig.json',
         tsconfigRootDir: __dirname,
       },

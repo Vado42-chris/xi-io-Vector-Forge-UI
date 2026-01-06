@@ -359,3 +359,81 @@
 - ⚠️ Duplicate keys in ProfessionalFileMenu
 - **Status:** Needs investigation and fix
 - **Impact:** Console warnings, potential React rendering issues
+
+---
+
+## Additional Wireframe Tests
+
+### Menu Components
+
+1. ✅ File menu is accessible
+2. ✅ Menu items are accessible
+3. ✅ Menu opens on hover
+4. ✅ Submenus are accessible
+5. ✅ Keyboard navigation works
+
+### Accessibility
+
+1. ✅ Buttons have accessible labels
+2. ✅ Inputs have labels
+3. ✅ Navigation landmarks exist
+4. ✅ Focus indicators visible
+5. ✅ Color contrast is sufficient
+
+### Responsive Layout
+
+1. ✅ Layout works at desktop size
+2. ✅ Layout adapts to tablet size
+3. ✅ Canvas has minimum width
+4. ✅ Sidebars remain accessible
+
+### Keyboard Shortcuts
+
+1. ✅ Save shortcut works
+2. ✅ Tab navigation works
+3. ✅ Escape closes menus
+4. ✅ Enter activates buttons
+
+---
+
+## Issues Fixed
+
+### ESLint Monorepo Configuration
+
+- ✅ Updated override to use root tsconfig.json which includes packages via \*_/_.ts patterns
+- ✅ Root tsconfig includes all .ts/.tsx files recursively
+- ✅ ESLint now correctly lints package files
+
+### Duplicate Menu Items
+
+- ✅ Removed duplicate View menu items (Show Rulers, Show Grid, Dev Chat, Show Guides, Smart Guides)
+- ✅ Removed duplicate Dev Chat in Window menu
+- ✅ Fixed React key warnings
+
+---
+
+## Updated Test Coverage
+
+### Total Tests: 120
+
+#### Panel Tests: 29
+
+#### Persona Tests: 20
+
+#### Wireframe Component Tests: 56 (38 + 18 new)
+
+- Header: 7
+- Floating: 4
+- Tool Panels: 4
+- RightSidebar: 6
+- Empty States: 3
+- Interaction States: 4
+- Loading States: 3
+- Error States: 3
+- Workflows: 4
+- Menu Components: 5
+- Accessibility: 5
+- Responsive Layout: 4
+- Keyboard Shortcuts: 4
+
+#### Validation Tests: 15
