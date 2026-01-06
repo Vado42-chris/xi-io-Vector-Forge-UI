@@ -7,13 +7,14 @@ import React, { useEffect } from 'react';
 import { TabType, DesignStyle, AppState, VectorLayer, ToolType } from '../types';
 // REMOVED: MCPSettings and TerminalSettings moved to RightSidebar
 import ErrorBoundary from './ErrorBoundary';
-import Tooltip from './Tooltip';
+import { Tooltip } from '@xibalba/design-system';
 import { usePanelResize } from '../hooks/usePanelResize';
 import { ToolButton } from './shared/ToolButton';
 import { EmptyState } from './shared/EmptyState';
 import { StatusIndicator } from './shared/StatusIndicator';
 import { Button } from './shared/templates/Button';
 import { useClickTracking } from '../hooks/useClickTracking';
+import Library from './Library/Library';
 import { errorReportingService } from '../services/errorReportingService';
 import { usabilityHeuristicsService } from '../services/usabilityHeuristicsService';
 
@@ -33,10 +34,32 @@ interface LeftSidebarProps {
   onExecuteScript?: (script: string) => void;
   activeTool?: ToolType;
   onToolChange?: (tool: ToolType) => void;
+  // Library props (Design Guide Compliance)
+  showLibrary?: boolean;
+  symbols?: any[];
+  assets?: any[];
+  onConvertToSymbol?: (name: string, type: 'movieclip' | 'graphic' | 'button') => void;
+  onEditSymbol?: (id: string) => void;
+  onDragStart?: (e: React.DragEvent, symbol: any) => void;
+  onCreateAsset?: () => void;
 }
 
 const LeftSidebar: React.FC<LeftSidebarProps> = ({
-  state, setState, onGenerate, onRefine, onTerminalCommand, onVisionScan, activeTool, onToolChange
+  state,
+  setState,
+  onGenerate,
+  onRefine,
+  onTerminalCommand,
+  onVisionScan,
+  activeTool,
+  onToolChange,
+  showLibrary = true,
+  symbols = [],
+  assets = [],
+  onConvertToSymbol,
+  onEditSymbol,
+  onDragStart,
+  onCreateAsset,
 }) => {
   // TRACKING: Patent-safe click tracking
   const { trackClick } = useClickTracking({ componentName: 'LeftSidebar' });
@@ -59,7 +82,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
 
   // REMOVED: Console and Engine tabs moved to RightSidebar
   // Left sidebar is now just for tools
-  
+
   // Tool selector for quick access - MUST be defined before useEffect hooks
   const tools: { id: ToolType; label: string; icon: string; shortcut?: string }[] = [
     { id: 'select', label: 'Select', icon: 'near_me', shortcut: 'V' },
@@ -68,7 +91,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
     { id: 'ellipse', label: 'Ellipse', icon: 'radio_button_unchecked', shortcut: 'L' },
     { id: 'text', label: 'Text', icon: 'text_fields', shortcut: 'T' },
     { id: 'pan', label: 'Pan', icon: 'open_with', shortcut: 'H' },
-    { id: 'zoom', label: 'Zoom', icon: 'zoom_in', shortcut: 'Z' }
+    { id: 'zoom', label: 'Zoom', icon: 'zoom_in', shortcut: 'Z' },
   ];
 
   // Ensure sidebar is expanded by default on mount
@@ -93,15 +116,15 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
     });
   }, [width, isCollapsed, tools.length]);
   // #endregion
-  
+
   // REMOVED: Terminal settings moved to RightSidebar
   // REUSE: Resize/drag logic now in usePanelResize hook
 
   return (
-    <aside 
+    <aside
       ref={sidebarRef}
       className="shrink-0 flex flex-col bg-[var(--xibalba-grey-050)] overflow-hidden sidebar-fixed-left"
-      style={{ 
+      style={{
         width: '320px',
         minWidth: '320px',
         maxWidth: '320px',
@@ -120,7 +143,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
       <Tooltip content="Drag to resize sidebar" position="right">
         <div
           ref={resizeHandleRef}
-          onPointerDown={(e) => {
+          onPointerDown={e => {
             trackClick('resize-handle', 'drag');
             handleResizeStart(e);
           }}
@@ -129,43 +152,49 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
       </Tooltip>
 
       {/* Header - Removed for now, can add back if needed */}
-      
+
       {/* Single-column layout: Tool Dock only (AI Panel moved to center stack) */}
       {!isCollapsed && (
-        <div 
+        <div
           className="sidebar-tool-dock flex-1 overflow-hidden min-h-0"
-          style={{ 
+          style={{
             display: 'flex',
             flexDirection: 'column',
             width: '100%',
             height: '100%',
             minWidth: 0,
-            position: 'relative'
+            position: 'relative',
           }}
         >
           {/* Vertical Tool Dock - Full Width */}
-          <div 
+          <div
             className="tool-dock-column shrink-0 bg-[var(--xibalba-grey-000)] flex flex-col"
-            style={{ 
+            style={{
               width: '100%',
               position: 'relative',
               zIndex: 10,
               overflow: 'hidden',
-              boxSizing: 'border-box'
+              boxSizing: 'border-box',
             }}
           >
             {tools.map(tool => {
-              const tooltipContent = tool.id === 'select' ? `Select Tool (${tool.shortcut})` :
-                tool.id === 'pen' ? `Pen Tool (${tool.shortcut})` :
-                tool.id === 'rectangle' ? `Rectangle Tool (${tool.shortcut})` :
-                tool.id === 'ellipse' ? `Ellipse Tool (${tool.shortcut})` :
-                tool.id === 'text' ? `Text Tool (${tool.shortcut})` :
-                tool.id === 'pan' ? `Pan Tool (${tool.shortcut})` :
-                tool.id === 'zoom' ? `Zoom Tool (${tool.shortcut})` :
-                `${tool.label} (${tool.shortcut || 'N/A'})`;
-              
+              const tooltipConfig = {
+                select: { content: 'Select and move objects on the canvas', shortcut: 'V' },
+                pen: { content: 'Draw custom paths and shapes', shortcut: 'P' },
+                rectangle: { content: 'Draw rectangles and squares', shortcut: 'M' },
+                ellipse: { content: 'Draw circles and ellipses', shortcut: 'L' },
+                text: { content: 'Add text to your design', shortcut: 'T' },
+                pan: { content: 'Pan around the canvas', shortcut: 'H' },
+                zoom: { content: 'Zoom in and out of the canvas', shortcut: 'Z' },
+              }[tool.id] || { content: `${tool.label} tool`, shortcut: tool.shortcut };
+
               return (
-                <Tooltip key={tool.id} content={tooltipContent} position="right" disabled={false}>
+                <Tooltip
+                  key={tool.id}
+                  content={tooltipConfig.content}
+                  shortcut={tooltipConfig.shortcut}
+                  position="right"
+                >
                   <button
                     onClick={() => onToolChange && onToolChange(tool.id)}
                     className={`w-full h-12 flex items-center justify-center border-b border-[var(--xibalba-grey-200)] transition-colors ${
@@ -173,26 +202,71 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
                         ? 'bg-[var(--vectorforge-accent)] text-white'
                         : 'bg-transparent text-[var(--xibalba-text-100)] hover:bg-[var(--xibalba-grey-100)]'
                     }`}
-                    title={tooltipContent}
+                    title={tooltipConfig.content}
                     aria-label={tool.label}
-                    style={{ 
+                    style={{
                       fontSize: 0,
                       lineHeight: 0,
                       textIndent: 0,
-                      overflow: 'hidden'
+                      overflow: 'hidden',
                     }}
                   >
-                    <span className="material-symbols-outlined text-xl" style={{ fontSize: '20px', lineHeight: '20px' }}>{tool.icon}</span>
+                    <span
+                      className="material-symbols-outlined text-xl"
+                      style={{ fontSize: '20px', lineHeight: '20px' }}
+                    >
+                      {tool.icon}
+                    </span>
                   </button>
                 </Tooltip>
               );
             })}
           </div>
+
+          {/* Library Panel - Flash-style symbol system (Design Guide Compliance) */}
+          {showLibrary && (
+            <div
+              className="library-section"
+              style={{
+                borderTop: '1px solid var(--xibalba-grey-200, #2a2a2a)',
+                flex: '1 1 0%',
+                minHeight: 0,
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+            >
+              <Library
+                symbols={symbols || []}
+                assets={assets || []}
+                onConvertToSymbol={(name, type) => {
+                  const newSymbol = {
+                    id: `symbol-${Date.now()}`,
+                    name,
+                    type,
+                    createdAt: Date.now(),
+                  };
+                  setSymbols(prev => [...prev, newSymbol]);
+                  showToast(`Symbol "${name}" created`, 'success');
+                }}
+                onEditSymbol={id => {
+                  showToast(`Editing symbol ${id}`, 'info');
+                }}
+                onDragStart={(e, symbol) => {
+                  e.dataTransfer.setData('application/x-symbol', JSON.stringify(symbol));
+                  showToast(`Dragging ${symbol.name}`, 'info');
+                }}
+                onCreateAsset={() => {
+                  showToast('Import asset - Coming soon', 'info');
+                }}
+              />
+            </div>
+          )}
         </div>
       )}
 
       {/* REUSE: Using StatusIndicator component */}
-      <div className="p-4 bg-[var(--xibalba-grey-050)]">
+      <div className="bg-[var(--xibalba-grey-100)]" style={{ padding: 'var(--spacing-md, 12px)' }}>
         <StatusIndicator
           status={state.isGenerating ? 'processing' : 'ready'}
           message={state.isGenerating ? 'AI SYNTHESIZING' : 'SYSTEM READY'}

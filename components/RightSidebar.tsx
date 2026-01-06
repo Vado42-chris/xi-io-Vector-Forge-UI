@@ -4,7 +4,14 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { VectorLayer, ToolType, ToolProperties, AnimationKeyframe, FrameState, AppState } from '../types';
+import {
+  VectorLayer,
+  ToolType,
+  ToolProperties,
+  AnimationKeyframe,
+  FrameState,
+  AppState,
+} from '../types';
 import ToolPropertiesPanel from './ToolPropertiesPanel';
 import ProfessionalLayersPanel from './ProfessionalLayersPanel';
 import ScriptEditor from './ScriptEditor';
@@ -12,13 +19,14 @@ import AIChatbot from './AIChatbot';
 import RegistryBrowser from './RegistryBrowser';
 import ErrorBoundary from './ErrorBoundary';
 import ContextualHelpPanel from './ContextualHelpPanel';
-import Tooltip from './Tooltip';
+import { Tooltip, AdvancedSection } from '@xibalba/design-system';
 import MCPSettings from './MCPSettings';
 import TerminalSettings from './TerminalSettings';
 import FileBrowser from './FileBrowser';
 import Terminal from './Terminal';
 import DevChatbot from './DevChatbot';
 import DevChatTestSimple from './DevChatTestSimple';
+import ActionsPanel from './Actions/ActionsPanel';
 import { usePanelResize } from '../hooks/usePanelResize';
 import { useClickTracking } from '../hooks/useClickTracking';
 import { TabSystem } from './shared/TabSystem';
@@ -63,6 +71,9 @@ interface RightSidebarProps {
   state?: AppState;
   setState?: React.Dispatch<React.SetStateAction<AppState>>;
   onScriptGenerated?: (script: string) => void;
+  // Actions panel props (hashtag system)
+  actionsCode?: string;
+  onActionsCodeChange?: (code: string) => void;
   // Terminal command handler
   onTerminalCommand?: (cmd: string) => void;
   // Conversation history
@@ -72,32 +83,79 @@ interface RightSidebarProps {
 }
 
 const RightSidebar: React.FC<RightSidebarProps> = ({
-  layers, selectedLayerId, activeTool, toolProperties, onToolPropertiesChange, 
-  onSelectLayer, onToggleVisibility, onToggleLock, onUpdateProperty, onUpdateShapeProperty, 
-  onDeleteLayer, onDuplicateLayer, onReorderLayer, onRenameLayer,
-  onUpdateLayer, onCreateLayer, onCreateSublayer, onGroupLayers, onUngroupLayer,
-  onCreateClippingMask, onReleaseClippingMask,
-  onBringToFront, onSendToBack, onBringForward, onSendBackward,
-  onExpandAppearance, onCreateOutlines,
-  snapshots, onRestoreSnapshot,
-  keyframes, frameState, onScriptChange, onScriptExecute,
-  state, setState,   onScriptGenerated, onTerminalCommand, onShowConversationHistory, advancedMode = false
+  layers,
+  selectedLayerId,
+  activeTool,
+  toolProperties,
+  onToolPropertiesChange,
+  onSelectLayer,
+  onToggleVisibility,
+  onToggleLock,
+  onUpdateProperty,
+  onUpdateShapeProperty,
+  onDeleteLayer,
+  onDuplicateLayer,
+  onReorderLayer,
+  onRenameLayer,
+  onUpdateLayer,
+  onCreateLayer,
+  onCreateSublayer,
+  onGroupLayers,
+  onUngroupLayer,
+  onCreateClippingMask,
+  onReleaseClippingMask,
+  onBringToFront,
+  onSendToBack,
+  onBringForward,
+  onSendBackward,
+  onExpandAppearance,
+  onCreateOutlines,
+  snapshots,
+  onRestoreSnapshot,
+  keyframes,
+  frameState,
+  onScriptChange,
+  onScriptExecute,
+  state,
+  setState,
+  onScriptGenerated,
+  onTerminalCommand,
+  onShowConversationHistory,
+  advancedMode = false,
+  actionsCode = '',
+  onActionsCodeChange,
 }) => {
   const selectedLayer = layers.find(l => l.id === selectedLayerId);
   // Default to Dev Chat tab for easy access - ALWAYS devchat on mount
-  const [activeRightTab, setActiveRightTab] = useState<'tool' | 'inspector' | 'layers' | 'scripts' | 'chat' | 'console' | 'engine' | 'registry' | 'checkpoints' | 'help' | 'files' | 'terminal' | 'devchat' | 'tasks'>('devchat');
-  
+  const [activeRightTab, setActiveRightTab] = useState<
+    | 'tool'
+    | 'inspector'
+    | 'layers'
+    | 'scripts'
+    | 'code'
+    | 'chat'
+    | 'console'
+    | 'engine'
+    | 'registry'
+    | 'checkpoints'
+    | 'help'
+    | 'files'
+    | 'terminal'
+    | 'devchat'
+    | 'tasks'
+  >('devchat');
+
   // Debug: Log when RightSidebar renders
   useEffect(() => {
     console.log('✅ RightSidebar mounted - Dev Chat tab should be active');
     console.log('✅ Active tab:', activeRightTab);
   }, [activeRightTab]);
-  
+
   // TRACKING: Patent-safe click tracking
   const { trackClick } = useClickTracking({ componentName: 'RightSidebar' });
   const [showTerminalSettings, setShowTerminalSettings] = useState(false);
   const [terminalInput, setTerminalInput] = useState('');
-  
+
   // Auto-switch to Scripts tab when script icon is clicked from timeline
   useEffect(() => {
     // This will be triggered externally when needed
@@ -109,6 +167,13 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
     (window as any).__switchToScriptsTab = () => setActiveRightTab('scripts');
     (window as any).__switchToLayersTab = () => setActiveRightTab('layers');
     (window as any).__switchToDevChatTab = () => setActiveRightTab('devchat');
+    (window as any).__switchToCodeTab = () => setActiveRightTab('code');
+
+    // Check for pending tab switch (from F9 shortcut)
+    if ((window as any).__pendingTabSwitch === 'code') {
+      setActiveRightTab('code');
+      delete (window as any).__pendingTabSwitch;
+    }
   }, []);
 
   // REUSE: Extract common resize/drag logic to shared hook
@@ -136,86 +201,142 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
   }, [isCollapsed, setIsCollapsed]);
 
   const renderParametricControls = () => {
-    if (!selectedLayer || selectedLayer.shape.type !== 'rect' || !onUpdateShapeProperty) return null;
+    if (!selectedLayer) return null;
 
-    const shape = selectedLayer.shape;
-    return (
-      <div className="xibalba-panel-professional space-y-4">
-        <h3 className="xibalba-label-professional">Rectangle Properties</h3>
-        <div className="grid grid-cols-2 gap-4">
-          <Tooltip content="Width - Set the width of the rectangle in pixels" position="left">
-            <div>
-              <label className="xibalba-label-professional">Width</label>
-              <input
-                type="number"
-                value={shape.width}
-                onChange={(e) => onUpdateShapeProperty(selectedLayer.id, 'width', parseFloat(e.target.value) || 0)}
-                className="xibalba-input-professional w-full"
-                min="0"
-                step="1"
-                placeholder="100"
-              />
-            </div>
-          </Tooltip>
-          <Tooltip content="Height - Set the height of the rectangle in pixels" position="left">
-            <div>
-              <label className="xibalba-label-professional">Height</label>
-              <input
-                type="number"
-                value={shape.height}
-                onChange={(e) => onUpdateShapeProperty(selectedLayer.id, 'height', parseFloat(e.target.value) || 0)}
-                className="xibalba-input-professional w-full"
-                min="0"
-                step="1"
-                placeholder="100"
-              />
-            </div>
-          </Tooltip>
-          <Tooltip content="Border Radius - Set the corner radius for rounded corners (0 = sharp corners)" position="left">
-            <div>
-              <label className="xibalba-label-professional">Border Radius</label>
-              <input
-                type="number"
-                value={shape.borderRadius}
-                onChange={(e) => onUpdateShapeProperty(selectedLayer.id, 'borderRadius', parseFloat(e.target.value) || 0)}
-                className="xibalba-input-professional w-full"
-                min="0"
-                step="1"
-                placeholder="0"
-              />
-            </div>
-          </Tooltip>
+    const advancedControls = [];
+
+    // Opacity control (advanced)
+    advancedControls.push(
+      <Tooltip
+        key="opacity"
+        content="Opacity - Set the transparency of the object (0 = transparent, 1 = opaque)"
+        position="left"
+      >
+        <div className="xibalba-form-group">
+          <label className="xibalba-form-label">Opacity</label>
+          <input
+            type="number"
+            min="0"
+            max="1"
+            step="0.01"
+            value={selectedLayer.opacity || 1}
+            onChange={e => {
+              const val = parseFloat(e.target.value);
+              if (!isNaN(val) && val >= 0 && val <= 1) {
+                onUpdateProperty(selectedLayer.id, 'opacity', val);
+              }
+            }}
+            className="xibalba-form-input xibalba-input-professional"
+            placeholder="1"
+          />
         </div>
-      </div>
+      </Tooltip>
     );
+
+    // Shape-specific properties (for rectangles)
+    if (selectedLayer.shape.type === 'rect' && onUpdateShapeProperty) {
+      const shape = selectedLayer.shape;
+      advancedControls.push(
+        <div key="shape-props" className="xibalba-panel-professional space-y-4">
+          <h3 className="xibalba-label-professional">Rectangle Properties</h3>
+          <div className="grid grid-cols-2" style={{ gap: 'var(--spacing-md, 12px)' }}>
+            <Tooltip content="Width - Set the width of the rectangle in pixels" position="left">
+              <div>
+                <label className="xibalba-label-professional">Width</label>
+                <input
+                  type="number"
+                  value={shape.width}
+                  onChange={e =>
+                    onUpdateShapeProperty(
+                      selectedLayer.id,
+                      'width',
+                      parseFloat(e.target.value) || 0
+                    )
+                  }
+                  className="xibalba-input-professional w-full"
+                  min="0"
+                  step="1"
+                  placeholder="100"
+                />
+              </div>
+            </Tooltip>
+            <Tooltip content="Height - Set the height of the rectangle in pixels" position="left">
+              <div>
+                <label className="xibalba-label-professional">Height</label>
+                <input
+                  type="number"
+                  value={shape.height}
+                  onChange={e =>
+                    onUpdateShapeProperty(
+                      selectedLayer.id,
+                      'height',
+                      parseFloat(e.target.value) || 0
+                    )
+                  }
+                  className="xibalba-input-professional w-full"
+                  min="0"
+                  step="1"
+                  placeholder="100"
+                />
+              </div>
+            </Tooltip>
+            <Tooltip
+              content="Border Radius - Set the corner radius for rounded corners (0 = sharp corners)"
+              position="left"
+            >
+              <div>
+                <label className="xibalba-label-professional">Border Radius</label>
+                <input
+                  type="number"
+                  value={shape.borderRadius}
+                  onChange={e =>
+                    onUpdateShapeProperty(
+                      selectedLayer.id,
+                      'borderRadius',
+                      parseFloat(e.target.value) || 0
+                    )
+                  }
+                  className="xibalba-input-professional w-full"
+                  min="0"
+                  step="1"
+                  placeholder="0"
+                />
+              </div>
+            </Tooltip>
+          </div>
+        </div>
+      );
+    }
+
+    return advancedControls.length > 0 ? <div className="space-y-4">{advancedControls}</div> : null;
   };
 
   // Update CSS variables for positioning - REUSE: Now handled by usePanelResize hook
 
   return (
-        <div 
-          ref={sidebarRef}
-          className="flex flex-col min-h-0 shrink-0 xibalba-dockable-palette sidebar-fixed-right bg-[var(--xibalba-grey-050)]"
-          style={{
-            width: '360px',
-            minWidth: '360px',
-            maxWidth: '360px',
-            flex: '0 0 360px',
-            position: 'relative',
-            display: 'flex',
-            flexDirection: 'column',
-            height: '100%',
-          }}
-          onPointerDown={handleDragStart}
-          data-palette-id="right-sidebar"
-          data-sidebar-right-width={width}
-          data-sidebar-width={width}
-        >
+    <div
+      ref={sidebarRef}
+      className="flex flex-col min-h-0 shrink-0 xibalba-dockable-palette sidebar-fixed-right bg-[var(--xibalba-grey-050)]"
+      style={{
+        width: '360px',
+        minWidth: '360px',
+        maxWidth: '360px',
+        flex: '0 0 360px',
+        position: 'relative',
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+      }}
+      onPointerDown={handleDragStart}
+      data-palette-id="right-sidebar"
+      data-sidebar-right-width={width}
+      data-sidebar-width={width}
+    >
       {/* Resize Handle - Always Visible */}
       <Tooltip content="Drag to resize sidebar" position="right">
         <div
           ref={resizeHandleRef}
-          onPointerDown={(e) => {
+          onPointerDown={e => {
             trackClick('resize-handle', 'drag');
             handleResizeStart(e);
           }}
@@ -228,30 +349,113 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
         <TabSystem
           tabs={[
             // DEV CHAT FIRST - Most important, always visible
-            { id: 'devchat', label: '💬 Dev Chat', icon: 'chat', tooltip: 'Dev Chat - AI assistant with file and CLI access (PRIORITY)', category: 'system' },
-            { id: 'tool', label: 'Tool', icon: 'tune', tooltip: 'Tool Properties - Adjust settings for the active tool', category: 'primary' },
-            { id: 'inspector', label: 'Object', icon: 'deployed_code', tooltip: 'Object Inspector - View and edit selected object properties', category: 'primary' },
-            { id: 'layers', label: 'Layers', icon: 'layers', tooltip: 'Layers - Manage document layers and hierarchy', category: 'primary' },
-            { id: 'scripts', label: 'Scripts', icon: 'code', tooltip: 'Scripts - Edit animation scripts and hashtag commands', category: 'primary' },
-            { id: 'files', label: 'Files', icon: 'folder', tooltip: 'File Browser - Browse and edit files visually', category: 'system' },
-            { id: 'terminal', label: 'Terminal', icon: 'terminal', tooltip: 'Terminal - Execute commands safely', category: 'system' },
-            { id: 'console', label: 'Console', icon: 'code', tooltip: 'Terminal Console - Execute commands and view logs', category: 'system' },
-            { id: 'engine', label: 'Engine', icon: 'settings_input_component', tooltip: 'MCP Engine - Configure AI and MCP settings', category: 'system' },
-            { id: 'chat', label: 'AI Chat', icon: 'smart_toy', tooltip: 'AI Chat - Get help and generate scripts with AI', category: 'system' },
-            { id: 'registry', label: 'Registry', icon: 'apps', tooltip: 'Registry - Browse components, services, and tools', category: 'system' },
-            { id: 'checkpoints', label: 'History', icon: 'history', tooltip: 'History - View and restore document snapshots', category: 'system' },
-            { id: 'help', label: 'Help', icon: 'help', tooltip: 'Help - Contextual help and documentation', category: 'help' },
+            {
+              id: 'devchat',
+              label: '💬 Dev Chat',
+              icon: 'chat',
+              tooltip: 'Dev Chat - AI assistant with file and CLI access (PRIORITY)',
+              category: 'system',
+            },
+            {
+              id: 'tool',
+              label: 'Tool',
+              icon: 'tune',
+              tooltip: 'Tool Properties - Adjust settings for the active tool',
+              category: 'primary',
+            },
+            {
+              id: 'inspector',
+              label: 'Object',
+              icon: 'deployed_code',
+              tooltip: 'Object Inspector - View and edit selected object properties',
+              category: 'primary',
+            },
+            {
+              id: 'layers',
+              label: 'Layers',
+              icon: 'layers',
+              tooltip: 'Layers - Manage document layers and hierarchy',
+              category: 'primary',
+            },
+            {
+              id: 'scripts',
+              label: 'Scripts',
+              icon: 'code',
+              tooltip: 'Scripts - Edit animation scripts and hashtag commands',
+              category: 'primary',
+            },
+            {
+              id: 'code',
+              label: 'Actions',
+              icon: 'tag',
+              tooltip: 'Actions (F9) - Hashtag system for frame/object/timeline actions',
+              category: 'primary',
+            },
+            {
+              id: 'files',
+              label: 'Files',
+              icon: 'folder',
+              tooltip: 'File Browser - Browse and edit files visually',
+              category: 'system',
+            },
+            {
+              id: 'terminal',
+              label: 'Terminal',
+              icon: 'terminal',
+              tooltip: 'Terminal - Execute commands safely',
+              category: 'system',
+            },
+            {
+              id: 'console',
+              label: 'Console',
+              icon: 'code',
+              tooltip: 'Terminal Console - Execute commands and view logs',
+              category: 'system',
+            },
+            {
+              id: 'engine',
+              label: 'Engine',
+              icon: 'settings_input_component',
+              tooltip: 'MCP Engine - Configure AI and MCP settings',
+              category: 'system',
+            },
+            {
+              id: 'chat',
+              label: 'AI Chat',
+              icon: 'smart_toy',
+              tooltip: 'AI Chat - Get help and generate scripts with AI',
+              category: 'system',
+            },
+            {
+              id: 'registry',
+              label: 'Registry',
+              icon: 'apps',
+              tooltip: 'Registry - Browse components, services, and tools',
+              category: 'system',
+            },
+            {
+              id: 'checkpoints',
+              label: 'History',
+              icon: 'history',
+              tooltip: 'History - View and restore document snapshots',
+              category: 'system',
+            },
+            {
+              id: 'help',
+              label: 'Help',
+              icon: 'help',
+              tooltip: 'Help - Contextual help and documentation',
+              category: 'help',
+            },
           ]}
           activeTab={activeRightTab}
-          onTabChange={(tabId) => setActiveRightTab(tabId as any)}
+          onTabChange={tabId => setActiveRightTab(tabId as any)}
           grouped={true}
           className="bg-[var(--xibalba-grey-050)]"
         />
       </div>
 
-              <div 
-                className="xibalba-right-sidebar-content xibalba-tab-content xibalba-scrollable bg-[var(--xibalba-grey-050)] text-[var(--xibalba-text-000)]"
-              >
+      <div className="xibalba-right-sidebar-content xibalba-tab-content xibalba-scrollable bg-[var(--xibalba-grey-050)] text-[var(--xibalba-text-000)]">
         {activeRightTab === 'tool' ? (
           <ToolPropertiesPanel
             activeTool={activeTool}
@@ -266,12 +470,14 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
                   <div className="xibalba-ia-group-header">Object Properties</div>
                   <div className="xibalba-form-group">
                     <div className="xibalba-form-row">
-                      <label className="xibalba-form-label" htmlFor="layer-name-input">Node Address</label>
-                      <input 
+                      <label className="xibalba-form-label" htmlFor="layer-name-input">
+                        Node Address
+                      </label>
+                      <input
                         id="layer-name-input"
                         className="xibalba-form-input xibalba-input-professional"
                         value={selectedLayer.name}
-                        onChange={(e) => onRenameLayer(selectedLayer.id, e.target.value)}
+                        onChange={e => onRenameLayer(selectedLayer.id, e.target.value)}
                         aria-label="Layer name"
                       />
                     </div>
@@ -291,24 +497,29 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
                       />
                     </div>
                   </div>
-                  
+
                   <div className="xibalba-form-group">
-                    <Tooltip content="Fill Color - Set the fill color for the selected object" position="left">
+                    <Tooltip
+                      content="Fill Color - Set the fill color for the selected object"
+                      position="left"
+                    >
                       <div className="xibalba-form-group">
                         <label className="xibalba-form-label">Fill Color</label>
                         <div className="xibalba-form-input-group">
-                          <div 
-                            ref={(node) => {
+                          <div
+                            ref={node => {
                               if (node && selectedLayer) {
                                 node.style.setProperty('--layer-color', selectedLayer.color);
                               }
                             }}
                             className="xibalba-color-picker-professional layer-color-swatch"
                           >
-                            <input 
-                              type="color" 
+                            <input
+                              type="color"
                               value={selectedLayer.color || 'var(--xibalba-text-000)'}
-                              onChange={(e) => onUpdateProperty(selectedLayer.id, 'color', e.target.value)}
+                              onChange={e =>
+                                onUpdateProperty(selectedLayer.id, 'color', e.target.value)
+                              }
                               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                               aria-label="Fill color picker"
                             />
@@ -316,7 +527,9 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
                           <input
                             type="text"
                             value={selectedLayer.color || 'var(--xibalba-text-000)'}
-                            onChange={(e) => onUpdateProperty(selectedLayer.id, 'color', e.target.value)}
+                            onChange={e =>
+                              onUpdateProperty(selectedLayer.id, 'color', e.target.value)
+                            }
                             className="xibalba-input-professional flex-1"
                             placeholder="var(--xibalba-text-000)"
                           />
@@ -324,22 +537,30 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
                       </div>
                     </Tooltip>
 
-                    <Tooltip content="Stroke Color - Set the stroke (outline) color for the selected object" position="left">
+                    <Tooltip
+                      content="Stroke Color - Set the stroke (outline) color for the selected object"
+                      position="left"
+                    >
                       <div className="xibalba-form-group">
                         <label className="xibalba-form-label">Stroke Color</label>
                         <div className="xibalba-form-input-group">
-                          <div 
-                            ref={(node) => {
+                          <div
+                            ref={node => {
                               if (node && selectedLayer) {
-                                node.style.setProperty('--layer-color', selectedLayer.stroke || '#000000');
+                                node.style.setProperty(
+                                  '--layer-color',
+                                  selectedLayer.stroke || '#000000'
+                                );
                               }
                             }}
                             className="xibalba-color-picker-professional layer-color-swatch"
                           >
-                            <input 
-                              type="color" 
+                            <input
+                              type="color"
                               value={selectedLayer.stroke || '#000000'}
-                              onChange={(e) => onUpdateProperty(selectedLayer.id, 'stroke', e.target.value)}
+                              onChange={e =>
+                                onUpdateProperty(selectedLayer.id, 'stroke', e.target.value)
+                              }
                               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                               aria-label="Stroke color picker"
                             />
@@ -347,7 +568,9 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
                           <input
                             type="text"
                             value={selectedLayer.stroke || '#000000'}
-                            onChange={(e) => onUpdateProperty(selectedLayer.id, 'stroke', e.target.value)}
+                            onChange={e =>
+                              onUpdateProperty(selectedLayer.id, 'stroke', e.target.value)
+                            }
                             className="xibalba-input-professional flex-1"
                             placeholder="#000000"
                           />
@@ -356,7 +579,10 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
                     </Tooltip>
 
                     <div className="xibalba-form-input-group">
-                      <Tooltip content="Stroke Width - Set the thickness of the stroke (outline) in pixels" position="left">
+                      <Tooltip
+                        content="Stroke Width - Set the thickness of the stroke (outline) in pixels"
+                        position="left"
+                      >
                         <div className="xibalba-form-group">
                           <label className="xibalba-form-label">Stroke Width</label>
                           <input
@@ -364,42 +590,40 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
                             min="0"
                             step="0.1"
                             value={selectedLayer.strokeWidth || 0}
-                            onChange={(e) => onUpdateProperty(selectedLayer.id, 'strokeWidth', parseFloat(e.target.value) || 0)}
+                            onChange={e =>
+                              onUpdateProperty(
+                                selectedLayer.id,
+                                'strokeWidth',
+                                parseFloat(e.target.value) || 0
+                              )
+                            }
                             className="xibalba-form-input xibalba-input-professional"
                             placeholder="0"
                           />
                         </div>
                       </Tooltip>
-                      <Tooltip content="Opacity - Set the transparency of the object (0 = transparent, 1 = opaque)" position="left">
-                        <div className="xibalba-form-group">
-                          <label className="xibalba-form-label">Opacity</label>
-                          <input
-                            type="number"
-                            min="0"
-                            max="1"
-                            step="0.01"
-                            value={selectedLayer.opacity || 1}
-                            onChange={(e) => {
-                              const val = parseFloat(e.target.value);
-                              if (!isNaN(val) && val >= 0 && val <= 1) {
-                                onUpdateProperty(selectedLayer.id, 'opacity', val);
-                              }
-                            }}
-                            className="xibalba-form-input xibalba-input-professional"
-                            placeholder="1"
-                          />
-                        </div>
-                      </Tooltip>
+                      {/* Opacity moved to AdvancedSection below */}
                     </div>
 
-                    {renderParametricControls()}
+                    {/* Advanced Properties - Progressive Disclosure */}
+                    <AdvancedSection
+                      collapsed={!advancedMode}
+                      summary={<strong>Advanced Properties</strong>}
+                      id="object-advanced-props"
+                    >
+                      {renderParametricControls()}
+                    </AdvancedSection>
                   </div>
                 </div>
               </>
             ) : (
               <div className="text-center py-8 opacity-50">
-                <span className="material-symbols-outlined text-4xl mb-2 text-[var(--xibalba-text-100)]">deployed_code</span>
-                <p className="xibalba-text-caption text-[var(--xibalba-text-100)]">No object selected</p>
+                <span className="material-symbols-outlined text-4xl mb-2 text-[var(--xibalba-text-100)]">
+                  deployed_code
+                </span>
+                <p className="xibalba-text-caption text-[var(--xibalba-text-100)]">
+                  No object selected
+                </p>
               </div>
             )}
           </div>
@@ -442,11 +666,12 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
               layers={layers}
               script={
                 keyframes.find(
-                  kf => kf.frame === frameState.currentFrame && 
-                  (selectedLayerId ? kf.layerId === selectedLayerId : true)
+                  kf =>
+                    kf.frame === frameState.currentFrame &&
+                    (selectedLayerId ? kf.layerId === selectedLayerId : true)
                 )?.script || ''
               }
-              onScriptChange={(script) => {
+              onScriptChange={script => {
                 onScriptChange(frameState.currentFrame, selectedLayerId, script);
               }}
               onExecute={onScriptExecute}
@@ -455,7 +680,7 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
         ) : activeRightTab === 'files' ? (
           <ErrorBoundary>
             <FileBrowser
-              onFileSelect={(path) => {
+              onFileSelect={path => {
                 // File selected - implement file opening logic
               }}
             />
@@ -467,7 +692,7 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
         ) : activeRightTab === 'devchat' ? (
           <ErrorBoundary>
             <DevChatbot
-              onFileSelect={(path) => {
+              onFileSelect={path => {
                 setActiveRightTab('files');
               }}
               onShowHistory={onShowConversationHistory}
@@ -481,8 +706,9 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
               layers={layers}
               currentScript={
                 keyframes.find(
-                  kf => kf.frame === frameState.currentFrame && 
-                  (selectedLayerId ? kf.layerId === selectedLayerId : true)
+                  kf =>
+                    kf.frame === frameState.currentFrame &&
+                    (selectedLayerId ? kf.layerId === selectedLayerId : true)
                 )?.script || ''
               }
               onScriptGenerated={onScriptGenerated}
@@ -492,7 +718,7 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
         ) : activeRightTab === 'registry' ? (
           <ErrorBoundary>
             <RegistryBrowser
-              onSelectEntry={(entry) => {
+              onSelectEntry={entry => {
                 // Registry entry selected - implement registry logic
               }}
             />
@@ -509,9 +735,15 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
         ) : activeRightTab === 'console' ? (
           <div className="flex flex-col h-full animate-in slide-in-from-left-4">
             {/* Terminal Settings Toggle */}
-            <div className="shrink-0 p-4 flex items-center justify-between">
+            <div
+              className="shrink-0 flex items-center justify-between"
+              style={{ padding: 'var(--spacing-md, 12px)' }}
+            >
               <span className="xibalba-text-subheading">Terminal Console</span>
-              <Tooltip content="Terminal Settings - Configure terminal behavior and appearance" position="left">
+              <Tooltip
+                content="Terminal Settings - Configure terminal behavior and appearance"
+                position="left"
+              >
                 <button
                   onClick={() => setShowTerminalSettings(!showTerminalSettings)}
                   className="xibalba-button-professional text-sm"
@@ -530,23 +762,38 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
             )}
 
             {/* Terminal Console */}
-            <div className="flex-1 flex flex-col p-6 mono text-sm min-h-0">
+            <div
+              className="flex-1 flex flex-col mono text-sm min-h-0"
+              style={{ padding: 'var(--spacing-lg, 16px)' }}
+            >
               <div className="flex-1 space-y-2 overflow-y-auto custom-scrollbar mb-4">
-                 {state?.terminalLogs?.map(log => (
-                   <div key={log.id} className="flex gap-3">
-                      <span className="text-[var(--xibalba-text-100)] select-none">{new Date(log.timestamp).toLocaleTimeString([], { hour12: false })}</span>
-                      <span className={log.type === 'error' ? 'text-[var(--vectorforge-accent)]' : log.type === 'success' ? 'text-[var(--xibalba-text-100)]' : 'text-[var(--xibalba-text-000)]'}>{log.text}</span>
-                   </div>
-                 )) || <div className="text-[var(--xibalba-text-100)]">No terminal logs yet</div>}
+                {state?.terminalLogs?.map(log => (
+                  <div key={log.id} className="flex" style={{ gap: 'var(--spacing-md, 12px)' }}>
+                    <span className="text-[var(--xibalba-text-100)] select-none">
+                      {new Date(log.timestamp).toLocaleTimeString([], { hour12: false })}
+                    </span>
+                    <span
+                      className={
+                        log.type === 'error'
+                          ? 'text-[var(--vectorforge-accent)]'
+                          : log.type === 'success'
+                            ? 'text-[var(--xibalba-text-100)]'
+                            : 'text-[var(--xibalba-text-000)]'
+                      }
+                    >
+                      {log.text}
+                    </span>
+                  </div>
+                )) || <div className="text-[var(--xibalba-text-100)]">No terminal logs yet</div>}
               </div>
-              <input 
-                type="text" 
-                value={terminalInput} 
-                onChange={(e) => setTerminalInput(e.target.value)}
-                onKeyDown={(e) => { 
-                  if(e.key === 'Enter') { 
+              <input
+                type="text"
+                value={terminalInput}
+                onChange={e => setTerminalInput(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') {
                     onTerminalCommand?.(terminalInput);
-                    setTerminalInput(''); 
+                    setTerminalInput('');
                   }
                 }}
                 className="xibalba-input-professional w-full"
@@ -568,7 +815,7 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
                 hasError: false,
               }}
               maxPriority="P1"
-              onHelpClick={(elementId) => {
+              onHelpClick={elementId => {
                 // Help clicked - implement help navigation
               }}
             />

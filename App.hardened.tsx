@@ -8,6 +8,7 @@ import {
   TextShape,
   AnimationKeyframe,
 } from './types';
+import { jsPDF } from 'jspdf';
 // TEMPORARILY DISABLED: useUndoRedo hook causing errors - will fix after UI is working
 // import { useUndoRedo } from './hooks/useUndoRedo';
 import { clipboardService } from './services/clipboardService';
@@ -20,6 +21,9 @@ import Canvas from './components/Canvas';
 import PowerUserToolbar from './components/PowerUserToolbar';
 import SignButton from './components/SignButton';
 import AnimationTimeline from './components/AnimationTimeline';
+import ProfessionalTimeline from './components/Timeline/ProfessionalTimeline';
+import Library from './components/Library/Library';
+import ActionsPanel from './components/Actions/ActionsPanel';
 import Footer from './components/Footer';
 import ToastContainer from './components/ToastContainer';
 // WelcomeScreen removed - not part of design requirements
@@ -40,6 +44,9 @@ import GuidedWorkflowPanel from './components/GuidedWorkflowPanel';
 import { ActionCenter, useMAI, AdvancedSection } from '@xibalba/design-system';
 // Keep old ActionCenter for backward compatibility (will be removed after migration)
 import LegacyActionCenter from './components/ActionCenter';
+// Emergency Save/Load/Export buttons
+import SaveLoadButtons from './components/SaveLoadButtons';
+import ExportButton from './components/ExportButton';
 import TemplateFrameContainer from './components/TemplateFrameContainer';
 // FloatingDevChatButton removed - Dev Chat accessible via Right Sidebar (Ctrl+K)
 import { accessibilityService } from './services/accessibilityService';
@@ -319,6 +326,15 @@ const App: React.FC = () => {
     isLooping: false,
   });
 
+  // Library state (symbols and assets)
+  const [symbols, setSymbols] = useState<any[]>([]);
+  const [assets, setAssets] = useState<any[]>([]);
+
+  // Actions panel state (hashtag code)
+  const [actionsCode, setActionsCode] = useState<string>('');
+  const [showLibrary, setShowLibrary] = useState(true);
+  const [showActions, setShowActions] = useState(false);
+
   // Canvas settings state
   const [snapToGrid, setSnapToGrid] = useState(true);
   const [snapToGuides, setSnapToGuides] = useState(true);
@@ -557,6 +573,46 @@ const App: React.FC = () => {
     },
     []
   );
+
+  // MAI Framework - Most Actionable Item (moved to top level to fix React hooks violation)
+  const appState = {
+    prompt: state.prompt || '',
+    isGenerating: state.isGenerating || false,
+    selectedLayers: state.layers.filter(l => l.id === state.selectedLayerId),
+  };
+
+  const primaryAction = useMAI({
+    state: appState,
+    actions: [
+      {
+        id: 'generate-vector',
+        label: '✨ Generate Vector',
+        priority: 100,
+        condition: s => Boolean(s.prompt && !s.isGenerating),
+        action: () => handleGenerate(),
+      },
+      {
+        id: 'edit-selection',
+        label: '✏️ Edit Selection',
+        priority: 90,
+        condition: s => (s.selectedLayers || []).length > 0,
+        action: () => {
+          const propsPanel = document.querySelector('[data-panel="properties"]');
+          propsPanel?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        },
+      },
+      {
+        id: 'enter-prompt',
+        label: '💬 Enter a prompt to start',
+        priority: 10,
+        condition: s => !s.prompt,
+        action: () => {
+          const input = document.querySelector<HTMLInputElement>('.ai-prompt-input');
+          input?.focus();
+        },
+      },
+    ],
+  });
 
   // Screen reader announcement helper
   const announceToScreenReader = useCallback(
@@ -2074,6 +2130,31 @@ const App: React.FC = () => {
         handleLayerSelect(null);
       }
 
+      // Flash-style shortcuts
+      // F9 - Toggle Actions Panel (Hashtag System) - Now in RightSidebar Inspector
+      if (e.key === 'F9') {
+        e.preventDefault();
+        // Switch to Code tab in RightSidebar
+        if (typeof window !== 'undefined' && (window as any).__switchToCodeTab) {
+          (window as any).__switchToCodeTab();
+        } else {
+          // Fallback: ensure right sidebar is visible and switch tab
+          setPanelVisibility(prev => ({ ...prev, 'right-sidebar': true }));
+          // Store tab switch for RightSidebar to pick up
+          (window as any).__pendingTabSwitch = 'code';
+        }
+        showToast('Actions panel (F9) - Switch to Code tab in Inspector', 'info');
+        return;
+      }
+
+      // F11 - Toggle Library Panel
+      if (e.key === 'F11') {
+        e.preventDefault();
+        setShowLibrary(prev => !prev);
+        showToast(showLibrary ? 'Library hidden' : 'Library shown (F11)', 'info');
+        return;
+      }
+
       // UI Automation shortcuts
       if (ctrlOrCmd) {
         // Ctrl+K or Cmd+K - Open Dev Chat (Self-Modifying AI)
@@ -2146,67 +2227,25 @@ const App: React.FC = () => {
     }
   }, [showToast]);
 
-  // MAI Framework - Most Actionable Item (moved to top level for React hooks rules)
-  const appState = {
-    prompt: state.prompt || '',
-    isGenerating: state.isGenerating || false,
-    selectedLayers: state.layers.filter(l => l.id === state.selectedLayerId),
-  };
-
-  const primaryAction = useMAI({
-    state: appState,
-    actions: [
-      {
-        id: 'generate-vector',
-        label: '✨ Generate Vector',
-        priority: 100,
-        condition: s => Boolean(s.prompt && !s.isGenerating),
-        action: () => handleGenerate(),
-      },
-      {
-        id: 'edit-selection',
-        label: '✏️ Edit Selection',
-        priority: 90,
-        condition: s => (s.selectedLayers || []).length > 0,
-        action: () => {
-          const propsPanel = document.querySelector('[data-panel="properties"]');
-          propsPanel?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        },
-      },
-      {
-        id: 'enter-prompt',
-        label: '💬 Enter a prompt to start',
-        priority: 10,
-        condition: s => !s.prompt,
-        action: () => {
-          const input = document.querySelector<HTMLInputElement>('.ai-prompt-input');
-          input?.focus();
-        },
-      },
-    ],
-  });
   // CACHE BUST: Log to verify we're using the latest code
   console.log('🎨 App.hardened RENDERING - Version:', new Date().toISOString());
   console.log('🎨 NO ErrorBoundary wrapper - NO black backgrounds - NO texture-substrate');
 
   return (
     <div
-      className="flex flex-col w-screen h-screen text-[var(--xibalba-text-000)] font-sans overflow-hidden"
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        width: '100vw',
-        height: '100vh',
-        overflow: 'hidden',
-        // REMOVED: backgroundColor: '#0a0b0e' - was creating black overlay
-        color: '#ffffff',
-      }}
+      className="app-root text-[var(--xibalba-text-000)] font-sans"
       data-sidebar-left-visible={panelVisibility['left-sidebar'] ? 'true' : 'false'}
       data-sidebar-right-visible={panelVisibility['right-sidebar'] ? 'true' : 'false'}
+      data-timeline-visible={panelVisibility['timeline'] ? 'true' : 'false'}
+      data-toolbar-visible={panelVisibility['toolbar'] ? 'true' : 'false'}
+      data-ai-panel-visible={true}
     >
       {/* Header with File Menu - Fixed at top */}
-      <div className="flex items-center w-full shrink-0" style={{ height: '48px' }}>
+      <div className="app-header">
         <ProfessionalFileMenu onAction={handleAction} onLayoutChange={handleLayoutChange} />
+        {/* Emergency Save/Load/Export buttons */}
+        <SaveLoadButtons state={state} setState={setState} />
+        <ExportButton />
         <div className="ml-auto mr-4">
           <SignButton
             svgContent={state.currentSvg}
@@ -2222,38 +2261,9 @@ const App: React.FC = () => {
         </div>
       </div>
 
-      {/* Main Content Area - Flex row with sidebars and canvas */}
-      <div
-        className="flex-1 flex flex-row overflow-hidden"
-        style={{
-          height: 'calc(100vh - 48px)',
-          display: 'flex',
-          flexDirection: 'row',
-          width: '100%',
-          boxSizing: 'border-box',
-          position: 'relative',
-          zIndex: 1,
-        }}
-        data-main-content-area="true"
-      >
-        {/* #region agent log - Main content area render */}
-        {(() => {
-          console.log('[DEBUG] App.hardened: Main content area RENDERED', {
-            timestamp: Date.now(),
-            sessionId: 'debug-session',
-            runId: 'diagnose-black-square',
-            hypothesisId: 'F',
-            data: {
-              leftSidebarVisible: panelVisibility['left-sidebar'],
-              rightSidebarVisible: panelVisibility['right-sidebar'],
-              height: 'calc(100vh - 48px)',
-            },
-          });
-          return null;
-        })()}
-        {/* #endregion */}
-        {/* Left Sidebar - Fixed 320px */}
-        {panelVisibility['left-sidebar'] && (
+      {/* Left Sidebar - Fluid Column */}
+      {panelVisibility['left-sidebar'] && (
+        <div className="app-left-sidebar">
           <LeftSidebar
             state={state}
             setState={setState}
@@ -2261,328 +2271,291 @@ const App: React.FC = () => {
             activeTool={state.activeTool}
             onToolChange={handleToolChange}
           />
+        </div>
+      )}
+
+      {/* Center Stack - Fluid Column with Grid Layout */}
+      <div className="app-center-stack">
+        {/* Toolbar - Top of center stack */}
+        {panelVisibility['toolbar'] && (
+          <div className="app-toolbar">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm, 8px)' }}>
+              <SaveLoadButtons state={state} setState={setState} />
+              <ExportButton />
+            </div>
+            <PowerUserToolbar
+              snapToGrid={snapToGrid}
+              onSnapToGridChange={setSnapToGrid}
+              snapToGuides={snapToGuides}
+              onSnapToGuidesChange={setSnapToGuides}
+              showGuides={showGuides}
+              onShowGuidesChange={setShowGuides}
+              gridSize={gridSize}
+              onGridSizeChange={setGridSize}
+              showOnionSkin={showOnionSkin}
+              onShowOnionSkinChange={setShowOnionSkin}
+              onionSkinFrames={onionSkinFrames}
+              onOnionSkinFramesChange={setOnionSkinFrames}
+            />
+          </div>
         )}
 
-        {/* Center Stack - Vertical stack: Toolbar, AI Vector Column, Canvas */}
-        <div
-          className="center-stack flex-1 flex flex-col overflow-hidden"
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            flex: '1 1 0%',
-            minWidth: 0,
-            minHeight: 0, // CRITICAL: Allow flex child to shrink
-            height: '100%', // Use 100% of parent, not 100vh
-            overflow: 'hidden',
-            // REMOVED: backgroundColor: '#0a0b0e' - was creating black overlay
-            position: 'relative',
-            zIndex: 1,
-          }}
-          data-center-stack="true"
-          ref={el => {
-            if (el) {
-              // #region agent log
-              const rect = el.getBoundingClientRect();
-              const styles = getComputedStyle(el);
-              console.log('[DEBUG] Canvas area dimensions', {
-                width: rect.width,
-                height: rect.height,
-                display: styles.display,
-                visibility: styles.visibility,
-                opacity: styles.opacity,
-                position: styles.position,
-                zIndex: styles.zIndex,
-                timestamp: Date.now(),
-                sessionId: 'debug-session',
-                runId: 'measure-canvas-dimensions',
-                hypothesisId: 'H',
-              });
-              // #endregion
-            }
-          }}
-        >
-          {/* #region agent log - Canvas area render */}
-          {(() => {
-            console.log('[DEBUG] App.hardened: Canvas area container RENDERED', {
-              timestamp: Date.now(),
-              sessionId: 'debug-session',
-              runId: 'diagnose-black-square',
-              hypothesisId: 'G',
-              data: {
-                backgroundColor: '#0a0b0e',
-                zIndex: 1,
-                position: 'relative',
-              },
-            });
-            return null;
-          })()}
-          {/* #endregion */}
-
-          {/* Toolbar - Top of center stack (fixed 48px) */}
-          {panelVisibility['toolbar'] && (
-            <div
-              className="center-toolbar shrink-0"
-              style={{
-                height: '48px',
-                flex: '0 0 48px',
-                display: 'flex',
-                alignItems: 'center',
-                backgroundColor: 'var(--xibalba-grey-100, #1a1a1a)',
-                borderBottom: '1px solid var(--xibalba-grey-200, #2a2a2a)',
-                padding: '0 8px',
-                boxSizing: 'border-box',
-              }}
+        {/* AI Vector Column - Middle of center stack */}
+        <div className="app-ai-panel xibalba-scrollbar">
+          {/* AI Generation Panel - Extracted from LeftSidebar */}
+          <div
+            className="xibalba-panel-section bg-[var(--xibalba-grey-100)] rounded-lg border border-[var(--xibalba-grey-300)]"
+            style={{ padding: 'var(--spacing-lg, 16px)', gap: 'var(--spacing-md, 12px)' }}
+            data-testid="ai-panel"
+          >
+            <h3
+              className="text-xs font-bold text-[var(--xibalba-text-000)] uppercase tracking-widest"
+              style={{ marginBottom: 'var(--spacing-md, 12px)' }}
             >
-              <PowerUserToolbar
-                snapToGrid={snapToGrid}
-                onSnapToGridChange={setSnapToGrid}
-                snapToGuides={snapToGuides}
-                onSnapToGuidesChange={setSnapToGuides}
-                showGuides={showGuides}
-                onShowGuidesChange={setShowGuides}
-                gridSize={gridSize}
-                onGridSizeChange={setGridSize}
-                showOnionSkin={showOnionSkin}
-                onShowOnionSkinChange={setShowOnionSkin}
-                onionSkinFrames={onionSkinFrames}
-                onOnionSkinFramesChange={setOnionSkinFrames}
+              GENERATIVE VECTOR AI
+            </h3>
+
+            {/* PROMPT Section */}
+            <div style={{ marginBottom: 'var(--spacing-md, 12px)' }}>
+              <label
+                className="text-xs font-semibold text-[var(--xibalba-text-100)] uppercase tracking-wide block"
+                style={{ marginBottom: 'var(--spacing-xs, 4px)' }}
+              >
+                PROMPT
+              </label>
+              <textarea
+                value={state.prompt}
+                onChange={e => setState(p => ({ ...p, prompt: e.target.value }))}
+                placeholder="Describe the vector you want to create..."
+                className="w-full bg-[var(--xibalba-grey-200)] border border-[var(--xibalba-grey-300)] rounded text-sm text-[var(--xibalba-text-000)] placeholder:text-[var(--xibalba-text-300)] focus:outline-none focus:border-[var(--vectorforge-accent)] resize-none"
+                style={{ padding: 'var(--spacing-sm, 8px) var(--spacing-md, 12px)' }}
+                rows={2}
               />
             </div>
-          )}
 
-          {/* AI Vector Column - Middle of center stack (fixed 200px) */}
-          <div
-            className="center-ai-column shrink-0 overflow-y-auto xibalba-scrollbar"
-            style={{
-              height: '200px',
-              flex: '0 0 200px',
-              backgroundColor: 'var(--xibalba-grey-050, #0a0a0a)',
-              borderBottom: '1px solid var(--xibalba-grey-200, #2a2a2a)',
-              padding: '16px',
-              overflowX: 'hidden',
-              overflowY: 'auto',
-              boxSizing: 'border-box',
-            }}
-          >
-            {/* AI Generation Panel - Extracted from LeftSidebar */}
-            <div
-              className="xibalba-panel-section bg-[var(--xibalba-grey-100)] rounded-lg p-4 border border-[var(--xibalba-grey-200)]"
-              data-testid="ai-panel"
-            >
-              <h3 className="text-xs font-bold text-[var(--xibalba-text-primary)] uppercase tracking-widest mb-4">
-                GENERATIVE VECTOR AI
-              </h3>
-
-              {/* PROMPT Section */}
-              <div className="mb-4">
-                <label className="text-xs font-semibold text-[var(--xibalba-text-100)] uppercase tracking-wide mb-2 block">
-                  PROMPT
-                </label>
-                <textarea
-                  value={state.prompt}
-                  onChange={e => setState(p => ({ ...p, prompt: e.target.value }))}
-                  placeholder="Describe the vector you want to create..."
-                  className="w-full bg-[var(--xibalba-grey-050)] border border-[var(--xibalba-grey-200)] rounded px-3 py-2 text-sm text-[var(--xibalba-text-000)] placeholder:text-[var(--xibalba-text-200)] focus:outline-none focus:border-[var(--vectorforge-accent)] resize-none"
-                  rows={2}
-                />
-              </div>
-
-              {/* STYLE Section */}
-              <div className="mb-4">
-                <label className="text-xs font-semibold text-[var(--xibalba-text-100)] uppercase tracking-wide mb-2 block">
-                  STYLE
-                </label>
-                <div className="flex gap-2 flex-wrap">
-                  {['Line Art', 'Flat Icon', 'Isometric', 'Abstract'].map(styleLabel => {
-                    const styleValue = styleLabel.toLowerCase().replace(' ', '-') as any;
-                    return (
-                      <button
-                        key={styleLabel}
-                        onClick={() => setState(p => ({ ...p, style: styleValue }))}
-                        className={`px-3 py-1 text-xs rounded border transition-colors ${
-                          state.style === styleValue
-                            ? 'bg-[var(--vectorforge-accent)] text-white border-[var(--vectorforge-accent)]'
-                            : 'bg-[var(--xibalba-grey-050)] text-[var(--xibalba-text-100)] border-[var(--xibalba-grey-200)] hover:border-[var(--vectorforge-accent)]'
-                        }`}
-                        aria-label={`${styleLabel} Style`}
-                        title={`${styleLabel} Style - Apply ${styleLabel.toLowerCase()} style to generated vectors`}
-                      >
-                        {styleLabel}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Generate Button */}
-              <button
-                onClick={() => handleGenerate()}
-                className="w-full bg-[var(--vectorforge-accent)] text-white px-4 py-2 rounded text-sm font-semibold hover:opacity-90 transition-opacity"
-                aria-label="Generate Vector"
-                title="Generate Vector - Create vector graphics from your prompt"
+            {/* STYLE Section */}
+            <div style={{ marginBottom: 'var(--spacing-md, 12px)' }}>
+              <label
+                className="text-xs font-semibold text-[var(--xibalba-text-100)] uppercase tracking-wide block"
+                style={{ marginBottom: 'var(--spacing-xs, 4px)' }}
               >
-                Generate Vector
-              </button>
+                STYLE
+              </label>
+              <div className="flex flex-wrap" style={{ gap: 'var(--spacing-sm, 8px)' }}>
+                {['Line Art', 'Flat Icon', 'Isometric', 'Abstract'].map(styleLabel => {
+                  const styleValue = styleLabel.toLowerCase().replace(' ', '-') as any;
+                  return (
+                    <button
+                      key={styleLabel}
+                      onClick={() => setState(p => ({ ...p, style: styleValue }))}
+                      className={`text-xs rounded border transition-colors ${
+                        state.style === styleValue
+                          ? 'bg-[var(--vectorforge-accent)] text-white border-[var(--vectorforge-accent)]'
+                          : 'bg-[var(--xibalba-grey-200)] text-[var(--xibalba-text-100)] border-[var(--xibalba-grey-300)] hover:border-[var(--vectorforge-accent)]'
+                      }`}
+                      style={{ padding: 'var(--spacing-xs, 4px) var(--spacing-md, 12px)' }}
+                      aria-label={`${styleLabel} Style`}
+                      title={`${styleLabel} Style - Apply ${styleLabel.toLowerCase()} style to generated vectors`}
+                    >
+                      {styleLabel}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
-              {/* Advanced Options - Hidden by default */}
-              <AdvancedSection
-                collapsed={!advancedMode}
-                summary={<strong>Advanced options</strong>}
-                id="ai-advanced"
-                onToggle={collapsed => {
-                  // Sync with global advancedMode when user toggles
-                  if (!collapsed && !advancedMode) {
-                    setAdvancedMode(true);
-                  }
+            {/* Generate Button */}
+            <button
+              onClick={() => handleGenerate()}
+              className="w-full bg-[var(--vectorforge-accent)] text-white rounded text-sm font-semibold hover:opacity-90 transition-opacity"
+              style={{ padding: 'var(--spacing-sm, 8px) var(--spacing-md, 12px)' }}
+              aria-label="Generate Vector"
+              title="Generate Vector - Create vector graphics from your prompt"
+            >
+              Generate Vector
+            </button>
+
+            {/* Advanced Options - Hidden by default */}
+            <AdvancedSection
+              collapsed={!advancedMode}
+              summary={<strong>Advanced options</strong>}
+              id="ai-advanced"
+              onToggle={collapsed => {
+                // Sync with global advancedMode when user toggles
+                if (!collapsed && !advancedMode) {
+                  setAdvancedMode(true);
+                }
+              }}
+            >
+              <div
+                style={{
+                  marginTop: 'var(--spacing-md, 12px)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 'var(--spacing-md, 12px)',
                 }}
               >
-                <div className="mt-4 space-y-3">
-                  <div>
-                    <label className="text-xs font-semibold text-[var(--xibalba-text-100)] uppercase tracking-wide mb-2 block">
-                      COMPLEXITY
-                    </label>
-                    <input
-                      type="range"
-                      min="1"
-                      max="100"
-                      value={state.complexity}
-                      onChange={e =>
-                        setState(p => ({ ...p, complexity: parseInt(e.target.value) }))
-                      }
-                      className="w-full"
-                    />
-                    <div className="text-xs text-[var(--xibalba-text-200)] mt-1">
-                      {state.complexity}% complexity
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-xs font-semibold text-[var(--xibalba-text-100)] uppercase tracking-wide mb-2 block">
-                      ITERATIONS
-                    </label>
-                    <input
-                      type="number"
-                      min="1"
-                      max="10"
-                      value={1}
-                      className="w-full bg-[var(--xibalba-grey-050)] border border-[var(--xibalba-grey-200)] rounded px-3 py-2 text-sm text-[var(--xibalba-text-000)]"
-                    />
+                <div>
+                  <label
+                    className="text-xs font-semibold text-[var(--xibalba-text-100)] uppercase tracking-wide block"
+                    style={{ marginBottom: 'var(--spacing-xs, 4px)' }}
+                  >
+                    COMPLEXITY
+                  </label>
+                  <input
+                    type="range"
+                    min="1"
+                    max="100"
+                    value={state.complexity}
+                    onChange={e => setState(p => ({ ...p, complexity: parseInt(e.target.value) }))}
+                    className="w-full"
+                    aria-label="Complexity"
+                    title="Complexity"
+                  />
+                  <div
+                    className="text-xs text-[var(--xibalba-text-200)]"
+                    style={{ marginTop: 'var(--spacing-xs, 4px)' }}
+                  >
+                    {state.complexity}% complexity
                   </div>
                 </div>
-              </AdvancedSection>
-            </div>
-          </div>
-
-          {/* Canvas - Bottom of center stack, takes remaining space (flexible) */}
-          <div
-            className="center-canvas-area flex-1 relative"
-            data-canvas-area="true"
-            style={{
-              flex: '1 1 0%',
-              minWidth: 0,
-              minHeight: 0, // CRITICAL: Allow flex child to shrink below content size
-              position: 'relative',
-              overflow: 'hidden',
-              backgroundColor: '#1a1a1a',
-              boxSizing: 'border-box',
-              zIndex: 1,
-              isolation: 'isolate',
-              display: 'flex', // CRITICAL: Make canvas area a flex container
-              flexDirection: 'column',
-              width: '100%',
-              height: '100%', // Take full height of parent
-            }}
-            ref={el => {
-              if (el) {
-                // #region agent log
-                const rect = el.getBoundingClientRect();
-                const styles = getComputedStyle(el);
-                console.log('[DEBUG] Canvas inner div dimensions', {
-                  width: rect.width,
-                  height: rect.height,
-                  display: styles.display,
-                  visibility: styles.visibility,
-                  opacity: styles.opacity,
-                  position: styles.position,
-                  zIndex: styles.zIndex,
-                  timestamp: Date.now(),
-                  sessionId: 'debug-session',
-                  runId: 'measure-canvas-inner-dimensions',
-                  hypothesisId: 'I',
-                });
-                // #endregion
-              }
-            }}
-          >
-            {/* #region agent log - Canvas mount verification */}
-            {(() => {
-              console.log('[DEBUG] App.hardened: About to render Canvas', {
-                timestamp: Date.now(),
-                sessionId: 'debug-session',
-                runId: 'test-fixes',
-                hypothesisId: 'A',
-                props: {
-                  showGuides,
-                  snapToGrid,
-                  gridSize,
-                  hasFrameState: !!frameState,
-                  keyframesCount: keyframes.length,
-                },
-              });
-              return null;
-            })()}
-            {/* #endregion */}
-            <Canvas
-              svgContent={state.currentSvg}
-              layers={state.layers}
-              activeTool={state.activeTool}
-              selectedLayerId={state.selectedLayerId}
-              selectedNodeId={state.selectedNodeId}
-              zoom={state.zoom}
-              pan={state.pan}
-              onPan={handlePan}
-              onZoom={handleZoom}
-              onSelectLayer={handleLayerSelect}
-              onSelectNode={handleNodeSelect}
-              onUpdateNode={handleNodeUpdate}
-              onCreateLayer={(layer: VectorLayer) => {
-                setState(prev => {
-                  const newLayers = [...prev.layers, layer];
-                  // Update SVG and state together
-                  setTimeout(() => updateSvgFromLayers(newLayers), 0);
-                  return { ...prev, layers: newLayers, selectedLayerId: layer.id };
-                });
-                showToast(`Created ${layer.name}`, 'success');
-              }}
-              onUpdateLayer={(id: string, updates: Partial<VectorLayer>) => {
-                const newLayers = state.layers.map(l => (l.id === id ? { ...l, ...updates } : l));
-                updateSvgFromLayers(newLayers);
-                setState(prev => ({
-                  ...prev,
-                  layers: newLayers,
-                  history: [...prev.history, prev.currentSvg],
-                  redoHistory: [],
-                }));
-              }}
-              guides={state.guides.map(g => ({ id: g.id, type: g.type, position: g.pos }))}
-              onAddGuide={handleAddGuide}
-              onUpdateGuide={handleUpdateGuide}
-              isGenerating={state.isGenerating}
-              showGuides={showGuides}
-              snapToGrid={snapToGrid}
-              gridSize={gridSize}
-              frameState={frameState}
-              keyframes={keyframes}
-              onAddKeyframe={kf => setKeyframes(prev => [...prev, kf])}
-              onUpdateKeyframe={(id, props) =>
-                setKeyframes(prev => prev.map(k => (k.id === id ? { ...k, ...props } : k)))
-              }
-            />
+                <div>
+                  <label
+                    className="text-xs font-semibold text-[var(--xibalba-text-100)] uppercase tracking-wide block"
+                    style={{ marginBottom: 'var(--spacing-xs, 4px)' }}
+                  >
+                    ITERATIONS
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="10"
+                    value={1}
+                    readOnly
+                    className="w-full bg-[var(--xibalba-grey-200)] border border-[var(--xibalba-grey-300)] rounded text-sm text-[var(--xibalba-text-000)]"
+                    style={{ padding: 'var(--spacing-sm, 8px) var(--spacing-md, 12px)' }}
+                    aria-label="Iterations"
+                    title="Iterations"
+                  />
+                </div>
+              </div>
+            </AdvancedSection>
           </div>
         </div>
 
-        {/* Right Sidebar - In document flow */}
-        {panelVisibility['right-sidebar'] && (
-          /* CRITICAL: Right Sidebar MUST be visible and expanded for Dev Chat access */
+        {/* Canvas - Takes remaining space */}
+        <div className="app-canvas-area" data-canvas-area="true">
+          <Canvas
+            svgContent={state.currentSvg}
+            layers={state.layers}
+            activeTool={state.activeTool}
+            selectedLayerId={state.selectedLayerId}
+            selectedNodeId={state.selectedNodeId}
+            zoom={state.zoom}
+            pan={state.pan}
+            onPan={handlePan}
+            onZoom={handleZoom}
+            onSelectLayer={handleLayerSelect}
+            onSelectNode={handleNodeSelect}
+            onUpdateNode={handleNodeUpdate}
+            onCreateLayer={(layer: VectorLayer) => {
+              setState(prev => {
+                const newLayers = [...prev.layers, layer];
+                // Update SVG and state together
+                setTimeout(() => updateSvgFromLayers(newLayers), 0);
+                return { ...prev, layers: newLayers, selectedLayerId: layer.id };
+              });
+              showToast(`Created ${layer.name}`, 'success');
+            }}
+            onUpdateLayer={(id: string, updates: Partial<VectorLayer>) => {
+              const newLayers = state.layers.map(l => (l.id === id ? { ...l, ...updates } : l));
+              updateSvgFromLayers(newLayers);
+              setState(prev => ({
+                ...prev,
+                layers: newLayers,
+                history: [...prev.history, prev.currentSvg],
+                redoHistory: [],
+              }));
+            }}
+            guides={state.guides.map(g => ({ id: g.id, type: g.type, position: g.pos }))}
+            onAddGuide={handleAddGuide}
+            onUpdateGuide={handleUpdateGuide}
+            isGenerating={state.isGenerating}
+            showGuides={showGuides}
+            snapToGrid={snapToGrid}
+            gridSize={gridSize}
+            frameState={frameState}
+            keyframes={keyframes}
+            onAddKeyframe={kf => setKeyframes(prev => [...prev, kf])}
+            onUpdateKeyframe={(id, props) =>
+              setKeyframes(prev => prev.map(k => (k.id === id ? { ...k, ...props } : k)))
+            }
+          />
+        </div>
+
+        {/* Professional Flash-Style Timeline - Bottom of center stack */}
+        {panelVisibility['timeline'] && (
+          <div className="app-timeline">
+            <ProfessionalTimeline
+              layers={state.layers}
+              keyframes={keyframes}
+              frameState={frameState}
+              onFrameChange={frame => {
+                setFrameState(prev => ({ ...prev, currentFrame: frame }));
+              }}
+              onLayerToggle={(layerId, property) => {
+                const newLayers = state.layers.map(l =>
+                  l.id === layerId ? { ...l, [property]: !l[property] } : l
+                );
+                updateSvgFromLayers(newLayers);
+                setState(prev => ({ ...prev, layers: newLayers }));
+              }}
+              onAddLayer={() => {
+                const newLayer: VectorLayer = {
+                  id: `layer-${Date.now()}`,
+                  name: `Layer ${state.layers.length + 1}`,
+                  visible: true,
+                  locked: false,
+                  nodes: [],
+                  shape: { type: 'group', children: [] },
+                  x: 0,
+                  y: 0,
+                  width: 0,
+                  height: 0,
+                };
+                setState(prev => ({ ...prev, layers: [...prev.layers, newLayer] }));
+              }}
+              onAddFolder={() => {
+                showToast('Folder creation - Coming soon', 'info');
+              }}
+              onAddMask={() => {
+                showToast('Mask creation - Coming soon', 'info');
+              }}
+              onAddKeyframe={(layerId, frame) => {
+                const newKeyframe: AnimationKeyframe = {
+                  id: `keyframe-${Date.now()}`,
+                  layerId,
+                  frame,
+                  properties: {},
+                };
+                setKeyframes(prev => [...prev, newKeyframe]);
+              }}
+              onDeleteKeyframe={keyframeId => {
+                setKeyframes(prev => prev.filter(k => k.id !== keyframeId));
+              }}
+              onFrameLabel={(frame, label) => {
+                showToast(`Frame ${frame} labeled: ${label}`, 'info');
+              }}
+              totalFrames={100}
+              fps={24}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Right Sidebar - Fluid Column */}
+      {panelVisibility['right-sidebar'] && (
+        <div className="app-right-sidebar">
           <RightSidebar
             layers={state.layers || []}
             selectedLayerId={state.selectedLayerId}
@@ -2843,49 +2816,51 @@ const App: React.FC = () => {
               showToast(`Terminal: ${cmd}`, 'info');
             }}
           />
-        )}
-      </div>
+        </div>
+      )}
 
-      {/* Animation Timeline - Fixed at bottom */}
-      <AnimationTimeline
-        frameState={frameState}
-        onFrameStateChange={updates => setFrameState(prev => ({ ...prev, ...updates }))}
-        keyframes={keyframes}
-        onAddKeyframe={kf => setKeyframes(prev => [...prev, kf])}
-        onUpdateKeyframe={(id, props) =>
-          setKeyframes(prev => prev.map(k => (k.id === id ? { ...k, ...props } : k)))
-        }
-        onDeleteKeyframe={id => setKeyframes(prev => prev.filter(k => k.id !== id))}
-        selectedLayerId={state.selectedLayerId}
-        layers={state.layers}
-        presets={[]}
-        onApplyPreset={(preset, layerId) => {
-          if (!layerId) return; // Skip if no layer selected
-          const startKeyframe: AnimationKeyframe = {
-            id: `kf-${Date.now()}`,
-            frame: frameState.currentFrame,
-            layerId,
-            properties: preset.properties,
-            easing: preset.easing,
-          };
-          const endKeyframe: AnimationKeyframe = {
-            id: `kf-${Date.now() + 1}`,
-            frame: frameState.currentFrame + preset.duration,
-            layerId,
-            properties: {},
-            easing: preset.easing,
-          };
-          setKeyframes(prev => [...prev, startKeyframe, endKeyframe]);
-        }}
-        onScriptClick={() => {
-          // Switch to Scripts tab in RightSidebar
-          showToast('Switch to Scripts tab to edit animation scripts', 'info');
-        }}
-        onImportFromStudio={() => {
-          // Placeholder for import functionality
-          showToast('Import from Animation Studio - Coming soon', 'info');
-        }}
-      />
+      {/* OLD Animation Timeline - Commented out for testing */}
+      {/* <AnimationTimeline
+            frameState={frameState}
+            onFrameStateChange={updates => setFrameState(prev => ({ ...prev, ...updates }))}
+            keyframes={keyframes}
+            onAddKeyframe={kf => setKeyframes(prev => [...prev, kf])}
+            onUpdateKeyframe={(id, props) =>
+              setKeyframes(prev => prev.map(k => (k.id === id ? { ...k, ...props } : k)))
+            }
+            onDeleteKeyframe={id => setKeyframes(prev => prev.filter(k => k.id !== id))}
+            selectedLayerId={state.selectedLayerId}
+            layers={state.layers}
+            presets={[]}
+            onApplyPreset={(preset, layerId) => {
+              if (!layerId) return; // Skip if no layer selected
+              const startKeyframe: AnimationKeyframe = {
+                id: `kf-${Date.now()}`,
+                frame: frameState.currentFrame,
+                layerId,
+                properties: preset.properties,
+                easing: preset.easing,
+              };
+              const endKeyframe: AnimationKeyframe = {
+                id: `kf-${Date.now() + 1}`,
+                frame: frameState.currentFrame + preset.duration,
+                layerId,
+                properties: {},
+                easing: preset.easing,
+              };
+              setKeyframes(prev => [...prev, startKeyframe, endKeyframe]);
+            }}
+            onScriptClick={() => {
+              // Switch to Scripts tab in RightSidebar
+              showToast('Switch to Scripts tab to edit animation scripts', 'info');
+            }}
+            onImportFromStudio={() => {
+              // Placeholder for import functionality
+              showToast('Import from Animation Studio - Coming soon', 'info');
+            }}
+          /> */}
+
+      {/* Actions Panel moved to RightSidebar > Code tab (F9) - Design Guide Compliance */}
 
       {/* Footer */}
       <Footer
