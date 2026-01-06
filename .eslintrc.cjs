@@ -127,9 +127,8 @@ module.exports = {
     '*.config.js',
     '*.config.ts',
     '.lintstagedrc.js', // Config file, not TypeScript - avoid type-aware parsing
-    ".lintstagedrc.cjs", // Config file (CommonJS), not TypeScript - avoid type-aware parsing
+    '.lintstagedrc.cjs', // Config file (CommonJS), not TypeScript - avoid type-aware parsing
     ".eslintrc.cjs", // Config file (CommonJS), not TypeScript - avoid type-aware parsing
-    ".prettierrc", // Config file (JSON), not TypeScript - avoid type-aware parsing
     'api/**/*.js',
     'scripts/**/*.js',
     'server.js',

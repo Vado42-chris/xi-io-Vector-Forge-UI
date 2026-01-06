@@ -335,6 +335,7 @@ const App: React.FC = () => {
   const [actionsCode, setActionsCode] = useState<string>('');
   const [showLibrary, setShowLibrary] = useState(true);
   const [showActions, setShowActions] = useState(false);
+  const [showAIPanel, setShowAIPanel] = useState(false);
 
   // Canvas settings state
   const [snapToGrid, setSnapToGrid] = useState(true);
@@ -2246,6 +2247,14 @@ const App: React.FC = () => {
         <ProfessionalFileMenu onAction={handleAction} onLayoutChange={handleLayoutChange} />
         {/* Emergency Save/Load/Export buttons */}
         <SaveLoadButtons state={state} setState={setState} />
+        <button
+          onClick={() => setShowAIPanel(true)}
+          className="ml-4 px-4 py-2 bg-[var(--vectorforge-accent)] text-white rounded text-sm font-semibold hover:opacity-90 transition-opacity"
+          aria-label="Generate with AI"
+          title="Generate with AI - Open AI generation panel"
+        >
+          ✨ Generate with AI
+        </button>
         <ExportButton />
         <div className="ml-auto mr-4">
           <SignButton
@@ -2324,148 +2333,152 @@ const App: React.FC = () => {
           </div>
         )}
 
-        {/* AI Vector Column - Middle of center stack */}
-          {/* AI Generation Panel - Extracted from LeftSidebar */}
-          <div
-            className="xibalba-panel-section bg-[var(--xibalba-grey-100)] rounded-lg border border-[var(--xibalba-grey-300)]"
-            style={{ padding: 'var(--spacing-lg, 16px)', gap: 'var(--spacing-md, 12px)' }}
-            data-testid="ai-panel"
-          >
-            <h3
-              className="text-xs font-bold text-[var(--xibalba-text-000)] uppercase tracking-widest"
-              style={{ marginBottom: 'var(--spacing-md, 12px)' }}
-        {false && (            >
-              GENERATIVE VECTOR AI
-            </h3>
-
-            {/* PROMPT Section */}
-            <div style={{ marginBottom: 'var(--spacing-md, 12px)' }}>
-              <label
-                className="text-xs font-semibold text-[var(--xibalba-text-100)] uppercase tracking-wide block"
-                style={{ marginBottom: 'var(--spacing-xs, 4px)' }}
+        {/* AI Vector Column - Middle of center stack - MOVED TO FLOATING PANEL (Design Guide Compliance) */}
+        {false && (
+          <div className="app-ai-panel xibalba-scrollbar">
+            {/* AI Generation Panel - Extracted from LeftSidebar */}
+            <div
+              className="xibalba-panel-section bg-[var(--xibalba-grey-100)] rounded-lg border border-[var(--xibalba-grey-300)]"
+              style={{ padding: 'var(--spacing-lg, 16px)', gap: 'var(--spacing-md, 12px)' }}
+              data-testid="ai-panel"
+            >
+              <h3
+                className="text-xs font-bold text-[var(--xibalba-text-000)] uppercase tracking-widest"
+                style={{ marginBottom: 'var(--spacing-md, 12px)' }}
               >
-                PROMPT
-              </label>
-              <textarea
-                value={state.prompt}
-                onChange={e => setState(p => ({ ...p, prompt: e.target.value }))}
-                placeholder="Describe the vector you want to create..."
-                className="w-full bg-[var(--xibalba-grey-200)] border border-[var(--xibalba-grey-300)] rounded text-sm text-[var(--xibalba-text-000)] placeholder:text-[var(--xibalba-text-300)] focus:outline-none focus:border-[var(--vectorforge-accent)] resize-none"
-                style={{ padding: 'var(--spacing-sm, 8px) var(--spacing-md, 12px)' }}
-                rows={2}
-              />
-            </div>
+                GENERATIVE VECTOR AI
+              </h3>
 
-            {/* STYLE Section */}
-            <div style={{ marginBottom: 'var(--spacing-md, 12px)' }}>
-              <label
-                className="text-xs font-semibold text-[var(--xibalba-text-100)] uppercase tracking-wide block"
-                style={{ marginBottom: 'var(--spacing-xs, 4px)' }}
-              >
-                STYLE
-              </label>
-              <div className="flex flex-wrap" style={{ gap: 'var(--spacing-sm, 8px)' }}>
-                {['Line Art', 'Flat Icon', 'Isometric', 'Abstract'].map(styleLabel => {
-                  const styleValue = styleLabel.toLowerCase().replace(' ', '-') as any;
-                  return (
-                    <button
-                      key={styleLabel}
-                      onClick={() => setState(p => ({ ...p, style: styleValue }))}
-                      className={`text-xs rounded border transition-colors ${
-                        state.style === styleValue
-                          ? 'bg-[var(--vectorforge-accent)] text-white border-[var(--vectorforge-accent)]'
-                          : 'bg-[var(--xibalba-grey-200)] text-[var(--xibalba-text-100)] border-[var(--xibalba-grey-300)] hover:border-[var(--vectorforge-accent)]'
-                      }`}
-                      style={{ padding: 'var(--spacing-xs, 4px) var(--spacing-md, 12px)' }}
-                      aria-label={`${styleLabel} Style`}
-                      title={`${styleLabel} Style - Apply ${styleLabel.toLowerCase()} style to generated vectors`}
-                    >
-                      {styleLabel}
-                    </button>
-                  );
-                })}
+              {/* PROMPT Section */}
+              <div style={{ marginBottom: 'var(--spacing-md, 12px)' }}>
+                <label
+                  className="text-xs font-semibold text-[var(--xibalba-text-100)] uppercase tracking-wide block"
+                  style={{ marginBottom: 'var(--spacing-xs, 4px)' }}
+                >
+                  PROMPT
+                </label>
+                <textarea
+                  value={state.prompt}
+                  onChange={e => setState(p => ({ ...p, prompt: e.target.value }))}
+                  placeholder="Describe the vector you want to create..."
+                  className="w-full bg-[var(--xibalba-grey-200)] border border-[var(--xibalba-grey-300)] rounded text-sm text-[var(--xibalba-text-000)] placeholder:text-[var(--xibalba-text-300)] focus:outline-none focus:border-[var(--vectorforge-accent)] resize-none"
+                  style={{ padding: 'var(--spacing-sm, 8px) var(--spacing-md, 12px)' }}
+                  rows={2}
+                />
               </div>
-            </div>
 
-            {/* Generate Button */}
-            <button
-              onClick={() => handleGenerate()}
-              className="w-full bg-[var(--vectorforge-accent)] text-white rounded text-sm font-semibold hover:opacity-90 transition-opacity"
-              style={{ padding: 'var(--spacing-sm, 8px) var(--spacing-md, 12px)' }}
-              aria-label="Generate Vector"
-              title="Generate Vector - Create vector graphics from your prompt"
-            >
-              Generate Vector
-            </button>
+              {/* STYLE Section */}
+              <div style={{ marginBottom: 'var(--spacing-md, 12px)' }}>
+                <label
+                  className="text-xs font-semibold text-[var(--xibalba-text-100)] uppercase tracking-wide block"
+                  style={{ marginBottom: 'var(--spacing-xs, 4px)' }}
+                >
+                  STYLE
+                </label>
+                <div className="flex flex-wrap" style={{ gap: 'var(--spacing-sm, 8px)' }}>
+                  {['Line Art', 'Flat Icon', 'Isometric', 'Abstract'].map(styleLabel => {
+                    const styleValue = styleLabel.toLowerCase().replace(' ', '-') as any;
+                    return (
+                      <button
+                        key={styleLabel}
+                        onClick={() => setState(p => ({ ...p, style: styleValue }))}
+                        className={`text-xs rounded border transition-colors ${
+                          state.style === styleValue
+                            ? 'bg-[var(--vectorforge-accent)] text-white border-[var(--vectorforge-accent)]'
+                            : 'bg-[var(--xibalba-grey-200)] text-[var(--xibalba-text-100)] border-[var(--xibalba-grey-300)] hover:border-[var(--vectorforge-accent)]'
+                        }`}
+                        style={{ padding: 'var(--spacing-xs, 4px) var(--spacing-md, 12px)' }}
+                        aria-label={`${styleLabel} Style`}
+                        title={`${styleLabel} Style - Apply ${styleLabel.toLowerCase()} style to generated vectors`}
+                      >
+                        {styleLabel}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
 
-            {/* Advanced Options - Hidden by default */}
-            <AdvancedSection
-              collapsed={!advancedMode}
-              summary={<strong>Advanced options</strong>}
-              id="ai-advanced"
-              onToggle={collapsed => {
-                // Sync with global advancedMode when user toggles
-                if (!collapsed && !advancedMode) {
-                  setAdvancedMode(true);
-                }
-              }}
-            >
-              <div
-                style={{
-                  marginTop: 'var(--spacing-md, 12px)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 'var(--spacing-md, 12px)',
+              {/* Generate Button */}
+              <button
+                onClick={() => handleGenerate()}
+                className="w-full bg-[var(--vectorforge-accent)] text-white rounded text-sm font-semibold hover:opacity-90 transition-opacity"
+                style={{ padding: 'var(--spacing-sm, 8px) var(--spacing-md, 12px)' }}
+                aria-label="Generate Vector"
+                title="Generate Vector - Create vector graphics from your prompt"
+              >
+                Generate Vector
+              </button>
+
+              {/* Advanced Options - Hidden by default */}
+              <AdvancedSection
+                collapsed={!advancedMode}
+                summary={<strong>Advanced options</strong>}
+                id="ai-advanced"
+                onToggle={collapsed => {
+                  // Sync with global advancedMode when user toggles
+                  if (!collapsed && !advancedMode) {
+                    setAdvancedMode(true);
+                  }
                 }}
               >
-                <div>
-                  <label
-                    className="text-xs font-semibold text-[var(--xibalba-text-100)] uppercase tracking-wide block"
-                    style={{ marginBottom: 'var(--spacing-xs, 4px)' }}
-                  >
-                    COMPLEXITY
-                  </label>
-                  <input
-                    type="range"
-                    min="1"
-                    max="100"
-                    value={state.complexity}
-                    onChange={e => setState(p => ({ ...p, complexity: parseInt(e.target.value) }))}
-                    className="w-full"
-                    aria-label="Complexity"
-                    title="Complexity"
-                  />
-                  <div
-                    className="text-xs text-[var(--xibalba-text-200)]"
-                    style={{ marginTop: 'var(--spacing-xs, 4px)' }}
-                  >
-                    {state.complexity}% complexity
+                <div
+                  style={{
+                    marginTop: 'var(--spacing-md, 12px)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 'var(--spacing-md, 12px)',
+                  }}
+                >
+                  <div>
+                    <label
+                      className="text-xs font-semibold text-[var(--xibalba-text-100)] uppercase tracking-wide block"
+                      style={{ marginBottom: 'var(--spacing-xs, 4px)' }}
+                    >
+                      COMPLEXITY
+                    </label>
+                    <input
+                      type="range"
+                      min="1"
+                      max="100"
+                      value={state.complexity}
+                      onChange={e =>
+                        setState(p => ({ ...p, complexity: parseInt(e.target.value) }))
+                      }
+                      className="w-full"
+                      aria-label="Complexity"
+                      title="Complexity"
+                    />
+                    <div
+                      className="text-xs text-[var(--xibalba-text-200)]"
+                      style={{ marginTop: 'var(--spacing-xs, 4px)' }}
+                    >
+                      {state.complexity}% complexity
+                    </div>
+                  </div>
+                  <div>
+                    <label
+                      className="text-xs font-semibold text-[var(--xibalba-text-100)] uppercase tracking-wide block"
+                      style={{ marginBottom: 'var(--spacing-xs, 4px)' }}
+                    >
+                      ITERATIONS
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="10"
+                      value={1}
+                      readOnly
+                      className="w-full bg-[var(--xibalba-grey-200)] border border-[var(--xibalba-grey-300)] rounded text-sm text-[var(--xibalba-text-000)]"
+                      style={{ padding: 'var(--spacing-sm, 8px) var(--spacing-md, 12px)' }}
+                      aria-label="Iterations"
+                      title="Iterations"
+                    />
                   </div>
                 </div>
-                <div>
-                  <label
-                    className="text-xs font-semibold text-[var(--xibalba-text-100)] uppercase tracking-wide block"
-                    style={{ marginBottom: 'var(--spacing-xs, 4px)' }}
-                  >
-                    ITERATIONS
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="10"
-                    value={1}
-                    readOnly
-                    className="w-full bg-[var(--xibalba-grey-200)] border border-[var(--xibalba-grey-300)] rounded text-sm text-[var(--xibalba-text-000)]"
-                    style={{ padding: 'var(--spacing-sm, 8px) var(--spacing-md, 12px)' }}
-                    aria-label="Iterations"
-                    title="Iterations"
-                  />
-                </div>
-              </div>
-            </AdvancedSection>
+              </AdvancedSection>
+            </div>
           </div>
-        </div>
-
+        )}
         {/* Canvas - Takes remaining space */}
         <div className="app-canvas-area" data-canvas-area="true">
           <Canvas
@@ -2476,7 +2489,6 @@ const App: React.FC = () => {
             selectedNodeId={state.selectedNodeId}
             zoom={state.zoom}
             pan={state.pan}
-        )}
             onPan={handlePan}
             onZoom={handleZoom}
             onSelectLayer={handleLayerSelect}
@@ -3015,48 +3027,6 @@ const App: React.FC = () => {
       </button>
 
       {/* Legacy Action Center (keeping for backward compatibility - will be removed after testing) */}
-      <LegacyActionCenter
-        hasPrompt={!!state.prompt && state.prompt.trim().length > 0}
-        prompt={state.prompt}
-        onGenerateVector={handleGenerate}
-        isGenerating={state.isGenerating}
-        onAction={action => {
-          switch (action.id) {
-            case 'setup-project':
-              setShowProjectWizard(true);
-              break;
-            case 'browse-templates':
-              setShowTemplateLibrary(true);
-              break;
-            case 'generate-tests':
-              setShowTestGenerator(true);
-              break;
-            case 'fix-menu-actions':
-              setShowActionAudit(true);
-              break;
-            case 'create-schema':
-              setShowSchemaBuilder(true);
-              break;
-            case 'batch-operations':
-              setShowBatchOperations(true);
-              break;
-            case 'guided-workflow':
-              setShowGuidedWorkflow(true);
-              break;
-            case 'marketplace-publisher':
-              setShowPublisherDashboard(true);
-              break;
-            case 'marketplace-analytics':
-              setShowAnalyticsDashboard(true);
-              break;
-            case 'workspace-customizer':
-              setShowWorkspaceCustomizer(true);
-              break;
-          }
-        }}
-      />
-
-      {/* Gamification Components */}
       <AchievementPanel
         isOpen={showAchievementPanel}
         onClose={() => setShowAchievementPanel(false)}
@@ -3142,22 +3112,21 @@ const App: React.FC = () => {
 
       {/* Error Display - Shows errors on screen so we can see them */}
       <ErrorDisplay />
-    </div>
-  );
-};
 
-export default App;
-
-        isOpen={showConversationHistory}
-        onClose={() => setShowConversationHistory(false)}
-        onSelectConversation={id => {
-          // TODO: Load conversation into DevChatbot
-          setShowConversationHistory(false);
-        }}
+      {/* AI Floating Panel - Design Guide Compliance */}
+      <AIFloatingPanel
+        isOpen={showAIPanel}
+        onClose={() => setShowAIPanel(false)}
+        prompt={state.prompt || ''}
+        onPromptChange={prompt => setState(p => ({ ...p, prompt }))}
+        style={state.style || 'line-art'}
+        onStyleChange={style => setState(p => ({ ...p, style }))}
+        complexity={state.complexity || 5}
+        onComplexityChange={complexity => setState(p => ({ ...p, complexity }))}
+        onGenerate={handleGenerate}
+        advancedMode={advancedMode}
+        onAdvancedModeChange={setAdvancedMode}
       />
-
-      {/* Error Display - Shows errors on screen so we can see them */}
-      <ErrorDisplay />
     </div>
   );
 };
