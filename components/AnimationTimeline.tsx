@@ -7,7 +7,7 @@
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { FrameState, AnimationKeyframe, AnimationPreset, VectorLayer } from '../types';
-import Tooltip from './design-system/Tooltip';
+import { Tooltip } from '@xibalba/design-system';
 
 interface AnimationTimelineProps {
   frameState: FrameState;
@@ -384,15 +384,15 @@ const AnimationTimeline: React.FC<AnimationTimelineProps> = ({
       ref={timelineContainerRef}
       data-timeline-bottom={position.y}
       className={`xibalba-timeline animation-timeline-container flex flex-col bg-[var(--xibalba-grey-100)] border-t-2 border-[var(--xibalba-accent)]/30 transition-all timeline-positioned shadow-lg ${isExpanded ? 'min-h-[250px] max-h-[60vh]' : 'h-12 overflow-hidden'}`}
-            style={{
-              position: 'fixed',
-              bottom: `${Math.max(48, position.y)}px`,
-              left: '320px', // Account for left sidebar width
-              right: '360px', // Account for right sidebar width
-              zIndex: 10,
-              contain: 'layout style paint',
-              overflow: 'hidden',
-            }}
+      style={{
+        position: 'fixed',
+        bottom: `${Math.max(48, position.y)}px`,
+        left: '320px', // Account for left sidebar width
+        right: '360px', // Account for right sidebar width
+        zIndex: 10,
+        contain: 'layout style paint',
+        overflow: 'hidden',
+      }}
     >
       {/* Drag Handle */}
       <div
@@ -493,7 +493,9 @@ const AnimationTimeline: React.FC<AnimationTimelineProps> = ({
                     title="Stop"
                     aria-label="Stop Animation"
                   >
-                    <span className="material-symbols-outlined text-[16px]" aria-hidden="true">stop</span>
+                    <span className="material-symbols-outlined text-[16px]" aria-hidden="true">
+                      stop
+                    </span>
                     <span className="sr-only">Stop</span>
                   </button>
                   <button
@@ -514,7 +516,9 @@ const AnimationTimeline: React.FC<AnimationTimelineProps> = ({
                       title="Previous Frame"
                       aria-label="Previous Frame"
                     >
-                      <span className="material-symbols-outlined text-[16px]" aria-hidden="true">skip_previous</span>
+                      <span className="material-symbols-outlined text-[16px]" aria-hidden="true">
+                        skip_previous
+                      </span>
                       <span className="sr-only">Previous Frame</span>
                     </button>
                   </Tooltip>
@@ -525,7 +529,9 @@ const AnimationTimeline: React.FC<AnimationTimelineProps> = ({
                       title="Next Frame"
                       aria-label="Next Frame"
                     >
-                      <span className="material-symbols-outlined text-[16px]" aria-hidden="true">skip_next</span>
+                      <span className="material-symbols-outlined text-[16px]" aria-hidden="true">
+                        skip_next
+                      </span>
                       <span className="sr-only">Next Frame</span>
                     </button>
                   </Tooltip>
@@ -541,7 +547,12 @@ const AnimationTimeline: React.FC<AnimationTimelineProps> = ({
                       title="Add Keyframe"
                       aria-label="Add Keyframe"
                     >
-                      <span className="material-symbols-outlined text-[16px] mr-1" aria-hidden="true">add</span>
+                      <span
+                        className="material-symbols-outlined text-[16px] mr-1"
+                        aria-hidden="true"
+                      >
+                        add
+                      </span>
                       Keyframe
                     </button>
                   </Tooltip>
@@ -551,12 +562,15 @@ const AnimationTimeline: React.FC<AnimationTimelineProps> = ({
                   {/* Animation Presets */}
                   <div className="relative group">
                     <Tooltip content="Apply animation preset" shortcut="Ctrl+P">
-                      <button 
+                      <button
                         className="xibalba-button-professional"
                         aria-label="Animation Presets"
                         title="Animation Presets - Apply pre-configured animation effects"
                       >
-                        <span className="material-symbols-outlined text-[16px] mr-1" aria-hidden="true">
+                        <span
+                          className="material-symbols-outlined text-[16px] mr-1"
+                          aria-hidden="true"
+                        >
                           auto_awesome
                         </span>
                         Presets
@@ -587,7 +601,9 @@ const AnimationTimeline: React.FC<AnimationTimelineProps> = ({
                     title="Import from Animation Studio"
                     aria-label="Import from Animation Studio"
                   >
-                    <span className="material-symbols-outlined text-[16px] mr-1" aria-hidden="true">download</span>
+                    <span className="material-symbols-outlined text-[16px] mr-1" aria-hidden="true">
+                      download
+                    </span>
                     Import
                   </button>
 
@@ -598,8 +614,12 @@ const AnimationTimeline: React.FC<AnimationTimelineProps> = ({
                     title="Loop Animation"
                     aria-label={frameState.isLooping ? 'Disable Loop' : 'Enable Loop'}
                   >
-                    <span className="material-symbols-outlined text-[16px]" aria-hidden="true">repeat</span>
-                    <span className="sr-only">{frameState.isLooping ? 'Disable Loop' : 'Enable Loop'}</span>
+                    <span className="material-symbols-outlined text-[16px]" aria-hidden="true">
+                      repeat
+                    </span>
+                    <span className="sr-only">
+                      {frameState.isLooping ? 'Disable Loop' : 'Enable Loop'}
+                    </span>
                   </button>
                 </div>
               </div>
@@ -607,9 +627,9 @@ const AnimationTimeline: React.FC<AnimationTimelineProps> = ({
               {/* Timeline Track - FIXED: Actually visible with proper heights */}
               <div className="xibalba-timeline-track flex flex-col overflow-hidden min-h-[120px]">
                 {/* Frame Numbers - FIXED: Actually visible now with better contrast and borders */}
-                <div 
+                <div
                   className="h-12 flex items-center border-b-2 border-[var(--xibalba-accent)]/40 bg-[var(--xibalba-grey-150)] relative px-2 shadow-sm overflow-x-auto"
-                  style={{ 
+                  style={{
                     position: 'relative',
                     zIndex: 1,
                     contain: 'layout style paint',
@@ -624,7 +644,12 @@ const AnimationTimeline: React.FC<AnimationTimelineProps> = ({
                       sessionId: 'debug-session',
                       runId: 'test-ui-fixes',
                       hypothesisId: 'D',
-                      data: { totalFrames, frameCount, firstFrame: 0, lastFrame: (frameCount - 1) * 10 },
+                      data: {
+                        totalFrames,
+                        frameCount,
+                        firstFrame: 0,
+                        lastFrame: (frameCount - 1) * 10,
+                      },
                     });
                     return null;
                   })()}
