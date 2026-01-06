@@ -335,6 +335,7 @@ const App: React.FC = () => {
   const [actionsCode, setActionsCode] = useState<string>('');
   const [showLibrary, setShowLibrary] = useState(true);
   const [showActions, setShowActions] = useState(false);
+  const [showAIPanel, setShowAIPanel] = useState(false);
 
   // Canvas settings state
   const [snapToGrid, setSnapToGrid] = useState(true);
@@ -2246,6 +2247,14 @@ const App: React.FC = () => {
         <ProfessionalFileMenu onAction={handleAction} onLayoutChange={handleLayoutChange} />
         {/* Emergency Save/Load/Export buttons */}
         <SaveLoadButtons state={state} setState={setState} />
+        <button
+          onClick={() => setShowAIPanel(true)}
+          className="ml-4 px-4 py-2 bg-[var(--vectorforge-accent)] text-white rounded text-sm font-semibold hover:opacity-90 transition-opacity"
+          aria-label="Generate with AI"
+          title="Generate with AI - Open AI generation panel"
+        >
+          ✨ Generate with AI
+        </button>
         <ExportButton />
         <div className="ml-auto mr-4">
           <SignButton
@@ -2316,6 +2325,7 @@ const App: React.FC = () => {
               onShowGuidesChange={setShowGuides}
               gridSize={gridSize}
               onGridSizeChange={setGridSize}
+        {false &&         {/* AI Panel - MOVED TO FLOATING PANEL (Design Guide Compliance) */}
               showOnionSkin={showOnionSkin}
               onShowOnionSkinChange={setShowOnionSkin}
               onionSkinFrames={onionSkinFrames}
@@ -3101,6 +3111,21 @@ const App: React.FC = () => {
 
       {/* Error Display - Shows errors on screen so we can see them */}
       <ErrorDisplay />
+
+      {/* AI Floating Panel - Design Guide Compliance */}
+      <AIFloatingPanel
+        isOpen={showAIPanel}
+        onClose={() => setShowAIPanel(false)}
+        prompt={state.prompt || ""}
+        onPromptChange={(prompt) => setState(p => ({ ...p, prompt }))}
+        style={state.style || "line-art"}
+        onStyleChange={(style) => setState(p => ({ ...p, style }))}
+        complexity={state.complexity || 5}
+        onComplexityChange={(complexity) => setState(p => ({ ...p, complexity }))}
+        onGenerate={handleGenerate}
+        advancedMode={advancedMode}
+        onAdvancedModeChange={setAdvancedMode}
+      />
     </div>
   );
 };
