@@ -7,19 +7,23 @@ import React, { useState, useRef, useEffect } from 'react';
 import '../styles/tooltip.css';
 
 interface TooltipProps {
-  content: string;
+  /** Tooltip content */
+  content: React.ReactNode;
   children: React.ReactElement;
   position?: 'top' | 'bottom' | 'left' | 'right';
   delay?: number;
   disabled?: boolean;
+  /** Keyboard shortcut to display */
+  shortcut?: string;
 }
 
 const Tooltip: React.FC<TooltipProps> = ({
   content,
   children,
   position = 'top',
-  delay = 300,
+  delay = 500,
   disabled = false,
+  shortcut,
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState(position);
@@ -122,8 +126,28 @@ const Tooltip: React.FC<TooltipProps> = ({
           className={`tooltip tooltip-${tooltipPosition}`}
           role="tooltip"
           aria-live="polite"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+          }}
         >
-          {content}
+          <span>{content}</span>
+          {shortcut && (
+            <span
+              style={{
+                marginLeft: '4px',
+                padding: '2px 6px',
+                background: 'rgba(0, 0, 0, 0.2)',
+                borderRadius: '4px',
+                fontSize: '11px',
+                fontFamily: 'monospace',
+                fontWeight: 600,
+              }}
+            >
+              {shortcut}
+            </span>
+          )}
         </div>
       )}
     </>

@@ -84,45 +84,54 @@ const PowerUserToolbar: React.FC<PowerUserToolbarProps> = ({
     }
   }, [position]);
 
+  // #region agent log - PowerUserToolbar render
+  useEffect(() => {
+    if (typeof window === 'undefined') return; // Skip in SSR
+    const parentPos = toolbarRef.current?.parentElement && typeof getComputedStyle !== 'undefined' 
+      ? getComputedStyle(toolbarRef.current.parentElement).position 
+      : 'N/A';
+    console.log('[DEBUG] PowerUserToolbar RENDERED', {
+      timestamp: Date.now(),
+      sessionId: 'debug-session',
+      runId: 'verify-deployment',
+      hypothesisId: 'H',
+      data: {
+        position: { x: position.x, y: position.y },
+        hasParent: !!toolbarRef.current?.parentElement,
+        parentPosition: parentPos,
+      },
+    });
+  }, [position.x, position.y]);
+  // #endregion
+
   return (
     <div 
       ref={toolbarRef}
-      className="absolute zstack-power-toolbar bg-[var(--xibalba-grey-100)] border-2 border-[var(--xibalba-accent)]/20 shadow-lg rounded-lg"
+      className="zstack-power-toolbar bg-[var(--xibalba-grey-100)] border-2 border-[var(--xibalba-accent)]/20 shadow-lg rounded-lg"
       style={{
-        position: 'absolute',
-        top: position.y === 0 ? '8px' : `${position.y}px`,
-        right: position.x === 0 ? '8px' : `${position.x}px`,
-        zIndex: 'var(--z-power-toolbar, 50)',
+        position: 'relative', // Changed from absolute to relative for center stack layout
+        width: '100%',
+        zIndex: 50,
         pointerEvents: 'auto',
         contain: 'layout style paint',
       } as React.CSSProperties}
-      onPointerMove={handleDragMove}
-      onPointerUp={handleDragEnd}
-      onPointerCancel={handleDragEnd}
+      data-power-toolbar="true"
     >
-      <div className="xibalba-panel-elevated-professional power-toolbar-panel">
-        {/* Drag Handle */}
-        <Tooltip content="Drag to move toolbar" position="bottom">
-          <div
-            ref={dragHandleRef}
-            onPointerDown={handleDragStart}
-            className="power-toolbar-drag-handle w-full h-6 cursor-grab active:cursor-grabbing flex items-center justify-center transition-all mb-1 border-b border-white/10"
-          >
-            <div className="flex gap-1">
-              <div className="w-1.5 h-1.5 bg-[var(--xibalba-text-200)]"></div>
-              <div className="w-1.5 h-1.5 bg-[var(--xibalba-text-200)]"></div>
-              <div className="w-1.5 h-1.5 bg-[var(--xibalba-text-200)]"></div>
-            </div>
-          </div>
-        </Tooltip>
+      <div className="xibalba-panel-elevated-professional power-toolbar-panel" style={{ width: '100%' }}>
+        {/* Toolbar Header - No drag handle needed in center stack layout */}
+        <div className="w-full h-6 flex items-center justify-center transition-all mb-1 border-b border-white/10">
+          <span className="text-xs text-[var(--xibalba-text-200)] uppercase tracking-wider">Canvas Settings</span>
+        </div>
         <Tooltip content="Canvas Settings - Configure grid, guides, and onion skinning" position="left">
           <button
             onClick={() => setIsExpanded(!isExpanded)}
             className="xibalba-button-professional w-full"
+            aria-label="Canvas Settings"
+            title="Canvas Settings - Configure grid, guides, and onion skinning"
           >
-          <span className="material-symbols-outlined text-[16px] mr-2">grid_on</span>
+          <span className="material-symbols-outlined text-[16px] mr-2" aria-hidden="true">grid_on</span>
           Canvas Settings
-          <span className="material-symbols-outlined text-[14px] ml-auto">
+          <span className="material-symbols-outlined text-[14px] ml-auto" aria-hidden="true">
             {isExpanded ? 'expand_less' : 'expand_more'}
           </span>
           </button>

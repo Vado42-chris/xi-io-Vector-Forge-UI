@@ -52,18 +52,55 @@ class ErrorBoundary extends Component<Props, State> {
   render() {
     const props = this.props as Props;
     if (this.state.hasError) {
+      // #region agent log - ErrorBoundary covering UI
+      console.log('[DEBUG] ErrorBoundary: ERROR STATE - Covering UI', {
+        timestamp: Date.now(),
+        sessionId: 'debug-session',
+        runId: 'z-index-cover-diagnostic',
+        hypothesisId: 'A',
+        data: {
+          hasError: true,
+          errorMessage: this.state.error?.message,
+          zIndex: 99999,
+          position: 'fixed',
+          coversFullScreen: true,
+        },
+      });
+      // #endregion
       if (props.fallback) {
         return props.fallback;
       }
       return (
-        <div className="xibalba-panel-professional p-4 bg-[var(--vectorforge-accent)]/10">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="material-symbols-outlined text-[var(--vectorforge-accent)]" aria-hidden="true" data-icon="error"></span>
-            <span className="xibalba-text-caption text-[var(--vectorforge-accent)]">Component Error</span>
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: '#1a1c22',
+          color: '#ffffff',
+          padding: '40px',
+          zIndex: 99999,
+          fontFamily: 'monospace',
+          pointerEvents: 'auto',
+        }}>
+          <h1 style={{ color: '#ff9800', marginBottom: '20px', fontSize: '24px' }}>
+            🚨 Component Error
+          </h1>
+          <div style={{ background: '#0a0b0e', padding: '20px', borderRadius: '8px', marginBottom: '20px' }}>
+            <h2 style={{ color: '#ff0000', marginBottom: '10px' }}>Error:</h2>
+            <pre style={{ color: '#ffffff', whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
+              {this.state.error?.message || 'An error occurred'}
+            </pre>
+            {this.state.error?.stack && (
+              <details style={{ marginTop: '10px' }}>
+                <summary style={{ color: '#999', cursor: 'pointer' }}>Stack Trace</summary>
+                <pre style={{ color: '#999', fontSize: '12px', marginTop: '10px', whiteSpace: 'pre-wrap' }}>
+                  {this.state.error.stack}
+                </pre>
+              </details>
+            )}
           </div>
-          <p className="xibalba-text-xs text-[var(--xibalba-text-100)]">
-            {this.state.error?.message || 'An error occurred'}
-          </p>
         </div>
       );
     }

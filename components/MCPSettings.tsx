@@ -16,13 +16,16 @@ import ErrorBoundary from './ErrorBoundary';
 
 interface MCPSettingsProps {
   onConfigChange?: (config: MCPConfig) => void;
+  // Global advanced mode (Day 5-7: Progressive Disclosure)
+  advancedMode?: boolean;
 }
 
-const MCPSettings: React.FC<MCPSettingsProps> = ({ onConfigChange }) => {
+const MCPSettings: React.FC<MCPSettingsProps> = ({ onConfigChange, advancedMode = false }) => {
   const [config, setConfig] = useState<MCPConfig>(loadMCPConfig());
   const [isSaving, setIsSaving] = useState(false);
   const [validation, setValidation] = useState<{ valid: boolean; errors: string[] }>({ valid: true, errors: [] });
-  const [showAdvanced, setShowAdvanced] = useState(false);
+  // Use global advancedMode instead of local state (Day 5-7: Progressive Disclosure)
+  const showAdvanced = advancedMode;
   const [isDetecting, setIsDetecting] = useState(false);
   const [availableModels, setAvailableModels] = useState<string[]>([]);
   const [isTesting, setIsTesting] = useState(false);
@@ -423,19 +426,9 @@ const MCPSettings: React.FC<MCPSettingsProps> = ({ onConfigChange }) => {
               </label>
             </div>
 
-            {/* Advanced Settings */}
-            <div className="xibalba-panel-professional">
-              <button
-                onClick={() => setShowAdvanced(!showAdvanced)}
-                className="xibalba-button-professional w-full mb-4"
-              >
-                <span className="material-symbols-outlined text-[16px] mr-2">
-                  {showAdvanced ? 'expand_less' : 'expand_more'}
-                </span>
-                Advanced Settings
-              </button>
-
-              {showAdvanced && (
+            {/* Advanced Settings - Day 5-7: Progressive Disclosure */}
+            {showAdvanced && (
+              <div className="xibalba-panel-professional">
                 <div className="space-y-4 pt-4 border-t border-white/10">
                   <div>
                     <label className="xibalba-label-professional">Timeout (ms)</label>
@@ -461,8 +454,8 @@ const MCPSettings: React.FC<MCPSettingsProps> = ({ onConfigChange }) => {
                     />
                   </div>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
 
             {/* Validation Errors */}
             {!validation.valid && (

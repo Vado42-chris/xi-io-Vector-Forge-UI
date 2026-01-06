@@ -212,10 +212,13 @@ body {
 
 /* Action Center - Single Most Actionable Item */
 .xibalba-action-center-container {
-  position: relative;
+  position: fixed;
+  top: 16px;
+  right: 16px;
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  z-index: 1000;
 }
 
 .xibalba-action-center {
@@ -256,8 +259,11 @@ body {
 }
 
 .xibalba-action-center-urgency-high {
-  background: rgba(255, 152, 0, 0.2);
+  background: var(--vectorforge-accent, #ff9800) !important;
+  color: white !important;
   border-color: transparent !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4) !important;
 }
 
 .xibalba-action-center-urgency-medium {

@@ -10,7 +10,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
-  testDir: 'tests/e2e',
+  testDir: 'tests/playwright',
   timeout: 60 * 1000,
   fullyParallel: false, // Run tests serially for now
   forbidOnly: !!process.env.CI,

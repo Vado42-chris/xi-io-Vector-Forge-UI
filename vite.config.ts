@@ -5,6 +5,12 @@ import react from '@vitejs/plugin-react';
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     return {
+      // Only use index.html as entry point (ignore other HTML files)
+      build: {
+        rollupOptions: {
+          input: './index.html',
+        },
+      },
       server: {
         port: 3000,
         host: '0.0.0.0',
@@ -43,11 +49,12 @@ export default defineConfig(({ mode }) => {
         headers: {
           'Content-Security-Policy': [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // Required for Vite HMR in dev
-            "style-src 'self' 'unsafe-inline'",
-            "img-src 'self' data: blob:",
-            "font-src 'self' data:",
-            "connect-src 'self' ws://localhost:* http://localhost:*",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://esm.sh", // Required for Vite HMR in dev
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net", // Allow Material Icons
+            "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net", // Allow Material Icons
+            "img-src 'self' data: blob: https:",
+            "font-src 'self' data: https://fonts.gstatic.com",
+            "connect-src 'self' ws://localhost:* http://localhost:* https:",
             "frame-ancestors 'none'",
             "base-uri 'self'",
             "form-action 'self'",

@@ -99,8 +99,8 @@ export const Button: React.FC<ButtonProps> = ({
     .filter(Boolean)
     .join(' ');
 
-  // Determine aria-label
-  const finalAriaLabel = ariaLabel || label || tooltip || (icon ? `Button ${icon}` : 'Button');
+  // Determine aria-label - prefer explicit aria-label, then label, then tooltip, never fallback to "Button"
+  const finalAriaLabel = ariaLabel || label || tooltip || (icon ? `${icon.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}` : undefined);
 
   // Render button
   const buttonElement = (

@@ -1,0 +1,224 @@
+/**
+ * MAI Framework Styles
+ * Reusable styles for Most Actionable Item component
+ */
+
+.mai-framework-container {
+  position: fixed;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 1000;
+}
+
+.mai-framework-container.mai-framework-top-right {
+  top: 16px;
+  right: 16px;
+}
+
+.mai-framework-container.mai-framework-top-left {
+  top: 16px;
+  left: 16px;
+}
+
+.mai-framework-container.mai-framework-bottom-right {
+  bottom: 16px;
+  right: 16px;
+}
+
+.mai-framework-container.mai-framework-bottom-left {
+  bottom: 16px;
+  left: 16px;
+}
+
+.mai-framework-primary {
+  display: flex;
+  align-items: center;
+  padding: 12px 24px;
+  background: var(--xibalba-bg-tertiary, #2a2a2a);
+  border: none;
+  border-radius: 8px;
+  color: var(--xibalba-text-primary, #ffffff);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  min-width: 200px;
+  max-width: 300px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.mai-framework-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+.mai-framework-primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.mai-framework-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Urgency-based styling */
+.mai-framework-urgency-critical {
+  background: rgba(220, 38, 38, 0.9) !important;
+  color: white !important;
+  animation: mai-pulse 2s ease-in-out infinite;
+}
+
+.mai-framework-urgency-high {
+  background: var(--vectorforge-accent, #ff9800) !important;
+  color: white !important;
+  font-weight: 700 !important;
+}
+
+.mai-framework-urgency-medium {
+  background: var(--xibalba-bg-tertiary, #2a2a2a) !important;
+  color: var(--xibalba-text-primary, #ffffff) !important;
+}
+
+.mai-framework-urgency-low {
+  background: var(--xibalba-bg-tertiary, #2a2a2a) !important;
+  color: var(--xibalba-text-secondary, #aaaaaa) !important;
+  opacity: 0.8;
+}
+
+@keyframes mai-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.mai-framework-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.mai-framework-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.mai-framework-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.mai-framework-label {
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mai-framework-context {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mai-framework-expand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--xibalba-bg-tertiary, #2a2a2a);
+  border: none;
+  border-radius: 4px;
+  color: var(--xibalba-text-secondary, #aaaaaa);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mai-framework-expand:hover {
+  background: var(--xibalba-bg-hover, #3a3a3a);
+  color: var(--xibalba-text-primary, #ffffff);
+}
+
+.mai-framework-expand .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.mai-framework-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 280px;
+  max-width: 400px;
+  background: var(--xibalba-bg-secondary, #1a1a1a);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  z-index: 1001;
+  padding: 8px;
+  animation: mai-fade-in 0.2s ease-out;
+}
+
+@keyframes mai-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mai-framework-secondary {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: var(--xibalba-text-primary, #ffffff);
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mai-framework-secondary:hover:not(:disabled) {
+  background: var(--xibalba-bg-hover, #3a3a3a);
+}
+
+.mai-framework-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mai-framework-secondary .material-symbols-outlined {
+  font-size: 18px;
+  color: var(--xibalba-text-secondary, #aaaaaa);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.mai-framework-secondary-label {
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 1.4;
+  margin-bottom: 4px;
+}
+
+.mai-framework-secondary-description {
+  font-size: 11px;
+  color: var(--xibalba-text-secondary, #aaaaaa);
+  line-height: 1.4;
+}
+

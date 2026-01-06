@@ -1,3 +1,83 @@
+/* Application base layout (permanent, no !important) */
+
+/* Root should fill viewport and the top-level layout manages columns */
+#root, .app-root {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: row;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Sidebars: fixed widths and no flex-grow */
+.left-sidebar,
+[class*="LeftSidebar"] {
+  width: 320px;
+  min-width: 320px;
+  max-width: 320px;
+  flex: 0 0 320px;
+  box-sizing: border-box;
+}
+
+.right-sidebar,
+[class*="RightSidebar"] {
+  width: 360px;
+  min-width: 360px;
+  max-width: 360px;
+  flex: 0 0 360px;
+  box-sizing: border-box;
+}
+
+/* Center stack should take remaining width and be a column layout */
+.center-stack,
+[data-center-stack="true"] {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0; /* critical to allow inner content to shrink */
+  min-height: 0; /* CRITICAL: Allow flex child to shrink */
+  height: 100%; /* Use 100% of parent, NOT 100vh - this was covering everything */
+  box-sizing: border-box;
+}
+
+/* Make sure canvas area is a flexible child inside the center stack */
+.center-canvas-area,
+[data-canvas-area="true"] {
+  flex: 1 1 0%;
+  min-width: 0;
+  min-height: 0;
+  position: relative;
+  background: #1a1a1a;
+  overflow: hidden;
+}
+
+/* Canvas viewport + grid defaults (non-emergency) */
+.canvas-viewport {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.canvas-grid-pattern {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.30;
+  background-size: 20px 20px;
+  background-image:
+    linear-gradient(to right, rgba(255,255,255,0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,0.06) 1px, transparent 1px);
+  z-index: 0;
+}
+
+.canvas-svg-content {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
 /* Base styles for VectorForge */
 * {
   box-sizing: border-box;
@@ -9,6 +89,7 @@ body {
   font-family: 'Inter', sans-serif;
   background-color: var(--xibalba-grey-000, #0a0b0e);
   color: var(--xibalba-text-000, #ffffff);
+  overflow: hidden; /* Prevent body scroll */
 }
 
 #root {
@@ -51,5 +132,18 @@ body {
   color: var(--xibalba-text-100, #cccccc);
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.875rem;
+}
+
+/* Screen reader only text - visually hidden but accessible */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
 

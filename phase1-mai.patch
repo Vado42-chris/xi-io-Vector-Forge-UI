@@ -1,0 +1,291 @@
+diff --git a/components/design-system/ActionCenter.tsx b/components/design-system/ActionCenter.tsx
+new file mode 100644
+index 0000000..a1b2c3d
+--- /dev/null
++++ b/components/design-system/ActionCenter.tsx
+@@ -0,0 +1,80 @@
++import React from 'react';
++
++export interface ActionCenterProps {
++  primaryAction: {
++    label: string;
++    onClick: () => void;
++    disabled?: boolean;
++    loading?: boolean;
++  } | null;
++  position?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
++  className?: string;
++}
++
++export const ActionCenter: React.FC<ActionCenterProps> = ({
++  primaryAction,
++  position = 'top-right',
++  className = '',
++}) => {
++  const baseStyle: React.CSSProperties = {
++    position: 'fixed',
++    zIndex: 1100,
++    boxSizing: 'border-box',
++    fontFamily: 'inherit',
++  };
++
++  const posStyle: Record<string, React.CSSProperties> = {
++    'top-right': { top: 16, right: 16 },
++    'top-left': { top: 16, left: 16 },
++    'bottom-right': { bottom: 16, right: 16 },
++    'bottom-left': { bottom: 16, left: 16 },
++  };
++
++  if (!primaryAction) {
++    return (
++      <div
++        className={`action-center action-center--${position} ${className}`}
++        style={{
++          ...baseStyle,
++          ...posStyle[position],
++          background: 'var(--color-surface-secondary, #111827)',
++          color: 'var(--color-text-secondary, #d1d5db)',
++          padding: '12px 16px',
++          borderRadius: 8,
++          fontSize: 13,
++          fontWeight: 500,
++        }}
++        aria-live="polite"
++      >
++        ✅ All Caught Up
++      </div>
++    );
++  }
++
++  return (
++    <div style={{ ...baseStyle, ...posStyle[position] }} className={className} aria-live="polite">
++      <button
++        onClick={primaryAction.onClick}
++        disabled={primaryAction.disabled || primaryAction.loading}
++        title={primaryAction.label}
++        aria-label={primaryAction.label}
++        style={{
++          background: 'var(--accent-orange, #ff6b35)',
++          color: '#fff',
++          padding: '10px 18px',
++          borderRadius: 8,
++          border: 'none',
++          cursor: primaryAction.disabled ? 'not-allowed' : 'pointer',
++          fontSize: 15,
++          fontWeight: 700,
++          boxShadow: '0 6px 16px rgba(255,107,53,0.18)',
++        }}
++        onMouseEnter={(e) => {
++          if (!primaryAction.disabled) (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)';
++        }}
++        onMouseLeave={(e) => {
++          (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
++        }}
++      >
++        {primaryAction.loading ? '⏳ Processing...' : primaryAction.label}
++      </button>
++    </div>
++  );
++};
++
++export default ActionCenter;
+
+diff --git a/components/design-system/hooks/useMAI.ts b/components/design-system/hooks/useMAI.ts
+new file mode 100644
+index 0000000..e1f2g3h
+--- /dev/null
++++ b/components/design-system/hooks/useMAI.ts
+@@ -0,0 +1,32 @@
++import { useMemo } from 'react';
++
++export type MAIAction = {
++  id: string;
++  label: string;
++  priority: number;
++  condition: (state: Record<string, any>) => boolean;
++  action: () => void;
++};
++
++export type MAIContext = {
++  state: Record<string, any>;
++  actions: MAIAction[];
++};
++
++export const useMAI = (context: MAIContext) => {
++  return useMemo(() => {
++    const available = context.actions.filter((a) => {
++      try {
++        return a.condition(context.state);
++      } catch {
++        return false;
++      }
++    });
++
++    available.sort((a, b) => b.priority - a.priority);
++    const primary = available[0] || null;
++
++    if (!primary) return null;
++
++    return { label: primary.label, onClick: primary.action, disabled: false, loading: false };
++  }, [context.state, context.actions]);
++};
+
+diff --git a/components/design-system/Tooltip.tsx b/components/design-system/Tooltip.tsx
+new file mode 100644
+index 0000000..i4j5k6l
+--- /dev/null
++++ b/components/design-system/Tooltip.tsx
+@@ -0,0 +1,95 @@
++import React, { useState, useRef, useEffect } from 'react';
++import { createPortal } from 'react-dom';
++
++export const Tooltip: React.FC<{
++  content: React.ReactNode;
++  position?: 'top' | 'bottom' | 'left' | 'right';
++  delay?: number;
++  shortcut?: string;
++  children: React.ReactElement;
++}> = ({ content, position = 'top', delay = 400, shortcut, children }) => {
++  const [visible, setVisible] = useState(false);
++  const [coords, setCoords] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
++  const timeoutRef = useRef<number | undefined>();
++  const triggerRef = useRef<HTMLElement | null>(null);
++
++  useEffect(() => {
++    return () => {
++      if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
++    };
++  }, []);
++
++  const show = () => {
++    timeoutRef.current = window.setTimeout(() => {
++      if (triggerRef.current) {
++        const rect = triggerRef.current.getBoundingClientRect();
++        setCoords({
++          x: rect.left + rect.width / 2,
++          y: position === 'top' ? rect.top : rect.bottom,
++        });
++        setVisible(true);
++      }
++    }, delay);
++  };
++
++  const hide = () => {
++    if (timeoutRef.current) {
++      window.clearTimeout(timeoutRef.current);
++    }
++    setVisible(false);
++  };
++
++  const child = React.cloneElement(children, {
++    ref: (node: HTMLElement) => {
++      triggerRef.current = node;
++      const { ref } = children as any;
++      if (typeof ref === 'function') ref(node);
++      else if (ref) ref.current = node;
++    },
++    onMouseEnter: (e: any) => {
++      show();
++      if (children.props.onMouseEnter) children.props.onMouseEnter(e);
++    },
++    onMouseLeave: (e: any) => {
++      hide();
++      if (children.props.onMouseLeave) children.props.onMouseLeave(e);
++    },
++    onFocus: (e: any) => {
++      show();
++      if (children.props.onFocus) children.props.onFocus(e);
++    },
++    onBlur: (e: any) => {
++      hide();
++      if (children.props.onBlur) children.props.onBlur(e);
++    },
++  });
++
++  const tip = visible ? (
++    <div
++      role="tooltip"
++      style={{
++        position: 'fixed',
++        left: coords.x,
++        top: coords.y,
++        transform: position === 'top' ? 'translate(-50%, -100%)' : 'translate(-50%, 0)',
++        marginTop: position === 'top' ? -8 : 8,
++        background: 'rgba(18,18,18,0.95)',
++        color: '#fff',
++        padding: '6px 10px',
++        borderRadius: 6,
++        fontSize: 12,
++        pointerEvents: 'none',
++        zIndex: 2000,
++        whiteSpace: 'nowrap',
++      }}
++    >
++      <span>{content}</span>
++      {shortcut && <span style={{ marginLeft: 8, fontFamily: 'monospace', fontSize: 11 }}>{shortcut}</span>}
++    </div>
++  ) : null;
++
++  return (
++    <>
++      {child}
++      {typeof document !== 'undefined' && visible ? createPortal(tip, document.body) : null}
++    </>
++  );
++};
++
++export default Tooltip;
+
+diff --git a/components/design-system/AdvancedSection.tsx b/components/design-system/AdvancedSection.tsx
+new file mode 100644
+index 0000000..m7n8o9p
+--- /dev/null
++++ b/components/design-system/AdvancedSection.tsx
+@@ -0,0 +1,45 @@
++import React, { useState, useEffect } from 'react';
++
++export const AdvancedSection: React.FC<{
++  collapsed?: boolean;
++  summary?: React.ReactNode;
++  id?: string;
++  onToggle?: (collapsed: boolean) => void;
++  children: React.ReactNode;
++}> = ({ collapsed = true, summary, id, onToggle, children }) => {
++  const [isCollapsed, setIsCollapsed] = useState(collapsed);
++
++  useEffect(() => {
++    setIsCollapsed(collapsed);
++  }, [collapsed]);
++
++  const toggle = () => {
++    setIsCollapsed((s) => {
++      const next = !s;
++      onToggle && onToggle(next);
++      return next;
++    });
++  };
++
++  return (
++    <section aria-labelledby={id ? `${id}-label` : undefined} style={{ marginTop: 16 }}>
++      {summary && (
++        <div id={id ? `${id}-label` : undefined} style={{ marginBottom: 8, fontWeight: 600 }}>
++          {summary}
++        </div>
++      )}
++
++      <div style={{ display: isCollapsed ? 'none' : 'block' }}>{children}</div>
++
++      <button
++        onClick={toggle}
++        aria-expanded={!isCollapsed}
++        title={isCollapsed ? 'Show advanced options' : 'Hide advanced options'}
++        style={{ marginTop: 8, fontSize: 13, padding: '4px 12px', cursor: 'pointer' }}
++      >
++        {isCollapsed ? '▶ Show Advanced' : '▼ Hide Advanced'}
++      </button>
++    </section>
++  );
++};
++
++export default AdvancedSection;
+

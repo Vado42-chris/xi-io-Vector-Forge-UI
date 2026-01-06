@@ -67,6 +67,8 @@ interface RightSidebarProps {
   onTerminalCommand?: (cmd: string) => void;
   // Conversation history
   onShowConversationHistory?: () => void;
+  // Global advanced mode (Day 5-7: Progressive Disclosure)
+  advancedMode?: boolean;
 }
 
 const RightSidebar: React.FC<RightSidebarProps> = ({
@@ -79,7 +81,7 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
   onExpandAppearance, onCreateOutlines,
   snapshots, onRestoreSnapshot,
   keyframes, frameState, onScriptChange, onScriptExecute,
-  state, setState,   onScriptGenerated, onTerminalCommand, onShowConversationHistory
+  state, setState,   onScriptGenerated, onTerminalCommand, onShowConversationHistory, advancedMode = false
 }) => {
   const selectedLayer = layers.find(l => l.id === selectedLayerId);
   // Default to Dev Chat tab for easy access - ALWAYS devchat on mount
@@ -194,6 +196,16 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
         <div 
           ref={sidebarRef}
           className="flex flex-col min-h-0 shrink-0 xibalba-dockable-palette sidebar-fixed-right bg-[var(--xibalba-grey-050)]"
+          style={{
+            width: '360px',
+            minWidth: '360px',
+            maxWidth: '360px',
+            flex: '0 0 360px',
+            position: 'relative',
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+          }}
           onPointerDown={handleDragStart}
           data-palette-id="right-sidebar"
           data-sidebar-right-width={width}
@@ -544,7 +556,7 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
           </div>
         ) : activeRightTab === 'engine' ? (
           <ErrorBoundary>
-            <MCPSettings />
+            <MCPSettings advancedMode={advancedMode} />
           </ErrorBoundary>
         ) : activeRightTab === 'help' ? (
           <ErrorBoundary>

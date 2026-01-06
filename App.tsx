@@ -20,7 +20,7 @@ import ProfessionalFileMenu from './components/ProfessionalFileMenu';
 import LeftSidebar from './components/LeftSidebar';
 import RightSidebar from './components/RightSidebar';
 import ProfessionalLayersPanel from './components/ProfessionalLayersPanel';
-import DraftsmanCanvas from './components/DraftsmanCanvas';
+import Canvas from './components/Canvas';
 import AnimationTimeline from './components/AnimationTimeline';
 import PowerUserToolbar from './components/PowerUserToolbar';
 import Footer from './components/Footer';
@@ -1304,7 +1304,7 @@ const App: React.FC = () => {
                   onOnionSkinFramesChange={setOnionSkinFrames}
                 />
 
-                <DraftsmanCanvas
+                <Canvas
                   svgContent={state.currentSvg}
                   layers={state.layers}
                   activeTool={isSpacePressed ? 'pan' : state.activeTool}

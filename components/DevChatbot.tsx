@@ -880,6 +880,7 @@ Be concise, helpful, and technical. If the user asks about file operations or co
               onClick={() => onShowHistory?.()}
               className="dev-chat-history-button"
               title="View History"
+              aria-label="View History"
             >
               <span
                 className="material-symbols-outlined dev-chat-history-icon"
@@ -888,6 +889,7 @@ Be concise, helpful, and technical. If the user asks about file operations or co
               >
                 history
               </span>
+              <span className="sr-only">History</span>
             </button>
           </div>
         </div>

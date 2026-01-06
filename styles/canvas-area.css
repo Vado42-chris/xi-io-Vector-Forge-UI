@@ -2,32 +2,32 @@
  * Canvas Area Styles
  * NO INLINE STYLES - All positioning via CSS classes and CSS variables
  * Xibalba Design System Compliant
+ * UPDATED: Flexbox-compatible (removed absolute positioning)
  */
 
+/* Canvas area now uses flexbox - these classes are for legacy support only */
 .xibalba-canvas-area {
-  position: absolute;
-  top: 48px;
-  left: var(--sidebar-left-width, 320px);
-  right: var(--sidebar-right-width, 360px);
-  height: calc(100vh - 48px);
-  width: calc(100vw - var(--sidebar-left-width, 320px) - var(--sidebar-right-width, 360px));
+  /* Flexbox layout - no absolute positioning needed */
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   z-index: var(--z-canvas, 10);
 }
 
 .xibalba-canvas-area-left-only {
-  width: calc(100vw - var(--sidebar-left-width, 320px));
-  right: 0;
+  /* Flexbox handles width automatically */
+  flex: 1;
 }
 
 .xibalba-canvas-area-right-only {
-  width: calc(100vw - var(--sidebar-right-width, 360px));
-  left: 0;
+  /* Flexbox handles width automatically */
+  flex: 1;
 }
 
 .xibalba-canvas-area-no-sidebars {
-  width: 100vw;
-  left: 0;
-  right: 0;
+  /* Flexbox handles width automatically */
+  flex: 1;
 }
 
 .xibalba-canvas-container {

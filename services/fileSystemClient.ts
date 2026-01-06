@@ -30,7 +30,6 @@ export class FileSystemClient {
     // #region agent log
     const logEntry1 = {location:'fileSystemClient.ts:29',message:'readFile entry',data:{path,useCache},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A,B,C,D,E'};
     console.log('[DEBUG]', logEntry1);
-    fetch('http://127.0.0.1:7242/ingest/9192f36e-3223-469d-8e1d-e9ca20bc6049',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logEntry1)}).catch(()=>{});
     // #endregion
     const cacheKey = `file:${path}`;
     
@@ -38,7 +37,6 @@ export class FileSystemClient {
       const url = `${this.baseUrl}/read`;
       const body = JSON.stringify({ path });
       // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/9192f36e-3223-469d-8e1d-e9ca20bc6049',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'fileSystemClient.ts:35',message:'before fetch',data:{url,method:'POST',bodyLength:body.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A,C,D'})}).catch(()=>{});
       // #endregion
       const response = await fetch(url, {
         method: 'POST',
@@ -52,26 +50,22 @@ export class FileSystemClient {
       const responseText = await response.clone().text();
       const logEntry2 = {location:'fileSystemClient.ts:48',message:'after fetch response',data:{status,contentType,responseLength:responseText.length,responsePreview:responseText.substring(0,200),isOk:response.ok},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A,B,C,E'};
       console.log('[DEBUG]', logEntry2);
-      fetch('http://127.0.0.1:7242/ingest/9192f36e-3223-469d-8e1d-e9ca20bc6049',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logEntry2)}).catch(()=>{});
       // #endregion
       
       // Check if response is OK and is JSON
       if (!response.ok) {
         // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/9192f36e-3223-469d-8e1d-e9ca20bc6049',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'fileSystemClient.ts:52',message:'response not ok',data:{status,responseText:responseText.substring(0,200)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A,C'})}).catch(()=>{});
         // #endregion
         throw new Error(`HTTP ${response.status}: ${responseText.substring(0, 200)}`);
       }
       
       if (!contentType || !contentType.includes('application/json')) {
         // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/9192f36e-3223-469d-8e1d-e9ca20bc6049',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'fileSystemClient.ts:58',message:'content-type mismatch',data:{contentType,responsePreview:responseText.substring(0,200)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C,E'})}).catch(()=>{});
         // #endregion
         throw new Error(`Expected JSON but got ${contentType}. Response: ${responseText.substring(0, 200)}`);
       }
       
       // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/9192f36e-3223-469d-8e1d-e9ca20bc6049',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'fileSystemClient.ts:63',message:'before JSON parse',data:{responseLength:responseText.length,isEmpty:responseText.length===0,preview:responseText.substring(0,100)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
       // #endregion
       
       let data;
@@ -81,26 +75,22 @@ export class FileSystemClient {
         // #region agent log
         const logEntry3 = {location:'fileSystemClient.ts:70',message:'JSON parse success',data:{hasSuccess:!!data.success,hasContent:!!data.content},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'};
         console.log('[DEBUG]', logEntry3);
-        fetch('http://127.0.0.1:7242/ingest/9192f36e-3223-469d-8e1d-e9ca20bc6049',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logEntry3)}).catch(()=>{});
         // #endregion
       } catch (parseError) {
         // #region agent log
         const logEntry4 = {location:'fileSystemClient.ts:74',message:'JSON parse failed',data:{error:parseError instanceof Error ? parseError.message : String(parseError),responsePreview:responseText.substring(0,200)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B,E'};
         console.log('[DEBUG]', logEntry4);
-        fetch('http://127.0.0.1:7242/ingest/9192f36e-3223-469d-8e1d-e9ca20bc6049',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logEntry4)}).catch(()=>{});
         // #endregion
         throw new Error(`Failed to parse JSON: ${parseError instanceof Error ? parseError.message : String(parseError)}. Response: ${responseText.substring(0, 200)}`);
       }
       
       if (!data.success) {
         // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/9192f36e-3223-469d-8e1d-e9ca20bc6049',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'fileSystemClient.ts:80',message:'API returned error',data:{error:data.error},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
         // #endregion
         throw new Error(data.error || 'Failed to read file');
       }
       
       // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/9192f36e-3223-469d-8e1d-e9ca20bc6049',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'fileSystemClient.ts:85',message:'readFile success',data:{contentLength:data.content?.length || 0},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A,B,C,D,E'})}).catch(()=>{});
       // #endregion
       return data.content;
     };

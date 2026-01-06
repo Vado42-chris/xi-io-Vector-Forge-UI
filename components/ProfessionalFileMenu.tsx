@@ -966,8 +966,6 @@ const ProfessionalFileMenu: React.FC<ProfessionalFileMenuProps> = ({
         {/* Professional Menu Bar - NO BUTTON BORDERS */}
         <nav className="flex items-center xibalba-header-nav">
           {menus.map(menu => (
-            <div key={menu.label} className="menu-container relative xibalba-header-menu-button">
-              <button
             <div 
               key={menu.label}
               className="menu-container relative xibalba-header-menu-button"

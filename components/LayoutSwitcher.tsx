@@ -58,9 +58,7 @@ const LayoutSwitcher: React.FC<LayoutSwitcherProps> = ({ onLayoutChange }) => {
         <>
           <div
             className="fixed inset-0 z-[var(--z-modal-backdrop,200)]"
-            className="fixed inset-0"
             onClick={() => setIsOpen(false)}
-            className="z-[var(--z-modal-backdrop,200)]"
           />
           <div className="absolute top-full left-0 mt-1 w-64 xibalba-card z-[var(--z-dropdown,500)] border border-white/10 shadow-lg">
             <div className="p-2 space-y-1">

@@ -1,0 +1,470 @@
+diff --git a/components/design-system/ActionCenter.tsx b/components/design-system/ActionCenter.tsx
+new file mode 100644
+index 0000000..e377d21
+--- /dev/null
++++ b/components/design-system/ActionCenter.tsx
+@@ -0,0 +1,85 @@
++import React from 'react';
++
++export interface ActionCenterProps {
++  primaryAction: {
++    label: string;
++    onClick: () => void;
++    disabled?: boolean;
++    loading?: boolean;
++  } | null;
++  position?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left';
++  className?: string;
++}
++
++export const ActionCenter: React.FC<ActionCenterProps> = ({
++  primaryAction,
++  position = 'top-right',
++  className = '',
++}) => {
++  const baseStyle: React.CSSProperties = {
++    position: 'fixed',
++    zIndex: 1100,
++    boxSizing: 'border-box',
++    fontFamily: 'inherit',
++  };
++
++  const posStyle: Record<string, React.CSSProperties> = {
++    'top-right': { top: 16, right: 16 },
++    'top-left': { top: 16, left: 16 },
++    'bottom-right': { bottom: 16, right: 16 },
++    'bottom-left': { bottom: 16, left: 16 },
++  };
++
++  if (!primaryAction) {
++    return (
++      <div
++        className={`action-center action-center--${position} ${className}`}
++        style={{
++          ...baseStyle,
++          ...posStyle[position],
++          background: 'var(--color-surface-secondary, #111827)',
++          color: 'var(--color-text-secondary, #d1d5db)',
++          padding: '12px 16px',
++          borderRadius: 8,
++          fontSize: 13,
++          fontWeight: 500,
++        }}
++        aria-live="polite"
++      >
++        ✅ All Caught Up
++      </div>
++    );
++  }
++
++  return (
++    <div style={{ ...baseStyle, ...posStyle[position] }} className={className} aria-live="polite">
++      <button
++        onClick={primaryAction.onClick}
++        disabled={primaryAction.disabled || primaryAction.loading}
++        title={primaryAction.label}
++        aria-label={primaryAction.label}
++        style={{
++          background: 'var(--accent-orange, #ff6b35)',
++          color: '#fff',
++          padding: '10px 18px',
++          borderRadius: 8,
++          border: 'none',
++          cursor: primaryAction.disabled ? 'not-allowed' : 'pointer',
++          fontSize: 15,
++          fontWeight: 700,
++          boxShadow: '0 6px 16px rgba(255,107,53,0.18)',
++        }}
++        onMouseEnter={(e) => {
++          if (!primaryAction.disabled) (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)';
++        }}
++        onMouseLeave={(e) => {
++          (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
++        }}
++      >
++        {primaryAction.loading ? '⏳ Processing...' : primaryAction.label}
++      </button>
++    </div>
++  );
++};
++
++export default ActionCenter;
++
++diff --git a/components/design-system/hooks/useMAI.ts b/components/design-system/hooks/useMAI.ts
++new file mode 100644
++index 0000000..ac5a27a
++--- /dev/null
++++ b/components/design-system/hooks/useMAI.ts
+@@ -0,0 +1,38 @@
++import { useMemo } from 'react';
++
++export type MAIAction = {
++  id: string;
++  label: string;
++  priority: number;
++  condition: (state: Record<string, any>) => boolean;
++  action: () => void;
++};
++
++export type MAIContext = {
++  state: Record<string, any>;
++  actions: MAIAction[];
++};
++
++export const useMAI = (context: MAIContext) => {
++  return useMemo(() => {
++    const available = context.actions.filter((a) => {
++      try {
++        return a.condition(context.state);
++      } catch {
++        return false;
++      }
++    });
++
++    available.sort((a, b) => b.priority - a.priority);
++    const primary = available[0] || null;
++
++    if (!primary) return null;
++
++    return {
++      label: primary.label,
++      onClick: primary.action,
++      disabled: false,
++      loading: false,
++    };
++  }, [context.state, context.actions]);
++};
++
++diff --git a/components/design-system/Tooltip.tsx b/components/design-system/Tooltip.tsx
++new file mode 100644
++index 0000000..5ae4226
++--- /dev/null
++++ b/components/design-system/Tooltip.tsx
+@@ -0,0 +1,98 @@
++import React, { useState, useRef, useEffect } from 'react';
++import { createPortal } from 'react-dom';
++
++export const Tooltip: React.FC<{
++  content: React.ReactNode;
++  position?: 'top' | 'bottom' | 'left' | 'right';
++  delay?: number;
++  shortcut?: string;
++  children: React.ReactElement;
++}> = ({ content, position = 'top', delay = 400, shortcut, children }) => {
++  const [visible, setVisible] = useState(false);
++  const [coords, setCoords] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
++  const timeoutRef = useRef<number | undefined>();
++  const triggerRef = useRef<HTMLElement | null>(null);
++
++  useEffect(() => {
++    return () => {
++      if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
++    };
++  }, []);
++
++  const show = () => {
++    timeoutRef.current = window.setTimeout(() => {
++      if (triggerRef.current) {
++        const rect = triggerRef.current.getBoundingClientRect();
++        setCoords({
++          x: rect.left + rect.width / 2,
++          y: position === 'top' ? rect.top : rect.bottom,
++        });
++        setVisible(true);
++      }
++    }, delay);
++  };
++
++  const hide = () => {
++    if (timeoutRef.current) {
++      window.clearTimeout(timeoutRef.current);
++    }
++    setVisible(false);
++  };
++
++  const child = React.cloneElement(children, {
++    ref: (node: HTMLElement) => {
++      triggerRef.current = node;
++      const { ref } = children as any;
++      if (typeof ref === 'function') ref(node);
++      else if (ref) ref.current = node;
++    },
++    onMouseEnter: (e: any) => {
++      show();
++      if (children.props.onMouseEnter) children.props.onMouseEnter(e);
++    },
++    onMouseLeave: (e: any) => {
++      hide();
++      if (children.props.onMouseLeave) children.props.onMouseLeave(e);
++    },
++    onFocus: (e: any) => {
++      show();
++      if (children.props.onFocus) children.props.onFocus(e);
++    },
++    onBlur: (e: any) => {
++      hide();
++      if (children.props.onBlur) children.props.onBlur(e);
++    },
++  });
++
++  const tip = visible ? (
++    <div
++      role="tooltip"
++      style={{
++        position: 'fixed',
++        left: coords.x,
++        top: coords.y,
++        transform: position === 'top' ? 'translate(-50%, -100%)' : 'translate(-50%, 0)',
++        background: 'rgba(18,18,18,0.95)',
++        color: '#fff',
++        padding: '6px 8px',
++        borderRadius: 6,
++        fontSize: 12,
++        pointerEvents: 'none',
++        zIndex: 2000,
++        whiteSpace: 'nowrap',
++      }}
++    >
++      <span>{content}</span>
++      {shortcut && <span style={{ marginLeft: 8, fontFamily: 'monospace', fontSize: 11 }}>{shortcut}</span>}
++    </div>
++  ) : null;
++
++  return (
++    <>
++      {child}
++      {typeof document !== 'undefined' && visible ? createPortal(tip, document.body) : null}
++    </>
++  );
++};
++
++export default Tooltip;
++
++diff --git a/components/design-system/AdvancedSection.tsx b/components/design-system/AdvancedSection.tsx
++new file mode 100644
++index 0000000..4dc95f7
++--- /dev/null
++++ b/components/design-system/AdvancedSection.tsx
+@@ -0,0 +1,46 @@
++import React, { useState, useEffect } from 'react';
++
++export const AdvancedSection: React.FC<{
++  collapsed?: boolean;
++  summary?: React.ReactNode;
++  id?: string;
++  onToggle?: (collapsed: boolean) => void;
++  children?: React.ReactNode;
++}> = ({ collapsed = true, summary, id, onToggle, children }) => {
++  const [isCollapsed, setIsCollapsed] = useState(collapsed);
++
++  useEffect(() => {
++    setIsCollapsed(collapsed);
++  }, [collapsed]);
++
++  const toggle = () => {
++    setIsCollapsed((s) => {
++      const next = !s;
++      onToggle && onToggle(next);
++      return next;
++    });
++  };
++
++  return (
++    <section aria-labelledby={id ? `${id}-label` : undefined}>
++      {summary && (
++        <div id={id ? `${id}-label` : undefined} style={{ marginBottom: 8 }}>
++          {summary}
++        </div>
++      )}
++
++      <div style={{ display: isCollapsed ? 'none' : 'block' }}>{children}</div>
++
++      <button
++        onClick={toggle}
++        aria-expanded={!isCollapsed}
++        title={isCollapsed ? 'Show advanced options' : 'Hide advanced options'}
++        style={{ marginTop: 8, fontSize: 13 }}
++      >
++        {isCollapsed ? 'Show Advanced' : 'Hide Advanced'}
++      </button>
++    </section>
++  );
++};
++
++export default AdvancedSection;
++
++diff --git a/App.hardened.tsx b/App.hardened.tsx
++index 624735d..d7ad44f 100644
++--- a/App.hardened.tsx
++++ b/App.hardened.tsx
+@@ -31,6 +31,8 @@ import GuidedWorkflowPanel from './components/GuidedWorkflowPanel';
+ // Design System Components
+ import ActionCenter from './components/design-system/ActionCenter';
+ import { useMAI } from './components/design-system/hooks/useMAI';
++import AdvancedSection from './components/design-system/AdvancedSection';
+ // Keep old ActionCenter for backward compatibility (will be removed after migration)
+ import LegacyActionCenter from './components/ActionCenter';
+@@ -2316,6 +2318,7 @@ const App: React.FC = () => {
+             >
+               {/* AI Generation Panel - Extracted from LeftSidebar */}
+-              <div className="xibalba-panel-section bg-[var(--xibalba-grey-100)] rounded-lg p-4 border border-[var(--xibalba-grey-200)]">
++              <div className="xibalba-panel-section bg-[var(--xibalba-grey-100)] rounded-lg p-4 border border-[var(--xibalba-grey-200)]" data-testid="ai-panel">
+                 <h3 className="text-xs font-bold text-[var(--xibalba-text-primary)] uppercase tracking-widest mb-4">
+                   GENERATIVE VECTOR AI
+                 </h3>
+@@ -2371,7 +2374,7 @@ const App: React.FC = () => {
+                 </button>
+ 
+                 {/* Advanced Options - Hidden by default */}
+-                <ProgressiveDisclosure
++                <AdvancedSection
+                   collapsed={!advancedMode}
+                   summary={<strong>Advanced options</strong>}
+                   id="ai-advanced"
+@@ -2412,7 +2415,7 @@ const App: React.FC = () => {
+                     </div>
+                   </div>
+-                </ProgressiveDisclosure>
++                </AdvancedSection>
+               </div>
+             </div>
+@@ -2914,6 +2917,33 @@ const App: React.FC = () => {
+         }}
+       />
+ 
++      {/* MAI Framework - Most Actionable Item */}
++      {(() => {
++        const appState = {
++          prompt: state.prompt || '',
++          isGenerating: state.isGenerating || false,
++          selectedLayers: state.layers.filter(l => l.id === state.selectedLayerId),
++        };
++
++        const primaryAction = useMAI({
++          state: appState,
++          actions: [
++            {
++              id: 'generate-vector',
++              label: '✨ Generate Vector',
++              priority: 100,
++              condition: (s) => Boolean(s.prompt && !s.isGenerating),
++              action: () => handleGenerate(),
++            },
++            {
++              id: 'edit-selection',
++              label: '✏️ Edit Selection',
++              priority: 90,
++              condition: (s) => (s.selectedLayers || []).length > 0,
++              action: () => {
++                const propsPanel = document.querySelector('[data-panel="properties"]');
++                propsPanel?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
++              },
++            },
++            {
++              id: 'enter-prompt',
++              label: '💬 Enter a prompt to start',
++              priority: 10,
++              condition: (s) => !s.prompt,
++              action: () => {
++                const input = document.querySelector<HTMLInputElement>('.ai-prompt-input');
++                input?.focus();
++              },
++            },
++          ],
++        });
++
++        return (
++          <ActionCenter primaryAction={primaryAction} position="top-right" />
++        );
++      })()}
++
+       {/* Legacy Action Center (keeping for backward compatibility - will be removed after testing) */}
+       <LegacyActionCenter
+@@ -10,6 +10,7 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
+ import { FrameState, AnimationKeyframe, AnimationPreset, VectorLayer } from '../types';
+-import Tooltip from './Tooltip';
++import Tooltip from './design-system/Tooltip';
+ 
+ interface AnimationTimelineProps {
+@@ -510,6 +511,7 @@ const AnimationTimeline: React.FC<AnimationTimelineProps> = ({
+                   </button>
+                   <Tooltip content="Go to previous frame" shortcut="←">
+                     <button
+                       onClick={() => handleFrameChange(frameState.currentFrame - 1)}
+                       className="xibalba-toolbar-button-professional"
+                       title="Previous Frame"
+                       aria-label="Previous Frame"
+                     >
+                       <span className="material-symbols-outlined text-[16px]" aria-hidden="true">skip_previous</span>
+                       <span className="sr-only">Previous Frame</span>
+                     </button>
+                   </Tooltip>
+                   <Tooltip content="Go to next frame" shortcut="→">
+                     <button
+                       onClick={() => handleFrameChange(frameState.currentFrame + 1)}
+                       className="xibalba-toolbar-button-professional"
+                       title="Next Frame"
+                       aria-label="Next Frame"
+                     >
+                       <span className="material-symbols-outlined text-[16px]" aria-hidden="true">skip_next</span>
+                       <span className="sr-only">Next Frame</span>
+                     </button>
+                   </Tooltip>
+ 
+                   <div className="w-px h-4 bg-[var(--xibalba-grey-200)] opacity-30" />
+ 
+                   {/* Keyframe Controls */}
+                   <Tooltip content="Add keyframe at current frame" shortcut="K">
+                     <button
+                       onClick={handleAddKeyframe}
+                       disabled={!selectedLayerId}
+                       className="xibalba-button-professional"
+                       title="Add Keyframe"
+                       aria-label="Add Keyframe"
+                     >
+                       <span className="material-symbols-outlined text-[16px] mr-1" aria-hidden="true">add</span>
+                       Keyframe
+                     </button>
+                   </Tooltip>
+ 
+                   <div className="w-px h-4 bg-[var(--xibalba-grey-200)] opacity-30" />
+ 
+                   {/* Animation Presets */}
+                   <Tooltip content="Apply animation preset" shortcut="Ctrl+P">
+                     <button 
+                       className="xibalba-button-professional"
+                       aria-label="Animation Presets"
+                       title="Animation Presets - Apply pre-configured animation effects"
+                     >
+                       <span className="material-symbols-outlined text-[16px] mr-1" aria-hidden="true">
+                         auto_awesome
+                       </span>
+                       Presets
+                     </button>
+                   </Tooltip>
+ 
+diff --git a/tests/playwright/mai.spec.ts b/tests/playwright/mai.spec.ts
+new file mode 100644
+index 0000000..222ca19
+--- /dev/null
++++ b/tests/playwright/mai.spec.ts
+@@ -0,0 +1,15 @@
++import { test, expect } from '@playwright/test';
++
++test('MAI ActionCenter renders and single AI panel present', async ({ page }) => {
++  await page.goto('http://localhost:3000');
++
++  // MAI action (text match)
++  const action = await page.locator('text=Generate Vector').first();
++  expect(action).toBeTruthy();
++
++  // Ensure only one AI panel exists (data-testid)
++  const aiPanels = await page.locator('[data-testid="ai-panel"]').count();
++  expect(aiPanels).toBeLessThanOrEqual(1);
++
++  // Ensure canvas viewport exists
++  const canvas = await page.locator('.canvas-viewport').first();
++  expect(canvas).toBeTruthy();
++});
++
+

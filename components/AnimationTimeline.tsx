@@ -7,6 +7,7 @@
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { FrameState, AnimationKeyframe, AnimationPreset, VectorLayer } from '../types';
+import Tooltip from './design-system/Tooltip';
 
 interface AnimationTimelineProps {
   frameState: FrameState;
@@ -47,7 +48,7 @@ const AnimationTimeline: React.FC<AnimationTimelineProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const footerHeight = 48;
   const defaultTimelineHeight = 200;
-  const [position, setPosition] = useState({ x: 0, y: 0 }); // Start at 0, use bottom-48 in CSS
+  const [position, setPosition] = useState({ x: 0, y: 48 }); // Start at 48px from bottom (above footer)
   const dragStartPos = useRef({ x: 0, y: 0, initialBottom: 0 });
   const dragHandleRef = useRef<HTMLDivElement>(null);
 
@@ -362,11 +363,36 @@ const AnimationTimeline: React.FC<AnimationTimelineProps> = ({
     );
   };
 
+  // #region agent log - AnimationTimeline render verification
+  useEffect(() => {
+    console.log('[DEBUG] AnimationTimeline RENDERED', {
+      timestamp: Date.now(),
+      sessionId: 'debug-session',
+      runId: 'z-index-cover-diagnostic',
+      hypothesisId: 'D',
+      position: { x: position.x, y: position.y },
+      bottom: Math.max(48, position.y),
+      zIndex: 10,
+      positionFixed: true,
+      coversBottom: true,
+    });
+  }, [position.x, position.y]);
+  // #endregion
+
   return (
     <div
       ref={timelineContainerRef}
       data-timeline-bottom={position.y}
       className={`xibalba-timeline animation-timeline-container flex flex-col bg-[var(--xibalba-grey-100)] border-t-2 border-[var(--xibalba-accent)]/30 transition-all timeline-positioned shadow-lg ${isExpanded ? 'min-h-[250px] max-h-[60vh]' : 'h-12 overflow-hidden'}`}
+            style={{
+              position: 'fixed',
+              bottom: `${Math.max(48, position.y)}px`,
+              left: '320px', // Account for left sidebar width
+              right: '360px', // Account for right sidebar width
+              zIndex: 10,
+              contain: 'layout style paint',
+              overflow: 'hidden',
+            }}
     >
       {/* Drag Handle */}
       <div
@@ -465,56 +491,77 @@ const AnimationTimeline: React.FC<AnimationTimelineProps> = ({
                     onClick={handleStop}
                     className="xibalba-toolbar-button-professional"
                     title="Stop"
+                    aria-label="Stop Animation"
                   >
-                    <span className="material-symbols-outlined text-[16px]">stop</span>
+                    <span className="material-symbols-outlined text-[16px]" aria-hidden="true">stop</span>
+                    <span className="sr-only">Stop</span>
                   </button>
                   <button
                     onClick={handlePlayPause}
                     className="xibalba-toolbar-button-professional"
                     title={frameState.isPlaying ? 'Pause' : 'Play'}
+                    aria-label={frameState.isPlaying ? 'Pause Animation' : 'Play Animation'}
                   >
-                    <span className="material-symbols-outlined text-[16px]">
+                    <span className="material-symbols-outlined text-[16px]" aria-hidden="true">
                       {frameState.isPlaying ? 'pause' : 'play_arrow'}
                     </span>
+                    <span className="sr-only">{frameState.isPlaying ? 'Pause' : 'Play'}</span>
                   </button>
-                  <button
-                    onClick={() => handleFrameChange(frameState.currentFrame - 1)}
-                    className="xibalba-toolbar-button-professional"
-                    title="Previous Frame"
-                  >
-                    <span className="material-symbols-outlined text-[16px]">skip_previous</span>
-                  </button>
-                  <button
-                    onClick={() => handleFrameChange(frameState.currentFrame + 1)}
-                    className="xibalba-toolbar-button-professional"
-                    title="Next Frame"
-                  >
-                    <span className="material-symbols-outlined text-[16px]">skip_next</span>
-                  </button>
+                  <Tooltip content="Go to previous frame" shortcut="←">
+                    <button
+                      onClick={() => handleFrameChange(frameState.currentFrame - 1)}
+                      className="xibalba-toolbar-button-professional"
+                      title="Previous Frame"
+                      aria-label="Previous Frame"
+                    >
+                      <span className="material-symbols-outlined text-[16px]" aria-hidden="true">skip_previous</span>
+                      <span className="sr-only">Previous Frame</span>
+                    </button>
+                  </Tooltip>
+                  <Tooltip content="Go to next frame" shortcut="→">
+                    <button
+                      onClick={() => handleFrameChange(frameState.currentFrame + 1)}
+                      className="xibalba-toolbar-button-professional"
+                      title="Next Frame"
+                      aria-label="Next Frame"
+                    >
+                      <span className="material-symbols-outlined text-[16px]" aria-hidden="true">skip_next</span>
+                      <span className="sr-only">Next Frame</span>
+                    </button>
+                  </Tooltip>
 
                   <div className="w-px h-4 bg-[var(--xibalba-grey-200)] opacity-30" />
 
                   {/* Keyframe Controls */}
-                  <button
-                    onClick={handleAddKeyframe}
-                    disabled={!selectedLayerId}
-                    className="xibalba-button-professional"
-                    title="Add Keyframe"
-                  >
-                    <span className="material-symbols-outlined text-[16px] mr-1">add</span>
-                    Keyframe
-                  </button>
+                  <Tooltip content="Add keyframe at current frame" shortcut="K">
+                    <button
+                      onClick={handleAddKeyframe}
+                      disabled={!selectedLayerId}
+                      className="xibalba-button-professional"
+                      title="Add Keyframe"
+                      aria-label="Add Keyframe"
+                    >
+                      <span className="material-symbols-outlined text-[16px] mr-1" aria-hidden="true">add</span>
+                      Keyframe
+                    </button>
+                  </Tooltip>
 
                   <div className="w-px h-4 bg-[var(--xibalba-grey-200)] opacity-30" />
 
                   {/* Animation Presets */}
                   <div className="relative group">
-                    <button className="xibalba-button-professional">
-                      <span className="material-symbols-outlined text-[16px] mr-1">
-                        auto_awesome
-                      </span>
-                      Presets
-                    </button>
+                    <Tooltip content="Apply animation preset" shortcut="Ctrl+P">
+                      <button 
+                        className="xibalba-button-professional"
+                        aria-label="Animation Presets"
+                        title="Animation Presets - Apply pre-configured animation effects"
+                      >
+                        <span className="material-symbols-outlined text-[16px] mr-1" aria-hidden="true">
+                          auto_awesome
+                        </span>
+                        Presets
+                      </button>
+                    </Tooltip>
                     <div className="absolute right-0 bottom-full mb-2 w-64 xibalba-panel-elevated-professional opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity z-50">
                       <div className="p-2 space-y-1">
                         {presets.map(preset => (
@@ -538,8 +585,9 @@ const AnimationTimeline: React.FC<AnimationTimelineProps> = ({
                     onClick={onImportFromStudio}
                     className="xibalba-button-professional"
                     title="Import from Animation Studio"
+                    aria-label="Import from Animation Studio"
                   >
-                    <span className="material-symbols-outlined text-[16px] mr-1">download</span>
+                    <span className="material-symbols-outlined text-[16px] mr-1" aria-hidden="true">download</span>
                     Import
                   </button>
 
@@ -547,9 +595,11 @@ const AnimationTimeline: React.FC<AnimationTimelineProps> = ({
                   <button
                     onClick={() => onFrameStateChange({ isLooping: !frameState.isLooping })}
                     className={`xibalba-toolbar-button-professional ${frameState.isLooping ? 'active' : ''}`}
-                    title="Loop"
+                    title="Loop Animation"
+                    aria-label={frameState.isLooping ? 'Disable Loop' : 'Enable Loop'}
                   >
-                    <span className="material-symbols-outlined text-[16px]">repeat</span>
+                    <span className="material-symbols-outlined text-[16px]" aria-hidden="true">repeat</span>
+                    <span className="sr-only">{frameState.isLooping ? 'Disable Loop' : 'Enable Loop'}</span>
                   </button>
                 </div>
               </div>
@@ -557,7 +607,28 @@ const AnimationTimeline: React.FC<AnimationTimelineProps> = ({
               {/* Timeline Track - FIXED: Actually visible with proper heights */}
               <div className="xibalba-timeline-track flex flex-col overflow-hidden min-h-[120px]">
                 {/* Frame Numbers - FIXED: Actually visible now with better contrast and borders */}
-                <div className="h-12 flex items-center border-b-2 border-[var(--xibalba-accent)]/40 bg-[var(--xibalba-grey-150)] relative px-2 shadow-sm">
+                <div 
+                  className="h-12 flex items-center border-b-2 border-[var(--xibalba-accent)]/40 bg-[var(--xibalba-grey-150)] relative px-2 shadow-sm overflow-x-auto"
+                  style={{ 
+                    position: 'relative',
+                    zIndex: 1,
+                    contain: 'layout style paint',
+                  }}
+                >
+                  {/* #region agent log - Frame numbers render */}
+                  {(() => {
+                    const totalFrames = frameState.totalFrames || 100;
+                    const frameCount = Math.ceil(totalFrames / 10) + 1;
+                    console.log('[DEBUG] AnimationTimeline: Rendering frame numbers', {
+                      timestamp: Date.now(),
+                      sessionId: 'debug-session',
+                      runId: 'test-ui-fixes',
+                      hypothesisId: 'D',
+                      data: { totalFrames, frameCount, firstFrame: 0, lastFrame: (frameCount - 1) * 10 },
+                    });
+                    return null;
+                  })()}
+                  {/* #endregion */}
                   {Array.from(
                     { length: Math.ceil((frameState.totalFrames || 100) / 10) + 1 },
                     (_, i) => i * 10

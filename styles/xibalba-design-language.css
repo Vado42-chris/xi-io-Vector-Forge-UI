@@ -148,21 +148,20 @@
 }
 
 /* Canvas Area - Container for canvas content */
+/* FLEXBOX LAYOUT - No absolute positioning */
 .canvas-area {
-  position: absolute;
-  background-color: var(--xibalba-grey-050, #010101) !important;
+  position: relative !important;
+  background-color: var(--xibalba-grey-050, #1a1a1a) !important; /* Changed from #010101 to #1a1a1a for visibility */
   background-image: 
-    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    linear-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
   background-size: 20px 20px;
   overflow: hidden;
   pointer-events: auto;
-  width: 100% !important;
-  height: 100% !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
+  width: 100%;
+  height: 100%;
+  display: flex !important; /* CRITICAL: Ensure canvas area is a flex container */
+  flex-direction: column !important;
 }
 
 /* Canvas Content Wrapper - NO INLINE STYLES */

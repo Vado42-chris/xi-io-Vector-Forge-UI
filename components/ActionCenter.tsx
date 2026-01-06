@@ -28,9 +28,14 @@ interface Action {
 interface ActionCenterProps {
   userId?: string;
   onAction?: (action: Action) => void;
+  // VectorForge-specific props
+  hasPrompt?: boolean;
+  prompt?: string;
+  onGenerateVector?: () => void;
+  isGenerating?: boolean;
 }
 
-const ActionCenter: React.FC<ActionCenterProps> = ({ userId, onAction }) => {
+const ActionCenter: React.FC<ActionCenterProps> = ({ userId, onAction, hasPrompt, prompt, onGenerateVector, isGenerating }) => {
   const [primaryAction, setPrimaryAction] = useState<Action | null>(null);
   const [secondaryActions, setSecondaryActions] = useState<Action[]>([]);
   const [notificationCount, setNotificationCount] = useState(0);
@@ -46,12 +51,60 @@ const ActionCenter: React.FC<ActionCenterProps> = ({ userId, onAction }) => {
     workTrackingService.recordCalculation();
 
     try {
+      const actions: Action[] = [];
+
+      // VECTORFORGE PRIORITY #1: Check for prompt FIRST (before tasks)
+      // This ensures VectorForge actions take precedence over task management
+      if (hasPrompt && prompt && prompt.trim() && onGenerateVector) {
+        actions.push({
+          id: 'generate-vector',
+          label: isGenerating ? 'Generating...' : 'Generate Vector',
+          description: `Generate vector from: "${prompt.substring(0, 50)}${prompt.length > 50 ? '...' : ''}"`,
+          action: () => {
+            if (!isGenerating && onGenerateVector) {
+              clickTrackingService.trackClick('ActionCenter', 'generate-vector', 'Generate Vector', 'click', {
+                promptLength: prompt.length,
+              });
+              onGenerateVector();
+            }
+          },
+          urgency: 'high',
+          context: 'Click to generate your vector',
+          icon: 'auto_awesome',
+        });
+      } else if (!hasPrompt || !prompt || !prompt.trim()) {
+        // If no prompt, suggest entering one
+        actions.push({
+          id: 'enter-prompt',
+          label: 'Enter a Prompt',
+          description: 'Describe the vector you want to create',
+          action: () => {
+            clickTrackingService.trackClick('ActionCenter', 'focus-prompt', 'Enter Prompt', 'click', {});
+            // Focus the prompt input - this would be handled by parent
+            if (onAction) {
+              onAction({
+                id: 'enter-prompt',
+                label: 'Enter a Prompt',
+                description: '',
+                action: () => {},
+                urgency: 'medium',
+                context: '',
+              });
+            }
+          },
+          urgency: 'medium',
+          context: 'Start by entering a prompt',
+          icon: 'edit',
+        });
+      }
+
+      // TASK MANAGEMENT PRIORITY #2: Only check tasks if no VectorForge action exists
       // Get user's tasks
       const userTasks = userId
         ? await taskManagementService.getTasks({ assignee: userId })
         : await taskManagementService.getTasks();
 
-      // Priority order:
+      // Priority order (only if no VectorForge action):
       // 1. Blocked tasks you own
       // 2. Tasks requiring approval
       // 3. Review requests
@@ -73,8 +126,6 @@ const ActionCenter: React.FC<ActionCenterProps> = ({ userId, onAction }) => {
       });
       const inProgress = userTasks.filter(task => task.status === 'in_progress');
       const pendingReview = userTasks.filter(task => task.status === 'review');
-
-      const actions: Action[] = [];
 
       // Priority 1: Blocked tasks
       if (blockedTasks.length > 0) {
@@ -169,19 +220,37 @@ const ActionCenter: React.FC<ActionCenterProps> = ({ userId, onAction }) => {
         });
       }
 
+      // VectorForge-specific: If user has a prompt, show "Generate Vector" as primary action
+      if (hasPrompt && prompt && prompt.trim().length > 0 && onGenerateVector) {
+        actions.unshift({
+          id: 'generate-vector',
+          label: isGenerating ? 'Generating...' : 'Generate Vector',
+          description: `Create vector from: "${prompt.substring(0, 50)}${prompt.length > 50 ? '...' : ''}"`,
+          action: () => {
+            clickTrackingService.trackClick('ActionCenter', 'generate-vector', 'Generate Vector', 'click', {
+              promptLength: prompt.length,
+            });
+            onGenerateVector();
+          },
+          urgency: 'high',
+          context: 'Click to generate your vector',
+          icon: 'auto_awesome',
+        });
+      }
+
       // Default: No urgent actions
       if (actions.length === 0) {
         actions.push({
           id: 'no-urgent-actions',
-          label: 'All Caught Up',
-          description: 'No urgent actions at this time',
+          label: hasPrompt && prompt && prompt.trim().length > 0 ? 'Enter a prompt to start' : 'All Caught Up',
+          description: hasPrompt && prompt && prompt.trim().length > 0 ? 'Type a description in the AI panel to generate vectors' : 'No urgent actions at this time',
           action: () => {
             clickTrackingService.trackClick('ActionCenter', 'view-all-tasks', 'View All Tasks', 'click', {});
             setIsExpanded(true);
           },
           urgency: 'low',
-          context: "You're all caught up!",
-          icon: 'check_circle',
+          context: hasPrompt && prompt && prompt.trim().length > 0 ? 'Enter a prompt in the AI panel' : "You're all caught up!",
+          icon: hasPrompt && prompt && prompt.trim().length > 0 ? 'edit' : 'check_circle',
         });
       }
 
@@ -440,14 +509,14 @@ const ActionCenter: React.FC<ActionCenterProps> = ({ userId, onAction }) => {
     } finally {
       setLoading(false);
     }
-  }, [userId, onAction]);
+  }, [userId, onAction, hasPrompt, prompt, isGenerating, onGenerateVector]);
 
   useEffect(() => {
     determineAction();
     // Refresh every 30 seconds
     const interval = setInterval(determineAction, 30000);
     return () => clearInterval(interval);
-  }, [determineAction]);
+  }, [determineAction, hasPrompt, prompt, isGenerating]);
 
   const handlePrimaryAction = () => {
     if (primaryAction) {
@@ -481,10 +550,19 @@ const ActionCenter: React.FC<ActionCenterProps> = ({ userId, onAction }) => {
   const hasNotifications = notificationCount > 0;
 
   return (
-    <div className="xibalba-action-center-container">
+    <div 
+      className="xibalba-action-center-container"
+      style={{
+        position: 'fixed',
+        top: '16px',
+        right: '16px',
+        zIndex: 1000,
+      }}
+    >
       <button
         className={`xibalba-action-center ${urgencyClass} ${hasNotifications ? 'xibalba-action-center-has-notifications' : ''}`}
         onClick={handlePrimaryAction}
+        disabled={isGenerating && primaryAction.id === 'generate-vector'}
         onMouseEnter={() => {
           clickTrackingService.trackClick(
             'panel',
@@ -502,6 +580,23 @@ const ActionCenter: React.FC<ActionCenterProps> = ({ userId, onAction }) => {
             e.preventDefault();
             handlePrimaryAction();
           }
+        }}
+        style={{
+          background: primaryAction.urgency === 'high' || primaryAction.urgency === 'critical' 
+            ? 'var(--vectorforge-accent, #ff9800)' 
+            : 'var(--xibalba-grey-150, #2a2a2a)',
+          color: primaryAction.urgency === 'high' || primaryAction.urgency === 'critical' 
+            ? '#ffffff' 
+            : 'var(--xibalba-text-000, #ffffff)',
+          padding: '12px 24px',
+          fontSize: '16px',
+          fontWeight: 'bold',
+          borderRadius: '8px',
+          cursor: (isGenerating && primaryAction.id === 'generate-vector') ? 'wait' : 'pointer',
+          border: 'none',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+          transition: 'all 0.2s ease',
+          opacity: (isGenerating && primaryAction.id === 'generate-vector') ? 0.7 : 1,
         }}
       >
         <div className="xibalba-action-center-content">
