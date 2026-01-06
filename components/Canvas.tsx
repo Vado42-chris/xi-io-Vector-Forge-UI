@@ -5,7 +5,14 @@
  */
 
 import React, { useRef, useState, useCallback, useEffect } from 'react';
-import { ToolType, VectorLayer, VectorNode, AnimationKeyframe, FrameState, MeasurementUnit } from '../types';
+import {
+  ToolType,
+  VectorLayer,
+  VectorNode,
+  AnimationKeyframe,
+  FrameState,
+  MeasurementUnit,
+} from '../types';
 import Rulers from './Rulers';
 
 interface CanvasProps {
@@ -22,18 +29,18 @@ interface CanvasProps {
   onSelectLayer: (id: string | null) => void;
   onSelectNode?: (id: string | null) => void;
   onUpdateNode?: (layerId: string, nodeId: string, delta: { x: number; y: number }) => void;
-  
+
   // Layer operations
   onCreateLayer?: (layer: VectorLayer) => void;
   onUpdateLayer?: (id: string, updates: Partial<VectorLayer>) => void;
-  
+
   // Animation (optional)
   frameState?: FrameState;
   keyframes?: AnimationKeyframe[];
   onAddKeyframe?: (keyframe: AnimationKeyframe) => void;
   onUpdateKeyframe?: (id: string, properties: Partial<AnimationKeyframe>) => void;
   onInterpolateFrame?: (frame: number, layerId: string) => Partial<VectorLayer>;
-  
+
   // Canvas settings
   showGuides?: boolean;
   snapToGrid?: boolean;
@@ -41,7 +48,7 @@ interface CanvasProps {
   gridSize?: number;
   measurementUnit?: MeasurementUnit;
   onUnitChange?: (unit: MeasurementUnit) => void;
-  
+
   // Other
   isGenerating?: boolean;
   guides?: Array<{ id: string; type: 'h' | 'v'; position: number }>;
@@ -95,7 +102,7 @@ const Canvas: React.FC<CanvasProps> = ({
   } | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [drawPath, setDrawPath] = useState<Array<{ x: number; y: number }>>([]);
-  
+
   const zoomScale = zoom / 100;
 
   // #region agent log - Measure canvas dimensions after mount
@@ -105,17 +112,17 @@ const Canvas: React.FC<CanvasProps> = ({
       const viewportRect = canvasViewportRef.current.getBoundingClientRect();
       const containerStyles = getComputedStyle(containerRef.current);
       const viewportStyles = getComputedStyle(canvasViewportRef.current);
-      
+
       // Check for grid pattern
       const gridPattern = canvasViewportRef.current.querySelector('.canvas-grid-pattern');
       const gridRect = gridPattern?.getBoundingClientRect();
       const gridStyles = gridPattern ? getComputedStyle(gridPattern as HTMLElement) : null;
-      
+
       // Check for SVG content
       const svgContent = canvasViewportRef.current.querySelector('div[style*="512px"]');
       const svgRect = svgContent?.getBoundingClientRect();
       const svgStyles = svgContent ? getComputedStyle(svgContent as HTMLElement) : null;
-      
+
       const diagnosticData = {
         container: {
           width: containerRect.width,
@@ -135,26 +142,30 @@ const Canvas: React.FC<CanvasProps> = ({
           transform: viewportStyles.transform,
           transformOrigin: viewportStyles.transformOrigin,
         },
-        grid: gridPattern ? {
-          exists: true,
-          width: gridRect?.width || 0,
-          height: gridRect?.height || 0,
-          opacity: gridStyles?.opacity || '0',
-          backgroundImage: gridStyles?.backgroundImage || 'none',
-          zIndex: gridStyles?.zIndex || '0',
-        } : { exists: false },
-        svgContent: svgContent ? {
-          exists: true,
-          width: svgRect?.width || 0,
-          height: svgRect?.height || 0,
-          opacity: svgStyles?.opacity || '0',
-          visibility: svgStyles?.visibility || 'hidden',
-        } : { exists: false },
+        grid: gridPattern
+          ? {
+              exists: true,
+              width: gridRect?.width || 0,
+              height: gridRect?.height || 0,
+              opacity: gridStyles?.opacity || '0',
+              backgroundImage: gridStyles?.backgroundImage || 'none',
+              zIndex: gridStyles?.zIndex || '0',
+            }
+          : { exists: false },
+        svgContent: svgContent
+          ? {
+              exists: true,
+              width: svgRect?.width || 0,
+              height: svgRect?.height || 0,
+              opacity: svgStyles?.opacity || '0',
+              visibility: svgStyles?.visibility || 'hidden',
+            }
+          : { exists: false },
         zoom,
         zoomScale,
         pan,
       };
-      
+
       console.log('[DEBUG] Canvas comprehensive diagnostic', {
         ...diagnosticData,
         timestamp: Date.now(),
@@ -168,174 +179,252 @@ const Canvas: React.FC<CanvasProps> = ({
   const selectedLayerData = layers.find(l => l.id === selectedLayerId);
 
   // Handle wheel zoom
-  const handleWheel = useCallback((e: React.WheelEvent) => {
-    if (e.ctrlKey || e.metaKey) {
-      e.preventDefault();
-      const delta = e.deltaY > 0 ? -10 : 10;
-      onZoom(Math.max(10, Math.min(500, zoom + delta)));
-    }
-  }, [zoom, onZoom]);
+  const handleWheel = useCallback(
+    (e: React.WheelEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? -10 : 10;
+        onZoom(Math.max(10, Math.min(500, zoom + delta)));
+      }
+    },
+    [zoom, onZoom]
+  );
 
   // Handle pointer down
-  const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    const target = e.target as HTMLElement;
-    
-    // Handle Pan (spacebar, middle mouse, or pan tool)
-    if (activeTool === 'pan' || e.button === 1 || isSpacebarDown) {
-      setDragState({
-        type: 'pan',
-        id: '',
-        startX: e.clientX,
-        startY: e.clientY,
-        startPan: pan,
-      });
-      target.setPointerCapture(e.pointerId);
-      return;
-    }
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent) => {
+      const target = e.target as HTMLElement;
 
-    // Handle Guide selection/drag
-    if (showGuides && onUpdateGuide) {
-      const guideEl = target.closest('[data-guide-id]');
-      if (guideEl) {
-        const guideId = guideEl.getAttribute('data-guide-id')!;
+      // Handle Pan (spacebar, middle mouse, or pan tool)
+      if (activeTool === 'pan' || e.button === 1 || isSpacebarDown) {
         setDragState({
-          type: 'guide',
-          id: guideId,
-          startX: e.clientX,
-          startY: e.clientY,
-        });
-        target.setPointerCapture(e.pointerId);
-        return;
-      }
-    }
-
-    // Handle Node selection/drag (Sub-selection mode)
-    if (activeTool === 'direct-select' && onSelectNode && onUpdateNode) {
-      const nodeEl = target.closest('[data-node-id]');
-      if (nodeEl) {
-        const nodeId = nodeEl.getAttribute('data-node-id')!;
-        onSelectNode(nodeId);
-        setDragState({
-          type: 'node',
-          id: nodeId,
-          startX: e.clientX,
-          startY: e.clientY,
-        });
-        target.setPointerCapture(e.pointerId);
-        return;
-      }
-    }
-
-    // Handle Object selection
-    if ((activeTool === 'select' || activeTool === 'direct-select') && !isGenerating) {
-      let current: SVGElement | null = e.target as SVGElement;
-      while (current && current.tagName !== 'DIV') {
-        if (current.id && current.id !== 'bg' && current.id !== 'workspace_root' && current.tagName !== 'svg') {
-          onSelectLayer(current.id);
-          if (activeTool !== 'direct-select' && onSelectNode) {
-            onSelectNode(null);
-          }
-          return;
-        }
-        current = current.parentElement as unknown as SVGElement;
-      }
-      onSelectLayer(null);
-      if (onSelectNode) onSelectNode(null);
-    }
-
-    // Handle drawing tools (basic implementation)
-    if (['pen', 'pencil', 'brush', 'line', 'rectangle', 'ellipse'].includes(activeTool) && onCreateLayer) {
-      const rect = canvasViewportRef.current?.getBoundingClientRect();
-      if (rect) {
-        const x = (e.clientX - rect.left - rect.width / 2) / zoomScale;
-        const y = (e.clientY - rect.top - rect.height / 2) / zoomScale;
-        setIsDrawing(true);
-        setDrawPath([{ x, y }]);
-        setDragState({
-          type: 'draw',
+          type: 'pan',
           id: '',
           startX: e.clientX,
           startY: e.clientY,
+          startPan: pan,
         });
         target.setPointerCapture(e.pointerId);
+        return;
       }
-    }
-  }, [
-    activeTool,
-    isSpacebarDown,
-    pan,
-    showGuides,
-    onUpdateGuide,
-    onSelectNode,
-    onUpdateNode,
-    isGenerating,
-    onSelectLayer,
-    onCreateLayer,
-    zoomScale,
-  ]);
+
+      // Handle Guide selection/drag
+      if (showGuides && onUpdateGuide) {
+        const guideEl = target.closest('[data-guide-id]');
+        if (guideEl) {
+          const guideId = guideEl.getAttribute('data-guide-id')!;
+          setDragState({
+            type: 'guide',
+            id: guideId,
+            startX: e.clientX,
+            startY: e.clientY,
+          });
+          target.setPointerCapture(e.pointerId);
+          return;
+        }
+      }
+
+      // Handle Node selection/drag (Sub-selection mode)
+      if (activeTool === 'direct-select' && onSelectNode && onUpdateNode) {
+        const nodeEl = target.closest('[data-node-id]');
+        if (nodeEl) {
+          const nodeId = nodeEl.getAttribute('data-node-id')!;
+          onSelectNode(nodeId);
+          setDragState({
+            type: 'node',
+            id: nodeId,
+            startX: e.clientX,
+            startY: e.clientY,
+          });
+          target.setPointerCapture(e.pointerId);
+          return;
+        }
+      }
+
+      // Handle Object selection
+      if ((activeTool === 'select' || activeTool === 'direct-select') && !isGenerating) {
+        let current: SVGElement | null = e.target as SVGElement;
+        while (current && current.tagName !== 'DIV') {
+          if (
+            current.id &&
+            current.id !== 'bg' &&
+            current.id !== 'workspace_root' &&
+            current.tagName !== 'svg'
+          ) {
+            onSelectLayer(current.id);
+            if (activeTool !== 'direct-select' && onSelectNode) {
+              onSelectNode(null);
+            }
+            return;
+          }
+          current = current.parentElement as unknown as SVGElement;
+        }
+        onSelectLayer(null);
+        if (onSelectNode) onSelectNode(null);
+      }
+
+      // Handle drawing tools (basic implementation)
+      if (
+        ['pen', 'pencil', 'brush', 'line', 'rectangle', 'ellipse'].includes(activeTool) &&
+        onCreateLayer
+      ) {
+        const rect = canvasViewportRef.current?.getBoundingClientRect();
+        if (rect) {
+          const x = (e.clientX - rect.left - rect.width / 2) / zoomScale;
+          const y = (e.clientY - rect.top - rect.height / 2) / zoomScale;
+          setIsDrawing(true);
+          setDrawPath([{ x, y }]);
+          setDragState({
+            type: 'draw',
+            id: '',
+            startX: e.clientX,
+            startY: e.clientY,
+          });
+          target.setPointerCapture(e.pointerId);
+        }
+      }
+    },
+    [
+      activeTool,
+      isSpacebarDown,
+      pan,
+      showGuides,
+      onUpdateGuide,
+      onSelectNode,
+      onUpdateNode,
+      isGenerating,
+      onSelectLayer,
+      onCreateLayer,
+      zoomScale,
+    ]
+  );
 
   // Handle pointer move
-  const handlePointerMove = useCallback((e: React.PointerEvent) => {
-    if (!dragState) return;
+  const handlePointerMove = useCallback(
+    (e: React.PointerEvent) => {
+      if (!dragState) return;
 
-    const dx = (e.clientX - dragState.startX) / zoomScale;
-    const dy = (e.clientY - dragState.startY) / zoomScale;
+      const dx = (e.clientX - dragState.startX) / zoomScale;
+      const dy = (e.clientY - dragState.startY) / zoomScale;
 
-    if (dragState.type === 'pan' && dragState.startPan) {
-      onPan({
-        x: dragState.startPan.x + (e.clientX - dragState.startX),
-        y: dragState.startPan.y + (e.clientY - dragState.startY),
-      });
-    } else if (dragState.type === 'node' && selectedLayerId && onUpdateNode) {
-      onUpdateNode(selectedLayerId, dragState.id, { x: dx, y: dy });
-    } else if (dragState.type === 'guide' && onUpdateGuide) {
-      const guide = guides.find(g => g.id === dragState.id);
-      if (guide) {
-        const val = guide.type === 'v' ? dx : dy;
-        onUpdateGuide(dragState.id, guide.position + val);
+      if (dragState.type === 'pan' && dragState.startPan) {
+        onPan({
+          x: dragState.startPan.x + (e.clientX - dragState.startX),
+          y: dragState.startPan.y + (e.clientY - dragState.startY),
+        });
+      } else if (dragState.type === 'node' && selectedLayerId && onUpdateNode) {
+        onUpdateNode(selectedLayerId, dragState.id, { x: dx, y: dy });
+      } else if (dragState.type === 'guide' && onUpdateGuide) {
+        const guide = guides.find(g => g.id === dragState.id);
+        if (guide) {
+          const val = guide.type === 'v' ? dx : dy;
+          onUpdateGuide(dragState.id, guide.position + val);
+        }
+      } else if (dragState.type === 'draw' && isDrawing) {
+        const rect = canvasViewportRef.current?.getBoundingClientRect();
+        if (rect) {
+          const x = (e.clientX - rect.left - rect.width / 2) / zoomScale;
+          const y = (e.clientY - rect.top - rect.height / 2) / zoomScale;
+          setDrawPath(prev => [...prev, { x, y }]);
+        }
       }
-    } else if (dragState.type === 'draw' && isDrawing) {
-      const rect = canvasViewportRef.current?.getBoundingClientRect();
-      if (rect) {
-        const x = (e.clientX - rect.left - rect.width / 2) / zoomScale;
-        const y = (e.clientY - rect.top - rect.height / 2) / zoomScale;
-        setDrawPath(prev => [...prev, { x, y }]);
-      }
-    }
-  }, [dragState, zoomScale, onPan, selectedLayerId, onUpdateNode, onUpdateGuide, guides, isDrawing]);
+    },
+    [dragState, zoomScale, onPan, selectedLayerId, onUpdateNode, onUpdateGuide, guides, isDrawing]
+  );
 
   // Handle pointer up
-  const handlePointerUp = useCallback((e: React.PointerEvent) => {
-    if (dragState?.type === 'draw' && isDrawing && onCreateLayer && drawPath.length > 0) {
-      // Create layer from draw path (basic implementation)
-      const newLayer: VectorLayer = {
-        id: `layer-${Date.now()}`,
-        name: `Path ${Date.now()}`,
-        visible: true,
-        locked: false,
-        opacity: 1,
-        blendMode: 'normal',
-        color: '#ffffff',
-        stroke: 'none',
-        strokeWidth: 0,
-        shape: {
-          type: 'path',
-          nodes: drawPath.map((p, i) => ({
-            id: `node-${i}`,
-            type: i === 0 ? 'move' : 'line',
-            x: p.x,
-            y: p.y,
-            isKinetic: false,
-          })),
-        },
-      };
-      onCreateLayer(newLayer);
-      setIsDrawing(false);
-      setDrawPath([]);
-    }
-    setDragState(null);
-    (e.target as HTMLElement).releasePointerCapture(e.pointerId);
-  }, [dragState, isDrawing, drawPath, onCreateLayer]);
+  const handlePointerUp = useCallback(
+    (e: React.PointerEvent) => {
+      if (dragState?.type === 'draw' && isDrawing && onCreateLayer && drawPath.length > 0) {
+        const startPoint = drawPath[0];
+        const endPoint = drawPath[drawPath.length - 1];
+        const minX = Math.min(startPoint.x, endPoint.x);
+        const minY = Math.min(startPoint.y, endPoint.y);
+        const maxX = Math.max(startPoint.x, endPoint.x);
+        const maxY = Math.max(startPoint.y, endPoint.y);
+        const width = maxX - minX;
+        const height = maxY - minY;
+
+        let newLayer: VectorLayer;
+
+        // Create proper shape based on tool type
+        if (activeTool === 'rectangle') {
+          newLayer = {
+            id: `layer-${Date.now()}`,
+            name: `Rectangle ${Date.now()}`,
+            visible: true,
+            locked: false,
+            opacity: 1,
+            blendMode: 'normal',
+            color: toolProperties?.fill || '#ffffff',
+            stroke: toolProperties?.stroke || '#000000',
+            strokeWidth: toolProperties?.strokeWidth || 1,
+            shape: {
+              type: 'rect',
+              x: minX,
+              y: minY,
+              width,
+              height,
+              borderRadius: 0,
+            },
+          };
+        } else if (activeTool === 'ellipse') {
+          const centerX = (minX + maxX) / 2;
+          const centerY = (minY + maxY) / 2;
+          const radiusX = Math.abs(width / 2);
+          const radiusY = Math.abs(height / 2);
+          newLayer = {
+            id: `layer-${Date.now()}`,
+            name: `Ellipse ${Date.now()}`,
+            visible: true,
+            locked: false,
+            opacity: 1,
+            blendMode: 'normal',
+            color: toolProperties?.fill || '#ffffff',
+            stroke: toolProperties?.stroke || '#000000',
+            strokeWidth: toolProperties?.strokeWidth || 1,
+            shape: {
+              type: 'ellipse',
+              x: centerX,
+              y: centerY,
+              radiusX,
+              radiusY,
+            },
+          };
+        } else {
+          // Default: create path for pen, pencil, brush, line
+          newLayer = {
+            id: `layer-${Date.now()}`,
+            name: `${activeTool} ${Date.now()}`,
+            visible: true,
+            locked: false,
+            opacity: 1,
+            blendMode: 'normal',
+            color: toolProperties?.fill || '#ffffff',
+            stroke: toolProperties?.stroke || '#000000',
+            strokeWidth: toolProperties?.strokeWidth || 1,
+            shape: {
+              type: 'path',
+              nodes: drawPath.map((p, i) => ({
+                id: `node-${i}`,
+                type: i === 0 ? 'move' : 'line',
+                x: p.x,
+                y: p.y,
+                isKinetic: false,
+              })),
+            },
+          };
+        }
+
+        onCreateLayer(newLayer);
+        setIsDrawing(false);
+        setDrawPath([]);
+      }
+      setDragState(null);
+      (e.target as HTMLElement).releasePointerCapture(e.pointerId);
+    },
+    [dragState, isDrawing, drawPath, onCreateLayer, activeTool, toolProperties]
+  );
 
   // #region agent log - Canvas render verification
   useEffect(() => {
@@ -356,7 +445,17 @@ const Canvas: React.FC<CanvasProps> = ({
         keyframesCount: keyframes.length,
       },
     });
-  }, [svgContent, layers.length, activeTool, zoom, showGuides, snapToGrid, gridSize, frameState, keyframes.length]);
+  }, [
+    svgContent,
+    layers.length,
+    activeTool,
+    zoom,
+    showGuides,
+    snapToGrid,
+    gridSize,
+    frameState,
+    keyframes.length,
+  ]);
   // #endregion
 
   // #region agent log - Canvas return render
@@ -395,18 +494,23 @@ const Canvas: React.FC<CanvasProps> = ({
     <div
       ref={containerRef}
       className="w-full h-full relative overflow-hidden flex items-center justify-center select-none"
-      style={{ 
+      style={{
         cursor: activeTool === 'pan' || isSpacebarDown ? 'grab' : 'default',
-        position: 'absolute', // CRITICAL: Absolute to fill parent container
-        inset: 0, // Fill entire parent
-        zIndex: 1,
-        contain: 'layout style paint',
-        backgroundColor: '#1a1a1a',
-        display: 'flex',
-        visibility: 'visible',
-        opacity: 1,
+        position: 'relative', // FIXED: Relative to respect flex layout, not absolute
         width: '100%',
         height: '100%',
+        maxWidth: '100%', // CRITICAL: Prevent horizontal overflow
+        maxHeight: '100%', // CRITICAL: Prevent vertical overflow
+        zIndex: 1,
+        contain: 'layout style paint',
+        backgroundColor: 'var(--xibalba-grey-000)', // Match canvas area background
+        display: 'flex',
+        flexDirection: 'column', // CRITICAL: Stack rulers and viewport vertically
+        visibility: 'visible',
+        opacity: 1,
+        flex: '1 1 0%', // FIXED: Respect flex layout
+        minHeight: 0, // FIXED: Allow flex child to shrink
+        minWidth: 0, // CRITICAL: Allow flex child to shrink horizontally
       }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
@@ -415,49 +519,51 @@ const Canvas: React.FC<CanvasProps> = ({
     >
       {/* Rulers */}
       {onAddGuide && (
-        <Rulers
-          zoom={zoom}
-          pan={pan}
-          onAddGuide={(type, pos) => onAddGuide(type, pos)}
-        />
+        <Rulers zoom={zoom} pan={pan} onAddGuide={(type, pos) => onAddGuide(type, pos)} />
       )}
 
       {/* Interactive Guides */}
-      {showGuides && guides.length > 0 && guides.map((g) => (
-        <div
-          key={g.id}
-          data-guide-id={g.id}
-          className={`absolute z-[55] cursor-${g.type === 'v' ? 'col-resize' : 'row-resize'} group guide-line ${
-            g.type === 'v' ? 'guide-vertical' : 'guide-horizontal'
-          }`}
-          style={{
-            [g.type === 'v' ? 'left' : 'top']: `${pan[g.type === 'v' ? 'x' : 'y'] + g.position * zoomScale}px`,
-            [g.type === 'v' ? 'width' : 'height']: '1px',
-            [g.type === 'v' ? 'height' : 'width']: '100%',
-          }}
-        >
+      {showGuides &&
+        guides.length > 0 &&
+        guides.map(g => (
           <div
-            className={`absolute ${
-              g.type === 'v'
-                ? 'left-1/2 h-full w-px border-l'
-                : 'top-1/2 w-full h-px border-t'
-            } border-[var(--xibalba-text-200)] transition-opacity opacity-20 group-hover:opacity-100`}
-          />
-        </div>
-      ))}
+            key={g.id}
+            data-guide-id={g.id}
+            className={`absolute z-[55] cursor-${g.type === 'v' ? 'col-resize' : 'row-resize'} group guide-line ${
+              g.type === 'v' ? 'guide-vertical' : 'guide-horizontal'
+            }`}
+            style={{
+              [g.type === 'v' ? 'left' : 'top']:
+                `${pan[g.type === 'v' ? 'x' : 'y'] + g.position * zoomScale}px`,
+              [g.type === 'v' ? 'width' : 'height']: '1px',
+              [g.type === 'v' ? 'height' : 'width']: '100%',
+            }}
+          >
+            <div
+              className={`absolute ${
+                g.type === 'v' ? 'left-1/2 h-full w-px border-l' : 'top-1/2 w-full h-px border-t'
+              } border-[var(--xibalba-text-200)] transition-opacity opacity-20 group-hover:opacity-100`}
+            />
+          </div>
+        ))}
 
-      {/* Canvas Viewport */}
+      {/* Canvas Viewport - Fills entire container, rulers overlay on top */}
       <div
         ref={canvasViewportRef}
         className="canvas-viewport"
         style={{
+          position: 'relative', // FIXED: Relative to respect flex layout
           width: '100%',
           height: '100%',
+          maxWidth: '100%', // CRITICAL: Prevent horizontal overflow
+          maxHeight: '100%', // CRITICAL: Prevent vertical overflow
           display: 'block',
           visibility: 'visible',
-          position: 'relative',
           overflow: 'hidden',
-          backgroundColor: 'var(--xibalba-grey-050, #1a1a1a)',
+          backgroundColor: 'var(--xibalba-grey-000)',
+          flex: '1 1 0%', // FIXED: Fill available space in flex container
+          minHeight: 0, // FIXED: Allow flex child to shrink
+          minWidth: 0, // CRITICAL: Allow flex child to shrink horizontally
         }}
       >
         {/* Grid Pattern - Always visible, subtle opacity */}
@@ -467,7 +573,7 @@ const Canvas: React.FC<CanvasProps> = ({
             position: 'absolute',
             inset: 0,
             pointerEvents: 'none',
-            opacity: 0.50, // Increased from 0.30 for better visibility
+            opacity: 0.5, // Increased from 0.30 for better visibility
             display: 'block',
             backgroundSize: `${gridSize}px ${gridSize}px`,
             backgroundImage: `linear-gradient(to right, rgba(255,255,255,0.12) 1px, transparent 1px),
@@ -476,9 +582,11 @@ const Canvas: React.FC<CanvasProps> = ({
           }}
           aria-hidden="true"
         />
-        
+
         {/* Optional empty state (centered when no nodes) */}
-        {(!svgContent || svgContent.trim() === '<svg xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#0a0b0e"/></svg>') && (
+        {(!svgContent ||
+          svgContent.trim() ===
+            '<svg xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#0a0b0e"/></svg>') && (
           <div
             className="canvas-empty-state"
             style={{
@@ -494,9 +602,19 @@ const Canvas: React.FC<CanvasProps> = ({
             }}
             aria-hidden="true"
           >
-            <div style={{ fontSize: '18px', marginBottom: '8px', fontWeight: 500, color: 'rgba(255,255,255,0.95)' }}>Empty Canvas</div>
+            <div
+              style={{
+                fontSize: '18px',
+                marginBottom: '8px',
+                fontWeight: 500,
+                color: 'rgba(255,255,255,0.95)',
+              }}
+            >
+              Empty Canvas
+            </div>
             <div style={{ fontSize: '12px', opacity: 0.85, color: 'rgba(255,255,255,0.8)' }}>
-              Start creating by selecting a tool from the left sidebar or generating vectors with AI.
+              Start creating by selecting a tool from the left sidebar or generating vectors with
+              AI.
             </div>
           </div>
         )}
@@ -551,7 +669,7 @@ const Canvas: React.FC<CanvasProps> = ({
                   opacity="0.4"
                 />
               </svg>
-              {selectedLayerData.shape.nodes.map((node) => (
+              {selectedLayerData.shape.nodes.map(node => (
                 <div
                   key={node.id}
                   data-node-id={node.id}
@@ -580,7 +698,7 @@ const Canvas: React.FC<CanvasProps> = ({
             <path
               d={`M ${drawPath[0].x} ${drawPath[0].y} ${drawPath
                 .slice(1)
-                .map((p) => `L ${p.x} ${p.y}`)
+                .map(p => `L ${p.x} ${p.y}`)
                 .join(' ')}`}
               fill="none"
               stroke="var(--xibalba-text-200)"

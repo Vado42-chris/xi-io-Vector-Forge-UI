@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
-import Tooltip from './Tooltip';
+import { Tooltip } from '@xibalba/design-system';
 
 interface PowerUserToolbarProps {
   snapToGrid: boolean;
@@ -22,12 +22,18 @@ interface PowerUserToolbarProps {
 }
 
 const PowerUserToolbar: React.FC<PowerUserToolbarProps> = ({
-  snapToGrid, onSnapToGridChange,
-  snapToGuides, onSnapToGuidesChange,
-  showGuides, onShowGuidesChange,
-  gridSize, onGridSizeChange,
-  showOnionSkin, onShowOnionSkinChange,
-  onionSkinFrames, onOnionSkinFramesChange
+  snapToGrid,
+  onSnapToGridChange,
+  snapToGuides,
+  onSnapToGuidesChange,
+  showGuides,
+  onShowGuidesChange,
+  gridSize,
+  onGridSizeChange,
+  showOnionSkin,
+  onShowOnionSkinChange,
+  onionSkinFrames,
+  onOnionSkinFramesChange,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false); // Default to collapsed - user can expand when needed
   const [isDragging, setIsDragging] = useState(false);
@@ -42,9 +48,9 @@ const PowerUserToolbar: React.FC<PowerUserToolbarProps> = ({
       const container = toolbarRef.current.parentElement;
       if (container) {
         const rect = container.getBoundingClientRect();
-        dragStartPos.current = { 
-          x: e.clientX - rect.left - position.x, 
-          y: e.clientY - rect.top - position.y 
+        dragStartPos.current = {
+          x: e.clientX - rect.left - position.x,
+          y: e.clientY - rect.top - position.y,
         };
       }
       (e.target as HTMLElement).setPointerCapture(e.pointerId);
@@ -57,8 +63,14 @@ const PowerUserToolbar: React.FC<PowerUserToolbarProps> = ({
       const container = toolbarRef.current.parentElement;
       if (container) {
         const rect = container.getBoundingClientRect();
-        const newX = Math.max(0, Math.min(rect.width - 300, e.clientX - rect.left - dragStartPos.current.x));
-        const newY = Math.max(0, Math.min(rect.height - 400, e.clientY - rect.top - dragStartPos.current.y));
+        const newX = Math.max(
+          0,
+          Math.min(rect.width - 300, e.clientX - rect.left - dragStartPos.current.x)
+        );
+        const newY = Math.max(
+          0,
+          Math.min(rect.height - 400, e.clientY - rect.top - dragStartPos.current.y)
+        );
         setPosition({ x: newX, y: newY });
       }
     }
@@ -87,9 +99,10 @@ const PowerUserToolbar: React.FC<PowerUserToolbarProps> = ({
   // #region agent log - PowerUserToolbar render
   useEffect(() => {
     if (typeof window === 'undefined') return; // Skip in SSR
-    const parentPos = toolbarRef.current?.parentElement && typeof getComputedStyle !== 'undefined' 
-      ? getComputedStyle(toolbarRef.current.parentElement).position 
-      : 'N/A';
+    const parentPos =
+      toolbarRef.current?.parentElement && typeof getComputedStyle !== 'undefined'
+        ? getComputedStyle(toolbarRef.current.parentElement).position
+        : 'N/A';
     console.log('[DEBUG] PowerUserToolbar RENDERED', {
       timestamp: Date.now(),
       sessionId: 'debug-session',
@@ -105,73 +118,105 @@ const PowerUserToolbar: React.FC<PowerUserToolbarProps> = ({
   // #endregion
 
   return (
-    <div 
+    <div
       ref={toolbarRef}
       className="zstack-power-toolbar bg-[var(--xibalba-grey-100)] border-2 border-[var(--xibalba-accent)]/20 shadow-lg rounded-lg"
-      style={{
-        position: 'relative', // Changed from absolute to relative for center stack layout
-        width: '100%',
-        zIndex: 50,
-        pointerEvents: 'auto',
-        contain: 'layout style paint',
-      } as React.CSSProperties}
+      style={
+        {
+          position: 'relative', // Changed from absolute to relative for center stack layout
+          width: '100%',
+          zIndex: 50,
+          pointerEvents: 'auto',
+          contain: 'layout style paint',
+        } as React.CSSProperties
+      }
       data-power-toolbar="true"
     >
-      <div className="xibalba-panel-elevated-professional power-toolbar-panel" style={{ width: '100%' }}>
+      <div
+        className="xibalba-panel-elevated-professional power-toolbar-panel"
+        style={{ width: '100%' }}
+      >
         {/* Toolbar Header - No drag handle needed in center stack layout */}
         <div className="w-full h-6 flex items-center justify-center transition-all mb-1 border-b border-white/10">
-          <span className="text-xs text-[var(--xibalba-text-200)] uppercase tracking-wider">Canvas Settings</span>
+          <span className="text-xs text-[var(--xibalba-text-200)] uppercase tracking-wider">
+            Canvas Settings
+          </span>
         </div>
-        <Tooltip content="Canvas Settings - Configure grid, guides, and onion skinning" position="left">
+        <Tooltip
+          content="Canvas Settings - Configure grid, guides, and onion skinning"
+          position="left"
+        >
           <button
             onClick={() => setIsExpanded(!isExpanded)}
             className="xibalba-button-professional w-full"
             aria-label="Canvas Settings"
             title="Canvas Settings - Configure grid, guides, and onion skinning"
           >
-          <span className="material-symbols-outlined text-[16px] mr-2" aria-hidden="true">grid_on</span>
-          Canvas Settings
-          <span className="material-symbols-outlined text-[14px] ml-auto" aria-hidden="true">
-            {isExpanded ? 'expand_less' : 'expand_more'}
-          </span>
+            <span className="material-symbols-outlined text-[16px] mr-2" aria-hidden="true">
+              grid_on
+            </span>
+            Canvas Settings
+            <span className="material-symbols-outlined text-[14px] ml-auto" aria-hidden="true">
+              {isExpanded ? 'expand_less' : 'expand_more'}
+            </span>
           </button>
         </Tooltip>
 
         {isExpanded && (
-          <div className="p-4 space-y-4 border-t border-white/10 mt-2">
+          <div
+            className="border-t border-white/10"
+            style={{
+              padding: 'var(--spacing-md, 12px)',
+              marginTop: 'var(--spacing-sm, 8px)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 'var(--spacing-md, 12px)',
+            }}
+          >
             {/* Snap Settings */}
-            <div className="space-y-2">
+            <div
+              style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-sm, 8px)' }}
+            >
               <label className="xibalba-label-professional">Snap Settings</label>
               <Tooltip content="Snap to Grid - Align objects to grid when moving" position="left">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center" style={{ gap: 'var(--spacing-sm, 8px)' }}>
                   <input
                     type="checkbox"
                     checked={snapToGrid}
-                    onChange={(e) => onSnapToGridChange(e.target.checked)}
+                    onChange={e => onSnapToGridChange(e.target.checked)}
                     className="xibalba-focus-professional"
                   />
                   <span className="xibalba-text-body">Snap to Grid</span>
                 </div>
               </Tooltip>
-              <Tooltip content="Snap to Guides - Align objects to guides when moving" position="left">
-                <div className="flex items-center gap-2">
+              <Tooltip
+                content="Snap to Guides - Align objects to guides when moving"
+                position="left"
+              >
+                <div className="flex items-center" style={{ gap: 'var(--spacing-sm, 8px)' }}>
                   <input
                     type="checkbox"
                     checked={snapToGuides}
-                    onChange={(e) => onSnapToGuidesChange(e.target.checked)}
+                    onChange={e => onSnapToGuidesChange(e.target.checked)}
                     className="xibalba-focus-professional"
                   />
                   <span className="xibalba-text-body">Snap to Guides</span>
                 </div>
               </Tooltip>
               {snapToGrid && (
-                <Tooltip content="Grid Size - Set spacing between grid lines (5-100px)" position="left">
-                  <div className="flex items-center gap-2 mt-2">
+                <Tooltip
+                  content="Grid Size - Set spacing between grid lines (5-100px)"
+                  position="left"
+                >
+                  <div
+                    className="flex items-center"
+                    style={{ gap: 'var(--spacing-sm, 8px)', marginTop: 'var(--spacing-sm, 8px)' }}
+                  >
                     <label className="xibalba-text-caption">Grid Size:</label>
                     <input
                       type="number"
                       value={gridSize}
-                      onChange={(e) => onGridSizeChange(parseInt(e.target.value) || 10)}
+                      onChange={e => onGridSizeChange(parseInt(e.target.value) || 10)}
                       className="xibalba-input-professional w-20"
                       min="5"
                       max="100"
@@ -184,14 +229,16 @@ const PowerUserToolbar: React.FC<PowerUserToolbarProps> = ({
             </div>
 
             {/* Guide Settings */}
-            <div className="space-y-2">
+            <div
+              style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-sm, 8px)' }}
+            >
               <label className="xibalba-label-professional">Guides</label>
               <Tooltip content="Show Guides - Toggle guide visibility on canvas" position="left">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center" style={{ gap: 'var(--spacing-sm, 8px)' }}>
                   <input
                     type="checkbox"
                     checked={showGuides}
-                    onChange={(e) => onShowGuidesChange(e.target.checked)}
+                    onChange={e => onShowGuidesChange(e.target.checked)}
                     className="xibalba-focus-professional"
                   />
                   <span className="xibalba-text-body">Show Guides</span>
@@ -200,27 +247,35 @@ const PowerUserToolbar: React.FC<PowerUserToolbarProps> = ({
             </div>
 
             {/* Onion Skinning */}
-            <div className="space-y-2">
+            <div
+              style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-sm, 8px)' }}
+            >
               <label className="xibalba-label-professional">Onion Skinning</label>
-              <Tooltip content="Enable Onion Skin - Show previous/next frames for animation reference" position="left">
+              <Tooltip
+                content="Enable Onion Skin - Show previous/next frames for animation reference"
+                position="left"
+              >
                 <div className="flex items-center gap-2">
                   <input
                     type="checkbox"
                     checked={showOnionSkin}
-                    onChange={(e) => onShowOnionSkinChange(e.target.checked)}
+                    onChange={e => onShowOnionSkinChange(e.target.checked)}
                     className="xibalba-focus-professional"
                   />
                   <span className="xibalba-text-body">Enable Onion Skin</span>
                 </div>
               </Tooltip>
               {showOnionSkin && (
-                <Tooltip content="Onion Skin Frames - Number of previous/next frames to show (1-10)" position="left">
+                <Tooltip
+                  content="Onion Skin Frames - Number of previous/next frames to show (1-10)"
+                  position="left"
+                >
                   <div className="flex items-center gap-2 mt-2">
                     <label className="xibalba-text-caption">Frames:</label>
                     <input
                       type="number"
                       value={onionSkinFrames}
-                      onChange={(e) => onOnionSkinFramesChange(parseInt(e.target.value) || 2)}
+                      onChange={e => onOnionSkinFramesChange(parseInt(e.target.value) || 2)}
                       className="xibalba-input-professional w-20"
                       min="1"
                       max="10"
@@ -237,4 +292,3 @@ const PowerUserToolbar: React.FC<PowerUserToolbarProps> = ({
 };
 
 export default PowerUserToolbar;
-

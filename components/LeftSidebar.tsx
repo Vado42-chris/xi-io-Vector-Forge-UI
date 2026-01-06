@@ -42,6 +42,8 @@ interface LeftSidebarProps {
   onEditSymbol?: (id: string) => void;
   onDragStart?: (e: React.DragEvent, symbol: any) => void;
   onCreateAsset?: () => void;
+  onSymbolCreated?: (symbol: any) => void;
+  onShowToast?: (message: string, type: 'success' | 'error' | 'info' | 'warning') => void;
 }
 
 const LeftSidebar: React.FC<LeftSidebarProps> = ({
@@ -224,7 +226,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
           </div>
 
           {/* Library Panel - Flash-style symbol system (Design Guide Compliance) */}
-          {showLibrary && (
+          {showLibrary && onConvertToSymbol && (
             <div
               className="library-section"
               style={{
@@ -239,26 +241,10 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
               <Library
                 symbols={symbols || []}
                 assets={assets || []}
-                onConvertToSymbol={(name, type) => {
-                  const newSymbol = {
-                    id: `symbol-${Date.now()}`,
-                    name,
-                    type,
-                    createdAt: Date.now(),
-                  };
-                  setSymbols(prev => [...prev, newSymbol]);
-                  showToast(`Symbol "${name}" created`, 'success');
-                }}
-                onEditSymbol={id => {
-                  showToast(`Editing symbol ${id}`, 'info');
-                }}
-                onDragStart={(e, symbol) => {
-                  e.dataTransfer.setData('application/x-symbol', JSON.stringify(symbol));
-                  showToast(`Dragging ${symbol.name}`, 'info');
-                }}
-                onCreateAsset={() => {
-                  showToast('Import asset - Coming soon', 'info');
-                }}
+                onConvertToSymbol={onConvertToSymbol}
+                onEditSymbol={onEditSymbol || (() => {})}
+                onDragStart={onDragStart || (() => {})}
+                onCreateAsset={onCreateAsset || (() => {})}
               />
             </div>
           )}

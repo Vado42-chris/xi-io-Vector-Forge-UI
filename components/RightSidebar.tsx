@@ -677,6 +677,20 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
               onExecute={onScriptExecute}
             />
           </ErrorBoundary>
+        ) : activeRightTab === 'code' ? (
+          <ErrorBoundary>
+            <ActionsPanel
+              code={actionsCode}
+              onChange={onActionsCodeChange || (() => {})}
+              onValidate={() => {
+                // TODO: Implement hashtag parser validation
+                return true;
+              }}
+              frameNumber={frameState.currentFrame}
+              layerId={selectedLayerId}
+              objectId={selectedLayerId}
+            />
+          </ErrorBoundary>
         ) : activeRightTab === 'files' ? (
           <ErrorBoundary>
             <FileBrowser

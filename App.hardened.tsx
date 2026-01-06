@@ -2270,6 +2270,29 @@ const App: React.FC = () => {
             onGenerate={handleGenerate}
             activeTool={state.activeTool}
             onToolChange={handleToolChange}
+            showLibrary={showLibrary}
+            symbols={symbols}
+            assets={assets}
+            onConvertToSymbol={(name, type) => {
+              const newSymbol = {
+                id: `symbol-${Date.now()}`,
+                name,
+                type,
+                createdAt: Date.now(),
+              };
+              setSymbols(prev => [...prev, newSymbol]);
+              showToast(`Symbol "${name}" created`, 'success');
+            }}
+            onEditSymbol={id => {
+              showToast(`Editing symbol ${id}`, 'info');
+            }}
+            onDragStart={(e, symbol) => {
+              e.dataTransfer.setData('application/x-symbol', JSON.stringify(symbol));
+              showToast(`Dragging ${symbol.name}`, 'info');
+            }}
+            onCreateAsset={() => {
+              showToast('Import asset - Coming soon', 'info');
+            }}
           />
         </div>
       )}
@@ -2815,6 +2838,8 @@ const App: React.FC = () => {
             onTerminalCommand={cmd => {
               showToast(`Terminal: ${cmd}`, 'info');
             }}
+            actionsCode={actionsCode}
+            onActionsCodeChange={setActionsCode}
           />
         </div>
       )}

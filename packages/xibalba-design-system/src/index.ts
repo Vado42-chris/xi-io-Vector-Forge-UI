@@ -1,8 +1,11 @@
-// Package entrypoint - re-exports all design system components
+// Phase 2b Complete - Components moved to this package
+// All components are now in packages/xibalba-design-system/src/components/
+
 export { default as ActionCenter } from './components/ActionCenter';
 export type { ActionCenterProps } from './components/ActionCenter';
 
-export { default as Tooltip } from './components/Tooltip';
+export { Tooltip } from './components/Tooltip';
+
 export { default as AdvancedSection } from './components/AdvancedSection';
 
 export { useMAI } from './hooks/useMAI';
