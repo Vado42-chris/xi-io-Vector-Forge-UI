@@ -1,0 +1,215 @@
+/**
+ * Library Panel Styles
+ * Flash-style symbol library
+ */
+
+.library-panel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--xibalba-grey-100, #1a1a1a);
+  border-right: 1px solid var(--xibalba-grey-200, #2a2a2a);
+}
+
+.library-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--xibalba-grey-200, #2a2a2a);
+  background: var(--xibalba-grey-050, #0a0a0a);
+}
+
+.library-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--xibalba-text-000, #ffffff);
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.library-tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.library-tabs button {
+  padding: 4px 12px;
+  background: transparent;
+  color: var(--xibalba-text-200, #9ca3af);
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.library-tabs button:hover {
+  background: var(--xibalba-grey-200, #2a2a2a);
+  color: var(--xibalba-text-000, #ffffff);
+}
+
+.library-tabs button.active {
+  background: var(--xibalba-grey-200, #2a2a2a);
+  color: var(--vectorforge-accent, #ff6b35);
+  border-color: var(--vectorforge-accent, #ff6b35);
+}
+
+.library-search {
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--xibalba-grey-200, #2a2a2a);
+}
+
+.library-search-input {
+  width: 100%;
+  padding: 6px 12px;
+  background: var(--xibalba-grey-050, #0a0a0a);
+  border: 1px solid var(--xibalba-grey-200, #2a2a2a);
+  border-radius: 4px;
+  color: var(--xibalba-text-000, #ffffff);
+  font-size: 12px;
+}
+
+.library-search-input:focus {
+  outline: none;
+  border-color: var(--vectorforge-accent, #ff6b35);
+}
+
+.library-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.library-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.library-folder {
+  display: flex;
+  flex-direction: column;
+}
+
+.folder-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--xibalba-text-100, #d1d5db);
+  background: var(--xibalba-grey-050, #0a0a0a);
+  border-radius: 4px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.folder-header:hover {
+  background: var(--xibalba-grey-200, #2a2a2a);
+}
+
+.folder-action {
+  padding: 2px 6px;
+  background: transparent;
+  border: 1px solid var(--xibalba-grey-200, #2a2a2a);
+  border-radius: 3px;
+  color: var(--xibalba-text-000, #ffffff);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.folder-action:hover {
+  background: var(--xibalba-grey-200, #2a2a2a);
+  border-color: var(--vectorforge-accent, #ff6b35);
+}
+
+.folder-content {
+  padding-left: 16px;
+  margin-top: 4px;
+}
+
+.library-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  font-size: 12px;
+  color: var(--xibalba-text-000, #ffffff);
+  cursor: pointer;
+  border-radius: 4px;
+  user-select: none;
+  transition: background 0.2s;
+}
+
+.library-item:hover {
+  background: var(--xibalba-grey-200, #2a2a2a);
+}
+
+.library-item:active {
+  background: var(--xibalba-grey-300, #3a3a3a);
+}
+
+.library-item-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.library-item-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.library-empty {
+  padding: 16px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--xibalba-text-200, #9ca3af);
+  font-style: italic;
+}
+
+.library-footer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--xibalba-grey-200, #2a2a2a);
+  background: var(--xibalba-grey-050, #0a0a0a);
+  display: flex;
+  gap: 8px;
+}
+
+.library-footer button {
+  flex: 1;
+  padding: 6px 12px;
+  background: var(--xibalba-grey-200, #2a2a2a);
+  color: var(--xibalba-text-000, #ffffff);
+  border: 1px solid var(--xibalba-grey-300, #3a3a3a);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.library-footer button:hover {
+  background: var(--xibalba-grey-300, #3a3a3a);
+  border-color: var(--vectorforge-accent, #ff6b35);
+}
+
+/* Scrollbar */
+.library-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.library-content::-webkit-scrollbar-track {
+  background: var(--xibalba-grey-050, #0a0a0a);
+}
+
+.library-content::-webkit-scrollbar-thumb {
+  background: var(--xibalba-grey-300, #3a3a3a);
+  border-radius: 4px;
+}
+
+.library-content::-webkit-scrollbar-thumb:hover {
+  background: var(--xibalba-grey-400, #4a4a4a);
+}
+

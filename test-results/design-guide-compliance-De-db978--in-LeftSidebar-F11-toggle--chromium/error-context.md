@@ -1,0 +1,443 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - banner [ref=e5]:
+      - generic [ref=e6]:
+        - generic [ref=e7]:
+          - img [ref=e10] [cursor=pointer]
+          - generic [ref=e15]:
+            - generic [ref=e16]:
+              - generic [ref=e17]: "xi-io:"
+              - generic [ref=e18]: VectorFORGE
+            - generic [ref=e19]: XIBALBA OS
+        - navigation [ref=e20]:
+          - button "File" [ref=e22] [cursor=pointer]
+          - button "Edit" [ref=e24] [cursor=pointer]
+          - button "Object" [ref=e26] [cursor=pointer]
+          - button "Type" [ref=e28] [cursor=pointer]
+          - button "Select" [ref=e30] [cursor=pointer]
+          - button "Effect" [ref=e32] [cursor=pointer]
+          - button "View" [ref=e34] [cursor=pointer]
+          - button "Window" [ref=e36] [cursor=pointer]
+          - button "Help" [ref=e38] [cursor=pointer]
+      - generic [ref=e39]:
+        - generic [ref=e40]:
+          - button "Default Layout" [ref=e42] [cursor=pointer]:
+            - text: "?"
+            - generic [ref=e43]: Default Layout
+            - text: "?"
+          - generic [ref=e46]: 25,000 CORE_LIBS
+        - generic [ref=e47]:
+          - generic [ref=e48]:
+            - generic [ref=e49]: Execution Layer
+            - generic [ref=e50]: Active_Session
+          - img "User" [ref=e52] [cursor=pointer]
+    - generic [ref=e53]:
+      - button "💾 Save" [ref=e54] [cursor=pointer]
+      - button "📂 Load" [ref=e55] [cursor=pointer]
+    - button "📥 Export SVG" [ref=e56] [cursor=pointer]
+    - button "Sign & Create Proof" [ref=e58] [cursor=pointer]
+  - complementary [ref=e60]:
+    - generic [ref=e61]:
+      - generic [ref=e62]:
+        - button "Select" [ref=e63] [cursor=pointer]: "?"
+        - button "Pen" [ref=e64] [cursor=pointer]: "?"
+        - button "Rectangle" [ref=e65] [cursor=pointer]: "?"
+        - button "Ellipse" [ref=e66] [cursor=pointer]: "?"
+        - button "Text" [ref=e67] [cursor=pointer]: "?"
+        - button "Pan" [ref=e68] [cursor=pointer]: "?"
+        - button "Zoom" [ref=e69] [cursor=pointer]: "?"
+      - generic [ref=e71]:
+        - generic [ref=e72]:
+          - heading "Library" [level=3] [ref=e73]
+          - generic [ref=e74]:
+            - button "Symbols" [ref=e75] [cursor=pointer]
+            - button "Assets" [ref=e76] [cursor=pointer]
+            - button "Components" [ref=e77] [cursor=pointer]
+        - textbox "Search library..." [ref=e79]
+        - generic [ref=e81]:
+          - generic [ref=e82]:
+            - generic [ref=e83] [cursor=pointer]:
+              - generic [ref=e84]: 📁 Symbols
+              - button "+" [ref=e85]
+            - generic [ref=e87]: No symbols yet. Create one by selecting objects and pressing F8.
+          - generic [ref=e88]:
+            - generic [ref=e90] [cursor=pointer]: 📁 Components
+            - generic [ref=e92]: Components coming soon
+        - generic [ref=e93]:
+          - button "New Symbol" [ref=e94] [cursor=pointer]
+          - button "Import Asset" [ref=e95] [cursor=pointer]
+    - generic [ref=e97]:
+      - generic [ref=e100]: SYSTEM READY
+      - generic [ref=e101]: "CREDITS: 25000"
+  - generic [ref=e102]:
+    - generic [ref=e103]:
+      - generic [ref=e104]:
+        - generic [ref=e105]:
+          - button "💾 Save" [ref=e106] [cursor=pointer]
+          - button "📂 Load" [ref=e107] [cursor=pointer]
+        - button "📥 Export SVG" [ref=e108] [cursor=pointer]
+      - generic [ref=e110]:
+        - generic [ref=e112]: Canvas Settings
+        - button "Canvas Settings" [ref=e113] [cursor=pointer]: "? Canvas Settings ?"
+    - generic [ref=e115]:
+      - heading "GENERATIVE VECTOR AI" [level=3] [ref=e116]
+      - generic [ref=e117]:
+        - generic [ref=e118]: PROMPT
+        - textbox "Describe the vector you want to create..." [ref=e119]
+      - generic [ref=e120]:
+        - generic [ref=e121]: STYLE
+        - generic [ref=e122]:
+          - button "Line Art Style" [ref=e123] [cursor=pointer]: Line Art
+          - button "Flat Icon Style" [ref=e124] [cursor=pointer]: Flat Icon
+          - button "Isometric Style" [ref=e125] [cursor=pointer]: Isometric
+          - button "Abstract Style" [ref=e126] [cursor=pointer]: Abstract
+      - button "Generate Vector" [ref=e127] [cursor=pointer]
+      - region "Advanced options" [ref=e128]:
+        - strong [ref=e130]: Advanced options
+        - button "▶ Show Advanced" [ref=e131] [cursor=pointer]
+    - generic [ref=e133]:
+      - generic [ref=e134]: "?"
+      - generic [ref=e135]:
+        - generic:
+          - generic:
+            - generic: "0"
+          - generic:
+            - generic: "100"
+          - generic:
+            - generic: "200"
+          - generic:
+            - generic: "300"
+          - generic:
+            - generic: "400"
+          - generic:
+            - generic: "500"
+          - generic:
+            - generic: "600"
+          - generic:
+            - generic: "700"
+          - generic:
+            - generic: "800"
+          - generic:
+            - generic: "900"
+          - generic:
+            - generic: "1000"
+          - generic:
+            - generic: "1100"
+          - generic:
+            - generic: "1200"
+          - generic:
+            - generic: "1300"
+          - generic:
+            - generic: "1400"
+          - generic:
+            - generic: "1500"
+          - generic:
+            - generic: "1600"
+          - generic:
+            - generic: "1700"
+          - generic:
+            - generic: "1800"
+          - generic:
+            - generic: "1900"
+          - generic:
+            - generic: "2000"
+          - generic:
+            - generic: "2100"
+          - generic:
+            - generic: "2200"
+          - generic:
+            - generic: "2300"
+          - generic:
+            - generic: "2400"
+          - generic:
+            - generic: "2500"
+          - generic:
+            - generic: "2600"
+          - generic:
+            - generic: "2700"
+          - generic:
+            - generic: "2800"
+          - generic:
+            - generic: "2900"
+          - generic:
+            - generic: "3000"
+          - generic:
+            - generic: "3100"
+          - generic:
+            - generic: "3200"
+          - generic:
+            - generic: "3300"
+          - generic:
+            - generic: "3400"
+          - generic:
+            - generic: "3500"
+          - generic:
+            - generic: "3600"
+          - generic:
+            - generic: "3700"
+          - generic:
+            - generic: "3800"
+          - generic:
+            - generic: "3900"
+          - generic:
+            - generic: "4000"
+          - generic:
+            - generic: "4100"
+          - generic:
+            - generic: "4200"
+          - generic:
+            - generic: "4300"
+          - generic:
+            - generic: "4400"
+          - generic:
+            - generic: "4500"
+          - generic:
+            - generic: "4600"
+          - generic:
+            - generic: "4700"
+          - generic:
+            - generic: "4800"
+          - generic:
+            - generic: "4900"
+      - generic [ref=e136]:
+        - generic:
+          - generic:
+            - generic: "0"
+          - generic:
+            - generic: "100"
+          - generic:
+            - generic: "200"
+          - generic:
+            - generic: "300"
+          - generic:
+            - generic: "400"
+          - generic:
+            - generic: "500"
+          - generic:
+            - generic: "600"
+          - generic:
+            - generic: "700"
+          - generic:
+            - generic: "800"
+          - generic:
+            - generic: "900"
+          - generic:
+            - generic: "1000"
+          - generic:
+            - generic: "1100"
+          - generic:
+            - generic: "1200"
+          - generic:
+            - generic: "1300"
+          - generic:
+            - generic: "1400"
+          - generic:
+            - generic: "1500"
+          - generic:
+            - generic: "1600"
+          - generic:
+            - generic: "1700"
+          - generic:
+            - generic: "1800"
+          - generic:
+            - generic: "1900"
+          - generic:
+            - generic: "2000"
+          - generic:
+            - generic: "2100"
+          - generic:
+            - generic: "2200"
+          - generic:
+            - generic: "2300"
+          - generic:
+            - generic: "2400"
+          - generic:
+            - generic: "2500"
+          - generic:
+            - generic: "2600"
+          - generic:
+            - generic: "2700"
+          - generic:
+            - generic: "2800"
+          - generic:
+            - generic: "2900"
+          - generic:
+            - generic: "3000"
+          - generic:
+            - generic: "3100"
+          - generic:
+            - generic: "3200"
+          - generic:
+            - generic: "3300"
+          - generic:
+            - generic: "3400"
+          - generic:
+            - generic: "3500"
+          - generic:
+            - generic: "3600"
+          - generic:
+            - generic: "3700"
+          - generic:
+            - generic: "3800"
+          - generic:
+            - generic: "3900"
+          - generic:
+            - generic: "4000"
+          - generic:
+            - generic: "4100"
+          - generic:
+            - generic: "4200"
+          - generic:
+            - generic: "4300"
+          - generic:
+            - generic: "4400"
+          - generic:
+            - generic: "4500"
+          - generic:
+            - generic: "4600"
+          - generic:
+            - generic: "4700"
+          - generic:
+            - generic: "4800"
+          - generic:
+            - generic: "4900"
+      - img [ref=e139]
+    - generic [ref=e142]:
+      - generic [ref=e144]:
+        - button "◄" [ref=e145] [cursor=pointer]
+        - button "►" [ref=e146] [cursor=pointer]
+        - button "▶" [ref=e147] [cursor=pointer]
+        - button "⏹" [ref=e148] [cursor=pointer]
+        - generic [ref=e149]: Frame 0 / 100 @ 24 FPS
+        - generic [ref=e150]:
+          - generic [ref=e151]: "Onion Skin:"
+          - button "◄ 2" [ref=e152] [cursor=pointer]
+          - generic [ref=e153]: Current
+          - button "2 ►" [ref=e154] [cursor=pointer]
+      - generic [ref=e155]:
+        - generic:
+          - generic: "0"
+          - generic: "5"
+          - generic: "10"
+          - generic: "15"
+          - generic: "20"
+          - generic: "25"
+          - generic: "30"
+          - generic: "35"
+          - generic: "40"
+          - generic: "45"
+          - generic: "50"
+          - generic: "55"
+          - generic: "60"
+          - generic: "65"
+          - generic: "70"
+          - generic: "75"
+          - generic: "80"
+          - generic: "85"
+          - generic: "90"
+          - generic: "95"
+      - generic [ref=e157]:
+        - button "+ Layer" [ref=e158] [cursor=pointer]
+        - button "📁 Folder" [ref=e159] [cursor=pointer]
+        - button "🎭 Mask" [ref=e160] [cursor=pointer]
+        - button "📏 Guide" [ref=e161] [cursor=pointer]
+        - generic [ref=e162]:
+          - button "−" [ref=e163] [cursor=pointer]
+          - generic [ref=e164]: 100%
+          - button "+" [ref=e165] [cursor=pointer]
+  - generic [ref=e167]:
+    - generic [ref=e169]:
+      - generic [ref=e170]:
+        - button "💬 Dev Chat" [ref=e171] [cursor=pointer]:
+          - text: "?"
+          - generic [ref=e172]: 💬 Dev Chat
+        - button "Files" [ref=e173] [cursor=pointer]:
+          - text: "?"
+          - generic [ref=e174]: Files
+        - button "Terminal" [ref=e175] [cursor=pointer]:
+          - text: "?"
+          - generic [ref=e176]: Terminal
+        - button "Console" [ref=e177] [cursor=pointer]:
+          - text: "?"
+          - generic [ref=e178]: Console
+        - button "Engine" [ref=e179] [cursor=pointer]:
+          - text: "?"
+          - generic [ref=e180]: Engine
+        - button "AI Chat" [ref=e181] [cursor=pointer]:
+          - text: "?"
+          - generic [ref=e182]: AI Chat
+        - button "Registry" [ref=e183] [cursor=pointer]:
+          - text: "?"
+          - generic [ref=e184]: Registry
+        - button "History" [ref=e185] [cursor=pointer]:
+          - text: "?"
+          - generic [ref=e186]: History
+      - generic [ref=e187]:
+        - button "Tool" [ref=e188] [cursor=pointer]:
+          - text: "?"
+          - generic [ref=e189]: Tool
+        - button "Object" [ref=e190] [cursor=pointer]:
+          - text: "?"
+          - generic [ref=e191]: Object
+        - button "Layers" [ref=e192] [cursor=pointer]:
+          - text: "?"
+          - generic [ref=e193]: Layers
+        - button "Scripts" [ref=e194] [cursor=pointer]:
+          - text: "?"
+          - generic [ref=e195]: Scripts
+        - button "Actions" [ref=e196] [cursor=pointer]:
+          - text: "?"
+          - generic [ref=e197]: Actions
+      - button "Help" [ref=e199] [cursor=pointer]:
+        - text: "?"
+        - generic [ref=e200]: Help
+    - generic [ref=e202]:
+      - generic [ref=e204]:
+        - generic [ref=e205]:
+          - generic [ref=e206]: 💬 Dev Chat
+          - generic [ref=e207]: Self-Modifying AI
+          - 'generic "File System: Online" [ref=e208]': 📁
+          - 'generic "Terminal: Online" [ref=e209]': 💻
+        - button "View History" [ref=e210] [cursor=pointer]:
+          - text: "?"
+          - generic [ref=e211]: History
+      - generic [ref=e214]: 💬 **Dev Chat - Self-Modifying AI** Hi! I'm your development assistant with **self-modification** capabilities. **I can:** - ✅ Read and edit files - ✅ Execute commands - ✅ Search files - ✅ **Edit myself** (molting system) - ✅ Help you build the application **Quick Start:** - Type **"test"** - Check if I'm working - **"read package.json"** - Read a file - **"Test molting system"** - Full diagnostic - **"Edit yourself to..."** - Self-modify (needs Ollama) **Status:** ✅ Ready to help! 🐍 **Try it now:** Type "test" to verify I'm working!
+      - generic [ref=e215]:
+        - generic [ref=e216]:
+          - textbox "Ask me to read files, run commands, or help with your project..." [ref=e217]
+          - button "Send" [disabled] [ref=e218] [cursor=pointer]
+        - generic [ref=e219]: "Examples: \"read package.json\" • \"run npm run dev\" • \"list components\""
+  - contentinfo [ref=e220]:
+    - generic [ref=e221]:
+      - generic [ref=e222]:
+        - text: "?"
+        - generic [ref=e223]: "Entities: 0"
+      - generic [ref=e225]:
+        - text: "?"
+        - generic [ref=e226]: "Targeting: select"
+    - generic [ref=e227]:
+      - generic [ref=e228]:
+        - generic [ref=e229]: "LAT: 8.4ms"
+        - generic [ref=e231]: "ALLOC: 242MB"
+      - generic [ref=e234]:
+        - text: "?"
+        - generic [ref=e235]: xi_link::stable
+  - generic [ref=e237]:
+    - generic [ref=e238]:
+      - text: "?"
+      - generic [ref=e239]: L1
+    - generic [ref=e240]:
+      - progressbar "0% to next level"
+  - paragraph [ref=e242]: Batch Operations Panel - Coming Soon
+  - button "💬 Enter a prompt to start" [ref=e244] [cursor=pointer]
+  - button "Enable Advanced Mode" [ref=e245] [cursor=pointer]:
+    - text: "?"
+    - generic [ref=e246]: "Advanced: OFF"
+  - 'button "Action Center: Enter a Prompt. Start by entering a prompt" [ref=e248] [cursor=pointer]':
+    - generic [ref=e249]:
+      - generic [ref=e251]: edit
+      - generic [ref=e252]: Enter a PromptStart by entering a prompt
+```

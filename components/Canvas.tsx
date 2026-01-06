@@ -610,7 +610,7 @@ const Canvas: React.FC<CanvasProps> = ({
                 color: 'rgba(255,255,255,0.95)',
               }}
             >
-              Empty Canvas
+              Enter a prompt to start
             </div>
             <div style={{ fontSize: '12px', opacity: 0.85, color: 'rgba(255,255,255,0.8)' }}>
               Start creating by selecting a tool from the left sidebar or generating vectors with

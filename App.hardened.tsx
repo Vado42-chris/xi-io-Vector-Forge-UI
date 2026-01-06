@@ -24,6 +24,7 @@ import AnimationTimeline from './components/AnimationTimeline';
 import ProfessionalTimeline from './components/Timeline/ProfessionalTimeline';
 import Library from './components/Library/Library';
 import ActionsPanel from './components/Actions/ActionsPanel';
+import AIFloatingPanel from './components/AIFloatingPanel';
 import Footer from './components/Footer';
 import ToastContainer from './components/ToastContainer';
 // WelcomeScreen removed - not part of design requirements
@@ -2539,12 +2540,12 @@ const App: React.FC = () => {
                   name: `Layer ${state.layers.length + 1}`,
                   visible: true,
                   locked: false,
-                  nodes: [],
+                  opacity: 1,
+                  blendMode: 'normal',
+                  color: '#ffffff',
+                  stroke: 'none',
+                  strokeWidth: 0,
                   shape: { type: 'group', children: [] },
-                  x: 0,
-                  y: 0,
-                  width: 0,
-                  height: 0,
                 };
                 setState(prev => ({ ...prev, layers: [...prev.layers, newLayer] }));
               }}
@@ -2989,8 +2990,6 @@ const App: React.FC = () => {
         }}
       />
 
-      {/* MAI Framework - Most Actionable Item */}
-      <ActionCenter primaryAction={primaryAction} position="top-right" />
 
       {/* Global Advanced Mode Toggle - Day 5-7: Progressive Disclosure */}
       <button
@@ -3017,48 +3016,6 @@ const App: React.FC = () => {
       </button>
 
       {/* Legacy Action Center (keeping for backward compatibility - will be removed after testing) */}
-      <LegacyActionCenter
-        hasPrompt={!!state.prompt && state.prompt.trim().length > 0}
-        prompt={state.prompt}
-        onGenerateVector={handleGenerate}
-        isGenerating={state.isGenerating}
-        onAction={action => {
-          switch (action.id) {
-            case 'setup-project':
-              setShowProjectWizard(true);
-              break;
-            case 'browse-templates':
-              setShowTemplateLibrary(true);
-              break;
-            case 'generate-tests':
-              setShowTestGenerator(true);
-              break;
-            case 'fix-menu-actions':
-              setShowActionAudit(true);
-              break;
-            case 'create-schema':
-              setShowSchemaBuilder(true);
-              break;
-            case 'batch-operations':
-              setShowBatchOperations(true);
-              break;
-            case 'guided-workflow':
-              setShowGuidedWorkflow(true);
-              break;
-            case 'marketplace-publisher':
-              setShowPublisherDashboard(true);
-              break;
-            case 'marketplace-analytics':
-              setShowAnalyticsDashboard(true);
-              break;
-            case 'workspace-customizer':
-              setShowWorkspaceCustomizer(true);
-              break;
-          }
-        }}
-      />
-
-      {/* Gamification Components */}
       <AchievementPanel
         isOpen={showAchievementPanel}
         onClose={() => setShowAchievementPanel(false)}

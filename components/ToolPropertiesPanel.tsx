@@ -6,6 +6,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { ToolType, ToolProperties } from '../types';
 import ErrorBoundary from './ErrorBoundary';
+import { Tooltip } from '@xibalba/design-system';
 import '../styles/tool-properties.css';
 
 interface ToolPropertiesPanelProps {
@@ -77,33 +78,39 @@ const ToolPropertiesPanel: React.FC<ToolPropertiesPanelProps> = ({
                   <span className="xibalba-panel-section-title">Pen Tool Properties</span>
                 </div>
                 <div className="xibalba-form-group">
-                  <div className="xibalba-form-row">
-                    <label className="xibalba-form-label">Fill</label>
-                    <input
-                      type="checkbox"
-                      checked={toolProperties.pen?.fill ?? true}
-                      onChange={(e) => handlePropertyChange('fill', e.target.checked)}
-                      className="xibalba-focus-professional"
-                    />
-                  </div>
-                  <div className="xibalba-form-row">
-                    <label className="xibalba-form-label">Stroke</label>
-                    <input
-                      type="checkbox"
-                      checked={toolProperties.pen?.stroke ?? true}
-                      onChange={(e) => handlePropertyChange('stroke', e.target.checked)}
-                      className="xibalba-focus-professional"
-                    />
-                  </div>
-                  <div className="xibalba-form-row">
-                    <label className="xibalba-form-label">Close Path</label>
-                    <input
-                      type="checkbox"
-                      checked={toolProperties.pen?.closePath ?? false}
-                      onChange={(e) => handlePropertyChange('closePath', e.target.checked)}
-                      className="xibalba-focus-professional"
-                    />
-                  </div>
+                  <Tooltip content="Fill - Apply fill color to the path" position="left">
+                    <div className="xibalba-form-row">
+                      <label className="xibalba-form-label">Fill</label>
+                      <input
+                        type="checkbox"
+                        checked={toolProperties.pen?.fill ?? true}
+                        onChange={(e) => handlePropertyChange('fill', e.target.checked)}
+                        className="xibalba-focus-professional"
+                      />
+                    </div>
+                  </Tooltip>
+                  <Tooltip content="Stroke - Apply stroke (outline) to the path" position="left">
+                    <div className="xibalba-form-row">
+                      <label className="xibalba-form-label">Stroke</label>
+                      <input
+                        type="checkbox"
+                        checked={toolProperties.pen?.stroke ?? true}
+                        onChange={(e) => handlePropertyChange('stroke', e.target.checked)}
+                        className="xibalba-focus-professional"
+                      />
+                    </div>
+                  </Tooltip>
+                  <Tooltip content="Close Path - Automatically connect the last point to the first point" position="left">
+                    <div className="xibalba-form-row">
+                      <label className="xibalba-form-label">Close Path</label>
+                      <input
+                        type="checkbox"
+                        checked={toolProperties.pen?.closePath ?? false}
+                        onChange={(e) => handlePropertyChange('closePath', e.target.checked)}
+                        className="xibalba-focus-professional"
+                      />
+                    </div>
+                  </Tooltip>
                 </div>
               </div>
             </div>
@@ -112,39 +119,45 @@ const ToolPropertiesPanel: React.FC<ToolPropertiesPanelProps> = ({
         case 'pencil':
           return (
             <div className="space-y-4">
-              <div>
-                <label className="xibalba-label-professional">Fidelity</label>
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={toolProperties.pencil?.fidelity ?? 50}
-                  onChange={(e) => handlePropertyChange('fidelity', parseInt(e.target.value))}
-                  className="xibalba-slider-professional w-full"
-                />
-                <span className="xibalba-text-caption">{toolProperties.pencil?.fidelity ?? 50}%</span>
-              </div>
-              <div>
-                <label className="xibalba-label-professional">Smoothness</label>
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={toolProperties.pencil?.smoothness ?? 50}
-                  onChange={(e) => handlePropertyChange('smoothness', parseInt(e.target.value))}
-                  className="xibalba-slider-professional w-full"
-                />
-                <span className="xibalba-text-caption">{toolProperties.pencil?.smoothness ?? 50}%</span>
-              </div>
-              <div>
-                <label className="xibalba-label-professional">Fill New Paths</label>
-                <input
-                  type="checkbox"
-                  checked={toolProperties.pencil?.fillNewPaths ?? false}
-                  onChange={(e) => handlePropertyChange('fillNewPaths', e.target.checked)}
-                  className="xibalba-focus-professional"
-                />
-              </div>
+              <Tooltip content="Fidelity - Control how closely the pencil follows your mouse movement (higher = smoother)" position="left">
+                <div>
+                  <label className="xibalba-label-professional">Fidelity</label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={toolProperties.pencil?.fidelity ?? 50}
+                    onChange={(e) => handlePropertyChange('fidelity', parseInt(e.target.value))}
+                    className="xibalba-slider-professional w-full"
+                  />
+                  <span className="xibalba-text-caption">{toolProperties.pencil?.fidelity ?? 50}%</span>
+                </div>
+              </Tooltip>
+              <Tooltip content="Smoothness - Apply smoothing to reduce jitter in the drawn path" position="left">
+                <div>
+                  <label className="xibalba-label-professional">Smoothness</label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={toolProperties.pencil?.smoothness ?? 50}
+                    onChange={(e) => handlePropertyChange('smoothness', parseInt(e.target.value))}
+                    className="xibalba-slider-professional w-full"
+                  />
+                  <span className="xibalba-text-caption">{toolProperties.pencil?.smoothness ?? 50}%</span>
+                </div>
+              </Tooltip>
+              <Tooltip content="Fill New Paths - Automatically fill paths created with the pencil tool" position="left">
+                <div>
+                  <label className="xibalba-label-professional">Fill New Paths</label>
+                  <input
+                    type="checkbox"
+                    checked={toolProperties.pencil?.fillNewPaths ?? false}
+                    onChange={(e) => handlePropertyChange('fillNewPaths', e.target.checked)}
+                    className="xibalba-focus-professional"
+                  />
+                </div>
+              </Tooltip>
             </div>
           );
 
@@ -704,18 +717,20 @@ const ToolPropertiesPanel: React.FC<ToolPropertiesPanelProps> = ({
         case 'zoom':
           return (
             <div className="space-y-4">
-              <div>
-                <label className="xibalba-label-professional">Zoom Level</label>
-                <input
-                  type="range"
-                  min="25"
-                  max="400"
-                  value={toolProperties.zoom?.level ?? 100}
-                  onChange={(e) => handlePropertyChange('level', parseInt(e.target.value))}
-                  className="xibalba-slider-professional w-full"
-                />
-                <span className="xibalba-text-caption">{toolProperties.zoom?.level ?? 100}%</span>
-              </div>
+              <Tooltip content="Zoom Level - Adjust the zoom level of the canvas (25% to 400%)" position="left">
+                <div>
+                  <label className="xibalba-label-professional">Zoom Level</label>
+                  <input
+                    type="range"
+                    min="25"
+                    max="400"
+                    value={toolProperties.zoom?.level ?? 100}
+                    onChange={(e) => handlePropertyChange('level', parseInt(e.target.value))}
+                    className="xibalba-slider-professional w-full"
+                  />
+                  <span className="xibalba-text-caption">{toolProperties.zoom?.level ?? 100}%</span>
+                </div>
+              </Tooltip>
             </div>
           );
 

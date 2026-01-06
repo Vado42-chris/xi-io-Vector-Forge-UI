@@ -1,0 +1,196 @@
+/**
+ * Unified Layout System - Single Source of Truth
+ * Replaces conflicting CSS from 51 files
+ * Pure flexbox - no absolute positioning for layout
+ */
+
+/* ============================================
+   ROOT CONTAINER
+   ============================================ */
+.app-root,
+[data-app-root="true"] {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+.app-header {
+  flex: 0 0 48px;
+  min-height: 48px;
+  max-height: 48px;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  gap: 8px;
+  box-sizing: border-box;
+}
+
+/* ============================================
+   MAIN CONTENT AREA
+   ============================================ */
+.main-content-area,
+[data-main-content-area="true"] {
+  display: flex;
+  flex-direction: row;
+  flex: 1 1 0%;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* ============================================
+   SIDEBARS
+   ============================================ */
+.left-sidebar,
+[class*="LeftSidebar"] {
+  flex: 0 0 320px;
+  min-width: 320px;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.right-sidebar,
+[class*="RightSidebar"] {
+  flex: 0 0 360px;
+  min-width: 360px;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* ============================================
+   CENTER STACK
+   ============================================ */
+.center-stack,
+[data-center-stack="true"] {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* ============================================
+   CENTER STACK CHILDREN
+   ============================================ */
+.center-toolbar {
+  flex: 0 0 48px;
+  min-height: 48px;
+  max-height: 48px;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  box-sizing: border-box;
+}
+
+.center-ai-column {
+  flex: 0 0 200px;
+  min-height: 200px;
+  max-height: 200px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+/* ============================================
+   CANVAS AREA
+   ============================================ */
+.canvas-area,
+.center-canvas-area,
+[data-canvas-area="true"] {
+  flex: 1 1 0%;
+  min-width: 0;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+  background: #1a1a1a;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ============================================
+   CANVAS VIEWPORT
+   ============================================ */
+.canvas-viewport {
+  flex: 1 1 0%;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+/* ============================================
+   CANVAS GRID
+   ============================================ */
+.canvas-grid-pattern {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.6;
+  background-size: 20px 20px;
+  background-image:
+    linear-gradient(to right, rgba(255,255,255,0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,0.06) 1px, transparent 1px);
+  z-index: 0;
+}
+
+/* ============================================
+   CANVAS SVG CONTENT
+   ============================================ */
+.canvas-svg-content {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: auto;
+}
+
+/* ============================================
+   FOOTER / TIMELINE
+   ============================================ */
+.app-footer,
+.app-timeline {
+  flex: 0 0 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* ============================================
+   UTILITIES
+   ============================================ */
+.flex-shrink-0 {
+  flex-shrink: 0;
+}
+
+.flex-grow-1 {
+  flex-grow: 1;
+}
+
+.min-h-0 {
+  min-height: 0;
+}
+
+.min-w-0 {
+  min-width: 0;
+}
+

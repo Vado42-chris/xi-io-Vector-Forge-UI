@@ -1,0 +1,278 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: VectorForge Team <team@vectorforge.io>
+Date: Mon, 6 Jan 2025 00:00:00 +0000
+Subject: [PATCH] hotfix: emergency canvas visibility + save/load + export SVG
+
+Emergency hotfix to unblock users:
+- Force canvas visibility with improved layout CSS
+- Add localStorage-based save/load functionality
+- Add basic SVG export functionality
+- All changes are temporary and will be replaced with proper implementations
+
+---
+ src/styles/emergency-canvas-fix.css | 50 +++++++++++++++++++++++++++++
+ src/utils/projectStorage.ts         | 24 ++++++++++++++
+ src/components/SaveLoadButtons.tsx   | 45 ++++++++++++++++++++++++++
+ src/utils/exportSvg.ts              | 30 ++++++++++++++++++
+ src/components/ExportButton.tsx      | 21 +++++++++++++
+ index.tsx                            |  1 +
+ 6 files changed, 171 insertions(+)
+
+diff --git a/src/styles/emergency-canvas-fix.css b/src/styles/emergency-canvas-fix.css
+new file mode 100644
+index 0000000..a1b2c3d
+--- /dev/null
++++ b/src/styles/emergency-canvas-fix.css
+@@ -0,0 +1,50 @@
++/* EMERGENCY FIX - Remove after root cause found */
++/* Forces canvas visibility regardless of CSS bugs */
++/* Also fixes layout issues that cause zero-height containers */
++
++:root {
++  --safe-stage-min-height: 400px;
++  --safe-stage-min-width: 600px;
++}
++
++html, body, #root {
++  height: 100%;
++  min-height: 100%;
++}
++
++.app-root, .app-root > * {
++  box-sizing: border-box;
++  min-height: 0; /* allow flex children to shrink correctly */
++}
++
++.main-layout, .center-stack, .content, .canvas-wrapper {
++  display: flex;
++  flex-direction: column;
++  flex: 1 1 auto;
++  min-height: 0; /* critical to avoid zero-height children in flex layouts */
++}
++
++.canvas-viewport,
++.canvas-container,
++.canvas-area,
++[data-canvas-area="true"],
++canvas,
++svg {
++  visibility: visible !important;
++  opacity: 1 !important;
++  display: block !important;
++  background: #1a1a1a !important;
++  min-height: var(--safe-stage-min-height) !important;
++  min-width: var(--safe-stage-min-width) !important;
++  width: 100% !important;
++  height: auto !important;
++  overflow: visible !important;
++}
++
++/* Force grid visibility */
++.canvas-grid-pattern {
++  opacity: 0.6 !important;
++  display: block !important;
++  visibility: visible !important;
++}
++
++/* Remove any overlays */
++.overlay,
++.loading-overlay {
++  display: none !important;
++}
+diff --git a/src/utils/projectStorage.ts b/src/utils/projectStorage.ts
+new file mode 100644
+index 0000000..e1f2g3h
+--- /dev/null
++++ b/src/utils/projectStorage.ts
+@@ -0,0 +1,24 @@
++// Emergency save/load using localStorage
++// TEMPORARY: Will be replaced with proper project save/load system
++
++const PROJECT_KEY = 'vectorforge:project';
++
++export function saveProject(state: any): boolean {
++  try {
++    const serialized = JSON.stringify(state);
++    localStorage.setItem(PROJECT_KEY, serialized);
++    return true;
++  } catch (e) {
++    console.error('Save failed:', e);
++    return false;
++  }
++}
++
++export function loadProject(): any | null {
++  try {
++    const data = localStorage.getItem(PROJECT_KEY);
++    if (!data) {
++      return null;
++    }
++    return JSON.parse(data);
++  } catch (e) {
++    console.error('Load failed:', e);
++    return null;
++  }
++}
+diff --git a/src/components/SaveLoadButtons.tsx b/src/components/SaveLoadButtons.tsx
+new file mode 100644
+index 0000000..i4j5k6l
+--- /dev/null
++++ b/src/components/SaveLoadButtons.tsx
+@@ -0,0 +1,45 @@
++import React from 'react';
++import { saveProject, loadProject } from '../utils/projectStorage';
++
++interface SaveLoadButtonsProps {
++  state: any;
++  setState: (state: any) => void;
++}
++
++export default function SaveLoadButtons({ state, setState }: SaveLoadButtonsProps) {
++  const handleSave = () => {
++    if (saveProject(state)) {
++      alert('✅ Project saved to localStorage');
++    } else {
++      alert('❌ Failed to save project');
++    }
++  };
++
++  const handleLoad = () => {
++    const data = loadProject();
++    if (data) {
++      setState(data);
++      alert('✅ Project loaded from localStorage');
++    } else {
++      alert('No saved project found');
++    }
++  };
++
++  return (
++    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
++      <button
++        onClick={handleSave}
++        style={{
++          padding: '8px 16px',
++          background: '#4CAF50',
++          color: 'white',
++          border: 'none',
++          borderRadius: '4px',
++          cursor: 'pointer',
++          fontSize: '14px',
++          fontWeight: 500,
++        }}
++        title="Save project to localStorage (Ctrl+S)"
++      >
++        💾 Save
++      </button>
++      <button
++        onClick={handleLoad}
++        style={{
++          padding: '8px 16px',
++          background: '#2196F3',
++          color: 'white',
++          border: 'none',
++          borderRadius: '4px',
++          cursor: 'pointer',
++          fontSize: '14px',
++          fontWeight: 500,
++        }}
++        title="Load project from localStorage"
++      >
++        📂 Load
++      </button>
++    </div>
++  );
++}
+diff --git a/src/utils/exportSvg.ts b/src/utils/exportSvg.ts
+new file mode 100644
+index 0000000..m7n8o9p
+--- /dev/null
++++ b/src/utils/exportSvg.ts
+@@ -0,0 +1,30 @@
++// Emergency SVG export functionality
++// TEMPORARY: Will be replaced with proper export system
++
++export function exportSVG(filename = 'vectorforge-export.svg'): boolean {
++  try {
++    // Try to find SVG in canvas area first
++    const canvasArea = document.querySelector('[data-canvas-area="true"]');
++    const svgEl = canvasArea?.querySelector('svg') || document.querySelector('svg');
++    
++    if (!svgEl) {
++      alert('❌ No SVG element found to export');
++      return false;
++    }
++    
++    // Clone and ensure proper attributes
++    const clone = svgEl.cloneNode(true) as SVGElement;
++    
++    // Ensure viewBox is set if not present
++    if (!clone.getAttribute('viewBox') && clone.getAttribute('width') && clone.getAttribute('height')) {
++      clone.setAttribute('viewBox', `0 0 ${clone.getAttribute('width')} ${clone.getAttribute('height')}`);
++    }
++    
++    const serializer = new XMLSerializer();
++    const svgString = serializer.serializeToString(clone);
++    const xmlHeader = '<?xml version="1.0" encoding="UTF-8"?>\n';
++    const fullSvg = xmlHeader + svgString;
++    
++    const blob = new Blob([fullSvg], { type: 'image/svg+xml;charset=utf-8' });
++    const url = URL.createObjectURL(blob);
++    const a = document.createElement('a');
++    a.href = url;
++    a.download = filename;
++    document.body.appendChild(a);
++    a.click();
++    document.body.removeChild(a);
++    URL.revokeObjectURL(url);
++    
++    alert('✅ SVG exported');
++    return true;
++  } catch (error) {
++    console.error('Export SVG error:', error);
++    alert('❌ Failed to export SVG');
++    return false;
++  }
++}
+diff --git a/src/components/ExportButton.tsx b/src/components/ExportButton.tsx
+new file mode 100644
+index 0000000..q1r2s3t
+--- /dev/null
++++ b/src/components/ExportButton.tsx
+@@ -0,0 +1,21 @@
++import React from 'react';
++import { exportSVG } from '../utils/exportSvg';
++
++export default function ExportButton() {
++  return (
++    <button
++      onClick={() => exportSVG()}
++      style={{
++        padding: '8px 16px',
++        background: '#FF6B35',
++        color: 'white',
++        border: 'none',
++        borderRadius: '4px',
++        cursor: 'pointer',
++        fontSize: '14px',
++        fontWeight: 500,
++      }}
++      title="Export current SVG (Ctrl+E)"
++    >
++      📥 Export SVG
++    </button>
++  );
++}
+diff --git a/index.tsx b/index.tsx
+index u4v5w6x..y7z8a9b 100644
+--- a/index.tsx
++++ b/index.tsx
+@@ -1,5 +1,6 @@
+ import React, { useState, useEffect, Suspense, lazy } from 'react';
+ import ReactDOM from 'react-dom/client';
+ import './index.css';
++// Emergency canvas visibility fix
+ import './styles/emergency-canvas-fix.css';
+ 
+ // Lazy load components to catch import errors
+

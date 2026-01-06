@@ -1,0 +1,49 @@
+/**
+ * Canvas Overflow Fix
+ * Prevents canvas from overlapping other content areas
+ */
+
+/* Canvas Area - Prevent overflow */
+.center-canvas-area,
+[data-canvas-area="true"] {
+  max-width: 100% !important;
+  max-height: 100% !important;
+  overflow: hidden !important;
+  contain: layout style paint !important;
+}
+
+/* Canvas Component - Constrain to parent */
+.canvas-viewport,
+[class*="canvas-viewport"] {
+  max-width: 100% !important;
+  max-height: 100% !important;
+  overflow: hidden !important;
+  contain: layout style paint !important;
+}
+
+/* Canvas Container - Prevent expansion beyond parent */
+div[class*="Canvas"] {
+  max-width: 100% !important;
+  max-height: 100% !important;
+  overflow: hidden !important;
+}
+
+/* Center Stack - Ensure proper flex behavior */
+.center-stack,
+[data-center-stack="true"] {
+  overflow: hidden !important;
+  contain: layout style paint !important;
+}
+
+/* Prevent any absolute positioning from breaking out */
+.center-canvas-area * {
+  max-width: 100% !important;
+}
+
+/* Canvas SVG content - Constrain to viewport */
+.canvas-svg-content {
+  max-width: 100% !important;
+  max-height: 100% !important;
+  overflow: hidden !important;
+}
+

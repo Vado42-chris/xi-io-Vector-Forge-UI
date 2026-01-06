@@ -1,0 +1,307 @@
+/**
+ * Professional Timeline Styles
+ * Flash-style timeline with layers, keyframes, and tweens
+ */
+
+.professional-timeline {
+  height: 40vh; /* 40% of viewport height - matches wireframe spec */
+  min-height: 280px;
+  max-height: 500px;
+  background: var(--xibalba-grey-100, #1a1a1a);
+  border-top: 1px solid var(--xibalba-grey-200, #2a2a2a);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 100;
+  overflow: hidden;
+}
+
+/* Timeline Header */
+.timeline-header {
+  height: 48px;
+  background: var(--xibalba-grey-050, #0a0a0a);
+  border-bottom: 1px solid var(--xibalba-grey-200, #2a2a2a);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  flex-shrink: 0;
+}
+
+.timeline-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.timeline-controls button {
+  padding: 6px 12px;
+  background: var(--xibalba-grey-200, #2a2a2a);
+  color: var(--xibalba-text-000, #ffffff);
+  border: 1px solid var(--xibalba-grey-300, #3a3a3a);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.timeline-controls button:hover {
+  background: var(--xibalba-grey-300, #3a3a3a);
+  border-color: var(--vectorforge-accent, #ff6b35);
+}
+
+.timeline-controls button:active {
+  transform: scale(0.95);
+}
+
+.frame-counter {
+  margin-left: 16px;
+  margin-right: auto;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  color: var(--xibalba-text-100, #d1d5db);
+}
+
+.onion-skin-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 16px;
+  font-size: 12px;
+  color: var(--xibalba-text-200, #9ca3af);
+}
+
+.onion-skin-controls button {
+  padding: 2px 6px;
+  font-size: 11px;
+}
+
+/* Timeline Layers Container */
+.timeline-layers-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.timeline-layers {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--xibalba-grey-100, #1a1a1a);
+}
+
+/* Individual Layer */
+.timeline-layer {
+  display: flex;
+  height: 32px;
+  border-bottom: 1px solid var(--xibalba-grey-200, #2a2a2a);
+  position: relative;
+}
+
+/* Layer Controls (Left Side) */
+.layer-controls {
+  width: 200px;
+  min-width: 200px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px;
+  background: var(--xibalba-grey-050, #0a0a0a);
+  border-right: 1px solid var(--xibalba-grey-200, #2a2a2a);
+  flex-shrink: 0;
+}
+
+.layer-controls button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px;
+  transition: opacity 0.2s;
+}
+
+.layer-controls button:hover {
+  opacity: 0.7;
+}
+
+.layer-controls button.locked {
+  opacity: 0.5;
+}
+
+.layer-controls button.hidden {
+  opacity: 0.3;
+}
+
+.layer-name {
+  flex: 1;
+  font-size: 12px;
+  color: var(--xibalba-text-000, #ffffff);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  user-select: none;
+}
+
+/* Layer Frames (Right Side) */
+.layer-frames {
+  flex: 1;
+  display: flex;
+  position: relative;
+  cursor: pointer;
+  background: var(--xibalba-grey-100, #1a1a1a);
+}
+
+.frame {
+  width: 20px;
+  min-width: 20px;
+  height: 32px;
+  border-right: 1px solid var(--xibalba-grey-200, #2a2a2a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: var(--xibalba-grey-100, #1a1a1a);
+  position: relative;
+  transition: background 0.1s;
+}
+
+.frame:hover {
+  background: var(--xibalba-grey-200, #2a2a2a);
+}
+
+.frame-keyframe {
+  background: var(--xibalba-grey-300, #3a3a3a);
+}
+
+.frame-keyframe::before {
+  content: '●';
+  color: var(--vectorforge-accent, #ff6b35);
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.frame-tween {
+  background: rgba(74, 90, 106, 0.3); /* Shaded tween span */
+}
+
+.frame-current {
+  background: rgba(255, 107, 53, 0.2); /* Highlight current frame */
+}
+
+.frame-current::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: 100%;
+  background: var(--vectorforge-accent, #ff6b35);
+  z-index: 10;
+}
+
+.playhead-indicator {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: 100%;
+  background: var(--vectorforge-accent, #ff6b35);
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* Frame Ruler (Bottom) */
+.frame-ruler {
+  height: 24px;
+  display: flex;
+  background: var(--xibalba-grey-050, #0a0a0a);
+  border-top: 1px solid var(--xibalba-grey-200, #2a2a2a);
+  padding-left: 200px; /* Match layer controls width */
+  position: relative;
+  overflow-x: auto;
+}
+
+.ruler-mark {
+  width: 100px; /* 5 frames * 20px per frame */
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: var(--xibalba-text-200, #9ca3af);
+  font-family: 'Courier New', monospace;
+  border-right: 1px solid var(--xibalba-grey-200, #2a2a2a);
+  user-select: none;
+}
+
+/* Timeline Footer */
+.timeline-footer {
+  height: 40px;
+  background: var(--xibalba-grey-050, #0a0a0a);
+  border-top: 1px solid var(--xibalba-grey-200, #2a2a2a);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  flex-shrink: 0;
+}
+
+.timeline-footer button {
+  padding: 4px 12px;
+  background: var(--xibalba-grey-200, #2a2a2a);
+  color: var(--xibalba-text-000, #ffffff);
+  border: 1px solid var(--xibalba-grey-300, #3a3a3a);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.timeline-footer button:hover {
+  background: var(--xibalba-grey-300, #3a3a3a);
+  border-color: var(--vectorforge-accent, #ff6b35);
+}
+
+.timeline-zoom {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--xibalba-text-100, #d1d5db);
+}
+
+.timeline-zoom button {
+  padding: 2px 8px;
+  font-size: 14px;
+}
+
+.timeline-zoom span {
+  min-width: 50px;
+  text-align: center;
+  font-family: 'Courier New', monospace;
+}
+
+/* Scrollbar Styling */
+.timeline-layers::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.timeline-layers::-webkit-scrollbar-track {
+  background: var(--xibalba-grey-050, #0a0a0a);
+}
+
+.timeline-layers::-webkit-scrollbar-thumb {
+  background: var(--xibalba-grey-300, #3a3a3a);
+  border-radius: 4px;
+}
+
+.timeline-layers::-webkit-scrollbar-thumb:hover {
+  background: var(--xibalba-grey-400, #4a4a4a);
+}
+

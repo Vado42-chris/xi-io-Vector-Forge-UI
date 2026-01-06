@@ -1,0 +1,40 @@
+/* EMERGENCY FIX - Remove after root cause found */
+/* Forces canvas visibility regardless of CSS bugs */
+.canvas-viewport,
+.canvas-container,
+.canvas-area,
+[data-canvas-area="true"],
+canvas,
+svg {
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: block !important;
+  background: #1a1a1a !important;
+  min-height: 400px !important;
+}
+
+.canvas-grid-pattern {
+  opacity: 0.6 !important;
+  display: block !important;
+  visibility: visible !important;
+}
+
+.overlay,
+.loading-overlay {
+  display: none !important;
+}
+
+.center-stack,
+.canvas-wrapper {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  min-height: 0 !important;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+

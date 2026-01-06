@@ -7,17 +7,18 @@
  */
 
 :root {
-  /* Xibalba Design System - ULTRA DARKNESS for ultra contrast */
+  /* Xibalba Design System - Balanced Grey Scale for Readability */
   /* VectorForge uses Orange (#ff9800) - defined in index.html and xibalba-design-language.css */
-  --xibalba-bg-primary: #020202;
-  --xibalba-bg-secondary: #030303;
-  --xibalba-bg-tertiary: #050505;
-  --xibalba-bg-hover: #0a0a0a;
+  --xibalba-bg-primary: var(--xibalba-grey-000, #0f0f0f);      /* Root/canvas */
+  --xibalba-bg-secondary: var(--xibalba-grey-100, #1e1e1e);    /* Primary panels */
+  --xibalba-bg-tertiary: var(--xibalba-grey-200, #2d2d2d);     /* Secondary panels */
+  --xibalba-bg-hover: var(--xibalba-grey-300, #3c3c3c);        /* Hover states */
+  --xibalba-bg-active: var(--xibalba-grey-400, #4b4b4b);       /* Active states */
   
-  /* ULTRA CONTRAST TEXT for maximum readability */
-  --xibalba-text-primary: #ffffff;
-  --xibalba-text-secondary: #fafafa;
-  --xibalba-text-muted: #f0f0f0;
+  /* Text Hierarchy - Using new text scale */
+  --xibalba-text-primary: var(--xibalba-text-000, #ffffff);    /* Primary text */
+  --xibalba-text-secondary: var(--xibalba-text-100, #f5f5f5);  /* Secondary text */
+  --xibalba-text-muted: var(--xibalba-text-300, #b0b0b0);      /* Muted text */
   
   /* VectorForge accent: Orange (#ff9800) - defined in index.html */
   /* Legacy: --xibalba-accent maps to --vectorforge-accent */

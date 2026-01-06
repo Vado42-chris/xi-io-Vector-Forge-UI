@@ -1,0 +1,344 @@
+/**
+ * Fluid Column Layout - Cursor/VS Code Style
+ * Responsive columns with no absolute positioning
+ * All layout via CSS classes and CSS variables
+ * 
+ * CRITICAL: This overrides all previous layout systems
+ * Uses CSS Grid for proper column containment
+ */
+
+:root {
+  /* Column widths - responsive */
+  --sidebar-width-left: 320px;
+  --sidebar-width-right: 360px;
+  --center-min-width: 400px;
+  
+  /* Column gaps */
+  --column-gap: 0px; /* Sidebars touch center */
+  
+  /* Heights */
+  --header-height: 48px;
+  --toolbar-height: 48px;
+  --ai-panel-height: 200px;
+  --timeline-height: 40vh;
+  --timeline-min-height: 280px;
+  --timeline-max-height: 500px;
+}
+
+/* ============================================
+   ROOT LAYOUT - FLUID COLUMNS
+   ============================================ */
+/* CRITICAL: Override all previous layout systems */
+.app-root,
+#root,
+div.app-root {
+  display: grid !important;
+  grid-template-columns: 
+    var(--sidebar-width-left) 
+    1fr 
+    var(--sidebar-width-right);
+  grid-template-rows: 
+    var(--header-height) 
+    1fr;
+  grid-template-areas:
+    "header header header"
+    "left-sidebar center-stack right-sidebar";
+  width: 100vw !important;
+  height: 100vh !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  gap: var(--column-gap);
+  /* Remove flexbox properties that conflict */
+  flex-direction: unset !important;
+  flex: unset !important;
+}
+
+/* ============================================
+   HEADER - FULL WIDTH
+   ============================================ */
+.app-header {
+  grid-area: header;
+  height: var(--header-height);
+  min-height: var(--header-height);
+  max-height: var(--header-height);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--spacing-lg, 16px);
+  gap: var(--spacing-md, 12px);
+  background: var(--xibalba-grey-100);
+  border-bottom: 1px solid var(--xibalba-grey-300);
+  z-index: 100;
+  box-sizing: border-box;
+}
+
+/* ============================================
+   LEFT SIDEBAR - FIXED COLUMN
+   ============================================ */
+.app-left-sidebar,
+.app-left-sidebar > * {
+  grid-area: left-sidebar;
+  width: var(--sidebar-width-left) !important;
+  min-width: var(--sidebar-width-left) !important;
+  max-width: var(--sidebar-width-left) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background: var(--xibalba-grey-100);
+  border-right: 1px solid var(--xibalba-grey-300);
+  overflow: hidden;
+  box-sizing: border-box;
+  /* Remove conflicting positioning */
+  position: relative !important;
+  left: auto !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+}
+
+/* ============================================
+   CENTER STACK - FLUID COLUMN
+   ============================================ */
+.app-center-stack {
+  grid-area: center-stack;
+  display: grid !important;
+  grid-template-rows:
+    var(--toolbar-height)
+    var(--ai-panel-height)
+    1fr
+    var(--timeline-height);
+  grid-template-areas:
+    "toolbar"
+    "ai-panel"
+    "canvas"
+    "timeline";
+  min-width: var(--center-min-width) !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  background: var(--xibalba-grey-000);
+  /* Remove flexbox properties that conflict */
+  flex-direction: unset !important;
+  flex: unset !important;
+  /* Remove conflicting positioning */
+  position: relative !important;
+  height: 100% !important;
+}
+
+/* Center stack children */
+.app-toolbar {
+  grid-area: toolbar;
+  height: var(--toolbar-height);
+  min-height: var(--toolbar-height);
+  max-height: var(--toolbar-height);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--spacing-lg, 16px);
+  gap: var(--spacing-md, 12px);
+  background: var(--xibalba-grey-100);
+  border-bottom: 1px solid var(--xibalba-grey-300);
+  box-sizing: border-box;
+}
+
+.app-ai-panel {
+  grid-area: ai-panel;
+  height: var(--ai-panel-height);
+  min-height: var(--ai-panel-height);
+  max-height: var(--ai-panel-height);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--spacing-lg, 16px);
+  background: var(--xibalba-grey-200);
+  border-bottom: 1px solid var(--xibalba-grey-300);
+  box-sizing: border-box;
+}
+
+.app-canvas-area {
+  grid-area: canvas;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--xibalba-grey-000);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-timeline {
+  grid-area: timeline;
+  height: var(--timeline-height);
+  min-height: var(--timeline-min-height);
+  max-height: var(--timeline-max-height);
+  overflow: hidden;
+  background: var(--xibalba-grey-100);
+  border-top: 2px solid var(--xibalba-grey-300);
+  box-sizing: border-box;
+}
+
+/* ============================================
+   RIGHT SIDEBAR - FIXED COLUMN
+   ============================================ */
+.app-right-sidebar,
+.app-right-sidebar > * {
+  grid-area: right-sidebar;
+  width: var(--sidebar-width-right) !important;
+  min-width: var(--sidebar-width-right) !important;
+  max-width: var(--sidebar-width-right) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background: var(--xibalba-grey-100);
+  border-left: 1px solid var(--xibalba-grey-300);
+  overflow: hidden;
+  box-sizing: border-box;
+  /* Remove conflicting positioning */
+  position: relative !important;
+  left: auto !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+}
+
+/* ============================================
+   RESPONSIVE BEHAVIOR
+   ============================================ */
+/* Hide left sidebar */
+.app-root[data-sidebar-left-visible="false"] {
+  grid-template-columns: 
+    0px 
+    1fr 
+    var(--sidebar-width-right);
+}
+
+/* Hide right sidebar */
+.app-root[data-sidebar-right-visible="false"] {
+  grid-template-columns: 
+    var(--sidebar-width-left) 
+    1fr 
+    0px;
+}
+
+/* Hide both sidebars */
+.app-root[data-sidebar-left-visible="false"][data-sidebar-right-visible="false"] {
+  grid-template-columns: 
+    0px 
+    1fr 
+    0px;
+}
+
+/* Hide timeline */
+.app-center-stack[data-timeline-visible="false"] {
+  grid-template-rows:
+    var(--toolbar-height)
+    var(--ai-panel-height)
+    1fr;
+  grid-template-areas:
+    "toolbar"
+    "ai-panel"
+    "canvas";
+}
+
+/* Hide toolbar */
+.app-center-stack[data-toolbar-visible="false"] {
+  grid-template-rows:
+    var(--ai-panel-height)
+    1fr
+    var(--timeline-height);
+  grid-template-areas:
+    "ai-panel"
+    "canvas"
+    "timeline";
+}
+
+/* Hide AI panel */
+.app-center-stack[data-ai-panel-visible="false"] {
+  grid-template-rows:
+    var(--toolbar-height)
+    1fr
+    var(--timeline-height);
+  grid-template-areas:
+    "toolbar"
+    "canvas"
+    "timeline";
+}
+
+/* ============================================
+   CANVAS - NO ABSOLUTE POSITIONING
+   ============================================ */
+.app-canvas-area {
+  grid-area: canvas;
+  min-height: 0 !important;
+  min-width: 0 !important;
+  max-height: 100% !important;
+  max-width: 100% !important;
+  position: relative !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background: var(--xibalba-grey-000);
+  /* Remove conflicting properties */
+  height: auto !important;
+  width: auto !important;
+  inset: unset !important;
+}
+
+.app-canvas-area .canvas-container,
+.app-canvas-area > div {
+  flex: 1 1 0% !important;
+  min-height: 0 !important;
+  min-width: 0 !important;
+  max-height: 100% !important;
+  max-width: 100% !important;
+  position: relative !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background: var(--xibalba-grey-000);
+  /* Remove absolute positioning */
+  inset: unset !important;
+}
+
+.app-canvas-area .canvas-viewport {
+  flex: 1 1 0% !important;
+  min-height: 0 !important;
+  min-width: 0 !important;
+  max-height: 100% !important;
+  max-width: 100% !important;
+  position: relative !important;
+  overflow: hidden !important;
+  background: var(--xibalba-grey-000);
+  /* Remove absolute positioning */
+  inset: unset !important;
+}
+
+/* Rulers - Overlay on canvas, not breaking layout */
+.app-canvas-area .canvas-rulers {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Canvas content - Relative positioning only */
+.app-canvas-area .canvas-content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ============================================
+   NO INLINE STYLES - ALL VIA CSS
+   ============================================ */
+/* Override any inline styles that break layout */
+.app-root * {
+  /* Remove problematic inline styles */
+}
+
+.app-root [style*="position: absolute"]:not(.canvas-rulers):not(.canvas-grid-pattern):not(.canvas-svg-content) {
+  position: relative !important;
+}
+
+.app-root [style*="inset: 0"]:not(.canvas-grid-pattern):not(.canvas-svg-content) {
+  inset: unset !important;
+}
+

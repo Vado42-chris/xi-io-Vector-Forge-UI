@@ -1,0 +1,191 @@
+/**
+ * Actions Panel Styles
+ * Hashtag system - Flash's ActionScript equivalent
+ */
+
+.actions-panel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--xibalba-grey-100, #1a1a1a);
+  border-left: 1px solid var(--xibalba-grey-200, #2a2a2a);
+}
+
+.actions-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--xibalba-grey-200, #2a2a2a);
+  background: var(--xibalba-grey-050, #0a0a0a);
+}
+
+.actions-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.actions-title h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--xibalba-text-000, #ffffff);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.actions-context {
+  font-size: 11px;
+  color: var(--xibalba-text-200, #9ca3af);
+  font-family: 'Courier New', monospace;
+}
+
+.actions-tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.actions-tabs button {
+  padding: 4px 12px;
+  background: transparent;
+  color: var(--xibalba-text-200, #9ca3af);
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.actions-tabs button:hover {
+  background: var(--xibalba-grey-200, #2a2a2a);
+  color: var(--xibalba-text-000, #ffffff);
+}
+
+.actions-tabs button.active {
+  background: var(--xibalba-grey-200, #2a2a2a);
+  color: var(--vectorforge-accent, #ff6b35);
+  border-color: var(--vectorforge-accent, #ff6b35);
+}
+
+.actions-editor-container {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.actions-editor {
+  width: 100%;
+  height: 100%;
+  padding: 16px;
+  background: var(--xibalba-grey-050, #0a0a0a);
+  color: var(--xibalba-text-000, #ffffff);
+  border: none;
+  font-family: 'Courier New', 'Monaco', 'Menlo', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  resize: none;
+  outline: none;
+  tab-size: 2;
+  white-space: pre;
+  overflow-wrap: normal;
+  overflow-x: auto;
+}
+
+.actions-editor::placeholder {
+  color: var(--xibalba-text-300, #6b7280);
+  opacity: 0.5;
+}
+
+.actions-footer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--xibalba-grey-200, #2a2a2a);
+  background: var(--xibalba-grey-050, #0a0a0a);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.actions-footer-left {
+  display: flex;
+  gap: 8px;
+}
+
+.actions-footer-right {
+  display: flex;
+  gap: 8px;
+}
+
+.actions-footer button {
+  padding: 6px 12px;
+  background: var(--xibalba-grey-200, #2a2a2a);
+  color: var(--xibalba-text-000, #ffffff);
+  border: 1px solid var(--xibalba-grey-300, #3a3a3a);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.actions-footer button:hover {
+  background: var(--xibalba-grey-300, #3a3a3a);
+  border-color: var(--vectorforge-accent, #ff6b35);
+}
+
+.dropdown {
+  position: relative;
+}
+
+.dropdown-menu {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  margin-bottom: 4px;
+  background: var(--xibalba-grey-200, #2a2a2a);
+  border: 1px solid var(--xibalba-grey-300, #3a3a3a);
+  border-radius: 4px;
+  min-width: 200px;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  background: transparent;
+  color: var(--xibalba-text-000, #ffffff);
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 0.2s;
+}
+
+.dropdown-item:hover {
+  background: var(--xibalba-grey-300, #3a3a3a);
+}
+
+/* Scrollbar */
+.actions-editor::-webkit-scrollbar,
+.dropdown-menu::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.actions-editor::-webkit-scrollbar-track,
+.dropdown-menu::-webkit-scrollbar-track {
+  background: var(--xibalba-grey-050, #0a0a0a);
+}
+
+.actions-editor::-webkit-scrollbar-thumb,
+.dropdown-menu::-webkit-scrollbar-thumb {
+  background: var(--xibalba-grey-300, #3a3a3a);
+  border-radius: 4px;
+}
+
+.actions-editor::-webkit-scrollbar-thumb:hover,
+.dropdown-menu::-webkit-scrollbar-thumb:hover {
+  background: var(--xibalba-grey-400, #4a4a4a);
+}
+

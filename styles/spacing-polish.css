@@ -1,0 +1,388 @@
+/**
+ * Spacing Polish - Enhanced Breathing Room
+ * Fixes overlapping elements and tight spacing
+ * Adds proper margins and gaps for professional appearance
+ */
+
+:root {
+  /* Enhanced Spacing - More Breathing Room */
+  --spacing-section-separator: var(--spacing-lg, 16px);  /* Space between major sections */
+  --spacing-component-gap: var(--spacing-md, 12px);      /* Space between components */
+  --spacing-element-gap: var(--spacing-sm, 8px);        /* Space between elements */
+  --spacing-tight-gap: var(--spacing-xs, 4px);           /* Minimal space for grouped items */
+}
+
+/* ============================================
+   GLOBAL: Remove Zero Margins/Padding
+   ============================================ */
+* {
+  /* Ensure minimum spacing between elements */
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* ============================================
+   HEADER SPACING - More Breathing Room
+   ============================================ */
+header,
+[class*="header"],
+div[style*="height: 48px"]:has(button) {
+  padding: 0 var(--spacing-lg, 16px) !important;
+  gap: var(--spacing-md, 12px) !important;
+}
+
+header > *,
+[class*="header"] > * {
+  margin-right: var(--spacing-md, 12px) !important;
+}
+
+header > *:last-child,
+[class*="header"] > *:last-child {
+  margin-right: 0 !important;
+}
+
+/* ============================================
+   MAIN LAYOUT - Prevent Overlap
+   ============================================ */
+[data-main-content-area="true"] {
+  gap: 0 !important; /* Sidebars should touch edges */
+}
+
+/* Sidebar separation from center */
+.left-sidebar {
+  border-right: 1px solid var(--xibalba-grey-300) !important;
+  margin-right: 0 !important;
+}
+
+.right-sidebar {
+  border-left: 1px solid var(--xibalba-grey-300) !important;
+  margin-left: 0 !important;
+}
+
+/* Center stack - proper spacing */
+.center-stack {
+  gap: 0 !important; /* Components stack vertically */
+}
+
+/* ============================================
+   TOOLBAR - Enhanced Spacing
+   ============================================ */
+.center-toolbar {
+  padding: 0 var(--spacing-lg, 16px) !important;
+  gap: var(--spacing-md, 12px) !important;
+  margin-bottom: 0 !important;
+}
+
+.center-toolbar > * {
+  margin-right: var(--spacing-md, 12px) !important;
+}
+
+.center-toolbar > *:last-child {
+  margin-right: 0 !important;
+}
+
+/* ============================================
+   AI PANEL - More Breathing Room
+   ============================================ */
+.center-ai-column {
+  padding: var(--spacing-lg, 16px) !important;
+  gap: var(--spacing-md, 12px) !important;
+  margin-bottom: 0 !important;
+}
+
+.xibalba-panel-section {
+  padding: var(--spacing-lg, 16px) !important;
+  gap: var(--spacing-md, 12px) !important;
+  margin-bottom: var(--spacing-md, 12px) !important;
+}
+
+.xibalba-panel-section > * {
+  margin-bottom: var(--spacing-md, 12px) !important;
+}
+
+.xibalba-panel-section > *:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* Form sections within panels */
+.xibalba-panel-section > div {
+  margin-bottom: var(--spacing-md, 12px) !important;
+}
+
+.xibalba-panel-section > div:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* ============================================
+   BUTTON GROUPS - Proper Spacing
+   ============================================ */
+div:has(button):not(:has(> button)) {
+  gap: var(--spacing-sm, 8px) !important;
+}
+
+/* Button groups with multiple buttons */
+div:has(> button) {
+  gap: var(--spacing-sm, 8px) !important;
+}
+
+/* Save/Load/Export button container */
+div:has(button):has(button):has(button) {
+  gap: var(--spacing-sm, 8px) !important;
+}
+
+/* ============================================
+   FORM ELEMENTS - Enhanced Spacing
+   ============================================ */
+label {
+  margin-bottom: var(--spacing-xs, 4px) !important;
+  display: block;
+}
+
+input,
+textarea,
+select {
+  margin-bottom: var(--spacing-md, 12px) !important;
+}
+
+input:last-child,
+textarea:last-child,
+select:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* Form groups */
+.xibalba-form-group,
+div:has(label):has(input),
+div:has(label):has(textarea) {
+  margin-bottom: var(--spacing-md, 12px) !important;
+  gap: var(--spacing-xs, 4px) !important;
+}
+
+.xibalba-form-group:last-child,
+div:has(label):has(input):last-child,
+div:has(label):has(textarea):last-child {
+  margin-bottom: 0 !important;
+}
+
+/* ============================================
+   SIDEBAR CONTENT - Proper Spacing
+   ============================================ */
+.left-sidebar > *,
+.right-sidebar > * {
+  margin-bottom: var(--spacing-sm, 8px) !important;
+}
+
+.left-sidebar > *:last-child,
+.right-sidebar > *:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* Tab system spacing */
+[class*="tab-system"] {
+  margin-bottom: 0 !important;
+}
+
+/* Tab content spacing */
+[class*="tab-content"],
+[class*="panel-content"] {
+  padding: var(--spacing-md, 12px) !important;
+  gap: var(--spacing-md, 12px) !important;
+}
+
+/* ============================================
+   TIMELINE - Enhanced Spacing
+   ============================================ */
+.professional-timeline {
+  margin-top: 0 !important;
+  border-top: 2px solid var(--xibalba-grey-300) !important;
+}
+
+.timeline-header {
+  padding: 0 var(--spacing-lg, 16px) !important;
+  gap: var(--spacing-sm, 8px) !important;
+}
+
+.timeline-controls {
+  gap: var(--spacing-sm, 8px) !important;
+}
+
+.timeline-controls button {
+  margin-right: var(--spacing-xs, 4px) !important;
+}
+
+.timeline-controls button:last-child {
+  margin-right: 0 !important;
+}
+
+.timeline-layer {
+  margin-bottom: 0 !important;
+  border-bottom: 1px solid var(--xibalba-grey-300) !important;
+}
+
+.layer-controls {
+  padding: 0 var(--spacing-sm, 8px) !important;
+  gap: var(--spacing-xs, 4px) !important;
+}
+
+/* ============================================
+   POWER USER TOOLBAR - Enhanced Spacing
+   ============================================ */
+[data-power-toolbar="true"],
+.power-toolbar-panel {
+  margin-bottom: var(--spacing-sm, 8px) !important;
+  padding: var(--spacing-md, 12px) !important;
+}
+
+.power-toolbar-panel > * {
+  margin-bottom: var(--spacing-sm, 8px) !important;
+}
+
+.power-toolbar-panel > *:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* Expanded content */
+.power-toolbar-panel > div:has(input),
+.power-toolbar-panel > div:has(checkbox) {
+  margin-bottom: var(--spacing-md, 12px) !important;
+  padding: var(--spacing-md, 12px) !important;
+  gap: var(--spacing-sm, 8px) !important;
+}
+
+/* ============================================
+   CANVAS AREA - Proper Separation
+   ============================================ */
+.center-canvas-area {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding: 0 !important;
+  border-top: 1px solid var(--xibalba-grey-300) !important;
+}
+
+/* ============================================
+   STATUS INDICATOR - Proper Spacing
+   ============================================ */
+[class*="status-indicator"] {
+  margin-top: var(--spacing-sm, 8px) !important;
+  padding: var(--spacing-md, 12px) !important;
+}
+
+/* ============================================
+   FIX OVERLAPPING ELEMENTS
+   ============================================ */
+/* Ensure no negative margins */
+* {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Fix absolute positioned elements */
+[style*="position: absolute"],
+[style*="position:fixed"] {
+  margin: 0 !important;
+}
+
+/* Ensure proper z-index stacking */
+.left-sidebar {
+  z-index: 10 !important;
+}
+
+.right-sidebar {
+  z-index: 10 !important;
+}
+
+.center-stack {
+  z-index: 1 !important;
+}
+
+.professional-timeline {
+  z-index: 5 !important;
+}
+
+/* ============================================
+   REMOVE TIGHT SPACING
+   ============================================ */
+/* Remove zero gaps */
+[style*="gap: 0"],
+[style*="gap:0"] {
+  gap: var(--spacing-xs, 4px) !important;
+}
+
+/* Remove zero padding */
+[style*="padding: 0"],
+[style*="padding:0"] {
+  padding: var(--spacing-xs, 4px) !important;
+}
+
+/* Remove zero margins */
+[style*="margin: 0"],
+[style*="margin:0"] {
+  margin: var(--spacing-xs, 4px) !important;
+}
+
+/* ============================================
+   ENHANCED SECTION SEPARATION
+   ============================================ */
+section,
+[class*="section"] {
+  margin-bottom: var(--spacing-lg, 16px) !important;
+  padding-top: var(--spacing-md, 12px) !important;
+  padding-bottom: var(--spacing-md, 12px) !important;
+}
+
+section:last-child,
+[class*="section"]:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* ============================================
+   HEADINGS - Proper Spacing
+   ============================================ */
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 0 !important;
+  margin-bottom: var(--spacing-md, 12px) !important;
+}
+
+h1 + *,
+h2 + *,
+h3 + *,
+h4 + *,
+h5 + *,
+h6 + * {
+  margin-top: 0 !important;
+}
+
+/* ============================================
+   PARAGRAPHS - Proper Spacing
+   ============================================ */
+p {
+  margin-top: 0 !important;
+  margin-bottom: var(--spacing-md, 12px) !important;
+}
+
+p:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* ============================================
+   LISTS - Proper Spacing
+   ============================================ */
+ul, ol {
+  margin-top: 0 !important;
+  margin-bottom: var(--spacing-md, 12px) !important;
+  padding-left: var(--spacing-lg, 16px) !important;
+}
+
+ul:last-child,
+ol:last-child {
+  margin-bottom: 0 !important;
+}
+
+li {
+  margin-bottom: var(--spacing-xs, 4px) !important;
+}
+
+li:last-child {
+  margin-bottom: 0 !important;
+}
+
