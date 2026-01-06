@@ -19,7 +19,10 @@ module.exports = {
     ecmaFeatures: {
       jsx: true,
     },
+    // Root tsconfig.json includes packages/* via **/*.ts patterns
+    // For monorepo packages, ESLint will use the root tsconfig which includes all files
     project: './tsconfig.json',
+    tsconfigRootDir: __dirname,
   },
   extends: [
     'eslint:recommended',
@@ -107,16 +110,28 @@ module.exports = {
         '@typescript-eslint/no-unsafe-call': 'off',
       },
     },
+    {
+      // Monorepo packages: Use root tsconfig.json which includes packages/* via **/*.ts patterns
+      // The root tsconfig.json includes all .ts/.tsx files recursively, so packages are covered
+      files: ['packages/**/*.ts', 'packages/**/*.tsx'],
+      parserOptions: {
+        // Use root tsconfig which includes packages via **/*.ts patterns
+        project: './tsconfig.json',
+        tsconfigRootDir: __dirname,
+      },
+    },
   ],
   ignorePatterns: [
     'dist',
     'node_modules',
     '*.config.js',
     '*.config.ts',
+    '.lintstagedrc.js', // Config file, not TypeScript - avoid type-aware parsing
     'api/**/*.js',
     'scripts/**/*.js',
     'server.js',
     'test-runtime-fixes.js',
   ],
 };
+
 
