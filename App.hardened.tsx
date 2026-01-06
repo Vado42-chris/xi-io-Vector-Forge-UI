@@ -335,7 +335,6 @@ const App: React.FC = () => {
   const [actionsCode, setActionsCode] = useState<string>('');
   const [showLibrary, setShowLibrary] = useState(true);
   const [showActions, setShowActions] = useState(false);
-  const [showAIPanel, setShowAIPanel] = useState(false);
 
   // Canvas settings state
   const [snapToGrid, setSnapToGrid] = useState(true);
@@ -2247,14 +2246,6 @@ const App: React.FC = () => {
         <ProfessionalFileMenu onAction={handleAction} onLayoutChange={handleLayoutChange} />
         {/* Emergency Save/Load/Export buttons */}
         <SaveLoadButtons state={state} setState={setState} />
-        <button
-          onClick={() => setShowAIPanel(true)}
-          className="ml-4 px-4 py-2 bg-[var(--vectorforge-accent)] text-white rounded text-sm font-semibold hover:opacity-90 transition-opacity"
-          aria-label="Generate with AI"
-          title="Generate with AI - Open AI generation panel"
-        >
-          ✨ Generate with AI
-        </button>
         <ExportButton />
         <div className="ml-auto mr-4">
           <SignButton
@@ -2325,7 +2316,6 @@ const App: React.FC = () => {
               onShowGuidesChange={setShowGuides}
               gridSize={gridSize}
               onGridSizeChange={setGridSize}
-        {false &&         {/* AI Panel - MOVED TO FLOATING PANEL (Design Guide Compliance) */}
               showOnionSkin={showOnionSkin}
               onShowOnionSkinChange={setShowOnionSkin}
               onionSkinFrames={onionSkinFrames}
@@ -2335,7 +2325,6 @@ const App: React.FC = () => {
         )}
 
         {/* AI Vector Column - Middle of center stack */}
-        <div className="app-ai-panel xibalba-scrollbar">
           {/* AI Generation Panel - Extracted from LeftSidebar */}
           <div
             className="xibalba-panel-section bg-[var(--xibalba-grey-100)] rounded-lg border border-[var(--xibalba-grey-300)]"
@@ -2345,7 +2334,7 @@ const App: React.FC = () => {
             <h3
               className="text-xs font-bold text-[var(--xibalba-text-000)] uppercase tracking-widest"
               style={{ marginBottom: 'var(--spacing-md, 12px)' }}
-            >
+        {false && (            >
               GENERATIVE VECTOR AI
             </h3>
 
@@ -2487,6 +2476,7 @@ const App: React.FC = () => {
             selectedNodeId={state.selectedNodeId}
             zoom={state.zoom}
             pan={state.pan}
+        )}
             onPan={handlePan}
             onZoom={handleZoom}
             onSelectLayer={handleLayerSelect}
@@ -3000,7 +2990,6 @@ const App: React.FC = () => {
         }}
       />
 
-
       {/* Global Advanced Mode Toggle - Day 5-7: Progressive Disclosure */}
       <button
         onClick={() => setAdvancedMode(!advancedMode)}
@@ -3026,6 +3015,48 @@ const App: React.FC = () => {
       </button>
 
       {/* Legacy Action Center (keeping for backward compatibility - will be removed after testing) */}
+      <LegacyActionCenter
+        hasPrompt={!!state.prompt && state.prompt.trim().length > 0}
+        prompt={state.prompt}
+        onGenerateVector={handleGenerate}
+        isGenerating={state.isGenerating}
+        onAction={action => {
+          switch (action.id) {
+            case 'setup-project':
+              setShowProjectWizard(true);
+              break;
+            case 'browse-templates':
+              setShowTemplateLibrary(true);
+              break;
+            case 'generate-tests':
+              setShowTestGenerator(true);
+              break;
+            case 'fix-menu-actions':
+              setShowActionAudit(true);
+              break;
+            case 'create-schema':
+              setShowSchemaBuilder(true);
+              break;
+            case 'batch-operations':
+              setShowBatchOperations(true);
+              break;
+            case 'guided-workflow':
+              setShowGuidedWorkflow(true);
+              break;
+            case 'marketplace-publisher':
+              setShowPublisherDashboard(true);
+              break;
+            case 'marketplace-analytics':
+              setShowAnalyticsDashboard(true);
+              break;
+            case 'workspace-customizer':
+              setShowWorkspaceCustomizer(true);
+              break;
+          }
+        }}
+      />
+
+      {/* Gamification Components */}
       <AchievementPanel
         isOpen={showAchievementPanel}
         onClose={() => setShowAchievementPanel(false)}
@@ -3111,21 +3142,22 @@ const App: React.FC = () => {
 
       {/* Error Display - Shows errors on screen so we can see them */}
       <ErrorDisplay />
+    </div>
+  );
+};
 
-      {/* AI Floating Panel - Design Guide Compliance */}
-      <AIFloatingPanel
-        isOpen={showAIPanel}
-        onClose={() => setShowAIPanel(false)}
-        prompt={state.prompt || ""}
-        onPromptChange={(prompt) => setState(p => ({ ...p, prompt }))}
-        style={state.style || "line-art"}
-        onStyleChange={(style) => setState(p => ({ ...p, style }))}
-        complexity={state.complexity || 5}
-        onComplexityChange={(complexity) => setState(p => ({ ...p, complexity }))}
-        onGenerate={handleGenerate}
-        advancedMode={advancedMode}
-        onAdvancedModeChange={setAdvancedMode}
+export default App;
+
+        isOpen={showConversationHistory}
+        onClose={() => setShowConversationHistory(false)}
+        onSelectConversation={id => {
+          // TODO: Load conversation into DevChatbot
+          setShowConversationHistory(false);
+        }}
       />
+
+      {/* Error Display - Shows errors on screen so we can see them */}
+      <ErrorDisplay />
     </div>
   );
 };
