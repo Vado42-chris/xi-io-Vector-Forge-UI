@@ -1,209 +1,120 @@
 
-import React, { useRef, useEffect, useState } from 'react';
-import { ToolType, AppState, VectorNode, VectorLayer } from '../types';
+import React, { useRef, useState } from 'react';
+import { AppState, VectorNode, ViewportMode, Guide } from '../types';
 import Rulers from './Rulers';
 
 interface CanvasProps {
-  svgContent: string;
-  isGenerating: boolean;
-  activeTool: ToolType;
-  selectedLayerId: string | null;
-  selectedNodeId: string | null;
-  layers: VectorLayer[];
+  state: AppState;
+  onUpdateState: (patch: Partial<AppState>) => void;
   onSelectLayer: (id: string) => void;
-  onSelectNode: (id: string | null) => void;
-  onUpdateNode: (layerId: string, nodeId: string, delta: {x: number, y: number}) => void;
-  zoom: number;
-  pan: { x: number, y: number };
-  onPan: (pan: { x: number, y: number }) => void;
-  guides: AppState['guides'];
-  onAddGuide: (type: 'h' | 'v', pos: number) => void;
-  onUpdateGuide: (id: string, pos: number) => void;
 }
 
-const Canvas: React.FC<CanvasProps> = ({ 
-  svgContent, isGenerating, activeTool, selectedLayerId, selectedNodeId, layers,
-  onSelectLayer, onSelectNode, onUpdateNode, zoom, pan, onPan, guides, onAddGuide, onUpdateGuide
-}) => {
+const serializePath = (nodes: VectorNode[]): string => {
+  return nodes.map(n => {
+    if (n.type === 'move') return `M ${n.x} ${n.y}`;
+    if (n.type === 'line') return `L ${n.x} ${n.y}`;
+    if (n.type === 'cubic') return `C ${n.cx1} ${n.cy1} ${n.cx2} ${n.cy2} ${n.x} ${n.y}`;
+    if (n.type === 'close') return `Z`;
+    return '';
+  }).join(' ');
+};
+
+const Canvas: React.FC<CanvasProps> = ({ state, onUpdateState, onSelectLayer }) => {
+  const { layers, isGenerating, selectedLayerId, zoom, pan, showGrid, showRulers, viewportMode, unitSystem, snapToGuides, guides } = state;
   const containerRef = useRef<HTMLDivElement>(null);
-  const [dragState, setDragState] = useState<{ type: 'pan' | 'node' | 'guide', id: string, startX: number, startY: number } | null>(null);
+  const [mouseCoords, setMouseCoords] = useState({ x: 0, y: 0 });
   const zoomScale = zoom / 100;
 
-  const handlePointerDown = (e: React.PointerEvent) => {
-    const target = e.target as HTMLElement;
-    
-    // Handle Pan
-    if (activeTool === 'pan' || e.button === 1) {
-      setDragState({ type: 'pan', id: '', startX: e.clientX, startY: e.clientY });
-      target.setPointerCapture(e.pointerId);
-      return;
-    }
-
-    // Handle Guide selection/drag
-    const guideEl = target.closest('[data-guide-id]');
-    if (guideEl) {
-      const guideId = guideEl.getAttribute('data-guide-id')!;
-      setDragState({ type: 'guide', id: guideId, startX: e.clientX, startY: e.clientY });
-      target.setPointerCapture(e.pointerId);
-      return;
-    }
-
-    // Handle Node selection/drag (Sub-selection mode)
-    const nodeEl = target.closest('[data-node-id]');
-    if (activeTool === 'subselect' && nodeEl) {
-      const nodeId = nodeEl.getAttribute('data-node-id')!;
-      onSelectNode(nodeId);
-      setDragState({ type: 'node', id: nodeId, startX: e.clientX, startY: e.clientY });
-      target.setPointerCapture(e.pointerId);
-      return;
-    }
-
-    // Handle Object selection
-    if ((activeTool === 'select' || activeTool === 'subselect') && !isGenerating) {
-      let current: SVGElement | null = e.target as SVGElement;
-      while (current && current.tagName !== 'DIV') {
-        if (current.id && current.id !== 'bg' && current.id !== 'workspace_root' && current.tagName !== 'svg') {
-          onSelectLayer(current.id);
-          if (activeTool !== 'subselect') onSelectNode(null);
-          return;
-        }
-        current = current.parentElement as unknown as SVGElement;
-      }
-      onSelectLayer('');
-      onSelectNode(null);
-    }
-  };
-
   const handlePointerMove = (e: React.PointerEvent) => {
-    if (!dragState) return;
-
-    const dx = (e.clientX - dragState.startX) / zoomScale;
-    const dy = (e.clientY - dragState.startY) / zoomScale;
-
-    if (dragState.type === 'pan') {
-      onPan({ x: pan.x + (e.clientX - dragState.startX), y: pan.y + (e.clientY - dragState.startY) });
-      setDragState({ ...dragState, startX: e.clientX, startY: e.clientY });
-    } else if (dragState.type === 'node' && selectedLayerId) {
-      onUpdateNode(selectedLayerId, dragState.id, { x: dx, y: dy });
-      setDragState({ ...dragState, startX: e.clientX, startY: e.clientY });
-    } else if (dragState.type === 'guide') {
-      const guide = guides.find(g => g.id === dragState.id);
-      if (guide) {
-        const val = guide.type === 'v' ? dx : dy;
-        onUpdateGuide(dragState.id, guide.pos + val);
-        setDragState({ ...dragState, startX: e.clientX, startY: e.clientY });
-      }
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (rect) {
+       setMouseCoords({
+          x: Math.round((e.clientX - rect.left - pan.x - (rect.width/2)) / zoomScale),
+          y: Math.round((e.clientY - rect.top - pan.y - (rect.height/2)) / zoomScale)
+       });
     }
   };
 
-  const handlePointerUp = (e: React.PointerEvent) => {
-    setDragState(null);
-    (e.target as HTMLElement).releasePointerCapture(e.pointerId);
+  const addGuide = (g: Omit<Guide, 'id'>) => {
+    const id = `g-${Date.now()}`;
+    onUpdateState({ guides: [...guides, { ...g, id }] });
   };
 
-  const selectedLayerData = layers.find(l => l.id === selectedLayerId);
+  const updateGuide = (id: string, pos: number) => {
+    onUpdateState({ guides: guides.map(g => g.id === id ? { ...g, position: pos } : g) });
+  };
+
+  const deleteGuide = (id: string) => {
+    onUpdateState({ guides: guides.filter(g => g.id !== id) });
+  };
 
   return (
     <div 
       ref={containerRef}
-      className={`flex-1 relative bg-[var(--xibalba-grey-100)] overflow-hidden flex items-center justify-center canvas-grid select-none cursor-${activeTool === 'pan' ? 'grab' : 'default'}`}
-      onPointerDown={handlePointerDown}
+      className={`absolute inset-0 bg-obsidian-950 overflow-hidden select-none flex flex-col grain-layer grain-1 ${showGrid ? 'canvas-grid' : ''}`}
       onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
-      className="canvas-container-touch"
+      style={{ touchAction: 'none' }}
     >
-      <Rulers zoom={zoom} pan={pan} onAddGuide={(type, pos) => onAddGuide(type, pos)} />
-
-      {/* Interactive Guides */}
-      {guides.map((g) => {
-        const guideRef = useRef<HTMLDivElement>(null);
-        useEffect(() => {
-          if (guideRef.current) {
-            if (g.type === 'v') {
-              const left = `calc(50% + ${pan.x + g.pos * zoomScale}px)`;
-              guideRef.current.style.setProperty('--guide-left', left);
-            } else {
-              const top = `calc(50% + ${pan.y + g.pos * zoomScale}px)`;
-              guideRef.current.style.setProperty('--guide-top', top);
-            }
-          }
-        }, [pan, g.pos, zoomScale, g.type]);
-        
-        return (
-        <div 
-          key={g.id}
-          ref={guideRef}
-          data-guide-id={g.id}
-          className={`absolute z-[55] cursor-${g.type === 'v' ? 'col-resize' : 'row-resize'} group guide-line ${g.type === 'v' ? 'guide-vertical' : 'guide-horizontal'}`}
-        >
-          <div className={`absolute ${g.type === 'v' ? 'left-1/2 h-full w-px border-l' : 'top-1/2 w-full h-px border-t'} border-[var(--xibalba-text-200)] transition-opacity opacity-20 group-hover:opacity-100`}></div>
-        </div>
-        );
-      })}
-
-      <div 
-        ref={canvasViewportRef}
-        className="bg-[var(--xibalba-grey-050)] relative flex items-center justify-center shadow-[0_80px_200px_-40px_rgba(0,0,0,0.8)] rounded-none overflow-hidden border border-white/5 canvas-viewport"
-      >
-        {/* Gestalt Base */}
-        <div className="absolute inset-0 opacity-[0.03] pointer-events-none canvas-grid-pattern"></div>
-        
-        <div 
-          className={`w-[512px] h-[512px] transition-all duration-500 pointer-events-auto ${isGenerating ? 'opacity-10 blur-xl grayscale' : 'opacity-100'}`}
-          dangerouslySetInnerHTML={{ __html: svgContent }}
+      {showRulers && (
+        <Rulers 
+           zoom={zoom} pan={pan} 
+           viewportMode={viewportMode} 
+           unitSystem={unitSystem}
+           onSetUnitSystem={(u) => onUpdateState({ unitSystem: u })}
+           snapEnabled={snapToGuides}
+           onToggleSnap={() => onUpdateState({ snapToGuides: !snapToGuides })}
+           guides={guides}
+           onAddGuide={addGuide}
+           onUpdateGuide={updateGuide}
+           onDeleteGuide={deleteGuide}
+           onClearGuides={() => onUpdateState({ guides: [] })}
+           onSwitchViewport={() => onUpdateState({ viewportMode: viewportMode === ViewportMode.SVG_2D ? ViewportMode.PERSPECTIVE_3D : ViewportMode.SVG_2D })}
+           onResetOrigin={() => onUpdateState({ pan: { x: 0, y: 0 }, zoom: 100 })}
         />
+      )}
 
-        {/* Selection Bounding Box (Gestalt mode) */}
-        {selectedLayerId && activeTool === 'select' && (
-          <div className="absolute w-[512px] h-[512px] pointer-events-none border border-[var(--xibalba-text-200)]/50 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
-             <div className="absolute -top-1 -left-1 size-2.5 bg-[var(--xibalba-text-200)] border border-[var(--xibalba-text-100)]"></div>
-             <div className="absolute -top-1 -right-1 size-2.5 bg-[var(--xibalba-text-200)] border border-[var(--xibalba-text-100)]"></div>
-             <div className="absolute -bottom-1 -left-1 size-2.5 bg-[var(--xibalba-text-200)] border border-[var(--xibalba-text-100)]"></div>
-             <div className="absolute -bottom-1 -right-1 size-2.5 bg-[var(--xibalba-text-200)] border border-[var(--xibalba-text-100)]"></div>
+      <div className="absolute bottom-6 right-6 z-[160] flex items-center gap-6 px-5 py-2.5 bg-obsidian-900 border border-white/[0.01] rounded-xi shadow-2xl pointer-events-none transition-all grain-layer grain-2">
+         <div className="flex flex-col relative z-10">
+            <span className="text-[6px] font-mono text-obsidian-300 uppercase tracking-widest italic opacity-60">LOC_X</span>
+            <span className="text-[10px] font-mono text-primary font-bold italic">{mouseCoords.x.toString().padStart(4, '0')}</span>
+         </div>
+         <div className="w-px h-3 bg-white/[0.02] relative z-10"></div>
+         <div className="flex flex-col relative z-10">
+            <span className="text-[6px] font-mono text-obsidian-300 uppercase tracking-widest italic opacity-60">LOC_Y</span>
+            <span className="text-[10px] font-mono text-primary font-bold italic">{mouseCoords.y.toString().padStart(4, '0')}</span>
+         </div>
+      </div>
+
+      <div className="flex-1 relative overflow-hidden flex items-center justify-center">
+        <div 
+          className="relative transition-all duration-1000 preserve-3d"
+          style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoomScale}) ${viewportMode === ViewportMode.PERSPECTIVE_3D ? 'rotateX(35deg) rotateZ(-12deg)' : 'none'}` }}
+        >
+          <div 
+            className="bg-obsidian-850 relative shadow-[0_40px_120px_-20px_rgba(0,0,0,1)] border border-white/[0.02] overflow-hidden rounded-xi grain-layer grain-3"
+            style={{ width: 'var(--xi-artboard-size)', height: 'var(--xi-artboard-size)' }}
+          >
+            <svg viewBox="0 0 512 512" className={`w-full h-full transition-all duration-700 relative z-10 ${isGenerating ? 'blur-3xl opacity-20' : ''}`}>
+                {layers.map(layer => (
+                  <g key={layer.id} onClick={() => onSelectLayer(layer.id)} className="cursor-pointer">
+                    <path 
+                      d={serializePath(layer.nodes)} 
+                      fill={layer.color} 
+                      stroke={layer.id === selectedLayerId ? '#b8860b' : layer.stroke} 
+                      strokeWidth={layer.id === selectedLayerId ? 1.5 : 0.5}
+                      opacity={layer.opacity}
+                    />
+                  </g>
+                ))}
+            </svg>
+            
+            {isGenerating && (
+              <div className="absolute inset-0 z-50 pointer-events-none flex items-center justify-center">
+                 <div className="h-full w-px bg-primary/20 absolute left-1/2 -translate-x-1/2 animate-[scanning_4s_linear_infinite]"></div>
+              </div>
+            )}
           </div>
-        )}
-
-        {/* Atomic Sub-Selection Handles */}
-        {selectedLayerId && activeTool === 'subselect' && selectedLayerData && selectedLayerData.shape.type === 'path' && (
-           <div className="absolute w-[512px] h-[512px] pointer-events-none">
-              <svg className="absolute inset-0 w-full h-full pointer-events-none overflow-visible">
-                 {/* Draw the "Spline Backbone" for clarity */}
-                 <path 
-                    d={selectedLayerData.shape.nodes.reduce((acc, n, i) => {
-                       if (n.type === 'move') return `M ${n.x} ${n.y}`;
-                       if (n.type === 'line') return `${acc} L ${n.x} ${n.y}`;
-                       if (n.type === 'cubic') return `${acc} C ${n.cx1} ${n.cy1}, ${n.cx2} ${n.cy2}, ${n.x} ${n.y}`;
-                       if (n.type === 'close') return `${acc} Z`;
-                       return acc;
-                    }, '')}
-                    fill="none" stroke="var(--xibalba-text-200)" strokeWidth="1" strokeDasharray="4 2" opacity="0.4"
-                 />
-              </svg>
-              {selectedLayerData.shape.nodes.map((node) => (
-                <div 
-                  key={node.id}
-                  data-node-id={node.id}
-                  className={`absolute pointer-events-auto cursor-crosshair transition-all hover:scale-150 node-handle ${
-                    node.isKinetic ? 'rounded-none border-[2px]' : 'rounded-none border-[1.5px]'
-                  } ${selectedNodeId === node.id ? 'bg-[var(--xibalba-text-200)] border-[var(--xibalba-text-000)] scale-125 z-10' : 'bg-[var(--xibalba-text-200)] border-[var(--xibalba-text-100)] opacity-80'}`}
-                  ref={(nodeEl) => {
-                    if (nodeEl) {
-                      nodeEl.style.setProperty('--node-left', `${node.x}px`);
-                      nodeEl.style.setProperty('--node-top', `${node.y}px`);
-                      nodeEl.style.setProperty('transform', 'translate(-50%, -50%)');
-                    }
-                  }}
-                ></div>
-              ))}
-           </div>
-        )}
-
-        {isGenerating && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center z-[200] bg-[var(--xibalba-grey-100)]/95 backdrop-blur-3xl ai-scanning">
-             <div className="size-16 border-[4px] border-[var(--xibalba-text-200)]/20 border-t-[var(--xibalba-text-200)] rounded-none animate-spin"></div>
-             <span className="mt-6 text-[10px] font-black text-[var(--xibalba-text-100)] tracking-[0.5em] uppercase">Kernel Link Active</span>
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );

@@ -1,330 +1,171 @@
-export type TabType = 'text' | 'image' | 'chat' | 'terminal' | 'settings' | 'ai-assistant';
+
+
+export type TabType = 'forge' | 'chat' | 'terminal' | 'settings';
 export type ToolType = 
-  // Selection Tools
-  | 'select'           // Selection tool (V)
-  | 'direct-select'   // Direct selection (A)
-  | 'group-select'    // Group selection
-  // Drawing Tools
-  | 'pen'             // Pen tool (P)
-  | 'pencil'          // Pencil tool (N)
-  | 'brush'           // Brush tool (B)
-  | 'line'            // Line tool (\)
-  | 'rectangle'       // Rectangle tool (M)
-  | 'ellipse'         // Ellipse tool (L)
-  | 'polygon'         // Polygon tool
-  | 'star'            // Star tool
-  | 'spiral'          // Spiral tool
-  // Text Tools
-  | 'text'            // Text tool (T)
-  | 'text-on-path'    // Text on path
-  // Transformation Tools
-  | 'rotate'          // Rotate tool (R)
-  | 'scale'           // Scale tool (S)
-  | 'shear'           // Shear tool
-  | 'reflect'         // Reflect tool (O)
-  // Shape Tools
-  | 'shape-builder'   // Shape builder
-  | 'pathfinder'      // Pathfinder operations
-  // Utility Tools
-  | 'eyedropper'      // Eyedropper tool (I)
-  | 'gradient'        // Gradient tool (G)
-  | 'mesh'            // Gradient mesh
-  | 'blend'           // Blend tool (W)
-  | 'symbol-sprayer'  // Symbol sprayer
-  // Navigation Tools
-  | 'pan'             // Hand tool (H)
-  | 'zoom'            // Zoom tool (Z)
-  | 'artboard'        // Artboard tool (Shift+O)
-  // Special Tools
-  | 'perspective'     // Perspective tool
-  | 'free-transform' // Free transform (E)
-  | 'width'           // Width tool (Shift+W)
-  | 'warp'            // Warp tool (Shift+R)
-  | 'twirl'           // Twirl tool
-  | 'pucker'          // Pucker tool
-  | 'bloat'           // Bloat tool
-  | 'scallop'         // Scallop tool
-  | 'crystallize'     // Crystallize tool
-  | 'wrinkle';        // Wrinkle tool
+  | 'select' | 'subselect' | 'pen' | 'rect' | 'ellipse' | 'text' 
+  | 'pan' | 'zoom' | 'extrude' | 'rotate3d' | 'bone' | 'emitter' | 'light'
+  | 'transform' | 'knife' | 'measure'
+  | 'directive_add' | 'agent_dispatch' | 'trajectory_plot' | 'shard_link';
 
-export type MeasurementUnit = 'px' | 'mm' | 'cm' | 'in' | 'pt';
+export type ViewType = 
+  | 'CANVAS_2D' | 'CANVAS_3D' | 'TERMINAL' | 'AI_SYNTHESIS' | 'NODE_GRAPH' 
+  | 'TIMELINE' | 'SCENE_EXPLORER' | 'PROJECT_NEXUS' | 'INTEROP_BRIDGE' 
+  | 'ASSET_VAULT' | 'SCRIPT_EDITOR' | 'MOTION_FORGE' | 'SKELETON_VIEW'
+  | 'VFX_FLUX' | 'LUCID_STAGE' | 'NEURAL_AUDITOR' | 'CODE_KERNEL'
+  | 'ORBITAL_SIM' | 'GLOBAL_BROWSER' | 'MCP_TESTER' | 'ROSETTA_CORE'
+  | 'ROSETTA_BRIDGE' | 'UX_SIMULAB' | 'REASONING_ENGINE' | 'MARKETPLACE_NEXUS'
+  | 'WALLET_NEXUS' | 'PLUGIN_FORGE' | 'COLOSSEUM_TESTER' | 'MCP_REGISTRY'
+  | 'OMNI_THREAD'; // New fractal chat view
 
-export interface ToolProperties {
-  // Pen Tool
-  pen?: {
-    fill?: boolean;
-    stroke?: boolean;
-    closePath?: boolean;
-    smoothness?: number;
-  };
-  // Pencil Tool
-  pencil?: {
-    fidelity?: number; // 0-100
-    smoothness?: number; // 0-100
-    fillNewPaths?: boolean;
-    fill?: boolean;
-    stroke?: boolean;
-  };
-  // Brush Tool
-  brush?: {
-    brushType?: 'calligraphic' | 'scatter' | 'art' | 'pattern' | 'bristle';
-    size?: number;
-    opacity?: number;
-    flow?: number;
-    angle?: number;
-    roundness?: number;
-  };
-  // Text Tool
-  text?: {
-    fontFamily?: string;
-    fontSize?: number;
-    fontWeight?: number;
-    fontStyle?: 'normal' | 'italic';
-    alignment?: 'left' | 'center' | 'right' | 'justify';
-    color?: string;
-    tracking?: number;
-    leading?: number;
-  };
-  // Shape Tools
-  rectangle?: {
-    cornerRadius?: number;
-  };
-  ellipse?: {
-    startAngle?: number;
-    endAngle?: number;
-  };
-  polygon?: {
-    sides?: number;
-    starPoints?: number;
-    innerRadius?: number;
-  };
-  star?: {
-    points?: number;
-    innerRadius?: number;
-  };
-  spiral?: {
-    decay?: number;
-    turns?: number;
-  };
-  // Line Tool
-  line?: {
-    cap?: 'butt' | 'round' | 'square';
-    join?: 'miter' | 'round' | 'bevel';
-  };
-  // Text on Path Tool
-  'text-on-path'?: {
-    offset?: number;
-    flip?: boolean;
-  };
-  // Free Transform Tool
-  'free-transform'?: {
-    constrain?: boolean;
-    origin?: 'center' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
-  };
-  // Reflect Tool
-  reflect?: {
-    axis?: 'vertical' | 'horizontal' | 'both';
-    copy?: boolean;
-  };
-  // Mesh Tool
-  mesh?: {
-    rows?: number;
-    columns?: number;
-  };
-  // Eyedropper Tool
-  eyedropper?: {
-    sampleSize?: 'point' | '3x3' | '5x5' | '11x11';
-    sampleAll?: boolean;
-  };
-  // Transformation Tools
-  rotate?: {
-    angle?: number;
-    referencePoint?: 'center' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
-  };
-  scale?: {
-    x?: number;
-    y?: number;
-    uniform?: boolean;
-    referencePoint?: 'center' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
-  };
-  // Gradient Tool
-  gradient?: {
-    type?: 'linear' | 'radial' | 'mesh' | 'conic';
-    stops?: Array<{ color: string; position: number }>;
-    angle?: number;
-  };
-  zoom?: {
-    level?: number;
-  };
-}
+export enum WorkflowPhase { IDEATION = 'Ideation', SKELETON = 'Skeleton', SYNTHESIS = 'Synthesis', DEPLOY = 'Deploy' }
+export enum ViewportMode { SVG_2D = 'SVG_2D', PERSPECTIVE_3D = 'PERSPECTIVE_3D', ORTHO_TOP = 'ORTHO_TOP', ORTHO_SIDE = 'ORTHO_SIDE', ORTHO_FRONT = 'ORTHO_FRONT' }
+export enum UnitSystem { PIXELS = 'PX', MILLIMETERS = 'MM', NORMALIZED = '0-1' }
 
-export enum DesignStyle {
-  FLAT = 'Flat Icon',
-  LINE = 'Line Art',
-  ISOMETRIC = 'Isometric',
-  ABSTRACT = 'Abstract'
-}
-
-export enum AIProvider {
-  GEMINI_FLASH = 'Gemini 3 Flash',
-  GEMINI_PRO = 'Gemini 3 Pro',
-}
-
-export interface Toast {
-  id: string;
-  message: string;
-  type: 'info' | 'success' | 'error' | 'warning';
-}
-
-// --- Parametric Shape System ---
-
-export interface VectorNode {
-  id: string;
-  x: number;
-  y: number;
-  type: 'move' | 'line' | 'cubic' | 'close';
-  cx1?: number; // Control point 1
-  cy1?: number;
-  cx2?: number; // Control point 2
-  cy2?: number;
-  isKinetic?: boolean;
-}
-
-export interface Path {
-  type: 'path';
-  nodes: VectorNode[];
-}
-
-export interface ParametricRectangle {
-  type: 'rect';
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  borderRadius: number;
-}
-
-export interface TextShape {
-  type: 'text';
+export interface CognitiveMessage {
+  role: 'operator' | 'conductor' | 'user' | 'model';
   content: string;
-  x: number;
-  y: number;
-  fontFamily: string;
-  fontSize: number;
-  fontWeight: number;
-  fontStyle: 'normal' | 'italic';
-  fill: string;
-  stroke: string;
-  strokeWidth: number;
+  meta?: string;
+  attachments?: { name: string, type: string, data?: string }[];
+  swarmResponse?: boolean;
 }
 
-export interface EllipseShape {
-  type: 'ellipse';
-  x: number; // Center x
-  y: number; // Center y
-  radiusX: number;
-  radiusY: number;
+export interface CognitiveTrace {
+  id: string;
+  timestamp: string;
+  summary: string;
+  sentiment: number;
+  tokensReferenced: number;
+  history: CognitiveMessage[];
 }
 
-export type Shape = Path | ParametricRectangle | TextShape | EllipseShape;
+export interface Persona { 
+  username: string; 
+  title: string;
+  avatarUrl: string; 
+  nodeStatus: 'online' | 'stealth' | 'offline'; 
+  dotfileId: string; 
+  trustScore: number;
+  shardYield: number;
+  cognitiveDepth: number; 
+  traces: CognitiveTrace[];
+  permissions: {
+    coreMutation: boolean;
+    marketInjection: boolean;
+    deepReasoning: boolean;
+  }
+}
 
-// --- End Parametric Shape System ---
+// Added missing DesignStyle type
+export type DesignStyle = 'Flat' | 'Isometric' | 'Abstract';
 
-export interface VectorLayer {
+// Added missing Guide interface
+export interface Guide {
+  id: string;
+  axis: 'x' | 'y' | 'z' | 'p';
+  position: number;
+  locked: boolean;
+}
+
+// Added missing DirectiveStatus type
+export type DirectiveStatus = 'BACKLOG' | 'ASSEMBLY' | 'TESTING' | 'DEPLOYED';
+
+// Added missing Directive interface
+export interface Directive {
+  id: string;
+  title: string;
+  description: string;
+  status: DirectiveStatus;
+  priority: 'CRITICAL' | 'NORMAL';
+  progress: number;
+}
+
+// Added missing Agent interface
+export interface Agent {
   id: string;
   name: string;
-  visible: boolean;
-  locked: boolean;
-  color: string;
-  stroke: string;
-  strokeWidth: number;
-  opacity: number;
-  blendMode: 'normal' | 'multiply' | 'screen' | 'overlay' | 'darken' | 'lighten' | 'color-dodge' | 'color-burn' | 'hard-light' | 'soft-light' | 'difference' | 'exclusion';
-  shape: Shape;
-  isRigged?: boolean;
-  clippingMask?: boolean;
-  mask?: string; // Layer ID of mask
-  children?: VectorLayer[]; // Nested layers for groups
-  effects?: Array<{
-    type: 'drop-shadow' | 'inner-shadow' | 'blur' | 'glow';
-    properties: Record<string, any>;
-  }>;
+  type: string;
+  avatarUrl: string;
+  load: number;
+}
+
+// Added missing DeploymentCycle interface
+export interface DeploymentCycle {
+  id: string;
+  name: string;
+  isCurrent: boolean;
+}
+
+// Added missing ProjectTemplate enum
+export enum ProjectTemplate {
+  BLANK_CANVAS = 'BLANK_CANVAS',
+  ANIMATION_TIMELINE = 'ANIMATION_TIMELINE',
+  PARTICLE_SYSTEM = 'PARTICLE_SYSTEM',
+  TASK_BOARD = 'TASK_BOARD'
+}
+
+// Added missing CloudPackage interface
+export interface CloudPackage {
+  id: string;
+  name: string;
+  description: string;
+  type: ShardType;
+  size: string;
+  author: string;
+  stability: 'STABLE' | 'EXPERIMENTAL' | 'BETA';
+  category: 'THEME' | 'EXTENSION' | 'SNIPPET' | 'PLUGIN';
+  price?: number;
 }
 
 export interface AppState {
-  activeTab: TabType;
+  activeRole: WorkspaceRole;
+  activePhase: WorkflowPhase;
   activeTool: ToolType;
-  toolProperties: ToolProperties;
-  measurementUnit: MeasurementUnit;
   prompt: string;
   isGenerating: boolean;
   style: DesignStyle;
-  complexity: number;
   credits: number;
   layers: VectorLayer[];
   selectedLayerId: string | null;
+  // Fixed selection types to allow IDs
+  selectedDirectiveId: string | null;
+  selectedAgentId: string | null;
   selectedNodeId: string | null;
   zoom: number;
   pan: { x: number, y: number };
-  currentSvg: string;
-  history: string[];
-  redoHistory: string[];
-  snapshots: { id: string; name: string; svg: string; timestamp: number }[];
-  chatHistory: { role: 'user' | 'assistant' | 'system'; content: string; timestamp: number }[];
-  terminalLogs: { id: string; type: 'info' | 'error' | 'success' | 'command'; text: string; timestamp: number }[];
-  terminalHistory: string[];
-  toasts: Array<{ id: string; message: string; type: 'info' | 'success' | 'error' | 'warning' }>;
-  guides: { id: string, type: 'h' | 'v', pos: number }[];
-  showRulers: boolean;
-  workspaceLayout: 'default' | 'custom';
-  dockedPanels: Array<{ id: string; position: 'left' | 'right' | 'bottom'; size: number }>;
-  engineConfig: {
-    provider: AIProvider;
-    apiKey: string;
-    thinkingBudget: number;
-  };
-}
-
-// --- Animation System ---
-
-export interface AnimationKeyframe {
-  id: string;
-  frame: number;
-  layerId: string;
-  properties: {
-    x?: number;
-    y?: number;
-    scaleX?: number;
-    scaleY?: number;
-    rotation?: number;
-    opacity?: number;
-    [key: string]: any;
-  };
-  easing?: 'linear' | 'ease-in' | 'ease-out' | 'ease-in-out' | 'bounce' | 'elastic';
-  script?: string; // Hashtag script commands for this keyframe
-}
-
-export interface AnimationPath {
-  id: string;
-  layerId: string;
-  type: 'linear' | 'bezier' | 'arc';
-  points: { x: number; y: number; frame: number }[];
-  loop: boolean;
-}
-
-export interface AnimationPreset {
-  id: string;
-  name: string;
-  category: 'entrance' | 'exit' | 'emphasis' | 'motion';
-  properties: Partial<AnimationKeyframe['properties']>;
-  duration: number;
-  easing: AnimationKeyframe['easing'];
-}
-
-export interface FrameState {
+  views: SovereignViewConfig[];
+  presets: WorkspacePreset[];
+  activePresetId: string;
+  isProjectOpen: boolean;
+  projectName: string;
+  manifestId: string;
+  persona: Persona;
+  shards: FileShard[];
   currentFrame: number;
   totalFrames: number;
-  fps: number;
-  isPlaying: boolean;
-  isLooping: boolean;
+  engineConfig: { provider: AIProvider; apiKey: string; };
+  showGrid: boolean;
+  showRulers: boolean;
+  snapToGrid: boolean;
+  snapToGuides: boolean;
+  unitSystem: UnitSystem;
+  guides: Guide[];
+  complexity: number;
+  viewportMode: ViewportMode;
+  directives: Directive[];
+  agents: Agent[];
+  cycles: DeploymentCycle[];
+  recentManifests: Manifest[];
+  activeChatHistory: CognitiveMessage[];
+  isChatOpen: boolean;
 }
+
+export enum WorkspaceRole { MODELING = 'Modeling', ANIMATION = 'Animation', VFX_FLUX = 'VFX Flux', COMPOSITING = 'Compositing', CODE_TERMINAL = 'Logic Forge', VECTOR_DESIGN = 'Vector', SKELETON_RIG = 'Skeleton', FLUX_PARTICLES = 'Flux', LUX_STAGE = 'Lighting', MANIFOLD_WARP = 'Manifold', PROJECT_NEXUS = 'Nexus', ENGINE_DEV = 'Development' }
+export enum AIProvider { GEMINI_FLASH = 'gemini-3-flash-preview', GEMINI_PRO = 'gemini-3-pro-preview', SWARM = 'SWARM_ORCHESTRATOR' }
+export interface VectorNode { id: string; x: number; y: number; z?: number; type: 'move' | 'line' | 'cubic' | 'close'; cx1?: number; cy1?: number; cx2?: number; cy2?: number; }
+export interface VectorLayer { id: string; name: string; visible: boolean; locked: boolean; color: string; stroke: string; strokeWidth: number; opacity: number; nodes: VectorNode[]; tags?: string[]; position?: { x: number, y: number, z: number }; rotation?: { x: number, y: number, z: number }; }
+export interface Manifest { id: string; name: string; lastModified: string; role: WorkspaceRole; }
+export interface FileShard { id: string; name: string; type: ShardType; isActive: boolean; size?: string; lastModified?: string; content?: any; }
+export type ShardType = 'vector' | '3d_mesh' | 'audio' | 'video' | 'script' | 'task_list' | 'roadmap' | 'shader' | 'logic_kernel';
+export interface SovereignViewConfig { id: string; type: ViewType; mode: ViewportMode; isVisible: boolean; isFocused: boolean; isDetached: boolean; isMaximized?: boolean; width?: string | number; height?: string | number; activeTool: ToolType; }
+export interface WorkspacePreset { id: string; name: string; views: SovereignViewConfig[]; }
+export interface ChatMessage { role: 'user' | 'model'; text: string; attachments?: { name: string, type: string, data?: string }[]; }

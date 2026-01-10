@@ -4,143 +4,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://esm.sh https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https: ws: wss: http://localhost:*; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; worker-src 'self' blob:;">
-    <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
-    <title>VectorForge | Xibalba OS Sovereign</title>
+    <title>VectorForge | Sovereign Engine</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="/styles/xibalba-framework-theme-exact.css">
-    <link rel="stylesheet" href="/styles/xibalba-design-language.css">
-    <link rel="stylesheet" href="/styles/xibalba-enforce.css">
-    <link rel="stylesheet" href="/styles/hallberg-maths-balance.css">
-    <link rel="stylesheet" href="/styles/dynamic-styles.css">
-    <link rel="stylesheet" href="/styles/tool-properties.css">
-    <link rel="stylesheet" href="/styles/dynamic-positioning.css">
-    <link rel="stylesheet" href="/styles/z-index-layers.css">
-    <link rel="stylesheet" href="/styles/input-fixes.css">
-    <link rel="stylesheet" href="/styles/subscription-components.css">
-    <link rel="stylesheet" href="/styles/toast-container.css">
-    <link rel="stylesheet" href="/styles/welcome-screen.css">
-    <link rel="stylesheet" href="/styles/tooltip.css">
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <style>
         :root {
-            /* Xibalba Grey Palette - Subtle Shifts (Legacy support) */
-            --xibalba-grey-000: #0a0b0e;
-            --xibalba-grey-050: #12141a;
-            --xibalba-grey-100: #1a1c22;
-            --xibalba-grey-150: #1e1e26;
-            --xibalba-grey-200: #25252a;
-            --xibalba-grey-250: #2a2d35;
-            --xibalba-grey-300: #343842;
-            
-            /* Text - Grey Scale (Legacy support) */
-            --xibalba-text-000: #ffffff;
-            --xibalba-text-100: #cccccc;
-            --xibalba-text-200: #999999;
-            --xibalba-text-300: #666666;
-            
-            /* Xibalba Theme Variables - Primary System */
-            --xibalba-bg-primary: #1e1e1e;
-            --xibalba-bg-secondary: #252526;
-            --xibalba-bg-tertiary: #2d2d2d;
-            --xibalba-bg-hover: #3e3e42;
-            
-            --xibalba-text-primary: #ffffff;
-            --xibalba-text-secondary: #cccccc;
-            --xibalba-text-muted: #999999;
-            
-            /* Accent - Orange ONLY for interactive, NOT backgrounds */
-            --xibalba-accent: #ff9800;
-            --xibalba-accent-hover: #ff6f00;
-            
-            /* Legacy support - Map to greys */
-            --obsidian-50: #0a0b0e;
-            --obsidian-100: #12141a;
-            --obsidian-200: #1a1c22;
-            --obsidian-300: #1e1e26;
-            --obsidian-400: #25252a;
-            --obsidian-500: #999999;
-            --xi-vector-500: #ff9800;
-            --xi-vector-glow: rgba(255, 152, 0, 0.2);
+            --sh-1-void: #010203;
+            --xi-accent: #b8860b;
+            --right-sidebar-width: 340px;
+            --shard-split-ratio: 50%;
         }
 
         body {
             font-family: 'Inter', sans-serif;
             margin: 0;
             overflow: hidden;
-            background-color: var(--xibalba-grey-000);
-            color: var(--xibalba-text-000);
+            background-color: var(--sh-1-void);
             -webkit-font-smoothing: antialiased;
         }
 
-        .mono { font-family: 'JetBrains Mono', monospace; }
-
-        /* Construction Paper Texture substrate */
-        .texture-substrate {
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 1000;
-            opacity: 0.05;
-            mix-blend-mode: overlay;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3%3Cfilter id='noiseFilter'%3%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3%3C/filter%3%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3%3C/svg%3%3E");
+        .xi-chassis-grid {
+            display: grid;
+            grid-template-columns: 64px 1fr var(--right-sidebar-width);
+            grid-template-rows: auto 1fr 48px;
+            height: 100vh;
+            width: 100vw;
         }
 
-        /* Cylindrical Depth & Tactile Layering */
-        .xi-card {
-            background: linear-gradient(145deg, var(--obsidian-50), var(--obsidian-100));
-            border: 1px solid rgba(255, 255, 255, 0.03);
-            box-shadow: 
-                0 4px 12px rgba(0,0,0,0.5),
-                inset 0 1px 1px rgba(255,255,255,0.05);
-        }
-
-        .xi-inset {
-            background: rgba(0, 0, 0, 0.4);
-            box-shadow: 
-                inset 0 2px 4px rgba(0,0,0,0.6),
-                0 1px 0 rgba(255,255,255,0.03);
-            border: 1px solid rgba(255, 255, 255, 0.01);
-        }
-
-        .xi-popping-glow {
-            box-shadow: 0 0 15px var(--xi-vector-glow), 0 0 30px rgba(255, 152, 0, 0.1);
-        }
-
-        .canvas-grid {
-            background-size: 40px 40px;
-            background-image:
-                linear-gradient(to right, rgba(255, 152, 0, 0.03) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(255, 152, 0, 0.03) 1px, transparent 1px);
-        }
-
-        /* Custom scrollbar for high-end look */
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { 
-            background: var(--obsidian-400); 
-            border-radius: 10px;
-            border: 2px solid var(--obsidian-200);
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--xi-vector-500); }
-
-        @keyframes scanning {
-            0% { transform: translateX(-100%); opacity: 0; }
-            50% { opacity: 1; }
-            100% { transform: translateX(100%); opacity: 0; }
-        }
-        .ai-scanning::after {
+        .grain-layer { position: relative; isolation: isolate; }
+        .grain-layer::before {
             content: "";
             position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(90deg, transparent, var(--xi-vector-glow), transparent);
-            animation: scanning 2s infinite ease-in-out;
+            inset: 0;
             pointer-events: none;
+            opacity: 0.1;
+            z-index: -1;
+        }
+        .grain-1::before { background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
+        .canvas-grid {
+            background-size: 60px 60px;
+            background-image:
+                linear-gradient(to right, rgba(184, 134, 11, 0.02) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(184, 134, 11, 0.02) 1px, transparent 1px);
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 200, 'GRAD' 0, 'opsz' 20;
+        }
+
+        input, textarea { background-color: #0c0e10 !important; color: white !important; border: 1px solid rgba(255,255,255,0.1) !important; border-radius: 4px; }
+        
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: rgba(184, 134, 11, 0.2); border-radius: 10px; }
+        
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(184, 134, 11, 0.4); }
+
+        /* Draggable Handles */
+        .resize-handle-v {
+            cursor: ew-resize;
+            width: 4px;
+            height: 100%;
+            z-index: 50;
+            transition: background 0.2s;
+        }
+        .resize-handle-v:hover, .resizing-v {
+            background: rgba(184, 134, 11, 0.4);
+        }
+        .resize-handle-h {
+            cursor: ns-resize;
+            height: 4px;
+            width: 100%;
+            z-index: 50;
+            transition: background 0.2s;
+        }
+        .resize-handle-h:hover, .resizing-h {
+            background: rgba(184, 134, 11, 0.4);
         }
     </style>
     <script>
@@ -149,33 +94,39 @@
             theme: {
                 extend: {
                     colors: {
-                        "primary": "#ff9800",
-                        "primary-hover": "#ff6f00",
-                        "xibalba": {
-                            bg: "#1e1e1e",
-                            bg2: "#252526",
-                            bg3: "#2d2d2d",
-                            text: "#ffffff",
-                            text2: "#cccccc",
-                            accent: "#ff9800"
-                        },
+                        "primary": "#b8860b",
                         "obsidian": {
-                            50: "#1e1e1e",
-                            100: "#252526",
-                            200: "#1e1e1e",
-                            300: "#2d2d2d",
-                            400: "#3e3e42",
-                            500: "#999999",
+                            950: "#010203", 
+                            900: "#08090a", 
+                            850: "#101114", 
+                            800: "#1c1d21", 
+                            700: "#2d2e35", // Borders
+                            600: "#4b4d5a", // Dark grey text (legible)
+                            500: "#717482", // Standard grey text (very legible)
+                            400: "#a1a5b3", // Secondary labels
+                            300: "#cbd1e0", // Light grey text
+                            200: "#e2e8f0", 
+                            100: "#f1f5f9",
+                            50: "#ffffff",  
                         }
-                    }
+                    },
+                    borderRadius: { 'xi': '4px', 'lg': '8px', 'xl': '12px' }
                 }
             }
         }
     </script>
-    <script type="module" src="/index.tsx"></script>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.35.0"
+  }
+}
+</script>
 </head>
-<body class="dark selection:bg-primary/20">
-    <div class="texture-substrate"></div>
+<body class="dark bg-obsidian-950 text-obsidian-100 selection:bg-primary/20 selection:text-primary grain-layer grain-1">
     <div id="root"></div>
 </body>
 </html>
