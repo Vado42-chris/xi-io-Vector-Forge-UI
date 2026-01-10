@@ -1,68 +1,127 @@
-# Quick Start - VectorForge Validation
+# Quick Start - VectorForge UI Preview
 
-**Current Status:** Server needs to be started
+**For External Reviewers:** This guide will help you preview the VectorForge UI locally.
 
 ---
 
-## 🚀 Step 1: Start Dev Server
+## 🚀 **Quick Setup (5 minutes)**
 
-**In Terminal:**
+### **Prerequisites:**
+
+- Node.js 18+ installed
+- npm or yarn installed
+- Git installed
+
+### **Steps:**
+
+1. **Clone the repository:**
+
+   ```bash
+   git clone https://github.com/Vado42-chris/xi-io-Vector-Forge-UI.git
+   cd xi-io-Vector-Forge-UI
+   ```
+
+2. **Install dependencies:**
+
+   ```bash
+   npm install
+   ```
+
+3. **Start the development server:**
+
+   ```bash
+   npm run dev
+   ```
+
+4. **Open in browser:**
+   - Navigate to: `http://localhost:3000`
+   - You should see the VectorForge UI
+
+---
+
+## ✅ **What You Should See**
+
+- **Dark theme** - Professional dark grey interface
+- **Header** - File menu and tool icons
+- **Left Sidebar** - Layers panel
+- **Center Canvas** - Drawing workspace
+- **Right Sidebar** - Properties/panels
+- **Footer** - Status bar
+
+---
+
+## 🐛 **Troubleshooting**
+
+### **Port 3000 Already in Use:**
+
 ```bash
-cd /home/chrishallberg/xi-io-Vector-Forge-UI
-npm run dev
+# Kill process on port 3000
+lsof -ti:3000 | xargs kill -9
+
+# Or use different port
+PORT=3001 npm run dev
 ```
 
-**Wait for:**
+### **Dependencies Not Installing:**
+
+```bash
+# Clear cache and reinstall
+rm -rf node_modules package-lock.json
+npm install
 ```
-➜  Local:   http://localhost:5173/
+
+### **Server Won't Start:**
+
+```bash
+# Check Node.js version
+node --version  # Should be 18+
+
+# Check for errors
+npm run dev 2>&1 | tee dev-server.log
 ```
 
 ---
 
-## 🌐 Step 2: Open Browser
+## 📋 **What to Review**
 
-**Navigate to:** `http://localhost:5173`
+1. **UI Functionality:**
+   - Does the UI load correctly?
+   - Are all panels visible?
+   - Can you interact with the interface?
 
-**If you see "Connection Refused":**
-- Server isn't running yet
-- Wait a few more seconds
-- Check terminal for errors
+2. **Code Quality:**
+   - Is the code clean and organized?
+   - Are there obvious bugs or issues?
+   - Is the architecture sound?
 
----
+3. **Missing Features:**
+   - What features are missing?
+   - What would make this better?
+   - What's confusing or unclear?
 
-## ✅ Step 3: Verify It Works
-
-**You should see:**
-- VectorForge UI loads
-- Dark grey theme
-- File menu at top
-- Sidebars visible
-
-**If errors:**
-- Check browser console (F12)
-- Check terminal output
-- See `SERVER_START_GUIDE.md`
+4. **Professional Presentation:**
+   - Does it look professional?
+   - Is the branding clear?
+   - Are there any obvious issues?
 
 ---
 
-## 🧪 Step 4: Start Testing
+## 🔗 **Additional Resources**
 
-**Follow:** `START_VALIDATION.md`
-
-**Quick Test (5 min):**
-1. Right Sidebar → "Dev Chat" tab
-2. Type message → See "💾 Saved" indicator
-3. Click history button → Panel opens
+- **Main README:** `README.md` - Full project documentation
+- **API Documentation:** `docs/COMPLETE_API_REFERENCE.md` - Backend API docs
+- **Architecture:** `docs/DEVELOPER_GUIDE.md` - System architecture
 
 ---
 
-## 📚 Full Documentation
+## 📞 **Questions?**
 
-- **Server Issues:** `SERVER_START_GUIDE.md`
-- **Testing Guide:** `START_VALIDATION.md`
-- **Detailed Checklist:** `docs/COMPONENT_VALIDATION_CHECKLIST.md`
+If you encounter issues or have questions:
+
+- Check the main `README.md` for detailed documentation
+- Review `docs/` folder for additional guides
+- Open an issue on GitHub if you find bugs
 
 ---
 
-**Start with Step 1 above!**
-
+**Status:** ✅ Ready for review - UI should be visible at `http://localhost:3000`

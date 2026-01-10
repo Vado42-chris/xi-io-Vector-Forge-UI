@@ -36,7 +36,7 @@ VectorForge is a **team-based professional vector graphics editor** that runs in
 ✅ Workflow layout switching  
 ✅ Error logging & diagnostics  
 ✅ **Team collaboration** - Task management, sprint planning, Action Center  
-✅ **Task-to-VectorForge linking** - Link tasks to layers, keyframes, scripts  
+✅ **Task-to-VectorForge linking** - Link tasks to layers, keyframes, scripts
 
 ### What's Coming
 
@@ -44,13 +44,15 @@ VectorForge is a **team-based professional vector graphics editor** that runs in
 🔄 Animation interpolation & export  
 🔄 Advanced path operations  
 🔄 Plugin system & marketplace  
-🔄 Enhanced team collaboration features  
+🔄 Enhanced team collaboration features
 
 ## Quick Start
 
+**📋 [Quick Start Guide](QUICK_START.md)** - For external reviewers and first-time users
+
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - npm or yarn
 
 ### Installation
@@ -72,6 +74,8 @@ npm run dev
 ```
 
 The app will be available at `http://localhost:3000`
+
+**For external reviewers:** See [QUICK_START.md](QUICK_START.md) for detailed setup instructions.
 
 ### Building for Production
 
@@ -102,20 +106,24 @@ vectorforge/
 ### Quick Links
 
 **For Users:**
+
 - [User Guide](docs/USER_GUIDE.md) - How to use VectorForge
 - [Development Cycle](docs/DEVELOPMENT_CYCLE.md) - Understanding development
 
 **For Developers:**
+
 - [Developer Guide](docs/DEVELOPER_GUIDE.md) - Architecture and patterns
 - [GitHub Handoff](docs/GITHUB_HANDOFF.md) - Continuing development
 - [Build Failures](docs/BUILD_FAILURES_AND_FIXES.md) - Known issues
 
 **For Project Management:**
+
 - [Feature Completion](docs/FEATURE_COMPLETION_ASSESSMENT.md) - What's done (35% MVP)
 - [Project Status](docs/PROJECT_STATUS.md) - Current state
 - [Feature Roadmap](docs/FEATURE_ROADMAP.md) - What's planned
 
 **For Design/UX:**
+
 - [Educational Usability](docs/EDUCATIONAL_USABILITY.md) - Usability principles
 - [Architecture](architecture/MODULAR_DESIGN.md) - System design
 
@@ -139,6 +147,7 @@ This project is in active development. See [DEVELOPER_GUIDE.md](docs/DEVELOPER_G
 ## Support
 
 For issues, feature requests, or questions:
+
 - Check the [documentation](docs/)
 - Review [known issues](docs/PROJECT_STATUS.md#known-issues)
 - Open an issue on GitHub
