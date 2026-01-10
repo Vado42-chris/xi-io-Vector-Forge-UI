@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { translate, getDefinition } from '../services/lexiconService';
 
 interface TutorialOverlayProps {
   onClose: (dontShowAgain: boolean) => void;
@@ -11,27 +12,33 @@ const TutorialOverlay: React.FC<TutorialOverlayProps> = ({ onClose }) => {
 
   const steps = [
     {
-      title: "The Hangar Dashboard",
-      industrial: "CHASSIS_STAGING_GROUND",
-      plain: "This is your starting point. You can create a new 'Manifest' (Project File) or select an existing 'Kernel' (Project) to begin design.",
-      icon: "warehouse"
+      title: "Welcome to the Forge",
+      industrial: "SYSTEM_INITIALIZATION",
+      plain: "Welcome! This is a professional AI design engine. We use 'Industrial' terminology to describe our advanced features. You can toggle 'Verbose Mode' anytime to see these translated into plain English.",
+      icon: "polyline"
     },
     {
-      title: "Neural Synth",
-      industrial: "GENERATIVE_SYNTHESIS_ENGINE",
-      plain: "Located at the bottom, this is where you talk to the AI. Use 'Industrial Prompts' to forge complex shapes instantly.",
-      icon: "bolt"
-    },
-    {
-      title: "Scene Explorer",
-      industrial: "HIERARCHICAL_NODE_TREE",
-      plain: "On the right, find the 'Explorer'. It lists every 'Layer' and 'Node' (Path Point) in your design. Click them to edit their properties.",
+      title: "The Project Manager",
+      industrial: "PROJECT_NEXUS",
+      plain: "Manage your tasks and AI agents here. Think of it as your mission control for everything happening in the engine.",
       icon: "account_tree"
     },
     {
-      title: "Verbose Mode",
-      industrial: "SOVEREIGN_TRANSLATION_LAYER",
-      plain: "If the interface feels too technical, look for the 'Verbose' toggle in the top bar. It translates the 'Engine Speak' into plain English for you.",
+      title: "The AI Assistant",
+      industrial: "NEURAL_SYNTH",
+      plain: "Talk to the engine to create shapes and code instantly. Use simple descriptions to 'Forge' complex designs.",
+      icon: "bolt"
+    },
+    {
+      title: "Design Library",
+      industrial: "ASSET_VAULT",
+      plain: "Your personal library where all your creations are stored securely. You can also 'Inject' components from the global marketplace.",
+      icon: "warehouse"
+    },
+    {
+      title: "The Logic Bridge",
+      industrial: "ROSETTA_KERNEL",
+      plain: "Our built-in translator. It helps bridge the gap between human design ideas and technical machine execution.",
       icon: "translate"
     }
   ];
@@ -39,14 +46,17 @@ const TutorialOverlay: React.FC<TutorialOverlayProps> = ({ onClose }) => {
   const current = steps[step];
 
   return (
-    <div className="fixed inset-0 z-[3000] flex items-center justify-center p-8 bg-black/85 backdrop-blur-2xl animate-in fade-in duration-500">
-      <div className="w-full max-w-2xl bg-obsidian-100 border border-white/10 rounded-[40px] shadow-[0_100px_200px_rgba(0,0,0,1)] overflow-hidden flex flex-col">
-        <div className="p-10 border-b border-white/5 bg-white/5 flex justify-between items-center relative">
+    <div className="fixed inset-0 z-[6000] flex items-center justify-center p-8 bg-black/90 backdrop-blur-2xl animate-in fade-in duration-500">
+      <div className="w-full max-w-2xl bg-obsidian-950 border border-white/10 rounded-[40px] shadow-[0_100px_200px_rgba(0,0,0,1)] overflow-hidden flex flex-col relative">
+        {/* Grain Overlay */}
+        <div className="absolute inset-0 grain-layer grain-1 pointer-events-none opacity-20"></div>
+
+        <div className="p-10 border-b border-white/5 bg-black/40 flex justify-between items-center relative z-10">
            <div className="flex flex-col gap-1">
-              <h2 className="text-3xl font-black uppercase tracking-tighter text-white italic">{current.title}</h2>
-              <span className="text-[9px] font-mono text-primary uppercase tracking-[0.4em] italic">{current.industrial}</span>
+              <h2 className="text-3xl font-black uppercase tracking-tighter text-white italic leading-tight">{current.title}</h2>
+              <span className="text-[9px] font-mono text-primary uppercase tracking-[0.4em] italic font-bold">{current.industrial}</span>
            </div>
-           <div className="size-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+           <div className="size-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shadow-inner">
               <span className="material-symbols-outlined text-[40px]">{current.icon}</span>
            </div>
            
@@ -54,13 +64,13 @@ const TutorialOverlay: React.FC<TutorialOverlayProps> = ({ onClose }) => {
              onClick={() => onClose(dontShowAgain)}
              className="absolute top-4 right-4 text-[8px] font-black text-obsidian-600 hover:text-white uppercase tracking-widest transition-colors flex items-center gap-2"
            >
-              Skip Protocol <span className="material-symbols-outlined text-[14px]">fast_forward</span>
+              Skip Onboarding <span className="material-symbols-outlined text-[14px]">fast_forward</span>
            </button>
         </div>
 
-        <div className="p-12 flex-1 space-y-10">
-           <div className="min-h-[120px]">
-             <p className="text-xl text-white/80 leading-relaxed font-medium">
+        <div className="p-12 flex-1 space-y-10 relative z-10">
+           <div className="min-h-[140px] flex items-center">
+             <p className="text-xl text-obsidian-100 leading-relaxed font-medium italic">
                "{current.plain}"
              </p>
            </div>
@@ -69,18 +79,18 @@ const TutorialOverlay: React.FC<TutorialOverlayProps> = ({ onClose }) => {
               <div className="flex justify-between items-center">
                  <div className="flex gap-2">
                     {steps.map((_, i) => (
-                       <div key={i} className={`h-1.5 transition-all rounded-full ${i === step ? 'w-12 bg-primary shadow-[0_0_10px_var(--xi-vector-glow)]' : 'w-1.5 bg-obsidian-400'}`}></div>
+                       <div key={i} className={`h-1.5 transition-all rounded-full ${i === step ? 'w-12 bg-primary shadow-[0_0_15px_var(--xi-accent)]' : 'w-2 bg-obsidian-800'}`}></div>
                     ))}
                  </div>
                  <div className="flex items-center gap-4">
                     {step > 0 && (
-                       <button onClick={() => setStep(step - 1)} className="px-6 py-3 text-[10px] font-black uppercase text-obsidian-500 hover:text-white transition-colors">Previous</button>
+                       <button onClick={() => setStep(step - 1)} className="px-6 py-3 text-[10px] font-black uppercase text-obsidian-500 hover:text-white transition-colors">Back</button>
                     )}
                     <button 
                       onClick={() => step === steps.length - 1 ? onClose(dontShowAgain) : setStep(step + 1)}
-                      className="px-10 py-4 bg-primary text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] shadow-xl hover:scale-105 active:scale-95 transition-all border border-white/20"
+                      className="px-10 py-4 bg-primary text-black rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] shadow-xl hover:scale-105 active:scale-95 transition-all border border-white/10"
                     >
-                       {step === steps.length - 1 ? 'Start Forging' : 'Next Protocol'}
+                       {step === steps.length - 1 ? 'Enter the Forge' : 'Next Protocol'}
                     </button>
                  </div>
               </div>
@@ -90,7 +100,7 @@ const TutorialOverlay: React.FC<TutorialOverlayProps> = ({ onClose }) => {
               <div className="flex items-center justify-between">
                 <label className="flex items-center gap-3 cursor-pointer group">
                   <div className={`size-5 rounded-md border flex items-center justify-center transition-all ${dontShowAgain ? 'bg-primary border-primary' : 'bg-black/40 border-white/10 group-hover:border-primary/40'}`}>
-                    {dontShowAgain && <span className="material-symbols-outlined text-white text-[14px]">check</span>}
+                    {dontShowAgain && <span className="material-symbols-outlined text-black text-[14px] font-bold">check</span>}
                   </div>
                   <input 
                     type="checkbox" 
@@ -98,16 +108,16 @@ const TutorialOverlay: React.FC<TutorialOverlayProps> = ({ onClose }) => {
                     checked={dontShowAgain} 
                     onChange={() => setDontShowAgain(!dontShowAgain)} 
                   />
-                  <span className="text-[9px] font-black text-obsidian-500 uppercase tracking-widest group-hover:text-obsidian-300 transition-colors">Don't show this manifest again</span>
+                  <span className="text-[9px] font-black text-obsidian-500 uppercase tracking-widest group-hover:text-obsidian-300 transition-colors">Do not show this tutorial again</span>
                 </label>
                 
-                <span className="text-[8px] font-mono text-obsidian-700 uppercase">Ver: 0.8.4_Manual</span>
+                <span className="text-[8px] font-mono text-obsidian-700 uppercase italic">OPERATOR_MANUAL_v0.8.4</span>
               </div>
            </div>
         </div>
 
-        <div className="p-8 bg-obsidian-300 text-center border-t border-white/5">
-           <span className="text-[9px] font-mono text-obsidian-600 uppercase tracking-widest italic opacity-50">User_Instructional_Manifest_v0.1 // VectorForge Training Simulation</span>
+        <div className="p-8 bg-obsidian-900 border-t border-white/5 text-center relative z-10">
+           <span className="text-[9px] font-mono text-obsidian-600 uppercase tracking-widest italic opacity-60">"Simplifying complexity for the sovereign user."</span>
         </div>
       </div>
     </div>

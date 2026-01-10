@@ -50,8 +50,6 @@ const Rulers: React.FC<RulersProps> = ({
     e.preventDefault();
     const pos = getPosFromEvent(axis, e.nativeEvent);
     onAddGuide({ axis, position: pos, locked: false });
-    // We set active guide by the most recently added ID in a real app, 
-    // for this interaction we trigger focus.
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
   };
 
@@ -122,19 +120,18 @@ const Rulers: React.FC<RulersProps> = ({
 
       {/* QUADRANT IV: BOTTOM-RIGHT (SHARD TAG) */}
       <div className="absolute bottom-0 right-0 size-8 bg-obsidian-900 border-l border-t border-white/10 z-[160] flex items-center justify-center" title="Shard System Node">
-        <div className="size-1 rounded-full bg-primary/40"></div>
+        <div className="size-1 rounded-full bg-primary/40 animate-pulse shadow-[0_0_5px_var(--xi-accent)]"></div>
       </div>
 
       {/* TOP RULER (X-BAR) */}
       <div 
         onPointerDown={(e) => handleRulerPointerDown('y', e)}
         className="pointer-events-auto absolute top-0 left-8 right-8 h-8 bg-obsidian-950 border-b border-white/10 flex items-center cursor-ns-resize group z-[130] overflow-hidden"
-        title="Drag downward to spawn Horizontal Guide"
       >
         <div className="absolute left-1/2 flex items-end h-full" style={{ transform: `translateX(${pan.x}px)` }}>
           {Array.from({ length: 61 }).map((_, i) => (
             <div key={i} className="absolute bottom-0 flex flex-col items-center" style={{ left: `${(i - 30) * 100 * zoomScale}px` }}>
-              <div className={`w-px ${i === 30 ? 'h-5 bg-primary/60' : 'h-2.5 bg-obsidian-700'}`}></div>
+              <div className={`w-px ${i === 30 ? 'h-5 bg-primary/60 shadow-[0_0_5px_orange]' : 'h-2.5 bg-obsidian-700'}`}></div>
               <span className="text-[6px] font-mono text-obsidian-600 absolute bottom-4">{(i - 30) * 100}</span>
             </div>
           ))}
@@ -142,27 +139,15 @@ const Rulers: React.FC<RulersProps> = ({
         <span className="absolute left-4 text-[7px] font-black text-obsidian-500 tracking-[0.2em] italic uppercase group-hover:text-primary transition-colors">{axisLabels.y}</span>
       </div>
 
-      {/* BOTTOM RULER (Display Only) */}
-      <div className="absolute bottom-0 left-8 right-8 h-8 bg-obsidian-950 border-t border-white/10 flex items-center z-[130] pointer-events-none opacity-40 overflow-hidden">
-        <div className="absolute left-1/2 flex items-start h-full" style={{ transform: `translateX(${pan.x}px)` }}>
-          {Array.from({ length: 61 }).map((_, i) => (
-            <div key={i} className="absolute top-0 flex flex-col items-center" style={{ left: `${(i - 30) * 100 * zoomScale}px` }}>
-              <div className={`w-px ${i === 30 ? 'h-5 bg-primary/40' : 'h-2 bg-obsidian-700'}`}></div>
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* LEFT RULER (Y-BAR) */}
       <div 
         onPointerDown={(e) => handleRulerPointerDown('x', e)}
         className="pointer-events-auto absolute top-8 left-0 bottom-8 w-8 bg-obsidian-950 border-r border-white/10 flex flex-col items-center cursor-ew-resize group z-[130] overflow-hidden"
-        title="Drag rightward to spawn Vertical Guide"
       >
         <div className="absolute top-1/2 flex flex-col items-end w-full" style={{ transform: `translateY(${pan.y}px)` }}>
           {Array.from({ length: 61 }).map((_, i) => (
             <div key={i} className="absolute right-0 flex items-center" style={{ top: `${(i - 30) * 100 * zoomScale}px` }}>
-              <div className={`h-px ${i === 30 ? 'w-5 bg-primary/60' : 'w-2.5 bg-obsidian-700'}`}></div>
+              <div className={`h-px ${i === 30 ? 'w-5 bg-primary/60 shadow-[0_0_5px_orange]' : 'w-2.5 bg-obsidian-700'}`}></div>
               <span className="text-[6px] font-mono text-obsidian-600 absolute right-4 transform rotate-[-90deg]">{(i - 30) * 100}</span>
             </div>
           ))}
@@ -170,18 +155,7 @@ const Rulers: React.FC<RulersProps> = ({
         <span className="absolute top-4 text-[7px] font-black text-obsidian-500 tracking-[0.2em] italic rotate-[-90deg] translate-y-12 uppercase group-hover:text-primary transition-colors">{axisLabels.x}</span>
       </div>
 
-      {/* RIGHT RULER (Display Only) */}
-      <div className="absolute top-8 right-0 bottom-8 w-8 bg-obsidian-950 border-l border-white/10 flex flex-col items-center z-[130] pointer-events-none opacity-40 overflow-hidden">
-        <div className="absolute top-1/2 flex flex-col items-start w-full" style={{ transform: `translateY(${pan.y}px)` }}>
-          {Array.from({ length: 61 }).map((_, i) => (
-            <div key={i} className="absolute left-0 flex items-center" style={{ top: `${(i - 30) * 100 * zoomScale}px` }}>
-              <div className={`h-px ${i === 30 ? 'w-5 bg-primary/40' : 'w-2 bg-obsidian-700'}`}></div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* GUIDES OVERLAY (Render above artboard but below corners) */}
+      {/* GUIDES OVERLAY */}
       <svg className="absolute inset-0 size-full pointer-events-none overflow-visible z-[140]">
         <defs>
           <filter id="guide-glow">
@@ -230,13 +204,6 @@ const Rulers: React.FC<RulersProps> = ({
                   <div className="bg-primary text-black px-2 py-1 rounded text-[10px] font-mono font-black italic shadow-2xl border border-white/20 whitespace-nowrap inline-block animate-in fade-in zoom-in-95 duration-150">
                     {g.axis.toUpperCase()}: {Math.round(g.position)}PX
                   </div>
-                </foreignObject>
-              )}
-              {isDragging && isHoveringDeleteArea && (
-                <foreignObject x={isVertical ? pos - 15 : 40} y={isVertical ? 40 : pos - 15} width="40" height="40">
-                   <div className="bg-red-600 text-white size-8 rounded-full flex items-center justify-center shadow-2xl border border-white/20 animate-bounce">
-                      <span className="material-symbols-outlined !text-[18px]">delete</span>
-                   </div>
                 </foreignObject>
               )}
             </React.Fragment>

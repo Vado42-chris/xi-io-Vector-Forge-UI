@@ -1,356 +1,308 @@
 
-import React, { useState, useCallback, useRef } from 'react';
-import { AppState, AIProvider, ViewportMode, WorkspaceRole, WorkflowPhase, ViewType, UnitSystem, Persona, CognitiveMessage, SovereignViewConfig } from './types';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { AppState, ShellMode, WorkspaceRole, ViewportType, SovereignViewConfig, ProjectFile, ProjectManifest, Persona, SubscriptionTier, UnitSystem, ViewportMode, CameraState, ProjectTemplate, ToolType, Directive, Guide, VectorLayer } from './types';
 import SystemTitleBar from './components/SystemTitleBar';
 import IdentityBar from './components/IdentityBar';
+import FileBar from './components/FileBar';
 import LeftSidebar from './components/LeftSidebar';
 import RightSidebar from './components/RightSidebar';
 import Canvas from './components/Canvas';
 import Footer from './components/Footer';
-import AIPanel from './components/AIPanel';
 import SovereignView from './components/SovereignView';
 import SovereignEntry from './components/SovereignEntry';
 import HangarDashboard from './components/HangarDashboard';
-import NewProjectModal from './components/modals/NewProjectModal';
-import LoadingOverlay from './components/LoadingOverlay';
-import SovereignEditor from './components/SovereignEditor';
-import ProjectNexus from './components/ProjectNexus';
 import MarketplaceNexus from './components/MarketplaceNexus';
-import WalletNexus from './components/WalletNexus';
+import ProjectExplorer from './components/ProjectExplorer';
+import XibalbaLedger from './components/XibalbaLedger';
+import StudioOnboarding from './components/StudioOnboarding';
+import NodeGraph from './components/NodeGraph';
+import PerspectiveViewport from './components/PerspectiveViewport';
+import OrthoViewport from './components/OrthoViewport';
+import NewProjectModal from './components/modals/NewProjectModal';
+import ProjectNexus from './components/ProjectNexus';
+import Rulers from './components/Rulers';
+import CodeKernel from './components/CodeKernel';
 import TimelineSequencer from './components/TimelineSequencer';
-import ColosseumTester from './components/ColosseumTester';
-import MCPRegistry from './components/MCPRegistry';
-import DotfileManagerModal from './components/modals/DotfileManagerModal';
-import OmniBot from './components/OmniBot';
+import LucidStage from './components/LucidStage';
+
+const DEFAULT_CAMERA: CameraState = { offset: { x: 0, y: 0 }, zoom: 1, pitch: 35, yaw: 45 };
 
 const App: React.FC = () => {
   const [isInitialized, setIsInitialized] = useState(false);
   const [activeModal, setActiveModal] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isExpertMode, setIsExpertMode] = useState(false);
-  const [isTimelineExpanded, setIsTimelineExpanded] = useState(false);
-  const [isResizingSidebar, setIsResizingSidebar] = useState(false);
-  const [isResizingShards, setIsResizingShards] = useState(false);
-  
+  const [verboseMode, setVerboseMode] = useState(false);
+  const [focusedViewportType, setFocusedViewportType] = useState<ViewportType>('CANVAS_2D');
+
   const [state, setState] = useState<AppState>(() => ({
-    activeRole: WorkspaceRole.MODELING,
-    activePhase: WorkflowPhase.IDEATION, 
+    shellMode: 'STUDIO',
+    activeRole: WorkspaceRole.VECTOR_DESIGN,
     activeTool: 'select',
     prompt: '',
     isGenerating: false,
-    style: 'Flat' as any,
-    credits: 142850,
-    layers: [
-      { id: 'l1', name: 'CORE_CHASSIS', visible: true, locked: false, color: '#b8860b', stroke: '#000', strokeWidth: 1, opacity: 1, nodes: [{id: 'n1', x: 256, y: 256, type: 'move'}] }
-    ],
+    style: 'Flat',
+    credits: 142850.42,
+    layers: [{ id: 'l1', name: 'ROOT_CHASSIS', visible: true, locked: false, color: '#b8860b', stroke: '#000', strokeWidth: 2, opacity: 1, nodes: [{id: 'n1', x: 256, y: 150, type: 'move'}], position: { x: 0, y: 0, z: 0 } }],
     selectedLayerId: 'l1',
-    selectedDirectiveId: null,
-    selectedAgentId: null,
-    selectedNodeId: null,
     zoom: 100,
     pan: { x: 0, y: 0 },
-    presets: [],
-    activePresetId: 'MODELING',
-    views: [{ id: 'v1', type: 'CANVAS_2D', mode: ViewportMode.SVG_2D, isVisible: true, isFocused: true, isDetached: false, activeTool: 'select' }],
+    views: [{ id: 'v-init', type: 'CANVAS_2D', isFocused: true, camera: { ...DEFAULT_CAMERA } }],
     isProjectOpen: false, 
     projectName: 'VOID_KERNEL',
-    manifestId: 'm1',
-    persona: { 
-      username: 'ARCHON_OPERATOR', 
-      title: 'Sovereign Architect',
-      avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Archon', 
-      nodeStatus: 'online', 
-      dotfileId: 'DF_90210',
-      trustScore: 0.9842,
-      shardYield: 42800,
-      cognitiveDepth: 82,
-      traces: [],
-      permissions: { coreMutation: true, marketInjection: true, deepReasoning: false }
-    },
-    shards: [],
-    currentFrame: 0,
-    totalFrames: 250,
-    engineConfig: { provider: AIProvider.GEMINI_PRO, apiKey: '' },
-    showGrid: true,
-    showRulers: true,
-    snapToGrid: true,
-    snapToGuides: true,
-    unitSystem: UnitSystem.PIXELS,
-    guides: [],
-    complexity: 50,
-    viewportMode: ViewportMode.SVG_2D,
+    persona: { username: 'OPERATOR_ARCHON', title: 'Architect', avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Archon', nodeStatus: 'online', dotfileId: 'DF_90210', trustScore: 0.98, shardYield: 42, cognitiveDepth: 82, rank: 'ARCHITECT', level: 14, xp: 8000, xpToNext: 10000, communityImpact: 4200, traces: [], interactions: [], permissions: { coreMutation: true, marketInjection: true, deepReasoning: false } },
+    currentFrame: 0, totalFrames: 250,
+    showGrid: true, showRulers: true, unitSystem: UnitSystem.PIXELS,
+    guides: [], complexity: 50, entropySeed: '0.142850_XIB', viewportMode: ViewportMode.SVG_2D, 
     directives: [],
-    agents: [],
-    cycles: [],
-    recentManifests: [],
-    activeChatHistory: [],
-    isChatOpen: false,
+    agents: [
+      { id: 'a-1', name: 'LOGIC_BOT', avatarUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=logic', isIdle: false, load: 42, specialization: 'Kernel Logic' }
+    ],
+    miningState: { isMining: false, hashRate: 0, totalContributed: 0, sessionYield: 0, networkDifficulty: 0.14 },
+    antPipeline: { activeAgents: 4, packetsInFlight: 42, tunnelStatus: 'ENCRYPTED', bandwidth: '42.8MB/s' },
+    peers: [],
+    savedLayouts: {}
   }));
 
-  // Resizing Logic for Right Sidebar
-  const handleSidebarResizeStart = useCallback((e: React.MouseEvent) => {
-    setIsResizingSidebar(true);
-    e.preventDefault();
-  }, []);
-
-  const handleShardResizeStart = useCallback((e: React.MouseEvent) => {
-    setIsResizingShards(true);
-    e.preventDefault();
-  }, []);
-
-  const handleGlobalMouseMove = useCallback((e: MouseEvent) => {
-    if (isResizingSidebar) {
-      const newWidth = window.innerWidth - e.clientX;
-      if (newWidth > 200 && newWidth < 800) {
-        document.documentElement.style.setProperty('--right-sidebar-width', `${newWidth}px`);
-      }
+  const handleAction = (actionType: string, payload: any = {}) => {
+    if (actionType.startsWith('SHELL_')) {
+      const newMode = actionType.replace('SHELL_', '') as ShellMode;
+      setState(prev => ({ ...prev, shellMode: newMode }));
+      return;
     }
-    if (isResizingShards) {
-      const container = document.getElementById('viewport-container');
-      if (container) {
-        const rect = container.getBoundingClientRect();
-        const ratio = ((e.clientX - rect.left) / rect.width) * 100;
-        if (ratio > 10 && ratio < 90) {
-          document.documentElement.style.setProperty('--shard-split-ratio', `${ratio}%`);
-        }
-      }
-    }
-  }, [isResizingSidebar, isResizingShards]);
 
-  const handleGlobalMouseUp = useCallback(() => {
-    setIsResizingSidebar(false);
-    setIsResizingShards(false);
-  }, []);
-
-  React.useEffect(() => {
-    if (isResizingSidebar || isResizingShards) {
-      window.addEventListener('mousemove', handleGlobalMouseMove);
-      window.addEventListener('mouseup', handleGlobalMouseUp);
-    } else {
-      window.removeEventListener('mousemove', handleGlobalMouseMove);
-      window.removeEventListener('mouseup', handleGlobalMouseUp);
-    }
-    return () => {
-      window.removeEventListener('mousemove', handleGlobalMouseMove);
-      window.removeEventListener('mouseup', handleGlobalMouseUp);
-    };
-  }, [isResizingSidebar, isResizingShards, handleGlobalMouseMove, handleGlobalMouseUp]);
-
-  const handleAction = (action: string) => {
-    if (action.startsWith('MODAL_')) { setActiveModal(action.replace('MODAL_', '')); return; }
-    if (action === 'TOGGLE_EXPERT') { setIsExpertMode(!isExpertMode); return; }
-    if (action === 'TOGGLE_OMNIBOT') { setState(p => ({ ...p, isChatOpen: !p.isChatOpen })); return; }
-    if (action === 'FILE_CLOSE' || action === 'FILE_HOME') { setState(p => ({ ...p, isProjectOpen: false })); return; }
-    if (action.startsWith('PANEL_')) {
-      const type = action.replace('PANEL_', '') as ViewType;
-      setState(p => ({ 
-        ...p, 
-        isProjectOpen: true, 
-        views: [{ id: `v-${Date.now()}`, type, mode: ViewportMode.SVG_2D, isVisible: true, isFocused: true, isDetached: false, activeTool: 'select' }] 
+    if (actionType === 'LAYOUT_SAVE') {
+      const name = prompt("Enter name for this Layout Registry entry:") || "Custom_Layout";
+      setState(prev => ({
+        ...prev,
+        savedLayouts: { ...prev.savedLayouts, [name]: prev.views }
       }));
+      console.log(`[LAYOUT] Saved arrangement: ${name}`);
       return;
+    }
+
+    if (actionType === 'LAYOUT_RESET') {
+       setState(prev => ({ ...prev, views: [{ id: 'v-master', type: 'CANVAS_2D', isFocused: true, camera: { ...DEFAULT_CAMERA } }] }));
+       return;
+    }
+
+    if (actionType === 'PROJECT_INITIALIZE_FINALIZE') {
+      const template = payload.name as ProjectTemplate;
+      let initialViews: SovereignViewConfig[] = [];
+      let role = WorkspaceRole.VECTOR_DESIGN;
+
+      switch(template) {
+        case ProjectTemplate.SKELETON_RIG:
+          role = WorkspaceRole.SKELETON_RIG;
+          initialViews = [
+            { id: 'v1', type: 'PERSPECTIVE', isFocused: true, camera: { ...DEFAULT_CAMERA } },
+            { id: 'v2', type: 'ORTHO_TOP', isFocused: false, camera: { ...DEFAULT_CAMERA, pitch: 90 } },
+            { id: 'v3', type: 'ORTHO_FRONT', isFocused: false, camera: { ...DEFAULT_CAMERA, pitch: 0, yaw: 0 } },
+            { id: 'v4', type: 'NODE_GRAPH', isFocused: false, camera: { ...DEFAULT_CAMERA } }
+          ];
+          break;
+        case ProjectTemplate.ANIMATION_TIMELINE:
+          role = WorkspaceRole.ANIMATION;
+          initialViews = [
+            { id: 'v-master', type: 'CANVAS_2D', isFocused: true, camera: { ...DEFAULT_CAMERA } },
+            { id: 'v-temporal', type: 'TIMELINE_EDITOR', isFocused: false, camera: { ...DEFAULT_CAMERA } }
+          ];
+          break;
+        case ProjectTemplate.CODE_FORGE:
+          role = WorkspaceRole.LOGIC_FORGE;
+          initialViews = [
+            { id: 'v-ide', type: 'CODE_IDE', isFocused: true, camera: { ...DEFAULT_CAMERA } }
+          ];
+          break;
+        case ProjectTemplate.PROJECT_NEXUS:
+          role = WorkspaceRole.PROJECT_NEXUS;
+          initialViews = [
+            { id: 'v-nodes', type: 'NODE_GRAPH', isFocused: true, camera: { ...DEFAULT_CAMERA } }
+          ];
+          break;
+        case ProjectTemplate.LUX_COMPOSITING:
+          role = WorkspaceRole.LUX_STAGE;
+          initialViews = [
+            { id: 'v-comp', type: 'LUX_COMPOSITOR', isFocused: true, camera: { ...DEFAULT_CAMERA } },
+            { id: 'v-side', type: 'PERSPECTIVE', isFocused: false, camera: { ...DEFAULT_CAMERA } }
+          ];
+          break;
+        default:
+          initialViews = [{ id: 'v-master', type: 'CANVAS_2D', isFocused: true, camera: { ...DEFAULT_CAMERA } }];
+      }
+
+      setState(prev => ({ 
+        ...prev, 
+        isProjectOpen: true, 
+        shellMode: 'STUDIO', 
+        projectName: template.replace(/_/g, ' '),
+        activeRole: role,
+        views: initialViews
+      }));
+      setActiveModal(null);
+      return;
+    }
+
+    if (actionType === 'MODAL_NEW_PROJECT') setActiveModal('NEW_PROJECT');
+    if (actionType === 'FILE_HOME' || actionType === 'FILE_CLOSE') setState(prev => ({ ...prev, isProjectOpen: false, shellMode: 'STUDIO' }));
+
+    if (actionType === 'VIEW_CAMERA_UPDATE') {
+      setState(prev => ({
+        ...prev,
+        views: prev.views.map(v => v.id === payload.id ? { ...v, camera: { ...v.camera, ...payload.camera } } : v)
+      }));
+    }
+
+    if (actionType === 'VIEW_TYPE_SET') {
+      setState(prev => ({
+        ...prev,
+        views: prev.views.map(v => v.id === payload.id ? { ...v, type: payload.type } : v)
+      }));
+      if (payload.isFocused) setFocusedViewportType(payload.type);
     }
   };
 
-  const handleSplitView = (viewId: string) => {
-    const viewToSplit = state.views.find(v => v.id === viewId);
-    if (!viewToSplit || state.views.length >= 4) return;
-    
-    const newView: SovereignViewConfig = {
-      ...viewToSplit,
-      id: `v-${Date.now()}`,
-      isFocused: true
-    };
-    
-    setState(p => ({
-      ...p,
-      views: p.views.map(v => ({ ...v, isFocused: false })).concat(newView)
-    }));
-  };
+  const renderActiveShell = () => {
+    if (state.shellMode === 'EXCHANGE') return <MarketplaceNexus credits={state.credits} onInject={(shard) => handleAction('INJECT_SHARD', shard)} verboseMode={verboseMode} />;
+    if (state.shellMode === 'VAULT') return <ProjectExplorer state={state} verboseMode={verboseMode} />;
+    if (state.shellMode === 'LEDGER') return <XibalbaLedger />;
+    if (state.shellMode === 'ONBOARDING') return <StudioOnboarding state={state} verboseMode={verboseMode} />;
 
-  const handleCloseView = (viewId: string) => {
-    if (state.views.length <= 1) {
-      handleAction('FILE_HOME');
-      return;
-    }
-    setState(p => {
-      const newViews = p.views.filter(v => v.id !== viewId);
-      if (newViews.length > 0) newViews[newViews.length - 1].isFocused = true;
-      return { ...p, views: newViews };
-    });
-  };
+    if (state.shellMode === 'STUDIO') {
+      if (!state.isProjectOpen) {
+        return <HangarDashboard 
+          onNewProject={() => handleAction('MODAL_NEW_PROJECT')} 
+          onOpenRecent={() => handleAction('PROJECT_INITIALIZE_FINALIZE')} 
+          onCloudSync={() => {}} 
+          recentManifests={[]} 
+          verboseMode={verboseMode} 
+        />;
+      }
 
-  const handleTypeChange = (viewId: string, newType: ViewType) => {
-    setState(p => ({
-      ...p,
-      views: p.views.map(v => v.id === viewId ? { ...v, type: newType } : v)
-    }));
-  };
-
-  const renderViewContent = (view: SovereignViewConfig) => {
-    switch (view.type) {
-      case 'OMNI_THREAD': return <OmniBot state={state} onClose={() => handleCloseView(view.id)} onExecuteTool={() => {}} isEmbedded={true} />;
-      case 'CODE_KERNEL': return <SovereignEditor />;
-      case 'PROJECT_NEXUS': return <ProjectNexus state={state} verboseMode={!isExpertMode} onCreateDirective={() => {}} onSelectDirective={() => {}} onSelectAgent={() => {}} />;
-      case 'MARKETPLACE_NEXUS': return <MarketplaceNexus onClose={() => handleCloseView(view.id)} onSplit={() => handleSplitView(view.id)} />;
-      case 'COLOSSEUM_TESTER': return <ColosseumTester />;
-      case 'MCP_REGISTRY': return <MCPRegistry />;
-      case 'WALLET_NEXUS': return <WalletNexus />;
-      case 'CANVAS_2D': return (
-        <Canvas 
+      if (state.activeRole === WorkspaceRole.PROJECT_NEXUS) {
+        return <ProjectNexus 
           state={state} 
-          onUpdateState={(patch) => setState(p => ({ ...p, ...patch }))}
-          onSelectLayer={(id) => setState(p => ({ ...p, selectedLayerId: id }))} 
-        />
+          onSelectDirective={(id) => setState(p => ({ ...p, selectedDirectiveId: id }))} 
+          onSelectAgent={() => {}} 
+          onCreateDirective={() => {}} 
+          onApplyDirective={() => {}} 
+          verboseMode={verboseMode} 
+        />;
+      }
+
+      const viewCount = state.views.length;
+      const gridStyles: React.CSSProperties = {
+        display: 'grid',
+        gap: '2px',
+        background: '#1c1d21', 
+        height: '100%',
+        gridTemplateColumns: viewCount === 1 ? '1fr' : viewCount === 2 ? '1.5fr 1fr' : 'repeat(2, 1fr)',
+        gridTemplateRows: viewCount <= 2 ? '1fr' : 'repeat(2, 1fr)'
+      };
+
+      return (
+        <div style={gridStyles} className="flex-1 overflow-hidden p-[2px]">
+          {state.views.map(view => {
+            const hasRulers = view.type === 'CANVAS_2D' || view.type.startsWith('ORTHO');
+            return (
+              <SovereignView 
+                key={view.id} id={view.id} type={view.type} isFocused={view.isFocused}
+                onFocus={() => {
+                  setState(prev => ({ ...prev, views: prev.views.map(v => ({ ...v, isFocused: v.id === view.id })) }));
+                  setFocusedViewportType(view.type);
+                }} 
+                onClose={() => setState(prev => ({ ...prev, views: prev.views.length > 1 ? prev.views.filter(v => v.id !== view.id) : prev.views }))}
+                onTypeChange={(t) => handleAction('VIEW_TYPE_SET', { id: view.id, type: t, isFocused: view.isFocused })}
+                camera={view.camera}
+                onCameraChange={(cam) => handleAction('VIEW_CAMERA_UPDATE', { id: view.id, camera: cam })}
+              >
+                <div className="size-full paper-layer grain-medium xi-paper-sheet overflow-hidden relative rounded-xi">
+                  {hasRulers && (
+                    <Rulers 
+                      zoom={state.zoom} pan={state.pan} viewportMode={state.viewportMode} unitSystem={state.unitSystem}
+                      snapEnabled={state.showGrid} guides={state.guides} 
+                      onAddGuide={() => {}} onUpdateGuide={() => {}} onDeleteGuide={() => {}} 
+                      onClearGuides={() => {}} onResetOrigin={() => {}} onSetUnitSystem={() => {}}
+                      onToggleSnap={() => {}} onSwitchViewport={() => {}}
+                    />
+                  )}
+                  <div className={hasRulers ? 'absolute inset-8 border border-white/5 bg-obsidian-950/20 rounded-xi' : 'size-full'}>
+                    {view.type === 'CANVAS_2D' && <Canvas state={state} onUpdateState={(p) => setState(prev => ({ ...prev, ...p }))} onSelectLayer={(id) => setState(prev => ({ ...prev, selectedLayerId: id }))} />}
+                    {view.type === 'PERSPECTIVE' && <PerspectiveViewport state={state} camera={view.camera} onCameraChange={(cam) => handleAction('VIEW_CAMERA_UPDATE', { id: view.id, camera: cam })} label="MASTER_PERSPECTIVE" />}
+                    {view.type === 'ORTHO_TOP' && <OrthoViewport state={state} axis="TOP" camera={view.camera} onCameraChange={(cam) => handleAction('VIEW_CAMERA_UPDATE', { id: view.id, camera: cam })} />}
+                    {view.type === 'ORTHO_FRONT' && <OrthoViewport state={state} axis="FRONT" camera={view.camera} onCameraChange={(cam) => handleAction('VIEW_CAMERA_UPDATE', { id: view.id, camera: cam })} />}
+                    {view.type === 'ORTHO_SIDE' && <OrthoViewport state={state} axis="SIDE" camera={view.camera} onCameraChange={(cam) => handleAction('VIEW_CAMERA_UPDATE', { id: view.id, camera: cam })} />}
+                    {view.type === 'NODE_GRAPH' && <NodeGraph />}
+                    {view.type === 'CODE_IDE' && <CodeKernel />}
+                    {view.type === 'TIMELINE_EDITOR' && <TimelineSequencer currentFrame={state.currentFrame} totalFrames={state.totalFrames} shards={[]} onSeek={(f) => setState(p => ({ ...p, currentFrame: f }))} />}
+                    {view.type === 'LUX_COMPOSITOR' && <LucidStage />}
+                  </div>
+                </div>
+              </SovereignView>
+            );
+          })}
+        </div>
       );
-      case 'AI_SYNTHESIS': return <AIPanel state={state} setState={setState} onGenerate={() => {}} isExpertMode={isExpertMode} />;
-      default: return null;
     }
+
+    return null;
   };
 
-  if (!isInitialized) return <SovereignEntry onInitialize={(u) => { setState(p => ({ ...p, persona: { ...p.persona, username: u } })); setIsInitialized(true); }} />;
+  if (!isInitialized) return <SovereignEntry onInitialize={(u) => { setState(prev => ({ ...prev, persona: { ...prev.persona, username: u } })); setIsInitialized(true); }} />;
 
   return (
-    <div className="xi-chassis-grid bg-obsidian-950 text-obsidian-100 select-none overflow-hidden font-sans">
-      <LoadingOverlay isVisible={isLoading} type="SYNTHESIS" />
-      
-      {activeModal === 'NEW_PROJECT' && <NewProjectModal onClose={() => setActiveModal(null)} onCreate={(t) => { 
-        setState(p => ({ ...p, isProjectOpen: true, projectName: t.toUpperCase(), activeRole: WorkspaceRole.MODELING, views: [{ id: 'v1', type: 'CANVAS_2D', mode: ViewportMode.SVG_2D, isVisible: true, isFocused: true, isDetached: false, activeTool: 'select' }] })); 
-        setActiveModal(null); 
-      }} />}
-
-      {activeModal === 'DOTFILE_MANAGER' && (
-        <DotfileManagerModal 
-          persona={state.persona} 
-          onClose={() => setActiveModal(null)} 
-          onUpdatePersona={(patch) => setState(p => ({ ...p, persona: { ...p.persona, ...patch } }))}
-          onRehydrateTrace={() => {}}
-        />
-      )}
-
-      {/* GLOBAL OMNIBOT OVERLAY */}
-      {state.isChatOpen && (
-        <OmniBot 
-          state={state} 
-          onClose={() => handleAction('TOGGLE_OMNIBOT')} 
-          onExecuteTool={() => {}} 
-          style={{ position: 'fixed', inset: '80px 40px 60px 40px', zIndex: 600, width: 'auto', height: 'auto' }}
-        />
-      )}
-
-      <div className="col-span-3 flex flex-col z-[500]">
-        <SystemTitleBar verboseMode={isExpertMode} setVerboseMode={() => handleAction('TOGGLE_EXPERT')} />
+    <div className="flex flex-col h-screen bg-obsidian-950 text-obsidian-100 select-none overflow-hidden font-sans paper-layer grain-coarse">
+      <header className="flex flex-col shrink-0 z-[1000] xi-paper-panel paper-layer grain-fine bg-obsidian-850">
+        <SystemTitleBar verboseMode={verboseMode} setVerboseMode={() => setVerboseMode(!verboseMode)} />
+        <FileBar onAction={handleAction} isProjectOpen={state.isProjectOpen} visiblePanels={[]} />
         <IdentityBar 
-          projectName={state.projectName} 
-          isProjectOpen={state.isProjectOpen} 
-          persona={state.persona} 
-          currentView={state.views[0]?.type || 'CANVAS_2D'}
-          onAction={handleAction} 
-          credits={state.credits} 
-          isOmniBotOpen={state.isChatOpen}
+          projectName={state.projectName} isProjectOpen={state.isProjectOpen} persona={state.persona} currentMode={state.shellMode}
+          onAction={handleAction} credits={state.credits} verboseMode={verboseMode} miningState={state.miningState} antPipeline={state.antPipeline}
         />
-      </div>
+      </header>
 
-      <div className="row-span-1 bg-obsidian-950 border-r border-white/5 transition-all duration-500 overflow-hidden">
-        {state.isProjectOpen && (
-          <LeftSidebar activeRole={state.activeRole} setRole={(r) => setState(p => ({ ...p, activeRole: r }))} collapsed={true} activeTool={state.activeTool} onToolSelect={(t) => setState(p => ({ ...p, activeTool: t }))} />
+      <main className="flex-1 flex overflow-hidden relative min-h-0">
+        {state.isProjectOpen && state.shellMode === 'STUDIO' && (
+          <aside className="w-16 h-full bg-obsidian-850 shrink-0 paper-layer grain-fine xi-paper-panel z-50">
+            <LeftSidebar 
+              activeRole={state.activeRole} 
+              activeViewportType={focusedViewportType}
+              setRole={(r) => setState(p => ({ ...p, activeRole: r }))} 
+              collapsed={true} 
+              activeTool={state.activeTool} 
+              onToolSelect={(t) => setState(prev => ({ ...prev, activeTool: t }))} 
+              verboseMode={verboseMode} 
+            />
+          </aside>
         )}
-      </div>
-
-      <div className="row-span-1 bg-obsidian-900 overflow-hidden relative flex flex-col">
-        <div className="absolute inset-0 pointer-events-none opacity-[0.02] canvas-grid z-0"></div>
-        {state.isProjectOpen ? (
-          <div className="flex-1 flex flex-col p-1 gap-1 min-h-0 overflow-hidden relative z-10" id="viewport-container">
-            {state.views.length === 2 ? (
-              <div className="flex-1 flex overflow-hidden gap-1 h-full">
-                <div style={{ width: 'var(--shard-split-ratio)' }} className="flex">
-                  <SovereignView 
-                    key={state.views[0].id} id={state.views[0].id} type={state.views[0].type} mode={state.views[0].mode} title={state.views[0].type.replace('_', ' ')} isFocused={state.views[0].isFocused} activeTool={state.activeTool} onToolSelect={() => {}} onModeSelect={() => {}} 
-                    onFocus={() => setState(p => ({ ...p, views: p.views.map((v, i) => ({ ...v, isFocused: i === 0 })) }))} 
-                    onClose={() => handleCloseView(state.views[0].id)} 
-                    onSplit={() => handleSplitView(state.views[0].id)} 
-                    onTypeChange={(t) => handleTypeChange(state.views[0].id, t)} 
-                  >
-                    {renderViewContent(state.views[0])}
-                  </SovereignView>
-                </div>
-                <div 
-                  className={`resize-handle-v ${isResizingShards ? 'resizing-v' : ''}`}
-                  onMouseDown={handleShardResizeStart}
-                />
-                <div className="flex-1 flex">
-                  <SovereignView 
-                    key={state.views[1].id} id={state.views[1].id} type={state.views[1].type} mode={state.views[1].mode} title={state.views[1].type.replace('_', ' ')} isFocused={state.views[1].isFocused} activeTool={state.activeTool} onToolSelect={() => {}} onModeSelect={() => {}} 
-                    onFocus={() => setState(p => ({ ...p, views: p.views.map((v, i) => ({ ...v, isFocused: i === 1 })) }))} 
-                    onClose={() => handleCloseView(state.views[1].id)} 
-                    onSplit={() => handleSplitView(state.views[1].id)} 
-                    onTypeChange={(t) => handleTypeChange(state.views[1].id, t)} 
-                  >
-                    {renderViewContent(state.views[1])}
-                  </SovereignView>
-                </div>
-              </div>
-            ) : (
-              <div className={`flex-1 grid gap-1 overflow-hidden h-full ${state.views.length > 2 ? 'grid-cols-2 grid-rows-2' : 'grid-cols-1'}`}>
-                {state.views.map(view => (
-                  <SovereignView 
-                    key={view.id} id={view.id} type={view.type} mode={view.mode} title={view.type.replace('_', ' ')} isFocused={view.isFocused} activeTool={state.activeTool} onToolSelect={() => {}} onModeSelect={() => {}} 
-                    onFocus={() => setState(p => ({ ...p, views: p.views.map(v => ({ ...v, isFocused: v.id === view.id })) }))} 
-                    onClose={() => handleCloseView(view.id)} 
-                    onSplit={() => handleSplitView(view.id)} 
-                    onTypeChange={(t) => handleTypeChange(view.id, t)} 
-                  >
-                    {renderViewContent(view)}
-                  </SovereignView>
-                ))}
-              </div>
-            )}
-            {isTimelineExpanded && (
-              <div className="h-72 border-t border-white/10 bg-obsidian-950/90 animate-in slide-in-from-bottom-4 duration-300 z-[100] overflow-hidden">
-                <TimelineSequencer currentFrame={state.currentFrame} totalFrames={state.totalFrames} shards={state.shards} onSeek={(f) => setState(p => ({ ...p, currentFrame: f }))} />
-              </div>
-            )}
-          </div>
-        ) : (
-          <HangarDashboard onNewProject={() => handleAction('MODAL_NEW_PROJECT')} onOpenRecent={() => {}} onCloudSync={() => {}} recentManifests={[]} verboseMode={!isExpertMode} />
-        )}
-      </div>
-
-      <div className="row-span-1 flex relative">
-        <div 
-          className={`resize-handle-v absolute left-0 h-full ${isResizingSidebar ? 'resizing-v' : ''}`}
-          onMouseDown={handleSidebarResizeStart}
-        />
-        <div className="flex-1 bg-obsidian-950 border-l border-white/5 transition-all duration-500 overflow-hidden">
-          {state.isProjectOpen && (
+        <div className="flex-1 flex flex-col h-full overflow-hidden relative min-w-0">
+          {renderActiveShell()}
+        </div>
+        {state.isProjectOpen && state.shellMode === 'STUDIO' && (
+          <aside className="w-[340px] h-full bg-obsidian-850 shrink-0 flex flex-col paper-layer grain-fine xi-paper-panel z-50">
             <RightSidebar 
-              state={state} 
-              role={state.activeRole} 
+              state={state} role={state.activeRole} 
               onUpdateModifier={() => {}} 
-              onUpdateProperty={(id, prop, val) => setState(p => ({ ...p, layers: p.layers.map(l => l.id === id ? { ...l, [prop]: val } : l) }))} 
+              onUpdateProperty={(id, prop, val) => setState(prev => ({
+                ...prev,
+                layers: prev.layers.map(l => l.id === id ? { ...l, [prop]: val } : l)
+              }))} 
               onDeleteLayer={() => {}} 
               onRenameLayer={() => {}} 
               onRestoreSnapshot={() => {}} 
               onExecuteSuggestion={() => {}} 
               onSelectLayer={(id) => setState(p => ({ ...p, selectedLayerId: id }))} 
-              verboseMode={isExpertMode} 
+              verboseMode={verboseMode} 
             />
-          )}
-        </div>
-      </div>
+          </aside>
+        )}
+      </main>
 
-      <div className="col-span-3 z-[500]">
-        <Footer 
-          nodeCount={state.layers.length} 
-          isRendering={state.isGenerating} 
-          currentFrame={state.currentFrame} 
-          isPlaying={false} 
-          setIsPlaying={() => {}} 
-          setCurrentFrame={(f) => setState(p => ({ ...p, currentFrame: f }))} 
-          isExpertMode={isExpertMode} 
-          onExpandTimeline={() => setIsTimelineExpanded(!isTimelineExpanded)}
-        />
-      </div>
+      <footer className="h-12 shrink-0 z-[700] xi-paper-panel paper-layer grain-fine bg-obsidian-850">
+        <Footer nodeCount={state.layers.length} isRendering={state.isGenerating} currentFrame={state.currentFrame} isPlaying={false} setIsPlaying={() => {}} setCurrentFrame={(f) => setState(prev => ({ ...prev, currentFrame: f }))} verboseMode={verboseMode} />
+      </footer>
+
+      {activeModal === 'NEW_PROJECT' && (
+        <NewProjectModal onClose={() => setActiveModal(null)} onCreate={(template) => handleAction('PROJECT_INITIALIZE_FINALIZE', { name: template })} />
+      )}
     </div>
   );
 };

@@ -6,9 +6,12 @@ const ForgeExchange: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'BROWSE' | 'MY_SHARDS' | 'EARNINGS'>('BROWSE');
 
   const trendingShards: CloudPackage[] = [
-    { id: 'sh-1', name: 'GLITCH_INDUSTRIAL_VFX', description: 'Heavy temporal noise patterns for flux-based layouts.', type: 'shader', size: '1.2MB', author: 'Xibalba_Foundry', stability: 'STABLE', category: 'THEME', price: 1200 },
-    { id: 'sh-2', name: 'IK_SKELETON_SOLVER_PRO', description: 'Advanced inverse kinematics for 10-body rigs.', type: 'logic_kernel', size: '240KB', author: 'Logic_Lord', stability: 'STABLE', category: 'EXTENSION', price: 4500 },
-    { id: 'sh-3', name: 'NEON_PATH_SNIPPER', description: 'One-click conversion of images to math-clean SVGs.', type: 'script', size: '42KB', author: 'Neural_Sniff', stability: 'BETA', category: 'PLUGIN', price: 8200 },
+    // Fixed: 'THEME' is not a valid AssetCategory, changed to 'THEMES'
+    { id: 'sh-1', name: 'GLITCH_INDUSTRIAL_VFX', description: 'Heavy temporal noise patterns for flux-based layouts.', type: 'shader', size: '1.2MB', author: 'Xibalba_Foundry', stability: 'STABLE', category: 'THEMES', price: 1200 },
+    // Fixed: 'EXTENSION' is not a valid AssetCategory, changed to 'SCRIPTS'
+    { id: 'sh-2', name: 'IK_SKELETON_SOLVER_PRO', description: 'Advanced inverse kinematics for 10-body rigs.', type: 'logic_kernel', size: '240KB', author: 'Logic_Lord', stability: 'STABLE', category: 'SCRIPTS', price: 4500 },
+    // Fixed: 'PLUGIN' is not a valid AssetCategory, changed to 'SCRIPTS'
+    { id: 'sh-3', name: 'NEON_PATH_SNIPPER', description: 'One-click conversion of images to math-clean SVGs.', type: 'script', size: '42KB', author: 'Neural_Sniff', stability: 'BETA', category: 'SCRIPTS', price: 8200 },
   ];
 
   return (
@@ -62,12 +65,14 @@ const ForgeExchange: React.FC = () => {
                    {trendingShards.map(shard => (
                      <div key={shard.id} className="group bg-obsidian-100 border border-white/5 rounded-[48px] p-10 flex flex-col gap-8 hover:border-primary/40 transition-all shadow-xl relative overflow-hidden">
                         <div className="absolute top-0 right-0 p-10 opacity-[0.02] group-hover:scale-125 transition-transform duration-[2000ms]">
-                           <span className="material-symbols-outlined text-[180px]">{shard.category === 'THEME' ? 'palette' : 'hub'}</span>
+                           {/* Fixed: Compared category to valid 'THEMES' */}
+                           <span className="material-symbols-outlined text-[180px]">{shard.category === 'THEMES' ? 'palette' : 'hub'}</span>
                         </div>
                         
                         <div className="flex justify-between items-start relative z-10">
                            <div className="size-16 rounded-[28px] bg-black/40 border border-white/10 flex items-center justify-center text-primary shadow-inner">
-                              <span className="material-symbols-outlined text-[32px]">{shard.category === 'PLUGIN' ? 'bolt' : 'inventory_2'}</span>
+                              {/* Fixed: Compared category to valid 'SCRIPTS' */}
+                              <span className="material-symbols-outlined text-[32px]">{shard.category === 'SCRIPTS' ? 'bolt' : 'inventory_2'}</span>
                            </div>
                            <div className="flex flex-col items-end gap-2">
                               <div className="px-3 py-1 bg-green-500/10 border border-green-500/30 rounded-lg flex items-center gap-2">

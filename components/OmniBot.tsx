@@ -2,6 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenAI, Type } from '@google/genai';
 import { AppState, ChatMessage, AIProvider } from '../types';
+import { logCognitiveEvent } from '../services/kernelBridge';
 
 interface ResponseBlock {
   type: 'text' | 'code' | 'formula' | 'vector';
@@ -59,11 +60,9 @@ const OmniBot: React.FC<OmniBotProps> = ({ state, onClose, onExecuteTool, style,
 
   const [input, setInput] = useState('');
   const [swarmMode, setSwarmMode] = useState(false);
-  const scrollRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    // Focus input on mount and when threads change
     inputRef.current?.focus();
   }, [threads.length]);
 
@@ -82,7 +81,7 @@ const OmniBot: React.FC<OmniBotProps> = ({ state, onClose, onExecuteTool, style,
   };
 
   const spawnBranch = (parentThread: Thread) => {
-    if (threads.length >= 11) return; // Conductor + 10 Bodies
+    if (threads.length >= 11) return;
     const bodyIndex = threads.length;
     const newThread: Thread = {
       id: `body-${bodyIndex}-${Date.now()}`,
@@ -126,24 +125,29 @@ const OmniBot: React.FC<OmniBotProps> = ({ state, onClose, onExecuteTool, style,
             role: (m.role === 'model' ? 'model' : 'user') as 'model' | 'user',
             parts: [{ text: m.text }]
           })),
-          config: { systemInstruction: `Sovereign Body ${thread.name}. Solve design constraints via recursive logic.` }
+          config: { systemInstruction: `Sovereign Body ${thread.name}. Solve design constraints via recursive logic. If proposing a solution, wrap code in triple backticks.` }
         });
 
         const content = response.text || "Synced.";
+        const newMsg: ExtendedChatMessage = {
+          id: `resp-${Date.now()}`,
+          role: 'model',
+          text: content,
+          model: thread.activeModel,
+          status: 'complete',
+          timestamp: Date.now(),
+          blocks: parseBlocks(content),
+          telemetry: { tokens: content.length / 4, latency: Date.now() - startTime }
+        };
+
         setThreads(prev => prev.map(t => t.id === id ? {
           ...t,
           isThinking: false,
-          messages: [...t.messages, {
-            id: `resp-${Date.now()}`,
-            role: 'model',
-            text: content,
-            model: t.activeModel,
-            status: 'complete',
-            timestamp: Date.now(),
-            blocks: parseBlocks(content),
-            telemetry: { tokens: content.length / 4, latency: Date.now() - startTime }
-          }]
+          messages: [...t.messages, newMsg]
         } : t));
+
+        logCognitiveEvent([...thread.messages, newMsg] as any);
+        
       } catch (e) {
         setThreads(prev => prev.map(t => t.id === id ? { ...t, isThinking: false } : t));
       }
@@ -155,7 +159,6 @@ const OmniBot: React.FC<OmniBotProps> = ({ state, onClose, onExecuteTool, style,
       style={style} 
       className={`bg-obsidian-950 border border-white/10 flex flex-col overflow-hidden animate-in fade-in duration-500 shadow-[0_60px_150px_rgba(0,0,0,1)] ${isEmbedded ? 'w-full h-full' : 'fixed inset-x-10 bottom-10 top-20 rounded-2xl z-[3100]'}`}
     >
-      {/* GLOBAL HUB HEADER */}
       <div className="h-16 bg-obsidian-850 border-b border-white/10 flex items-center justify-between px-6 shrink-0 relative z-50">
          <div className="flex items-center gap-8">
             <div className="flex items-center gap-4">
@@ -167,15 +170,6 @@ const OmniBot: React.FC<OmniBotProps> = ({ state, onClose, onExecuteTool, style,
                   <span className="text-[8px] font-mono text-primary uppercase tracking-[0.4em] mt-1 font-bold">10-Body_Equilibrium_Enabled</span>
                </div>
             </div>
-            <div className="h-8 w-px bg-white/10"></div>
-            <div className="flex items-center gap-3">
-               <span className="text-[10px] font-black text-obsidian-400 uppercase tracking-widest">Active_Bodies:</span>
-               <div className="flex gap-1.5">
-                  {Array.from({ length: 11 }).map((_, i) => (
-                    <div key={i} className={`size-2 rounded-full transition-all duration-500 ${i < threads.length ? 'bg-primary shadow-[0_0_8px_var(--xi-accent)]' : 'bg-obsidian-700 opacity-30'}`}></div>
-                  ))}
-               </div>
-            </div>
          </div>
 
          <div className="flex items-center gap-4">
@@ -185,49 +179,28 @@ const OmniBot: React.FC<OmniBotProps> = ({ state, onClose, onExecuteTool, style,
             >
                {swarmMode ? 'Broadcast_Locked' : 'Single_Channel'}
             </button>
-            <button onClick={onClose} className="size-10 rounded-xl hover:bg-red-900/40 flex items-center justify-center text-obsidian-400 hover:text-white transition-all border border-white/5">
-               <span className="material-symbols-outlined">close</span>
-            </button>
+            {!isEmbedded && (
+               <button onClick={onClose} className="size-10 rounded-xl hover:bg-red-900/40 flex items-center justify-center text-obsidian-400 hover:text-white transition-all border border-white/5">
+                  <span className="material-symbols-outlined">close</span>
+               </button>
+            )}
          </div>
       </div>
 
-      {/* SWARM MANIFOLD: HORIZONTAL THREADS */}
       <div className="flex-1 flex overflow-x-auto custom-scrollbar bg-black/20 p-4 gap-4 items-stretch group/manifold">
          {threads.map((thread, tIdx) => (
            <div 
              key={thread.id} 
              className={`flex flex-col min-w-[420px] max-w-[500px] bg-obsidian-800 border border-white/10 rounded-2xl overflow-hidden transition-all duration-500 hover:border-primary/30 shadow-2xl relative ${thread.isThinking ? 'ring-1 ring-primary/20' : ''}`}
            >
-              {/* THREAD TELEMETRY */}
               <div className="h-12 border-b border-white/5 bg-black/40 flex items-center justify-between px-5 shrink-0">
                  <div className="flex items-center gap-3">
                     <span className={`text-[10px] font-black italic tracking-widest ${tIdx === 0 ? 'text-primary' : 'text-cyan-400'}`}>{thread.name}</span>
                     <div className={`size-1.5 rounded-full ${thread.isThinking ? 'bg-primary animate-pulse' : 'bg-green-500 opacity-40'}`}></div>
                  </div>
-                 <div className="flex items-center gap-3">
-                    <button 
-                      onClick={() => spawnBranch(thread)}
-                      className="size-8 rounded-lg hover:bg-white/5 flex items-center justify-center text-obsidian-500 hover:text-primary transition-all"
-                      title="Branch Body from Context"
-                    >
-                       <span className="material-symbols-outlined text-[20px]">call_split</span>
-                    </button>
-                    {tIdx > 0 && (
-                      <button 
-                        onClick={() => setThreads(prev => prev.filter(t => t.id !== thread.id))}
-                        className="size-8 rounded-lg hover:bg-red-900/20 flex items-center justify-center text-obsidian-600 hover:text-red-400 transition-all"
-                      >
-                         <span className="material-symbols-outlined text-[20px]">delete_sweep</span>
-                      </button>
-                    )}
-                 </div>
               </div>
 
-              {/* MESSAGE STREAM */}
-              <div 
-                ref={el => scrollRefs.current[thread.id] = el}
-                className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar bg-obsidian-900/40"
-              >
+              <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar bg-obsidian-900/40">
                  {thread.messages.map((m) => (
                    <div key={m.id} className={`flex flex-col ${m.role === 'user' ? 'items-end' : 'items-start'} animate-in fade-in slide-in-from-bottom-2`}>
                       <div className={`max-w-[92%] p-5 rounded-2xl border transition-all ${m.role === 'user' ? 'bg-primary text-black border-primary/20 shadow-lg' : 'bg-obsidian-800 border-white/5 text-obsidian-50 shadow-xl'}`}>
@@ -235,56 +208,28 @@ const OmniBot: React.FC<OmniBotProps> = ({ state, onClose, onExecuteTool, style,
                            <div key={bIdx} className="mb-4 last:mb-0">
                               {block.type === 'text' && <p className={`text-[12px] leading-relaxed ${m.role === 'model' ? 'italic font-medium' : 'font-bold uppercase tracking-tight'}`}>{block.content}</p>}
                               {block.type !== 'text' && (
-                                <div className="rounded-xl bg-black/60 border border-white/10 overflow-hidden my-4">
-                                   <div className="px-4 py-2 border-b border-white/5 bg-black/40 flex justify-between items-center text-[8px] font-black text-obsidian-500 uppercase tracking-widest">
-                                      <span>{block.type === 'vector' ? 'Geometry' : 'Logic'}</span>
-                                      <button onClick={() => navigator.clipboard.writeText(block.content)} className="text-primary hover:text-white transition-colors">Copy_0x</button>
-                                   </div>
+                                <div className="rounded-xl bg-black/60 border border-white/10 overflow-hidden my-4 relative group/block">
                                    <pre className="p-4 text-[10px] font-mono text-cyan-400/90 overflow-x-auto custom-scrollbar leading-relaxed">
                                       {block.content}
                                    </pre>
+                                   <button 
+                                      onClick={() => onExecuteTool('SYNC_TO_MANIFEST', { type: block.type === 'vector' ? 'vector' : 'logic_kernel', name: 'AI_SYNTH_SHARD', data: block.content })}
+                                      className="absolute top-2 right-2 px-3 py-1 bg-primary text-black rounded text-[8px] font-black uppercase tracking-widest opacity-0 group-hover/block:opacity-100 transition-opacity shadow-lg hover:bg-white"
+                                   >
+                                      SYNC_TO_MANIFEST
+                                   </button>
                                 </div>
                               )}
                            </div>
                          ))}
-                         {m.role === 'model' && (
-                           <div className="mt-6 pt-3 border-t border-white/5 flex justify-between items-center opacity-30">
-                              <span className="text-[7px] font-mono text-obsidian-400 uppercase tracking-widest">{thread.activeModel.replace('gemini-3-', 'G3_')}</span>
-                              <span className="text-[7px] font-mono text-obsidian-400 tabular-nums">{m.telemetry?.latency}ms</span>
-                           </div>
-                         )}
                       </div>
                    </div>
                  ))}
-                 {thread.isThinking && (
-                   <div className="flex flex-col items-start gap-3">
-                      <div className="bg-obsidian-800 px-6 py-4 rounded-2xl border border-white/10 flex gap-2">
-                         <div className="size-1.5 rounded-full bg-primary animate-bounce"></div>
-                         <div className="size-1.5 rounded-full bg-primary animate-bounce [animation-delay:-0.15s]"></div>
-                         <div className="size-1.5 rounded-full bg-primary animate-bounce [animation-delay:-0.3s]"></div>
-                      </div>
-                   </div>
-                 )}
               </div>
            </div>
          ))}
-         
-         {/* ADD BODY PLACEHOLDER */}
-         {threads.length < 11 && (
-           <button 
-             onClick={() => spawnBranch(threads[0])}
-             className="min-w-[420px] flex flex-col items-center justify-center border-2 border-dashed border-white/5 bg-black/10 rounded-2xl group hover:border-primary/20 transition-all opacity-40 hover:opacity-100"
-           >
-              <div className="size-16 rounded-full bg-obsidian-900 border border-white/10 flex items-center justify-center text-obsidian-600 group-hover:bg-primary group-hover:text-black transition-all mb-6">
-                 <span className="material-symbols-outlined text-[32px]">add</span>
-              </div>
-              <span className="text-[12px] font-black text-obsidian-500 uppercase tracking-[0.4em] italic group-hover:text-primary">Branch_Body_{threads.length.toString().padStart(2, '0')}</span>
-              <p className="text-[9px] text-obsidian-700 italic mt-2 uppercase tracking-widest">Clone context for recursive reasoning</p>
-           </button>
-         )}
       </div>
 
-      {/* INPUT CONTROL HUB */}
       <div className="p-8 bg-obsidian-850 border-t border-white/10 flex flex-col gap-6 shrink-0 shadow-[0_-20px_50px_rgba(0,0,0,0.5)]">
          <div className="bg-obsidian-950 border border-white/10 rounded-xl p-5 shadow-inner focus-within:border-primary/40 transition-all relative group">
             <textarea 
@@ -292,47 +237,22 @@ const OmniBot: React.FC<OmniBotProps> = ({ state, onClose, onExecuteTool, style,
                value={input}
                onChange={(e) => setInput(e.target.value)}
                onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleDispatch(swarmMode ? threads.map(t => t.id) : [threads[threads.length-1].id]); } }}
-               placeholder={swarmMode ? "Issue SWARM DIRECTIVE to all bodies..." : "Issue body directive..."}
+               placeholder={swarmMode ? "Issue SWARM DIRECTIVE..." : "Issue body directive..."}
                className="w-full bg-transparent border-none text-[15px] font-bold text-obsidian-50 outline-none resize-none h-24 leading-relaxed placeholder:text-obsidian-800 placeholder:italic scrollbar-hide relative z-10"
             />
-            <div className="absolute top-0 right-0 p-4 opacity-5 group-focus-within:opacity-20 transition-opacity">
-               <span className="material-symbols-outlined text-[64px] text-primary rotate-12">{swarmMode ? 'hub' : 'polyline'}</span>
-            </div>
-            <div className="flex justify-between items-center mt-3 opacity-30 group-focus-within:opacity-80 transition-opacity relative z-10">
-               <span className="text-[9px] font-black text-obsidian-500 uppercase tracking-widest italic">Signal: {swarmMode ? 'SWARM_PARALLEL' : 'DIRECT_THREAD'}</span>
-               <span className="text-[9px] font-mono text-primary uppercase italic font-bold">Shift+Enter for multi-line logic</span>
-            </div>
          </div>
          
          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-               <button 
-                  onClick={() => handleDispatch(swarmMode ? threads.map(t => t.id) : [threads[threads.length-1].id])} 
-                  disabled={!input.trim() || threads.some(t => t.isThinking)} 
-                  className={`px-16 h-14 rounded-2xl font-black uppercase text-[12px] tracking-[0.3em] shadow-2xl transition-all active:scale-95 relative overflow-hidden group ${swarmMode ? 'bg-amber-500 text-black' : 'bg-primary text-black'}`}
-               >
-                  <span className="relative z-10 flex items-center gap-4">
-                     <span className="material-symbols-outlined">{swarmMode ? 'broadcast_on_home' : 'bolt'}</span>
-                     {swarmMode ? 'Broadcast' : 'Dispatch'}
-                  </span>
-                  <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform"></div>
-               </button>
-               <button 
-                  onClick={() => spawnBranch(threads[threads.length-1])}
-                  title="Branch Context"
-                  className="size-14 rounded-2xl bg-obsidian-950 border border-white/10 flex items-center justify-center text-obsidian-500 hover:text-primary hover:border-primary/40 transition-all shadow-xl"
-               >
-                  <span className="material-symbols-outlined text-[28px]">call_split</span>
-               </button>
-            </div>
-            
-            <div className="flex flex-col items-end gap-1.5 opacity-60">
-               <div className="flex items-center gap-3">
-                  <div className="size-2 rounded-full bg-green-500 shadow-[0_0_10px_green]"></div>
-                  <span className="text-[12px] font-mono text-primary italic font-bold tracking-tight">{state.credits.toLocaleString()} CORE_YIELD</span>
-               </div>
-               <span className="text-[8px] font-black uppercase tracking-[0.5em] text-obsidian-500">Sovereign_Swarm_Manifold_v1.0</span>
-            </div>
+            <button 
+                onClick={() => handleDispatch(swarmMode ? threads.map(t => t.id) : [threads[threads.length-1].id])} 
+                disabled={!input.trim() || threads.some(t => t.isThinking)} 
+                className={`px-16 h-14 rounded-2xl font-black uppercase text-[12px] tracking-[0.3em] shadow-2xl transition-all active:scale-95 relative overflow-hidden group ${swarmMode ? 'bg-amber-500 text-black' : 'bg-primary text-black'}`}
+            >
+                <span className="relative z-10 flex items-center gap-4">
+                    <span className="material-symbols-outlined">{swarmMode ? 'broadcast_on_home' : 'bolt'}</span>
+                    {swarmMode ? 'Broadcast' : 'Dispatch'}
+                </span>
+            </button>
          </div>
       </div>
     </div>
