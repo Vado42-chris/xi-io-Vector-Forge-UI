@@ -1,20 +1,161 @@
+# VectorForge - Professional Vector Graphics Editor
+
 <div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+  <h3>Web-based vector graphics editor with animation capabilities</h3>
+  <p>Built with React, TypeScript, and the Xibalba Framework</p>
 </div>
 
-# Run and deploy your AI Studio app
+## What is VectorForge?
 
-This contains everything you need to run your app locally.
+VectorForge is a **team-based professional vector graphics editor** that runs in your web browser. Think Adobe Illustrator meets Flash, built for the modern web with React and TypeScript. VectorForge is designed for both solo creators and teams, with integrated task management, sprint planning, and collaboration features as core baseline functionality.
 
-View your app in AI Studio: https://ai.studio/apps/drive/1ACJN6oTdsIv4_V4Nqd9YlhOiY_MPUxEa
+### Key Features
 
-## Run Locally
+- 🎨 **Vector Drawing Tools** - Create shapes, paths, and illustrations
+- 🎬 **Animation Timeline** - Animate your vector graphics with keyframes
+- 👥 **Team Collaboration** - Built-in task management, sprint planning, and document management
+- 📋 **Action Center** - Surfaces highest-priority team actions and workflows
+- 🧩 **Modular Architecture** - Extensible plugin system (planned)
+- 🔒 **Security First** - Code sandboxing and secure execution
+- 🎯 **Professional UI** - Adobe-level interface with customizable layouts
+- 🤖 **AI Integration** - Local AI support for creative assistance
+- 🔌 **API Black Hole** - Unified API abstraction for team workflows
 
-**Prerequisites:**  Node.js
+## Current Status
 
+**Version:** 0.0.0 (Pre-Alpha)  
+**Status:** Core infrastructure complete, feature development in progress  
+**Completion:** ~35% of MVP features
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+### What Works Now
+
+✅ Basic vector drawing (rectangle, ellipse, paths)  
+✅ Layer management  
+✅ Animation timeline UI  
+✅ File operations (new, save, open)  
+✅ Workflow layout switching  
+✅ Error logging & diagnostics  
+✅ **Team collaboration** - Task management, sprint planning, Action Center  
+✅ **Task-to-VectorForge linking** - Link tasks to layers, keyframes, scripts
+
+### What's Coming
+
+🔄 Complete drawing tool suite  
+🔄 Animation interpolation & export  
+🔄 Advanced path operations  
+🔄 Plugin system & marketplace  
+🔄 Enhanced team collaboration features
+
+## Quick Start
+
+**📋 [Quick Start Guide](QUICK_START.md)** - For external reviewers and first-time users
+
+### Prerequisites
+
+- Node.js 18+
+- npm or yarn
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/Vado42-chris/xi-io-Vector-Forge-UI.git
+cd xi-io-Vector-Forge-UI
+
+# Install dependencies
+npm install
+
+# Set up environment (optional)
+cp .env.example .env.local
+# Add your GEMINI_API_KEY if using AI features
+
+# Start development server
+npm run dev
+```
+
+The app will be available at `http://localhost:3000`
+
+**For external reviewers:** See [QUICK_START.md](QUICK_START.md) for detailed setup instructions.
+
+### Building for Production
+
+```bash
+npm run build
+```
+
+Output will be in the `dist/` directory.
+
+## Project Structure
+
+```
+vectorforge/
+├── components/          # React components (51 files)
+├── services/            # Business logic services (29 files)
+├── types/               # TypeScript type definitions
+├── styles/              # CSS and styling
+├── data/                # Static data (registry, layouts)
+├── docs/                # Documentation
+├── architecture/        # Architecture documentation
+└── scripts/             # Build and utility scripts
+```
+
+## Documentation
+
+**📚 [Complete Documentation Index](docs/DOCUMENTATION_INDEX.md)** - Start here!
+
+### Quick Links
+
+**For Users:**
+
+- [User Guide](docs/USER_GUIDE.md) - How to use VectorForge
+- [Development Cycle](docs/DEVELOPMENT_CYCLE.md) - Understanding development
+
+**For Developers:**
+
+- [Developer Guide](docs/DEVELOPER_GUIDE.md) - Architecture and patterns
+- [GitHub Handoff](docs/GITHUB_HANDOFF.md) - Continuing development
+- [Build Failures](docs/BUILD_FAILURES_AND_FIXES.md) - Known issues
+
+**For Project Management:**
+
+- [Feature Completion](docs/FEATURE_COMPLETION_ASSESSMENT.md) - What's done (35% MVP)
+- [Project Status](docs/PROJECT_STATUS.md) - Current state
+- [Feature Roadmap](docs/FEATURE_ROADMAP.md) - What's planned
+
+**For Design/UX:**
+
+- [Educational Usability](docs/EDUCATIONAL_USABILITY.md) - Usability principles
+- [Architecture](architecture/MODULAR_DESIGN.md) - System design
+
+## Technology Stack
+
+- **Frontend:** React 18, TypeScript 5.8
+- **Build Tool:** Vite 6
+- **Styling:** Tailwind CSS + Custom Xibalba Framework
+- **State Management:** React Hooks
+- **Vector Graphics:** SVG
+- **Animation:** Custom timeline system
+
+## Contributing
+
+This project is in active development. See [DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md) for contribution guidelines.
+
+## License
+
+[Add your license here]
+
+## Support
+
+For issues, feature requests, or questions:
+
+- Check the [documentation](docs/)
+- Review [known issues](docs/PROJECT_STATUS.md#known-issues)
+- Open an issue on GitHub
+
+## Roadmap
+
+See [FEATURE_ROADMAP.md](docs/FEATURE_ROADMAP.md) for detailed roadmap.
+
+---
+
+**Built with ❤️ using the Xibalba Framework**
