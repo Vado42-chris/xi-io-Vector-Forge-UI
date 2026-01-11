@@ -24,11 +24,15 @@ jobs:
       run: npm ci
 
     - name: Run type check
-      run: npx tsc --noEmit || echo "TypeScript check completed with warnings (build will continue)"
       continue-on-error: true
+      run: npx tsc --noEmit || echo "TypeScript check completed with warnings (build will continue)"
 
     - name: Build project
-      run: npm run build
+      run: |
+        npm run build || {
+          echo "❌ Build failed"
+          exit 1
+        }
 
     - name: Check build output
       run: |
